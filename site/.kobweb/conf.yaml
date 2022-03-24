@@ -1,0 +1,13 @@
+site:
+  title: "Do Crimes"
+
+server:
+  files:
+    dev:
+      contentRoot: "build/processedResources/js/main/public"
+      script: "../build/js/packages/racketeer/kotlin/racketeer.js"
+      api: "build/libs/racketeer.jar"
+    prod:
+      siteRoot: ".kobweb/site"
+
+  port: 8080

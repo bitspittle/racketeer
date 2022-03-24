@@ -1,0 +1,18 @@
+{
+  "hosting": {
+    "site": "racketeer",
+    "public": ".kobweb/site",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "cleanUrls": true
+  }
+}

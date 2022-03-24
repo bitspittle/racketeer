@@ -1,0 +1,8 @@
+# Firebase
+.firebase
+
+# Kobweb ignores
+.kobweb/*
+!.kobweb/conf.yaml
+!.kobweb/conf.yaml.ftl
+!.kobweb/template.yaml
