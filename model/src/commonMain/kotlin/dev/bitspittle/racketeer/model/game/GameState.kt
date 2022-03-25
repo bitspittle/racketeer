@@ -4,9 +4,15 @@ import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
 
 class GameState(
-    private val config: GameConfig,
+    val config: GameConfig,
 ) {
     var turn = 0
+        private set
+
+    var cash = 0
+        private set
+
+    var influence = 0
         private set
 
     var victoryPoints = 0
