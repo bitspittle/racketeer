@@ -2,6 +2,9 @@
 jetbrains-compose = "1.0.1"
 kobweb = "0.9.10"
 kotlin = "1.6.10"
+kotter = "0.9.6"
+truthish = "0.6.0"
+yamlkt = "0.10.2"
 
 [libraries]
 kobweb-api = { module = "com.varabyte.kobweb:kobweb-api", version.ref = "kobweb" }
@@ -9,6 +12,11 @@ kobweb-core = { module = "com.varabyte.kobweb:kobweb-core ", version.ref = "kobw
 kobweb-silk-core = { module = "com.varabyte.kobweb:kobweb-silk", version.ref = "kobweb" }
 kobweb-silk-icons-fa = { module = "com.varabyte.kobweb:kobweb-silk-icons-fa", version.ref = "kobweb" }
 kobwebx-markdown = { module = "com.varabyte.kobwebx:kobwebx-markdown", version.ref = "kobweb" }
+kotlin-test-common = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+kotlin-test-annotations-common = { module = "org.jetbrains.kotlin:kotlin-test-annotations-common", version.ref = "kotlin" }
+kotter = { module = "com.varabyte.kotter:kotter", version.ref = "kotter" }
+truthish = { module = "com.varabyte.truthish:truthish", version.ref = "truthish" }
+yamlkt = { module = "net.mamoe.yamlkt:yamlkt", version.ref = "yamlkt" }
 
 [plugins]
 jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "jetbrains-compose" }
@@ -16,3 +24,4 @@ kobweb-application = { id = "com.varabyte.kobweb.application", version.ref = "ko
 kobwebx-markdown = { id = "com.varabyte.kobwebx.markdown", version.ref = "kobweb" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

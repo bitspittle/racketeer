@@ -1,28 +1,32 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 group = "dev.bitspittle.racketeer.model"
+
+repositories {
+    maven("https://us-central1-maven.pkg.dev/varabyte-repos/public")
+}
 
 kotlin {
     jvm()
     js(IR) {
         browser()
     }
-//    sourceSets {
-//        val commonMain by getting {
-//            dependencies {
-//            }
-//        }
-//
-//        val jsMain by getting {
-//            dependencies {
-//            }
-//        }
-//
-//        val jvmMain by getting {
-//            dependencies {
-//            }
-//        }
-//    }
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation(libs.yamlkt)
+            }
+        }
+
+        val commonTest by getting {
+            dependencies {
+                implementation(libs.truthish)
+                implementation(libs.kotlin.test.common)
+                implementation(libs.kotlin.test.annotations.common)
+            }
+        }
+    }
 }

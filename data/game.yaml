@@ -1,0 +1,9 @@
+config:
+  initialHandSize: 4
+cards:
+  - name: Pickpocket
+    cost: 1
+    influence: 0
+  - name: Rumormonger
+    cost: 0
+    influence: 1
