@@ -1,10 +1,10 @@
 config:
   title: Do Crimes
   icons:
-    cash: "$"
-    influence: "!"
-    luck: "?"
-    victoryPoints: "*"
+    cash: "💰"
+    influence: "🤝"
+    luck: "🎲"
+    victoryPoints: "⭐"
   initialHandSize: 4
   initialLuck: 5
   shopPrices:
