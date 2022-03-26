@@ -9,5 +9,6 @@ class GameContext(
     val config: GameConfig,
     val describers: Describers,
     val state: GameState,
-    val viewStack: ViewStack
+    val viewStack: ViewStack,
+    val quit: () -> Unit,
 )

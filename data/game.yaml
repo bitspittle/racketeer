@@ -1,4 +1,5 @@
 config:
+  title: Do Crimes
   icons:
     cash: "$"
     influence: "!"

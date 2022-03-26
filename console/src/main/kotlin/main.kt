@@ -5,19 +5,6 @@ import kotlin.io.path.Path
 import kotlin.io.path.readText
 
 fun main() {
-//    run {
-//        val gameData = GameData(
-//            GameConfig(4),
-//            cards = listOf(
-//                CardTemplate(
-//                    "Example",
-//                    2,
-//                    4
-//                )
-//            )
-//        )
-//    }
-
     val gameData =
         Yaml.decodeFromString(GameData.serializer(), Path("gamedata.yaml").readText(Charsets.UTF_8))
 

@@ -4,9 +4,9 @@ import dev.bitspittle.racketeer.console.GameContext
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.model.card.Card
 
-class PlayCardCommand(ctx: GameContext, card: Card) : Command {
-    override val title = "Play ${ctx.describers.describe(card)}"
+class EndTurnCommand(ctx: GameContext) : Command {
+    override val title = "End turn"
 
-    override val description = ctx.describers.describe(card, includeFlavor = true)
+    override val description = "Finish this turn. Any leftover money will be discarded and the shop restocked with random items."
 }
 

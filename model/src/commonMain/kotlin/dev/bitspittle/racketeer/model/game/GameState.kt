@@ -24,6 +24,9 @@ class GameState(
     var handSize = config.initialHandSize
         private set
 
+    var shopTier = 0
+        private set
+
     private val _shop = mutableListOf<CardTemplate>()
     private val _street = mutableListOf<Card>()
     private val _deck = mutableListOf<Card>()

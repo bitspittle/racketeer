@@ -2,12 +2,12 @@ package dev.bitspittle.racketeer.console.view.views
 
 import dev.bitspittle.racketeer.console.GameContext
 import dev.bitspittle.racketeer.console.command.Command
-import dev.bitspittle.racketeer.console.command.commands.BuyCardCommand
-import dev.bitspittle.racketeer.console.command.commands.ExpandShopCommand
+import dev.bitspittle.racketeer.console.command.commands.ViewCardCommand
 import dev.bitspittle.racketeer.console.view.View
+import dev.bitspittle.racketeer.model.game.GameConfig
 import dev.bitspittle.racketeer.model.game.GameState
 
-class BrowseShopView(ctx: GameContext) : View(ctx) {
+class BrowseDiscardView(ctx: GameContext) : View(ctx) {
     override val commands: List<Command> =
-        ctx.state.shop.map { card -> BuyCardCommand(ctx, card) } + listOf(ExpandShopCommand(ctx))
+        ctx.state.discard.map { card -> ViewCardCommand(ctx, card) }
 }

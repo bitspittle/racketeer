@@ -2,10 +2,10 @@ package dev.bitspittle.racketeer.console.command.commands
 
 import dev.bitspittle.racketeer.console.GameContext
 import dev.bitspittle.racketeer.console.command.Command
-import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.card.CardTemplate
 
-class PlayCardCommand(ctx: GameContext, card: Card) : Command {
-    override val title = "Play ${ctx.describers.describe(card)}"
+class BuyCardCommand(ctx: GameContext, card: CardTemplate) : Command {
+    override val title = "Buy ${ctx.describers.describe(card)}"
 
     override val description = ctx.describers.describe(card, includeFlavor = true)
 }
