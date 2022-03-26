@@ -1,7 +1,22 @@
 config:
+  icons:
+    cash: "$"
+    influence: "!"
+    luck: "?"
+    victoryPoints: "*"
   initialHandSize: 4
+  initialLuck: 5
+  shopPrices:
+    tier2: 5
+    tier3: 10
+    tier4: 15
+    tier5: 20
 cards:
   - name: Pickpocket
+    flavor: A scrubby urchin who sneaks coins out of the pockets of unsuspecting marks.
     cash: 1
+    actions: []
   - name: Rumormonger
+    flavor: A slick-haired youth who whispers misinformation into gossiping ears.
     influence: 1
+    actions: []

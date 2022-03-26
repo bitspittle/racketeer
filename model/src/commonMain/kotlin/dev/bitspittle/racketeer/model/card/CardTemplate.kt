@@ -1,30 +1,34 @@
 package dev.bitspittle.racketeer.model.card
 
+import dev.bitspittle.racketeer.model.action.Action
+import dev.bitspittle.racketeer.model.game.GameIcons
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class CardTemplate(
     val name: String,
+    val flavor: String,
+    val actions: List<Action>,
     val cash: Int = 0,
     val influence: Int = 0,
 ) {
     fun instantiate() = Card(this)
+}
 
-    override fun toString(): String {
+class Card internal constructor(val template: CardTemplate)
+
+class CardDescriber(private val icons: GameIcons) {
+    fun toDisplayString(cardTemplate: CardTemplate): String {
         return buildString {
-            append(name)
-            if (cash > 0) {
-                append(" \uD83E\uDE99 $cash")
+            append(cardTemplate.name)
+            if (cardTemplate.cash > 0) {
+                append(" ${icons.cash} ${cardTemplate.cash}")
             }
-            if (influence > 0) {
-                append(" \uD83E\uDD1D $influence")
+            if (cardTemplate.influence > 0) {
+                append(" ${icons.influence} ${cardTemplate.influence}")
             }
         }
     }
-}
 
-class Card internal constructor(val template: CardTemplate) {
-    override fun toString(): String {
-        return template.toString()
-    }
+    fun toDisplayString(card: Card): String = toDisplayString(card.template)
 }

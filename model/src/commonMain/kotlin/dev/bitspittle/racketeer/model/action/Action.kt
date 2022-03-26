@@ -1,10 +1,4 @@
-//package dev.bitspittle.racketeer.model.action
-//
-//import dev.bitspittle.racketeer.model.game.GameState
-//
-//interface Action {
-//    val title: String
-//
-//    fun runPrimary(gameState: GameState): ActionGroup?
-//    fun runSecondary(gameState: GameState): ActionGroup? = null
-//}
+package dev.bitspittle.racketeer.model.action
+
+// TODO: An action will be something that occurs when you play a card
+interface Action

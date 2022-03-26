@@ -5,8 +5,6 @@ import dev.bitspittle.racketeer.console.command.Command
 object BrowseShopCommand : Command {
     override val title = "Browse shop"
 
-//    override fun runPrimary(gameState: GameState): ActionGroup? {
-//        return null
-//    }
+    override val description = "Look over the cards in the shop, or take other relevant actions."
 }
 
