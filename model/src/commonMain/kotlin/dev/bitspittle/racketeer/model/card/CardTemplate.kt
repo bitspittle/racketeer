@@ -11,6 +11,7 @@ data class CardTemplate(
     val actions: List<Action>,
     val cash: Int = 0,
     val influence: Int = 0,
+    val victoryPoints: Int = 0,
 ) {
     fun instantiate() = Card(this)
 }
