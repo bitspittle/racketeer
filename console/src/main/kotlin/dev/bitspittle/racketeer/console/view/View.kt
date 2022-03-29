@@ -5,6 +5,8 @@ import com.varabyte.kotter.foundation.input.Keys
 import com.varabyte.kotter.foundation.text.black
 import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.runtime.render.RenderScope
+import com.varabyte.kotterx.decorations.BorderCharacters
+import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.racketeer.console.GameContext
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.view.views.ConfirmQuitView
@@ -43,7 +45,9 @@ abstract class View(protected val ctx: GameContext) {
             commandsSection.currCommand.description?.let { description ->
                 textLine()
                 black(isBright = true) {
-                    textLine(description)
+                    bordered(borderCharacters = BorderCharacters.CURVED, paddingLeftRight = 1) {
+                        textLine(description)
+                    }
                 }
                 textLine()
             }
