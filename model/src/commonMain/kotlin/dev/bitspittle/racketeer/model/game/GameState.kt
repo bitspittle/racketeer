@@ -18,7 +18,7 @@ class GameState(
     var luck = 0
         private set
 
-    var victoryPoints = 0
+    var vp = 0
         private set
 
     var handSize = config.initialHandSize

@@ -61,7 +61,7 @@ abstract class View(protected val ctx: GameContext) {
     private fun RenderScope.renderHeader() {
         val icons = ctx.config.icons
         val state = ctx.state
-        textLine("${icons.cash} ${state.cash} ${icons.influence} ${state.influence} ${icons.luck} ${state.luck} ${icons.victoryPoints} ${state.victoryPoints}")
+        textLine("${icons.cash} ${state.cash} ${icons.influence} ${state.influence} ${icons.luck} ${state.luck} ${icons.vp} ${state.vp}")
         textLine()
         textLine("Turn ${state.turn + 1}")
         textLine()

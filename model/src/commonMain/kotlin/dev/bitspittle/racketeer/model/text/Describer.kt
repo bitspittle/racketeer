@@ -11,13 +11,13 @@ class Describers(private val config: GameConfig) {
     fun describe(template: CardTemplate, includeFlavor: Boolean = false): String {
         return buildString {
             append(template.name)
-            if (template.cash > 0) {
+            if (template.cost.cash > 0) {
                 append(' ')
-                append(describeCash(template.cash))
+                append(describeCash(template.cost.cash))
             }
-            if (template.influence > 0) {
+            if (template.cost.influence > 0) {
                 append(' ')
-                append(describeInfluence(template.influence))
+                append(describeInfluence(template.cost.influence))
             }
 
             if (includeFlavor) {
