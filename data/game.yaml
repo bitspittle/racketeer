@@ -10,41 +10,60 @@ config:
   initialDeck:
     - Pickpocket 5
     - Rumormonger 3
+  tiers:
+    - name: Common
+      frequency: 5
+    - name: Uncommon
+      frequency: 4
+    - name: Rare
+      frequency: 3
+    - name: Scarce
+      frequency: 2
+    - name: Legendary
+      frequency: 1
   shopPrices:
     - 5
     - 10
     - 15
     - 20
-  tierFrequencies:
-    - 5
-    - 4
-    - 3
-    - 2
-    - 1
+
 cards:
   - name: Pickpocket
-    flavor: A scrubby urchin who sneaks coins out of the pockets of unsuspecting marks.
-    cash: 1
-    actions: [] # TODO: Add 1$
+    flavor: A scrubby urchin who pilfers coins out of the pockets of unsuspecting pedestrians.
+    cost:
+      cash: 1
+    actions:
+      - addresource 'cash 1
   - name: Rumormonger
     flavor: A slick-haired youth who whispers misinformation into gossiping ears.
-    influence: 1
-    actions: [] # TODO: Add 1&
+    cost:
+      influence: 1
+    actions:
+      - addresource 'influence 1
   - name: Smuggle
     flavor: Set up a route that allows you to sneak in illicit goods without attracting attention.
-    cash: 2
-    influence: 1
-    actions: [] # TODO: Draw two cards from your deck
-  - name: Backstab
+    cost:
+      cash: 2
+      influence: 1
+    actions:
+      - draw 2
+  - name: Snitch
     flavor: Send a card in your hand to jail.
-    cash: 1
-    actions: [] # TODO: Burn a card in your hand
+    cost:
+      cash: 1
+    actions:
+      - moveto 'jail (choose 'hand 1)
   - name: Steal
     flavor: Get a card from the shop without paying for it.
-    cash: 5
-    actions: [] # TODO: Choose a card from the shop
+    cost:
+      cash: 5
+    actions:
+      - copyto 'discard (choose 'shop 1)
   - name: Politician
     flavor: It always helps to have someone from the government in your back pocket.
-    cash: 5
-    influence: 4
-    actions: [] # Spend 2& to add 1*
+    cost:
+      cash: 5
+      influence: 4
+    actions:
+      - set $spent spend 'influence --step 2 --max 2
+      - addstat 'this 'vp (/ $spent 2)

@@ -1,6 +1,5 @@
 package dev.bitspittle.racketeer.model.card
 
-import dev.bitspittle.racketeer.model.action.Action
 import kotlinx.serialization.Serializable
 
 /**
@@ -12,12 +11,17 @@ import kotlinx.serialization.Serializable
 data class CardTemplate(
     val name: String,
     val flavor: String,
-    val actions: List<Action>,
-    val tier: Int = 1,
-    val cash: Int = 0,
-    val influence: Int = 0,
+    val tier: Int = 0,
     val victoryPoints: Int = 0,
+    val cost: Cost = Cost(),
+    val actions: List<String> = listOf(),
 ) {
+    @Serializable
+    data class Cost(
+        val cash: Int = 0,
+        val influence: Int = 0,
+    )
+
     fun instantiate() = Card(this)
 }
 
