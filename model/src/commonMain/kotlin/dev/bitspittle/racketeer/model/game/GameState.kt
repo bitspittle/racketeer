@@ -38,7 +38,10 @@ class GameState(
 
             val card = data.cards.single { it.name == cardName }
             List(count) { card.instantiate() }
-        }.toMutableList()
+        }
+        .toMutableList()
+        .shuffled()
+
     private val _hand = mutableListOf<Card>()
 
     private val _street = mutableListOf<Card>()
