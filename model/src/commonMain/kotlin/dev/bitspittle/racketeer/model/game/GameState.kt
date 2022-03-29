@@ -2,10 +2,13 @@ package dev.bitspittle.racketeer.model.game
 
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
+import dev.bitspittle.racketeer.model.card.Pile
 
 class GameState(
-    private val config: GameConfig,
+    private val data: GameData,
 ) {
+    private val config = data.config
+
     var turn = 0
         private set
 
@@ -28,16 +31,25 @@ class GameState(
         private set
 
     private val _shop = mutableListOf<CardTemplate>()
-    private val _street = mutableListOf<Card>()
-    private val _deck = mutableListOf<Card>()
+    private val _deck = config.initialDeck
+        .flatMap {  entry ->
+            val cardName = entry.substringBeforeLast(' ')
+            val count = entry.substringAfterLast(' ', missingDelimiterValue = "").toIntOrNull() ?: 1
+
+            val card = data.cards.single { it.name == cardName }
+            List(count) { card.instantiate() }
+        }.toMutableList()
     private val _hand = mutableListOf<Card>()
+
+    private val _street = mutableListOf<Card>()
     private val _discard = mutableListOf<Card>()
     private val _jail = mutableListOf<Card>()
 
     val shop: List<CardTemplate> = _shop
-    val street: List<Card> = _street
-    val deck: List<Card> = _deck
-    val hand: List<Card> = _hand
-    val discard: List<Card> = _discard
-    val jail: List<Card> = _jail
+
+    val deck: Pile = Pile(_deck)
+    val street: Pile = Pile(_street)
+    val hand: Pile = Pile(_hand)
+    val discard: Pile = Pile(_discard)
+    val jail: Pile = Pile(_jail)
 }

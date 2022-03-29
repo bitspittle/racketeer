@@ -38,7 +38,7 @@ class GameSession(
         val ctx = GameContext(
             gameData.config,
             Describers(gameData.config),
-            GameState(gameData.config),
+            GameState(gameData),
             viewStack,
             quit = { shouldQuit = true }
         )

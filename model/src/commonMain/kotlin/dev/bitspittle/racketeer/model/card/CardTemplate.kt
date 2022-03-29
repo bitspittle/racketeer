@@ -1,5 +1,6 @@
 package dev.bitspittle.racketeer.model.card
 
+import dev.bitspittle.racketeer.model.card.CardTemplate.Cost
 import kotlinx.serialization.Serializable
 
 /**
@@ -28,12 +29,4 @@ data class CardTemplate(
     }
 
     fun instantiate() = Card(this)
-}
-
-class Card internal constructor(val template: CardTemplate) {
-    /**
-     * Cards can earn victory points over the course of the game.
-     */
-    var vp = template.vp
-        private set
 }

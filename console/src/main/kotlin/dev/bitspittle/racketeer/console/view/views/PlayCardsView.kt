@@ -9,5 +9,5 @@ import dev.bitspittle.racketeer.console.view.View
 
 class PlayCardsView(ctx: GameContext) : View(ctx) {
     override val commands: List<Command> =
-        ctx.state.hand.map { card -> PlayCardCommand(ctx, card) } + listOf(BrowseShopCommand(ctx), BrowseDeckCommand(ctx))
+        ctx.state.hand.cards.map { card -> PlayCardCommand(ctx, card) } + listOf(BrowseShopCommand(ctx), BrowseDeckCommand(ctx))
 }
