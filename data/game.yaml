@@ -4,7 +4,7 @@ config:
     cash: "$" # "💰"
     influence: "&" # "🤝"
     luck: "?" # "🎲"
-    victoryPoints: "*" # "*"
+    vp: "*" # "*"
   initialHandSize: 4
   initialLuck: 5
   initialDeck:
