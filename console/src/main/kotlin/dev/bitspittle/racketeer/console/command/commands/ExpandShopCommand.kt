@@ -3,7 +3,7 @@ package dev.bitspittle.racketeer.console.command.commands
 import dev.bitspittle.racketeer.console.GameContext
 import dev.bitspittle.racketeer.console.command.Command
 
-class ExpandShopCommand(ctx: GameContext) : Command {
+class ExpandShopCommand(ctx: GameContext) : Command(ctx) {
     init {
         require(ctx.state.shopTier < 4) { "Shop already at max tier - Expand Shop item should be hidden" }
     }

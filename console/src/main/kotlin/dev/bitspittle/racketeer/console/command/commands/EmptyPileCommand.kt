@@ -6,7 +6,7 @@ import dev.bitspittle.racketeer.console.command.Command
 /**
  * A no-op command useful for indicating an empty pile.
  */
-class EmptyPileCommand(ctx: GameContext) : Command {
+class EmptyPileCommand(ctx: GameContext) : Command(ctx) {
     override val title = "(Empty pile)"
     override val description = "The current pile of cards you wanted to inspect is empty."
 }

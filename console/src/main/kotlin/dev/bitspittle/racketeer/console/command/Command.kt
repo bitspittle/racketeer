@@ -1,8 +1,10 @@
 package dev.bitspittle.racketeer.console.command
 
-interface Command {
-    val title: String
-    val description: String? get() = null
+import dev.bitspittle.racketeer.console.GameContext
 
-    fun invoke() = Unit
+abstract class Command(protected val ctx: GameContext) {
+    abstract val title: String
+    open val description: String? = null
+
+    open fun invoke() = Unit
 }

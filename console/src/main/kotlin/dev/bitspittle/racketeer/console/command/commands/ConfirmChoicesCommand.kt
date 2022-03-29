@@ -1,8 +1,9 @@
 package dev.bitspittle.racketeer.console.command.commands
 
+import dev.bitspittle.racketeer.console.GameContext
 import dev.bitspittle.racketeer.console.command.Command
 
-object ConfirmChoicesCommand : Command {
+class ConfirmChoicesCommand(ctx: GameContext) : Command(ctx) {
     override val title = "Confirm"
 }
 
