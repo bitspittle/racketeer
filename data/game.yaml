@@ -7,17 +7,44 @@ config:
     victoryPoints: "*" # "*"
   initialHandSize: 4
   initialLuck: 5
+  initialDeck:
+    - Pickpocket 5
+    - Rumormonger 3
   shopPrices:
-    tier2: 5
-    tier3: 10
-    tier4: 15
-    tier5: 20
+    - 5
+    - 10
+    - 15
+    - 20
+  tierFrequencies:
+    - 5
+    - 4
+    - 3
+    - 2
+    - 1
 cards:
   - name: Pickpocket
     flavor: A scrubby urchin who sneaks coins out of the pockets of unsuspecting marks.
     cash: 1
-    actions: []
+    actions: [] # TODO: Add 1$
   - name: Rumormonger
     flavor: A slick-haired youth who whispers misinformation into gossiping ears.
     influence: 1
-    actions: []
+    actions: [] # TODO: Add 1&
+  - name: Smuggle
+    flavor: Set up a route that allows you to sneak in illicit goods without attracting attention.
+    cash: 2
+    influence: 1
+    actions: [] # TODO: Draw two cards from your deck
+  - name: Backstab
+    flavor: Send a card in your hand to jail.
+    cash: 1
+    actions: [] # TODO: Burn a card in your hand
+  - name: Steal
+    flavor: Get a card from the shop without paying for it.
+    cash: 5
+    actions: [] # TODO: Choose a card from the shop
+  - name: Politician
+    flavor: It always helps to have someone from the government in your back pocket.
+    cash: 5
+    influence: 4
+    actions: [] # Spend 2& to add 1*
