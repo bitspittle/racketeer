@@ -11,4 +11,7 @@ import dev.bitspittle.racketeer.model.game.GameState
 
 class ConfirmQuitView(ctx: GameContext) : View(ctx) {
     override val commands: List<Command> = listOf(ConfirmQuitCommand(ctx))
+
+    // Don't allow people to enter this quit screen from within this quit screen
+    override val allowQuit: Boolean = false
 }
