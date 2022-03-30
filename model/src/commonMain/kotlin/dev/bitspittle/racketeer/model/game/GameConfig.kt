@@ -11,6 +11,7 @@ data class GameConfig(
     val initialHandSize: Int,
     val initialLuck: Int,
     val initialDeck: List<String>,
+    val cardTypes: List<String>,
     val tiers: List<Tier>,
     val shopPrices: List<Int>,
     val ratingScores: List<Int>,

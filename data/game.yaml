@@ -1,16 +1,23 @@
 config:
   title: Do Crimes
   icons:
-    cash: "$" # "💰"
-    influence: "&" # "🤝"
-    luck: "?" # "🎲"
-    vp: "*" # "*"
+    cash: "💰"
+    influence: "🤝"
+    luck: "🎲"
+    vp: "⭐"
   numTurns: 3 # 12
   initialHandSize: 4
   initialLuck: 5
   initialDeck:
     - Pickpocket 5
     - Rumormonger 3
+  cardTypes:
+    # Ordered by how they should show up on a card, NOT alphabetically necessarily
+    - Action
+    - Treasure
+    - Thief
+    - Spy
+    - Legend
   tiers:
     - name: Common
       frequency: 5
