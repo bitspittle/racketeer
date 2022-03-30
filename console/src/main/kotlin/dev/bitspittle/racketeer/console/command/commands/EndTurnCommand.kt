@@ -12,7 +12,7 @@ class EndTurnCommand(ctx: GameContext) : Command(ctx) {
         "Finish this turn. Any leftover money will be discarded and the shop restocked with random items."
 
     override fun invoke(): Boolean {
-        if (ctx.state.turn < ctx.data.numTurns) {
+        if (ctx.state.turn < ctx.data.numTurns - 1) { // Turn is 0-indexed, so we have to be careful we don't go over
             ctx.state.endTurn()
             ctx.viewStack.replaceView(PreDrawView(ctx))
         } else {
