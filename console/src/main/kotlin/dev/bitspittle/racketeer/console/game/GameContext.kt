@@ -1,4 +1,4 @@
-package dev.bitspittle.racketeer.console
+package dev.bitspittle.racketeer.console.game
 
 import dev.bitspittle.racketeer.console.view.ViewStack
 import dev.bitspittle.racketeer.model.game.GameData

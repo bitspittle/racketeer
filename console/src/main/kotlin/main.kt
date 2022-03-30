@@ -1,4 +1,4 @@
-import dev.bitspittle.racketeer.console.GameSession
+import dev.bitspittle.racketeer.console.game.GameSession
 import dev.bitspittle.racketeer.model.game.GameData
 import net.mamoe.yamlkt.Yaml
 import kotlin.io.path.Path

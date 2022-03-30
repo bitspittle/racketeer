@@ -1,11 +1,9 @@
 package dev.bitspittle.racketeer.console.command.commands
 
-import dev.bitspittle.racketeer.console.GameContext
+import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.view.views.GameOverView
-import dev.bitspittle.racketeer.console.view.views.PlayCardsView
 import dev.bitspittle.racketeer.console.view.views.PreDrawView
-import dev.bitspittle.racketeer.model.card.Card
 
 class EndTurnCommand(ctx: GameContext) : Command(ctx) {
     override val title = "End turn"

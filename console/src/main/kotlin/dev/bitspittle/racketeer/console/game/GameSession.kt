@@ -1,4 +1,4 @@
-package dev.bitspittle.racketeer.console
+package dev.bitspittle.racketeer.console.game
 
 import com.varabyte.kotter.foundation.input.onKeyPressed
 import com.varabyte.kotter.foundation.runUntilSignal

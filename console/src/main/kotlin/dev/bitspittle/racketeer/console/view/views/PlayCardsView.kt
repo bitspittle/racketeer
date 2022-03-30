@@ -1,9 +1,8 @@
 package dev.bitspittle.racketeer.console.view.views
 
-import com.varabyte.kotter.foundation.text.text
 import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.runtime.render.RenderScope
-import dev.bitspittle.racketeer.console.GameContext
+import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.BrowseDeckCommand
 import dev.bitspittle.racketeer.console.command.commands.BrowseShopCommand
