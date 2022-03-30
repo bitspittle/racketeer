@@ -10,6 +10,20 @@ class Describers(private val config: GameConfig) {
     fun describeLuck(luck: Int) = "${config.icons.luck} $luck"
     fun describeVictoryPoints(vp: Int) = "${config.icons.vp} $vp"
 
+    private fun StringBuilder.describeCardBody(template: CardTemplate) {
+        appendLine() // Finish title
+        appendLine() // Newline
+        append(template.flavor)
+
+        if (template.actions.isNotEmpty()) {
+            appendLine() // Finish desc
+            appendLine() // Newline
+            template.actions.forEach { action ->
+                appendLine(" - $action")
+            }
+        }
+    }
+
     fun describe(template: CardTemplate, concise: Boolean = false): String {
         return buildString {
             append(template.name)
@@ -21,9 +35,7 @@ class Describers(private val config: GameConfig) {
             }
 
             if (!concise) {
-                appendLine() // Finish title
-                appendLine() // Newline
-                append(template.flavor)
+                describeCardBody(template)
             }
         }
     }
@@ -43,9 +55,7 @@ class Describers(private val config: GameConfig) {
             }
 
             if (!concise) {
-                appendLine() // Finish title
-                appendLine() // Newline
-                append(card.template.flavor)
+                describeCardBody(card.template)
             }
         }
     }

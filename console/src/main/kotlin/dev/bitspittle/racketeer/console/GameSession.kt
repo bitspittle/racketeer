@@ -1,7 +1,6 @@
 package dev.bitspittle.racketeer.console
 
 import com.varabyte.kotter.foundation.input.onKeyPressed
-import com.varabyte.kotter.foundation.render.offscreen
 import com.varabyte.kotter.foundation.runUntilSignal
 import com.varabyte.kotter.foundation.session
 import com.varabyte.kotter.foundation.text.bold
@@ -36,7 +35,7 @@ class GameSession(
         val viewStack = ViewStackImpl()
         var shouldQuit = false
         val ctx = GameContext(
-            gameData.config,
+            gameData,
             Describers(gameData.config),
             GameState(gameData),
             viewStack,

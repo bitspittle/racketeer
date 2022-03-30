@@ -41,6 +41,7 @@ class CommandsSection(private val commands: List<Command>) {
                 }
                 textLine(command.title)
             }
+            textLine()
         }
     }
 }

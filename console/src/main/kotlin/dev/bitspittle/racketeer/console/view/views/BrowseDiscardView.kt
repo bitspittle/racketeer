@@ -9,5 +9,5 @@ import dev.bitspittle.racketeer.model.game.GameState
 
 class BrowseDiscardView(ctx: GameContext) : View(ctx) {
     override val commands: List<Command> =
-        ctx.state.discard.map { card -> ViewCardCommand(ctx, card) }
+        ctx.state.discard.cards.map { card -> ViewCardCommand(ctx, card) }
 }

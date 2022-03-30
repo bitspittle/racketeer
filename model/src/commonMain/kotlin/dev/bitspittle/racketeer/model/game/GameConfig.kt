@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 data class GameConfig(
     val title: String,
     val icons: GameIcons,
+    val numTurns: Int,
     val initialHandSize: Int,
     val initialLuck: Int,
     val initialDeck: List<String>,

@@ -5,6 +5,7 @@ config:
     influence: "&" # "🤝"
     luck: "?" # "🎲"
     vp: "*" # "*"
+  numTurns: 3 # 12
   initialHandSize: 4
   initialLuck: 5
   initialDeck:

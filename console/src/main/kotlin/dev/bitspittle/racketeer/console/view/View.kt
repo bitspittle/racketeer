@@ -43,7 +43,6 @@ abstract class View(protected val ctx: GameContext) {
             commandsSection.renderInto(this)
 
             commandsSection.currCommand.description?.let { description ->
-                textLine()
                 black(isBright = true) {
                     bordered(borderCharacters = BorderCharacters.CURVED, paddingLeftRight = 1) {
                         textLine(description)
