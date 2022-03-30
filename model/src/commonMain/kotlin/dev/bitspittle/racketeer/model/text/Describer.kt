@@ -4,7 +4,7 @@ import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.game.GameConfig
 
-class Describers(private val config: GameConfig) {
+class Describer(private val config: GameConfig) {
     fun describeCash(cash: Int) = "${config.icons.cash} $cash"
     fun describeInfluence(influence: Int) = "${config.icons.influence} $influence"
     fun describeLuck(luck: Int) = "${config.icons.luck} $luck"

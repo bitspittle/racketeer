@@ -12,7 +12,7 @@ import dev.bitspittle.racketeer.console.view.ViewStackImpl
 import dev.bitspittle.racketeer.console.view.views.PreDrawView
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
-import dev.bitspittle.racketeer.model.text.Describers
+import dev.bitspittle.racketeer.model.text.Describer
 
 class GameSession(
     private val gameData: GameData
@@ -36,7 +36,7 @@ class GameSession(
         var shouldQuit = false
         val ctx = GameContext(
             gameData,
-            Describers(gameData.config),
+            Describer(gameData.config),
             GameState(gameData),
             viewStack,
             quit = { shouldQuit = true }
