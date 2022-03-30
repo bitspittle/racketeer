@@ -18,8 +18,11 @@ class Describer(private val config: GameConfig) {
         if (template.actions.isNotEmpty()) {
             appendLine() // Finish desc
             appendLine() // Newline
-            template.actions.forEach { action ->
-                appendLine(" - $action")
+            template.actions.forEachIndexed { i, action ->
+                append(" - $action")
+                if (i < template.actions.lastIndex) {
+                    appendLine()
+                }
             }
         }
     }
