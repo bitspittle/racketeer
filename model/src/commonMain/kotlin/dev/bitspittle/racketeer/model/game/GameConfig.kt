@@ -12,9 +12,11 @@ data class GameConfig(
     val initialLuck: Int,
     val initialDeck: List<String>,
     val tiers: List<Tier>,
-    val shopPrices: List<Int>
+    val shopPrices: List<Int>,
+    val ratingScores: List<Int>,
 ) {
     init {
-        require(shopPrices.size == tiers.size - 1)
+        require(shopPrices.size == tiers.size - 1) { "There should be exactly one less entry for shop prices than tiers" }
+        require(ratingScores.size == Rating.values().size - 1) { "Too many scores defined for rating values: ${Rating.values().joinToString { it.name }}"}
     }
 }

@@ -27,6 +27,12 @@ config:
     - 10
     - 15
     - 20
+  ratingScores:
+    # Anything lower than the first score is D
+    - 10 # C
+    - 20 # B
+    - 30 # A
+    - 40 # S
 
 cards:
   - name: Pickpocket
