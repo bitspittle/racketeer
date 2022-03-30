@@ -47,10 +47,8 @@ abstract class View(protected val ctx: GameContext) {
             commandsSection.renderInto(this)
 
             commandsSection.currCommand.description?.let { description ->
-                black(isBright = true) {
-                    bordered(borderCharacters = BorderCharacters.CURVED, paddingLeftRight = 1) {
-                        textLine(description)
-                    }
+                bordered(borderCharacters = BorderCharacters.CURVED, paddingLeftRight = 1) {
+                    textLine(description)
                 }
                 textLine()
             }
