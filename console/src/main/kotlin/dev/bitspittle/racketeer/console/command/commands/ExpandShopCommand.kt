@@ -9,5 +9,5 @@ class ExpandShopCommand(ctx: GameContext) : Command(ctx) {
     }
     override val title = "Expand shop ${ctx.describers.describeInfluence(ctx.config.shopPrices[ctx.state.shopTier + 1])}"
 
-    override val description = "Expand the shop, adding an additional card for sale and increasing the quality of cards that it sells"
+    override val description = "Expand the shop, adding an additional card for sale and increasing the quality of cards that it sells."
 }
