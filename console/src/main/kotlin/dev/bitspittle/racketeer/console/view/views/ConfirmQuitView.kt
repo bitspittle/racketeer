@@ -12,7 +12,7 @@ class ConfirmQuitView(ctx: GameContext) : View(ctx) {
             override val description = "Press ENTER if you're sure you want to quit. Otherwise, go back!"
 
             override fun invoke() {
-                ctx.quit()
+                ctx.app.quit()
             }
         }
     )

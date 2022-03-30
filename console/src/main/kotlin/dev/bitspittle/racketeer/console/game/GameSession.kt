@@ -39,7 +39,11 @@ class GameSession(
             Describer(gameData.config),
             GameState(gameData),
             viewStack,
-            quit = { shouldQuit = true }
+            object : App {
+                override fun quit() {
+                    shouldQuit = true
+                }
+            }
         )
 
         viewStack.pushView(PreDrawView(ctx))

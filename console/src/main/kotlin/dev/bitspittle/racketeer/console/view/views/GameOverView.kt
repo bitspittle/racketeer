@@ -19,7 +19,7 @@ class GameOverView(ctx: GameContext) : View(ctx) {
             object : Command(ctx) {
                 override val title = "Exit"
                 override fun invoke() {
-                    ctx.quit()
+                    ctx.app.quit()
                 }
             }
         )

@@ -10,7 +10,7 @@ class GameContext(
     val describers: Describer,
     var state: GameState,
     val viewStack: ViewStack,
-    val quit: () -> Unit,
+    val app: App
 ) {
     // Exposed directly, for convenience
     val config = data.config
