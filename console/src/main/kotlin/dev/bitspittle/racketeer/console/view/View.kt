@@ -48,7 +48,30 @@ abstract class View(protected val ctx: GameContext) {
 
             commandsSection.currCommand.description?.let { description ->
                 bordered(borderCharacters = BorderCharacters.CURVED, paddingLeftRight = 1) {
-                    textLine(description)
+                    val MAX_WIDTH = 60
+                    val descParts = description.split(" ")
+                    textLine(buildString {
+                        var widthSoFar = 0
+                        for (i in descParts.indices) {
+                            append(descParts[i])
+                            if (descParts[i].contains('\n')) {
+                                widthSoFar = descParts[i].substringAfterLast('\n').length
+                            }
+                            else {
+                                widthSoFar += descParts[i].length
+                            }
+                            if (i < descParts.lastIndex) {
+                                if (widthSoFar == 0 || widthSoFar + descParts[i + 1].length < MAX_WIDTH) {
+                                    append(' ')
+                                    widthSoFar++
+                                }
+                                else {
+                                    append('\n')
+                                    widthSoFar = 0
+                                }
+                            }
+                        }
+                    })
                 }
                 textLine()
             }
