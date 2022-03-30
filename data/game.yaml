@@ -42,7 +42,10 @@ ratingScores:
 
 cards:
   - name: Pickpocket
-    flavor: A scrubby urchin who pilfers coins out of the pockets of unsuspecting pedestrians.
+    flavor: |
+      A scrubby urchin who pilfers coins out of the pockets of unsuspecting pedestrians.
+
+      Gain $.
     cost:
       cash: 1
     actions:
