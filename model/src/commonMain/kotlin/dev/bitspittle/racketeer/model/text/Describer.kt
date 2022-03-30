@@ -2,13 +2,13 @@ package dev.bitspittle.racketeer.model.text
 
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
-import dev.bitspittle.racketeer.model.game.GameConfig
+import dev.bitspittle.racketeer.model.game.GameData
 
-class Describer(private val config: GameConfig) {
-    fun describeCash(cash: Int) = "${config.icons.cash} $cash"
-    fun describeInfluence(influence: Int) = "${config.icons.influence} $influence"
-    fun describeLuck(luck: Int) = "${config.icons.luck} $luck"
-    fun describeVictoryPoints(vp: Int) = "${config.icons.vp} $vp"
+class Describer(private val data: GameData) {
+    fun describeCash(cash: Int) = "${data.icons.cash} $cash"
+    fun describeInfluence(influence: Int) = "${data.icons.influence} $influence"
+    fun describeLuck(luck: Int) = "${data.icons.luck} $luck"
+    fun describeVictoryPoints(vp: Int) = "${data.icons.vp} $vp"
 
     private fun StringBuilder.describeCardBody(template: CardTemplate) {
         appendLine() // Finish title

@@ -11,7 +11,4 @@ class GameContext(
     var state: GameState,
     val viewStack: ViewStack,
     val app: App
-) {
-    // Exposed directly, for convenience
-    val config = data.config
-}
+)

@@ -8,12 +8,12 @@ enum class Rating {
     S;
 
     companion object {
-        fun from(config: GameConfig, vp: Int): Rating {
+        fun from(data: GameData, vp: Int): Rating {
             return when {
-                vp < config.ratingScores[0] -> D
-                vp < config.ratingScores[1] -> C
-                vp < config.ratingScores[2] -> B
-                vp < config.ratingScores[3] -> A
+                vp < data.ratingScores[0] -> D
+                vp < data.ratingScores[1] -> C
+                vp < data.ratingScores[2] -> B
+                vp < data.ratingScores[3] -> A
                 else -> S
             }
         }

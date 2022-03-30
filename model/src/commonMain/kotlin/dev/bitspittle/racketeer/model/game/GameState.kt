@@ -20,8 +20,6 @@ class GameState(
 ) {
     private val random = Random.Default
 
-    private val config = data.config
-
     /**
      * 0-indexed turn
      */
@@ -61,7 +59,7 @@ class GameState(
     /**
      * How many cards get drawn at the beginning of the turn.
      */
-    var handSize = config.initialHandSize
+    var handSize = data.initialHandSize
         private set
 
     /**
@@ -72,7 +70,7 @@ class GameState(
 
     private val _shop = MutableShop()
 
-    private val _deck = MutablePile(config.initialDeck
+    private val _deck = MutablePile(data.initialDeck
         .flatMap {  entry ->
             val cardName = entry.substringBeforeLast(' ')
             val count = entry.substringAfterLast(' ', missingDelimiterValue = "").toIntOrNull() ?: 1
@@ -126,7 +124,7 @@ class GameState(
     }
 
     private fun dieIfGameOver() {
-        if (turn >= config.numTurns) throw GameException("Can't change game state after the game is already over!")
+        if (turn >= data.numTurns) throw GameException("Can't change game state after the game is already over!")
     }
 
     fun draw(count: Int = handSize) {

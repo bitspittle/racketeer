@@ -24,7 +24,7 @@ class GameSession(
             bold {
                 red {
                     bordered(borderCharacters = BorderCharacters.CURVED, paddingLeftRight = 1) {
-                        textLine(gameData.config.title)
+                        textLine(gameData.title)
                     }
                 }
             }
@@ -36,7 +36,7 @@ class GameSession(
         var shouldQuit = false
         val ctx = GameContext(
             gameData,
-            Describer(gameData.config),
+            Describer(gameData),
             GameState(gameData),
             viewStack,
             object : App {
