@@ -11,9 +11,10 @@ class PlayCardCommand(ctx: GameContext, private val handIndex: Int) : Command(ct
 
     override val description = ctx.describers.describe(card)
 
-    override fun invoke() {
+    override fun invoke(): Boolean {
         ctx.state.play(handIndex)
         ctx.viewStack.replaceView(PlayCardsView(ctx))
+        return true
     }
 }
 

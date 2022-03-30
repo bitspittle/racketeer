@@ -10,7 +10,8 @@ class SelectCardCommand(
     override val title get() = "[${if (selected) 'x' else ' '}] ${ctx.describers.describe(card, concise = true)}"
     override val description = ctx.describers.describe(card)
 
-    override fun invoke() {
+    override fun invoke(): Boolean {
         selected = !selected
+        return true
     }
 }

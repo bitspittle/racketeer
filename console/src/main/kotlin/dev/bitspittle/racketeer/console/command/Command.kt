@@ -6,5 +6,5 @@ abstract class Command(protected val ctx: GameContext) {
     abstract val title: String
     open val description: String? = null
 
-    open fun invoke() = Unit
+    open fun invoke() = false
 }

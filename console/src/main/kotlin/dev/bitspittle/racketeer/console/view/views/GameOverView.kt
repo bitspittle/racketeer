@@ -9,6 +9,7 @@ import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.NewGameCommand
 import dev.bitspittle.racketeer.console.view.View
+import dev.bitspittle.racketeer.model.game.Rating
 
 class GameOverView(ctx: GameContext) : View(ctx) {
     override val allowQuit = false
@@ -18,8 +19,9 @@ class GameOverView(ctx: GameContext) : View(ctx) {
             NewGameCommand(ctx),
             object : Command(ctx) {
                 override val title = "Exit"
-                override fun invoke() {
+                override fun invoke(): Boolean {
                     ctx.app.quit()
+                    return true
                 }
             }
         )
@@ -27,7 +29,7 @@ class GameOverView(ctx: GameContext) : View(ctx) {
     override fun RenderScope.renderContent() {
         textLine("You ended the game with ${ctx.state.vp} victory points, to earn a ranking of: ")
         textLine()
-        bold { textLine(" D") }
+        bold { textLine(" ${Rating.from(ctx.config, ctx.state.vp)}") }
         textLine()
 
         text("Press "); cyan { text("New Game") }; text(" to play again or "); cyan { text("Exit") }; textLine(" to quit.")

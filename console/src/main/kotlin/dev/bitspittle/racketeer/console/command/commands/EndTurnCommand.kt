@@ -8,16 +8,17 @@ import dev.bitspittle.racketeer.console.view.views.PreDrawView
 class EndTurnCommand(ctx: GameContext) : Command(ctx) {
     override val title = "End turn"
 
-    override val description = "Finish this turn. Any leftover money will be discarded and the shop restocked with random items."
+    override val description =
+        "Finish this turn. Any leftover money will be discarded and the shop restocked with random items."
 
-    override fun invoke() {
+    override fun invoke(): Boolean {
         ctx.state.endTurn()
         if (ctx.state.turn < ctx.config.numTurns) {
             ctx.viewStack.replaceView(PreDrawView(ctx))
-        }
-        else {
+        } else {
             ctx.viewStack.replaceView(GameOverView(ctx))
         }
+        return true
     }
 }
 

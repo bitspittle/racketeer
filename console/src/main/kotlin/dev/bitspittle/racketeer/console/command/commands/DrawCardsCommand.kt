@@ -9,9 +9,10 @@ class DrawCardsCommand(ctx: GameContext) : Command(ctx) {
 
     override val description = "Draw ${ctx.state.handSize} cards and put them into your hand."
 
-    override fun invoke() {
+    override fun invoke(): Boolean {
         ctx.state.draw()
         ctx.viewStack.replaceView(PlayCardsView(ctx))
+        return true
     }
 
 }

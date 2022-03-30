@@ -5,12 +5,17 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.view.views.BrowseDeckView
 
 class BrowseDiscardCommand(ctx: GameContext) : Command(ctx) {
-    override val title = "Browse discard"
+    override val title = "Browse discard (${ctx.state.discard.cards.size})"
 
     override val description = "Look over the cards in the discard pile."
 
-    override fun invoke() {
-        ctx.viewStack.pushView(BrowseDeckView(ctx))
+    override fun invoke(): Boolean {
+        return if (ctx.state.discard.cards.isNotEmpty()) {
+            ctx.viewStack.pushView(BrowseDeckView(ctx))
+            true
+        } else {
+            false
+        }
     }
 }
 

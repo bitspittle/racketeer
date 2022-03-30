@@ -4,10 +4,7 @@ import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
-import dev.bitspittle.racketeer.console.command.commands.BrowseDeckCommand
-import dev.bitspittle.racketeer.console.command.commands.BrowseShopCommand
-import dev.bitspittle.racketeer.console.command.commands.EndTurnCommand
-import dev.bitspittle.racketeer.console.command.commands.PlayCardCommand
+import dev.bitspittle.racketeer.console.command.commands.*
 import dev.bitspittle.racketeer.console.view.View
 
 class PlayCardsView(ctx: GameContext) : View(ctx) {
@@ -15,7 +12,8 @@ class PlayCardsView(ctx: GameContext) : View(ctx) {
         List(ctx.state.hand.cards.size) { i -> PlayCardCommand(ctx, i) } + listOf(
             BrowseShopCommand(ctx),
             BrowseDeckCommand(ctx),
-            EndTurnCommand(ctx)
+            BrowseDiscardCommand(ctx),
+            EndTurnCommand(ctx),
         )
 
     override fun RenderScope.renderContent() {

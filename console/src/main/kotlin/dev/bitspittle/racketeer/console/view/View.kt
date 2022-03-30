@@ -3,6 +3,7 @@ package dev.bitspittle.racketeer.console.view
 import com.varabyte.kotter.foundation.input.Key
 import com.varabyte.kotter.foundation.input.Keys
 import com.varabyte.kotter.foundation.text.black
+import com.varabyte.kotter.foundation.text.bold
 import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.foundation.text.underline
 import com.varabyte.kotter.runtime.render.RenderScope
@@ -24,7 +25,9 @@ abstract class View(protected val ctx: GameContext) {
     fun handleKey(key: Key): Boolean {
         return when (key) {
             Keys.ESC -> {
-                if (allowGoBack) ctx.viewStack.popView(); true
+                if (allowGoBack) {
+                    ctx.viewStack.popView(); true
+                } else false
             }
             Keys.ENTER -> {
                 commandsSection.currCommand.invoke(); true
@@ -67,7 +70,7 @@ abstract class View(protected val ctx: GameContext) {
         val state = ctx.state
         textLine("${icons.cash} ${state.cash} ${icons.influence} ${state.influence} ${icons.luck} ${state.luck} ${icons.vp} ${state.vp}")
         textLine()
-        textLine("Turn ${state.turn + 1}")
+        bold { textLine("Turn ${state.turn + 1}") }
         textLine()
         subtitle?.let { subtitle ->
             underline { textLine(subtitle) }
