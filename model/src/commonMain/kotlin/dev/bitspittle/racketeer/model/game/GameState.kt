@@ -96,17 +96,23 @@ class GameState(
     val discard: Pile = _discard
     val jail: Pile = _jail
 
-    private val cardPiles = mutableMapOf<Card, Pile>()
+    private val cardPiles = mutableMapOf<Card, MutablePile>()
     init {
-        listOf(deck, street, hand, discard, jail).forEach { pile ->
+        listOf(_deck, _street, _hand, _discard, _jail).forEach { pile ->
             pile.cards.forEach { card -> cardPiles[card] = pile }
         }
     }
 
     private fun move(card: Card, pile: MutablePile, insertStrategy: InsertStrategy = InsertStrategy.BACK) {
-        cardPiles.remove(card)
-        pile.cards.insert(card, insertStrategy, random)
-        cardPiles[card] = pile
+        move(listOf(card), pile, insertStrategy)
+    }
+
+    private fun move(cards: List<Card>, pile: MutablePile, insertStrategy: InsertStrategy = InsertStrategy.BACK) {
+        cards.forEach { card ->
+            cardPiles.remove(card)?.also { pile -> pile.cards.remove(card) }
+            cardPiles[card] = pile
+        }
+        pile.cards.insert(cards, insertStrategy, random)
     }
 
     private fun move(pileFrom: MutablePile, pileTo: MutablePile, insertStrategy: InsertStrategy = InsertStrategy.BACK) {
