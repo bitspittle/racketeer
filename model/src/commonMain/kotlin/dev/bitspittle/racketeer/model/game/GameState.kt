@@ -125,7 +125,13 @@ class GameState(
         pileFrom.cards.clear()
     }
 
+    private fun dieIfGameOver() {
+        if (turn >= config.numTurns) throw GameException("Can't change game state after the game is already over!")
+    }
+
     fun draw(count: Int = handSize) {
+        dieIfGameOver()
+
         var remainingCount = count.coerceAtMost(deck.cards.size + discard.cards.size)
         if (remainingCount == 0) return
 
@@ -146,6 +152,8 @@ class GameState(
     }
 
     fun play(handIndex: Int) {
+        dieIfGameOver()
+
         if (handIndex !in _hand.cards.indices) {
             throw GameException("Attempt to play hand card with invalid index $handIndex")
         }
@@ -154,6 +162,8 @@ class GameState(
     }
 
     fun endTurn() {
+        dieIfGameOver()
+
         turn++
         cash = 0
 
