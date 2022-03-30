@@ -10,6 +10,8 @@ import dev.bitspittle.racketeer.model.game.GameConfig
 import dev.bitspittle.racketeer.model.game.GameState
 
 class BrowseDeckView(ctx: GameContext) : View(ctx) {
+    override val subtitle = "Deck"
+
     override val commands: List<Command> =
         if (ctx.state.deck.cards.isNotEmpty()) {
             ctx.state.deck.cards

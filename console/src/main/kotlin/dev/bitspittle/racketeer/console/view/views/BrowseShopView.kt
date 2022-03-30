@@ -7,6 +7,8 @@ import dev.bitspittle.racketeer.console.command.commands.ExpandShopCommand
 import dev.bitspittle.racketeer.console.view.View
 
 class BrowseShopView(ctx: GameContext) : View(ctx) {
+    override val subtitle = "Shop"
+
     override val commands: List<Command> =
         ctx.state.shop.cards.map { card -> BuyCardCommand(ctx, card) } + listOf(ExpandShopCommand(ctx))
 }
