@@ -12,10 +12,16 @@ class Environment {
     }
 
     fun add(method: Method) {
+        require(!methodsStack.last().contains(method.name)) { "Attempted to register a method named \"${method.name}\" when one already exists at the current scope. Use `pushScope` first if you really want to do this."}
         methodsStack.last()[method.name] = method
     }
 
+    fun add(converter: Converter<*>) {
+        convertersStack.last().register(converter)
+    }
+
     fun set(name: String, value: Value) {
+        require(!variablesStack.last().contains(name)) { "Attempted to register a variable named \"$name\" when one already exists at the current scope. Use `pushScope` first if you really want to do this."}
         variablesStack.last()[name] = value
     }
 
@@ -50,4 +56,19 @@ class Environment {
             .mapNotNull { converters -> value.into(converters, toClass) }
             .firstOrNull()
     }
+
+    fun expectMethod(name: String): Method {
+        return getMethod(name) ?: error("No method named \"$name\" is registered")
+    }
+
+    fun expectValue(name: String): Value {
+        return getValue(name) ?: error("No variable named \"$name\" is registered")
+    }
+
+    fun <T: Any> expectConvert(value: Value, toClass: KClass<T>): T {
+        return convert(value, toClass) ?: error("Could not convert $value to $toClass")
+    }
+
+    inline fun <reified T: Any> convert(value: Value): T? = convert(value, T::class)
+    inline fun <reified T: Any> expectConvert(value: Value): T = expectConvert(value, T::class)
 }
