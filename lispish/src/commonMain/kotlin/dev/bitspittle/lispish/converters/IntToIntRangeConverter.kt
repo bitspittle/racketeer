@@ -1,7 +1,6 @@
 package dev.bitspittle.lispish.converters
 
 import dev.bitspittle.lispish.Converter
-import kotlin.reflect.KClass
 
 /**
  * Convert an int value to a range constrained to that integer as both start and end values.

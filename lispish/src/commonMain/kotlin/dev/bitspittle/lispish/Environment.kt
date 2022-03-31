@@ -25,6 +25,16 @@ class Environment {
         variablesStack.last()[name] = value
     }
 
+    fun <T: Any> scoped(block: () -> T): T {
+        return try {
+            pushScope()
+            block()
+        }
+        finally {
+            popScope()
+        }
+    }
+
     fun pushScope() {
         methodsStack.add(mutableMapOf())
         variablesStack.add(mutableMapOf())

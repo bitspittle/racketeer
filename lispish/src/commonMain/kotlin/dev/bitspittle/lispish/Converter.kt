@@ -11,6 +11,7 @@ class Converters {
     private val converters = mutableMapOf<KClass<*>, Converter<*>>()
 
     fun <T: Any> register(converter: Converter<T>) {
+        require(converters.values.none { it::class == converter::class }) { "Attempting to register more than once instance of a ${converter::class}" }
         converters[converter.toClass] = converter
     }
 
