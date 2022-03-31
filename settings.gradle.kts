@@ -8,6 +8,7 @@ pluginManagement {
 
 rootProject.name = "racketeer"
 
+include(":lispish")
 include(":model")
 include(":console")
 include(":site")
