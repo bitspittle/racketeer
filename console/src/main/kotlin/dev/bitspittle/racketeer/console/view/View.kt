@@ -36,9 +36,11 @@ abstract class View(protected val ctx: GameContext) {
                 if (allowQuit) ctx.viewStack.pushView(ConfirmQuitView(ctx)); true
             }
 
-            else -> commandsSection.handleKey(key)
+            else -> handleAdditionalKeys(key) || commandsSection.handleKey(key)
         }
     }
+
+    protected open fun handleAdditionalKeys(key: Key): Boolean = false
 
     fun renderInto(scope: RenderScope) {
         scope.apply {
