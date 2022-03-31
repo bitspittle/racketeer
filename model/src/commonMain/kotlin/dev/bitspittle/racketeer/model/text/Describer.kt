@@ -30,11 +30,8 @@ class Describer(private val data: GameData) {
     fun describe(template: CardTemplate, concise: Boolean = false): String {
         return buildString {
             append(template.name)
-            if (template.cost.cash > 0) {
-                append(" ${describeCash(template.cost.cash)}")
-            }
-            if (template.cost.influence > 0) {
-                append(" ${describeInfluence(template.cost.cash)}")
+            if (template.cost > 0) {
+                append(" ${describeCash(template.cost)}")
             }
 
             if (!concise) {

@@ -1,6 +1,7 @@
 package dev.bitspittle.racketeer.model.game
 
 import dev.bitspittle.racketeer.model.card.CardTemplate
+import dev.bitspittle.racketeer.model.card.UpgradeNames
 import dev.bitspittle.racketeer.model.tier.Tier
 import kotlinx.serialization.Serializable
 
@@ -13,6 +14,7 @@ data class GameData(
     val initialLuck: Int,
     val initialDeck: List<String>,
     val cardTypes: List<String>,
+    val upgradeNames: UpgradeNames,
     val tiers: List<Tier>,
     val shopPrices: List<Int>,
     val ratingScores: List<Int>,
@@ -24,6 +26,22 @@ data class GameData(
             "Too many scores defined for rating values: ${
                 Rating.values().joinToString { it.name }
             }"
+        }
+
+        cards.forEach { card ->
+            require(card.types.isNotEmpty()) { "Card named \"${card.name}\" needs to have a type." }
+            card.types.forEach { type ->
+                if (cardTypes.count { it.compareTo(type, ignoreCase = true) == 0 } == 0) {
+                    error("The card named \"${card.name}\" has an invalid type \"$type\" defined on it. Should be one of: $cardTypes")
+                }
+            }
+        }
+        cards.groupBy { it.name }.let { namedCards ->
+            namedCards.forEach { (name, cards) ->
+                if (cards.size > 1) {
+                    error("The card name \"$name\" has duplicate entries")
+                }
+            }
         }
     }
 }

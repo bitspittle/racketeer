@@ -1,9 +1,9 @@
 title: Do Crimes
 icons:
-  cash: "💰"
-  influence: "🤝"
-  luck: "🎲"
-  vp: "⭐"
+  cash: "$" # "💰"
+  influence: "&" # "🤝"
+  luck: "%" # "🎲"
+  vp: "*" # "⭐"
 numTurns: 3 # 12
 initialHandSize: 4
 initialLuck: 5
@@ -17,6 +17,13 @@ cardTypes:
   - Thief
   - Spy
   - Legend
+
+upgradeNames:
+  cash: Dextrous
+  influence: Artful
+  luck: Lucky
+  patience: Patient
+
 tiers:
   - name: Common
     frequency: 5
@@ -41,45 +48,89 @@ ratingScores:
   - 40 # S
 
 cards:
+  # TIER 1
+
   - name: Pickpocket
+    types: [thief]
     flavor: |
       A scrubby urchin who pilfers coins out of the pockets of unsuspecting pedestrians.
 
       Gain $.
-    cost:
-      cash: 1
     actions:
-      - addresource 'cash 1
+      - game-add 'cash 1
+
   - name: Rumormonger
-    flavor: A slick-haired youth who whispers misinformation into gossiping ears.
-    cost:
-      influence: 1
+    types: [spy]
+    flavor: |
+      A charismatic youth who whispers misinformation into the ears of gossiping busybodies.
+      
+      Gain &.
     actions:
-      - addresource 'influence 1
-  - name: Smuggle
-    flavor: Set up a route that allows you to sneak in illicit goods without attracting attention.
-    cost:
-      cash: 2
-      influence: 1
+      - game-add 'influence 1
+
+  - name: Con Artist
+    types: [thief, spy]
+    cost: 2
+    flavor: Gain $. Gain &.
     actions:
-      - draw 2
-  - name: Snitch
-    flavor: Send a card in your hand to jail.
-    cost:
-      cash: 1
+      - game-add 'cash 1
+      - game-add 'influence 1
+
+  - name: Squealer
+    types: [spy]
+    cost: 2
+    flavor: Gain &. Jail a card in your hand.
     actions:
-      - moveto 'jail (choose 'hand 1)
-  - name: Steal
-    flavor: Get a card from the shop without paying for it.
-    cost:
-      cash: 5
+      - game-add 'influence 1
+      - move-to $jail (choose $hand 1)
+
+  - name: Fool's Gold
+    types: [treasure]
+    cost: 2
+    flavor: Gain 3$. Jail this card.
     actions:
-      - copyto 'discard (choose 'shop 1)
-  - name: Politician
-    flavor: It always helps to have someone from the government in your back pocket.
-    cost:
-      cash: 5
-      influence: 4
+      - game-add 'cash 3
+      - move-to $jail $this
+
+  - name: Croupier
+    types: [thief]
+    cost: 3
+    flavor: Gain $. Gain %.
+
+  # TIER 2 (i.e. 1 when 0-indexed)
+
+  - name: Ditch the Goods
+    tier: 1
+    types: [action]
+    cost: 2
+    flavor: Discard your hand, then draw that many cards.
     actions:
-      - set $spent spend 'influence --step 2 --max 2
-      - addstat 'this 'vp (/ $spent 2)
+      - set $to-draw (count $hand)
+      - move-to $jail $hand
+      - draw $to-draw
+
+  - name: Cheese It!
+    tier: 1
+    types: [action]
+    cost: 2
+    flavor: Jail your hand.
+    actions:
+      - move-to $jail $hand
+
+  - name: Lady Thistledown
+    tier: 1
+    types: [spy, legend]
+    cost: 3
+    flavor: Give a Spy in your hand +1&.
+    actions:
+      - upgrade (choose (filter $hand '(in card-get 'types 'spy)) 1) 'influence
+
+  - name: Roving Gambler
+    tier: 1
+    types: [thief, spy]
+    cost: 3
+    flavor: Gain $. Gain &. Gain %.
+    actions:
+      - game-add 'cash 1
+      - game-add 'influence 1
+      - game-add 'luck 1
