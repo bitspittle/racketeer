@@ -20,7 +20,34 @@ class EitherParser<T: Any>(private val parser1: Parser<T>, private val parser2: 
     }
 }
 
-infix fun <T1: Any, T2: Any> Parser<T1>.to(parser2: Parser<T2>) = PairParser(this, parser2)
+/**
+ * A special parser chain which doesn't care what is produced, just that all parsers matched.
+ */
+class EatIfMatchAllParser(private vararg val parsers: Parser<*>) : Parser<Unit> {
+    override fun tryParse(ctx: ParserContext): ParseResult<Unit>? {
+        var ctx = ctx
+        parsers.forEach { parser ->
+            ctx = parser.tryParse(ctx)?.ctx ?: return null
+        }
+
+        return ParseResult(ctx, Unit)
+    }
+}
+
+/**
+ * A special parser chain which doesn't care what is produced, just that any of the parsers matched.
+ */
+class EatIfMatchAnyParser(private vararg val parsers: Parser<*>) : Parser<Unit> {
+    override fun tryParse(ctx: ParserContext): ParseResult<Unit>? {
+        return parsers
+            .asSequence()
+            .mapNotNull { parser -> parser.tryParse(ctx) }
+            .firstOrNull()
+            ?.map { } // Convert to Unit
+    }
+}
+
+infix fun <T1: Any, T2: Any> Parser<T1>.then(parser2: Parser<T2>) = PairParser(this, parser2)
 infix fun <T: Any> Parser<T>.or(parser2: Parser<T>) = EitherParser(this, parser2)
 
 val <T1: Any, T2: Any> ParseResult<Pair<ParseResult<T1>, ParseResult<T2>>>.first get() = ParseResult(ctx, value.first.value)
@@ -46,7 +73,6 @@ class RepeatedParser<T: Any>(private val parser: Parser<T>, private val countRan
         return (collected.size in countRange).ifTrue { ParseResult(ctx, collected) }
     }
 }
-
 
 fun <T: Any> Parser<T>.repeated(countRange: IntRange) = RepeatedParser(this, countRange)
 fun <T: Any> Parser<T>.repeated(count: Int) = RepeatedParser(this, IntRange(count, count))

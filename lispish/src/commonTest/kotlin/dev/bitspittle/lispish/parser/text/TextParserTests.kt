@@ -188,10 +188,10 @@ class TextParserTests {
 
     @Test
     fun testWhitespaceEater() {
-        val whitespaceEater = EatWhitespaceParser()
+        val whitespaceEater = EatAllWhitespaceParser()
 
         assertThat(whitespaceEater.tryParse(ParserContext("No whitespace"))).isNull()
-        whitespaceEater.tryParse(ParserContext("\t\t   \n\nLots of whitespace"))!!.let { result ->
+        whitespaceEater.tryParse(ParserContext("\t\t \n  \n\tLots of whitespace"))!!.let { result ->
             assertThat(result.ctx.remaining).isEqualTo("Lots of whitespace")
         }
     }

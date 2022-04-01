@@ -18,6 +18,12 @@ class LetterParser : Parser<Char> {
     }
 }
 
+class WhitespaceParser : Parser<Char> {
+    override fun tryParse(ctx: ParserContext): ParseResult<Char>? {
+        return ctx.getChar()?.takeIf { c -> c.isWhitespace() }?.let { c -> ParseResult(ctx.incStart(), c) }
+    }
+}
+
 class DigitParser : Parser<Int> {
     override fun tryParse(ctx: ParserContext): ParseResult<Int>? {
         return ctx.getChar()?.takeIf { c -> c.isDigit() }?.let { c -> ParseResult(ctx.incStart(), c.digitToInt()) }
@@ -27,6 +33,18 @@ class DigitParser : Parser<Int> {
 class LetterOrDigitParser : Parser<Char> {
     override fun tryParse(ctx: ParserContext): ParseResult<Char>? {
         return ctx.getChar()?.takeIf { c -> c.isLetterOrDigit() }?.let { c -> ParseResult(ctx.incStart(), c) }
+    }
+}
+
+class NonWhitespaceParser : Parser<Char> {
+    override fun tryParse(ctx: ParserContext): ParseResult<Char>? {
+        return ctx.getChar()?.takeIf { c -> !c.isWhitespace() }?.let { c -> ParseResult(ctx.incStart(), c) }
+    }
+}
+
+class EndOfTextParser : Parser<Unit> {
+    override fun tryParse(ctx: ParserContext): ParseResult<Unit>? {
+        return ctx.isFinished.ifTrue { ParseResult(ctx, Unit) }
     }
 }
 
@@ -70,11 +88,17 @@ class MatchTextParser(private val text: String) : Parser<String> {
 
 class EatCharParser(private val c: Char) : Parser<Unit> {
     override fun tryParse(ctx: ParserContext): ParseResult<Unit>? {
-        return MatchCharParser(c).map { }.tryParse(ctx)
+        return MatchCharParser(c).map { }.tryParse(ctx)  // Convert to Unit
     }
 }
 
-class EatWhitespaceParser : Parser<Unit> {
+class EatWhitespaceParser(private val c: Char) : Parser<Unit> {
+    override fun tryParse(ctx: ParserContext): ParseResult<Unit>? {
+        return MatchCharParser(c).map { }.tryParse(ctx) // Convert to Unit
+    }
+}
+
+class EatAllWhitespaceParser : Parser<Unit> {
     override fun tryParse(ctx: ParserContext): ParseResult<Unit>? {
         val str = ctx.takeWhile { c -> c.isWhitespace() }
         return str.isNotEmpty().ifTrue { ParseResult(ctx.incStart(str.length), Unit) }
@@ -83,7 +107,6 @@ class EatWhitespaceParser : Parser<Unit> {
 
 class EatTextParser(private val text: String) : Parser<Unit> {
     override fun tryParse(ctx: ParserContext): ParseResult<Unit>? {
-        return MatchTextParser(text).map { }.tryParse(ctx)
+        return MatchTextParser(text).map { }.tryParse(ctx)  // Convert to Unit
     }
 }
-

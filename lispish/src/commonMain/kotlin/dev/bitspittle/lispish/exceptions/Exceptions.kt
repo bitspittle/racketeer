@@ -1,6 +1,10 @@
 package dev.bitspittle.lispish.exceptions
 
+import dev.bitspittle.lispish.parser.ParserContext
+
 abstract class LispishException(msg: String): Exception(msg)
+
+private fun createCodeErrorMessage(code: String, index: Int, msg: String) = createCodeErrorMessage(code, index, length = 1, msg)
 
 /**
  * Message will look something like:
@@ -11,22 +15,24 @@ abstract class LispishException(msg: String): Exception(msg)
  * Error occurred here:
  *
  * > method arg1 arg2 submethod $var
- *               ^
+ *               ^^^^
  * ```
  */
-private fun createCodeErrorMessage(code: String, index: Int, msg: String) =
+private fun createCodeErrorMessage(code: String, index: Int, length: Int, msg: String) =
     """
         $msg
 
         Error occurred here:
 
         > $code
-          ${"^".padStart(index)}
+          ${"^".repeat(length).padStart(index)}
     """.trimIndent()
 
-class ParseException(code: String, index: Int, msg: String): LispishException(
-    createCodeErrorMessage(code, index, msg)
-)
+class ParseException(ctx: ParserContext, length: Int, msg: String): LispishException(
+    createCodeErrorMessage(ctx.text, ctx.startIndex, length, msg)
+) {
+    constructor(ctx: ParserContext, msg: String): this(ctx, length = 1, msg)
+}
 
 class EvaluationException(code: String, index: Int, msg: String): LispishException(
     createCodeErrorMessage(code, index, msg)
