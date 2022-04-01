@@ -77,13 +77,13 @@ class TextParserTests {
         var ctx = ParserContext("12!")
 
         digitParser.tryParse(ctx)!!.let { result ->
-            assertThat(result.value).isEqualTo(1)
+            assertThat(result.value).isEqualTo('1')
             assertThat(result.ctx.remaining).isEqualTo("2!")
             ctx = result.ctx
         }
 
         digitParser.tryParse(ctx)!!.let { result ->
-            assertThat(result.value).isEqualTo(2)
+            assertThat(result.value).isEqualTo('2')
             assertThat(result.ctx.remaining).isEqualTo("!")
             ctx = result.ctx
         }

@@ -4,24 +4,24 @@ import com.varabyte.truthish.assertThat
 import com.varabyte.truthish.assertThrows
 import dev.bitspittle.limp.exceptions.ParseException
 import dev.bitspittle.limp.parser.ParserContext
-import dev.bitspittle.limp.parser.parsers.code.IdentifierParser
+import dev.bitspittle.limp.parser.parsers.code.IdentifierExprParser
 import kotlin.test.Test
 
 class CodeParserTests {
     @Test
     fun testIdentifierParser() {
-        val identifierParser = IdentifierParser()
+        val identifierParser = IdentifierExprParser()
 
         identifierParser.tryParse(ParserContext("valid-id123"))!!.let { result ->
-            assertThat(result.value).isEqualTo("valid-id123")
+            assertThat(result.value.identifier).isEqualTo("valid-id123")
         }
 
         identifierParser.tryParse(ParserContext("id-ends-at-whitespace\tetc."))!!.let { result ->
-            assertThat(result.value).isEqualTo("id-ends-at-whitespace")
+            assertThat(result.value.identifier).isEqualTo("id-ends-at-whitespace")
         }
 
         identifierParser.tryParse(ParserContext("id-ends-at-rparens)"))!!.let { result ->
-            assertThat(result.value).isEqualTo("id-ends-at-rparens")
+            assertThat(result.value.identifier).isEqualTo("id-ends-at-rparens")
         }
 
         assertThat(identifierParser.tryParse(ParserContext("(hello)"))).isNull()

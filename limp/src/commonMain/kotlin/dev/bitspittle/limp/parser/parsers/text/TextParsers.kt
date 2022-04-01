@@ -24,9 +24,9 @@ class WhitespaceParser : Parser<Char> {
     }
 }
 
-class DigitParser : Parser<Int> {
-    override fun tryParse(ctx: ParserContext): ParseResult<Int>? {
-        return ctx.getChar()?.takeIf { c -> c.isDigit() }?.let { c -> ParseResult(ctx.incStart(), c.digitToInt()) }
+class DigitParser : Parser<Char> {
+    override fun tryParse(ctx: ParserContext): ParseResult<Char>? {
+        return ctx.getChar()?.takeIf { c -> c.isDigit() }?.let { c -> ParseResult(ctx.incStart(), c) }
     }
 }
 
