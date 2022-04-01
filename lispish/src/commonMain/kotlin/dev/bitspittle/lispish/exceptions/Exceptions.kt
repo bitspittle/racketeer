@@ -1,4 +1,4 @@
-package dev.bitspittle.lispish
+package dev.bitspittle.lispish.exceptions
 
 abstract class LispishException(msg: String): Exception(msg)
 
