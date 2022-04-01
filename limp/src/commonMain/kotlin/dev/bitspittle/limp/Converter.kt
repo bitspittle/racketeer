@@ -16,10 +16,6 @@ class Converters {
     }
 
     fun <T: Any> convert(value: Any, toClass: KClass<T>): T? {
-        if (value::class == toClass) {
-            return value as T
-        }
-
         return converters[toClass]?.convert(value) as T?
     }
 }

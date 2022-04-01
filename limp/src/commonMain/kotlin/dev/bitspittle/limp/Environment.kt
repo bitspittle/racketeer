@@ -3,26 +3,35 @@ package dev.bitspittle.limp
 import kotlin.reflect.KClass
 
 class Environment {
-    private val methodsStack = mutableListOf<MutableMap<String, Method>>()
-    private val variablesStack = mutableListOf<MutableMap<String, Value>>()
-    private val convertersStack = mutableListOf<Converters>()
+    private val methodsStack = mutableListOf<MutableMap<String, Method>?>()
+    private val variablesStack = mutableListOf<MutableMap<String, Value>?>()
+    private val convertersStack = mutableListOf<Converters?>()
     init {
         // Populate stacks
         pushScope()
     }
 
     fun add(method: Method) {
-        require(!methodsStack.last().contains(method.name)) { "Attempted to register a method named \"${method.name}\" when one already exists at the current scope. Use `pushScope` first if you really want to do this."}
-        methodsStack.last()[method.name] = method
+        val methods = methodsStack.last() ?: mutableMapOf()
+        methodsStack[methodsStack.lastIndex] = methods
+
+        require(!methods.contains(method.name)) { "Attempted to register a method named \"${method.name}\" when one already exists at the current scope. Use `pushScope` first if you really want to do this."}
+        methods[method.name] = method
     }
 
     fun add(converter: Converter<*>) {
-        convertersStack.last().register(converter)
+        val converters = convertersStack.last() ?: Converters()
+        convertersStack[convertersStack.lastIndex] = converters
+
+        converters.register(converter)
     }
 
     fun set(name: String, value: Value) {
-        require(!variablesStack.last().contains(name)) { "Attempted to register a variable named \"$name\" when one already exists at the current scope. Use `pushScope` first if you really want to do this."}
-        variablesStack.last()[name] = value
+        val variables = variablesStack.last() ?: mutableMapOf()
+        variablesStack[variablesStack.lastIndex] = variables
+
+        require(!variables.contains(name)) { "Attempted to register a variable named \"$name\" when one already exists at the current scope. Use `pushScope` first if you really want to do this."}
+        variables[name] = value
     }
 
     fun <T: Any> scoped(block: () -> T): T {
@@ -36,9 +45,9 @@ class Environment {
     }
 
     fun pushScope() {
-        methodsStack.add(mutableMapOf())
-        variablesStack.add(mutableMapOf())
-        convertersStack.add(Converters())
+        methodsStack.add(null)
+        variablesStack.add(null)
+        convertersStack.add(null)
     }
 
     fun popScope() {
@@ -51,18 +60,26 @@ class Environment {
 
     fun getMethod(name: String): Method? {
         return methodsStack.reversed().asSequence()
+            .filterNotNull()
             .mapNotNull { methods -> methods[name] }
             .firstOrNull()
     }
 
     fun getValue(name: String): Value? {
         return variablesStack.reversed().asSequence()
-            .mapNotNull { methods -> methods[name] }
+            .filterNotNull()
+            .mapNotNull { variables -> variables[name] }
             .firstOrNull()
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun <T: Any> convert(value: Value, toClass: KClass<T>): T? {
+        if (value.wrapped::class == toClass) {
+            return value.wrapped as T
+        }
+
         return convertersStack.reversed().asSequence()
+            .filterNotNull()
             .mapNotNull { converters -> value.into(converters, toClass) }
             .firstOrNull()
     }
