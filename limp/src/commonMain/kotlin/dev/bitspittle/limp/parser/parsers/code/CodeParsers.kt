@@ -7,7 +7,7 @@ import dev.bitspittle.limp.parser.ParserContext
 import dev.bitspittle.limp.parser.parsers.combinators.*
 import dev.bitspittle.limp.parser.parsers.text.*
 
-private val ALLOWED_SYMBOLS = listOf('$', '_', '%', '+', '-', '*', '/', '|', '&', '.', '=', '<', '>')
+private val ALLOWED_SYMBOLS = listOf('$', '_', '%', '+', '-', '*', '/', '|', '&', '!', '.', '=', '<', '>')
 private val END_BOUNDARY_CHARS = listOf(')')
 
 class EatEndBoundaryParser : Parser<Unit> {
