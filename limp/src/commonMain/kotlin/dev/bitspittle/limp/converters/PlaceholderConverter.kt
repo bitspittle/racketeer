@@ -2,6 +2,7 @@ package dev.bitspittle.limp.converters
 
 import dev.bitspittle.limp.Converter
 import dev.bitspittle.limp.types.Placeholder
+import dev.bitspittle.limp.utils.ifTrue
 import kotlin.reflect.KClass
 
 /**
@@ -9,10 +10,6 @@ import kotlin.reflect.KClass
  */
 class PlaceholderConverter<T: Any>(private val toValue: T) : Converter<T>(toValue::class) {
     override fun convert(value: Any): T? {
-        return if (value === Placeholder) {
-            toValue
-        } else {
-            null
-        }
+        return (value === Placeholder).ifTrue { toValue }
     }
 }
