@@ -21,10 +21,14 @@ kotlin {
             dependencies {
                 implementation(libs.kotlin.test.common)
                 implementation(libs.kotlin.test.annotations.common)
-                implementation(libs.truthish)
+                implementation(libs.truthish.common)
             }
         }
 
-        val jvmTest by getting
+        val jvmTest by getting {
+            dependencies {
+                implementation(libs.truthish.jvm)
+            }
+        }
     }
 }

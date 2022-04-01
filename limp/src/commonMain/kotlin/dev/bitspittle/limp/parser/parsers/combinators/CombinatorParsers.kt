@@ -76,8 +76,11 @@ class RepeatedParser<T: Any>(private val parser: Parser<T>, private val countRan
 
 fun <T: Any> Parser<T>.repeated(countRange: IntRange) = RepeatedParser(this, countRange)
 fun <T: Any> Parser<T>.repeated(count: Int) = RepeatedParser(this, IntRange(count, count))
-fun <T: Any> Parser<T>.oneOrMore() = repeated(IntRange(1, Int.MAX_VALUE))
-fun <T: Any> Parser<T>.zeroOrMore() = repeated(IntRange(0, Int.MAX_VALUE))
+fun <T: Any> Parser<T>.atLeast(n: Int) = repeated(IntRange(n, Int.MAX_VALUE))
+fun <T: Any> Parser<T>.atMost(n: Int) = repeated(IntRange(0, n))
+fun <T: Any> Parser<T>.oneOrMore() = atLeast(1)
+fun <T: Any> Parser<T>.zeroOrMore() = atLeast(0)
+fun <T: Any> Parser<T>.optional() = repeated(IntRange(0, 1))
 
 fun <T: Any, R: Any> ParseResult<T>.map(transform: (T) -> R): ParseResult<R> {
     return ParseResult(this.ctx, transform(this.value))

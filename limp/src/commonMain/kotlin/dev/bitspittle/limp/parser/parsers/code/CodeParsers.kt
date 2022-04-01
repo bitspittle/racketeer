@@ -11,19 +11,29 @@ import dev.bitspittle.limp.types.ExprContext
 import dev.bitspittle.limp.types.from
 
 private val ALLOWED_SYMBOLS = listOf('$', '_', '%', '+', '-', '*', '/', '|', '&', '!', '.', '=', '<', '>')
-private val END_BOUNDARY_CHARS = listOf(')')
+private val END_BOUNDARY_CHARS = listOf(')', '#')
 
-@Suppress("UNCHECKED_CAST")
-class ExprParser : Parser<Expr> {
+/** Parsing for everything that evaluates to a single item in an expression chain.
+ *
+ * Basically, everything but the expression chain itself. This approach allows us to avoid
+ * an issue with infinite recursion.
+ */
+class SingleExprParser : Parser<Expr> {
     override fun tryParse(ctx: ParserContext): ParseResult<Expr>? {
         NumberExprParser().tryParse(ctx)?.let { return it }
         TextExprParser().tryParse(ctx)?.let { return it }
         DeferredExprParser().tryParse(ctx)?.let { return it }
         IdentifierExprParser().tryParse(ctx)?.let { return it }
-        ChainExprParser().tryParse(ctx)?.let { return it }
         BlockExprParser().tryParse(ctx)?.let { return it }
 
         return null
+    }
+}
+
+class ExprParser : Parser<Expr> {
+    override fun tryParse(ctx: ParserContext): ParseResult<Expr>? {
+        val result = ChainExprParser().tryParse(ctx) ?: return null
+        return if (result.value.exprs.size == 1) result.map { it.exprs[0] } else { result }
     }
 }
 
@@ -50,6 +60,15 @@ class TextExprParser : Parser<Expr.Text> {
 
         val text = result.value.first.value.second.value.joinToString("")
         return result.map { Expr.Text(text, ExprContext.from(ctx, result)) }
+    }
+}
+
+class EatCommentParser : Parser<Unit> {
+    override fun tryParse(ctx: ParserContext): ParseResult<Unit>? {
+        return EatIfMatchAllParser(
+            MatchCharParser('#'),
+            EatRemainingParser(),
+        ).tryParse(ctx)
     }
 }
 
@@ -86,29 +105,31 @@ class DeferredExprParser : Parser<Expr.Deferred> {
 
 class ChainExprParser : Parser<Expr.Chain> {
     override fun tryParse(ctx: ParserContext): ParseResult<Expr.Chain>? {
-        val result = (ExprParser()
-                then EatAllWhitespaceParser().zeroOrMore()
-                ).oneOrMore()
-            .tryParse(ctx) ?: return null
+        val result = run {
+            val leadingWhitespace = EatAllWhitespaceParser().optional().tryParse(ctx) ?: return null
+            ((SingleExprParser() then EatAllWhitespaceParser().optional()).oneOrMore() then EatCommentParser().optional())
+                .tryParse(leadingWhitespace.ctx)
+        } ?: return null
 
-        val exprs = result.value.map { it.first.value }
+        // The first part of the parse result is a list of "expr to whitespace" pairs, and the second part just
+        // represents eaten comments. Here, we get the first part and pull exprs out of hte list of pairs.
+        val exprs = result.first.value.map { it.first.value }
         return result.map { Expr.Chain(exprs, ExprContext.from(ctx, result)) }
     }
 }
 
-
 class BlockExprParser : Parser<Expr.Block> {
     override fun tryParse(ctx: ParserContext): ParseResult<Expr.Block>? {
         val openParenResult = MatchCharParser('(').tryParse(ctx) ?: return null
-        val chainResult = ChainExprParser().tryParse(ctx) ?: throw ParseException(
+        val innerExpr = ExprParser().tryParse(openParenResult.ctx) ?: throw ParseException(
             ctx,
             "Malformed or missing expression."
         )
-        val result = MatchCharParser(')').tryParse(ctx) ?: throw ParseException(
+        val result = MatchCharParser(')').tryParse(innerExpr.ctx) ?: throw ParseException(
             ctx,
             "Open parentheses is missing a matching closing parentheses."
         )
 
-        return result.map { Expr.Block(chainResult.value, ExprContext.from(ctx, result)) }
+        return result.map { Expr.Block(innerExpr.value, ExprContext.from(ctx, result)) }
     }
 }

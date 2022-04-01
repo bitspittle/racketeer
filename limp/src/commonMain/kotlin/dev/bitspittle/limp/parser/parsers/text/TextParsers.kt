@@ -4,6 +4,7 @@ import dev.bitspittle.limp.parser.ParseResult
 import dev.bitspittle.limp.parser.Parser
 import dev.bitspittle.limp.parser.ParserContext
 import dev.bitspittle.limp.parser.parsers.combinators.map
+import dev.bitspittle.limp.parser.parsers.combinators.zeroOrMore
 import dev.bitspittle.limp.utils.ifTrue
 
 class AnyCharParser : Parser<Char> {
@@ -108,5 +109,11 @@ class EatAllWhitespaceParser : Parser<Unit> {
 class EatTextParser(private val text: String) : Parser<Unit> {
     override fun tryParse(ctx: ParserContext): ParseResult<Unit>? {
         return MatchTextParser(text).map { }.tryParse(ctx)  // Convert to Unit
+    }
+}
+
+class EatRemainingParser : Parser<Unit> {
+    override fun tryParse(ctx: ParserContext): ParseResult<Unit>? {
+        return AnyCharParser().zeroOrMore().map { }.tryParse(ctx) // Convert to Unit
     }
 }
