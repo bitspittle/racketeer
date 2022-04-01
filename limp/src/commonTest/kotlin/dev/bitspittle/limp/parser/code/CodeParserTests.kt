@@ -6,6 +6,8 @@ import dev.bitspittle.limp.exceptions.ParseException
 import dev.bitspittle.limp.parser.ParserContext
 import dev.bitspittle.limp.parser.parsers.code.ExprParser
 import dev.bitspittle.limp.parser.parsers.code.IdentifierExprParser
+import dev.bitspittle.limp.parser.parsers.code.TextExprParser
+import dev.bitspittle.limp.parser.parsers.text.TextParser
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.walk
 import kotlin.test.Test
@@ -37,6 +39,23 @@ class CodeParserTests {
                 identifierParser.tryParse(ParserContext("invalid${invalidChar}char"))
             }
         }
+    }
+
+    @Test
+    fun testTextParsing() {
+        val textParser = TextExprParser()
+
+        textParser.tryParse(ParserContext("\"this is some text alright\""))!!.let { result ->
+            assertThat(result.value.text).isEqualTo("this is some text alright")
+        }
+
+        textParser.tryParse(ParserContext(""""I was impressed. \"You supported nested quotes?\", I asked.""""))!!
+            .let { result ->
+                assertThat(result.value.text).isEqualTo("I was impressed. \"You supported nested quotes?\", I asked.")
+            }
+
+        assertThat(textParser.tryParse(ParserContext("not a string without a leading quote\""))).isNull()
+        assertThat(textParser.tryParse(ParserContext("\"not a string without a trailing quote"))).isNull()
     }
 
     @Test

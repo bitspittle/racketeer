@@ -47,8 +47,8 @@ class NumberExprParser : Parser<Expr.Number> {
 class TextExprParser : Parser<Expr.Text> {
     override fun tryParse(ctx: ParserContext): ParseResult<Expr.Text>? {
         val result = (MatchCharParser('"') then
-                (MatchTextParser("\\\"") or
-                        AnyCharParser().withPredicate { c -> c != '"' }.map { c -> c.toString() })
+                (MatchTextParser("\\\"").map { '"' } or
+                        AnyCharParser().withPredicate { c -> c != '"' })
                     .zeroOrMore() then
                 MatchCharParser('"')
                 )
@@ -57,8 +57,8 @@ class TextExprParser : Parser<Expr.Text> {
         // The above creates a nested structure like:
         // ((" to text) to ")
         // The text we want is the second part of the first item
-
         val text = result.value.first.value.second.value.joinToString("")
+
         return result.map { Expr.Text(text, ExprContext.from(ctx, result)) }
     }
 }
