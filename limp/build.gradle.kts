@@ -1,9 +1,8 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.kotlinx.serialization)
 }
 
-group = "dev.bitspittle.racketeer.model"
+group = "dev.bitspittle.limp"
 
 repositories {
     maven("https://us-central1-maven.pkg.dev/varabyte-repos/public")
@@ -16,17 +15,16 @@ kotlin {
     }
     sourceSets {
         val commonMain by getting {
-            dependencies {
-                implementation(libs.yamlkt)
-                implementation(project(":limp"))
-            }
         }
 
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlin.test.common)
                 implementation(libs.kotlin.test.annotations.common)
+                implementation(libs.truthish)
             }
         }
+
+        val jvmTest by getting
     }
 }
