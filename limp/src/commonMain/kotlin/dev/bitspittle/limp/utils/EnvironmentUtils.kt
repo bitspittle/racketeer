@@ -5,6 +5,7 @@ import dev.bitspittle.limp.Value
 import dev.bitspittle.limp.methods.collection.InMethod
 import dev.bitspittle.limp.methods.collection.ListMethod
 import dev.bitspittle.limp.methods.collection.ShuffleMethod
+import dev.bitspittle.limp.methods.collection.UnionMethod
 import dev.bitspittle.limp.methods.logic.AndMethod
 import dev.bitspittle.limp.methods.logic.NotMethod
 import dev.bitspittle.limp.methods.logic.OrMethod
@@ -55,4 +56,5 @@ fun Environment.installUsefulDefaults() {
     addMethod(ListMethod())
     addMethod(InMethod())
     addMethod(ShuffleMethod())
+    addMethod(UnionMethod())
 }

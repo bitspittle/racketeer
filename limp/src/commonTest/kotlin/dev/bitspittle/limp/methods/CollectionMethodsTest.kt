@@ -5,9 +5,11 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Value
 import dev.bitspittle.limp.methods.collection.InMethod
 import dev.bitspittle.limp.methods.collection.ShuffleMethod
+import dev.bitspittle.limp.methods.collection.UnionMethod
 import kotlin.random.Random
 import kotlin.test.Test
 
+@Suppress("UNCHECKED_CAST")
 class CollectionMethodsTest {
     @Test
     fun testInMethod() {
@@ -44,5 +46,20 @@ class CollectionMethodsTest {
 
         // Original ints are not affected
         assertThat(ints).containsExactly(1, 2, 3, 4, 5).inOrder()
+    }
+
+    @Test
+    fun testUnionMethod() {
+        val env = Environment()
+        val method = UnionMethod()
+
+        val ints1 = listOf(1, 2, 3, 4, 5)
+        val ints2 = listOf(6, 7, 8, 9, 10)
+        val ints3 = listOf(11, 12, 13, 14, 15)
+
+        assertThat(method.invoke(env, listOf(), rest = listOf(Value(ints1), Value(ints2), Value(ints3))).wrapped as List<Int>)
+            .containsExactly(1 .. 15).inOrder()
+
+        assertThat(method.invoke(env, listOf()).wrapped as List<Int>).isEmpty()
     }
 }
