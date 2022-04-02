@@ -1,6 +1,7 @@
 package dev.bitspittle.limp.exceptions
 
 import dev.bitspittle.limp.parser.ParserContext
+import dev.bitspittle.limp.types.ExprContext
 
 abstract class LispishException(msg: String): Exception(msg)
 
@@ -34,6 +35,6 @@ class ParseException(ctx: ParserContext, length: Int, msg: String): LispishExcep
     constructor(ctx: ParserContext, msg: String): this(ctx, length = 1, msg)
 }
 
-class EvaluationException(code: String, index: Int, msg: String): LispishException(
-    createCodeErrorMessage(code, index, msg)
+class EvaluationException(ctx: ExprContext, msg: String): LispishException(
+    createCodeErrorMessage(ctx.code, ctx.start, ctx.length, msg)
 )
