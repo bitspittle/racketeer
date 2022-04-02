@@ -1,8 +1,9 @@
-package dev.bitspittle.limp.methods.math
+package dev.bitspittle.limp.methods
 
 import com.varabyte.truthish.assertThat
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Value
+import dev.bitspittle.limp.methods.math.*
 import kotlin.test.Test
 
 class MathMethodsTest {
