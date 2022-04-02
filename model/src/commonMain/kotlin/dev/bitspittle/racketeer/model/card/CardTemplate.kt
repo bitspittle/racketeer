@@ -12,6 +12,7 @@ data class CardTemplate(
     val name: String,
     val flavor: String,
     val types: List<String>,
+    val level: Int = 0,
     val tier: Int = 0,
     val vp: Int = 0,
     val cost: Int = 0,
