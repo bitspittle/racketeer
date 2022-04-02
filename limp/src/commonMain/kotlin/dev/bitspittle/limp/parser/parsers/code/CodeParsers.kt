@@ -67,7 +67,7 @@ class EatCommentParser : Parser<Unit> {
     override fun tryParse(ctx: ParserContext): ParseResult<Unit>? {
         return EatIfMatchAllParser(
             MatchCharParser('#'),
-            EatRemainingParser(),
+            EatAnyWhileParser { c -> c != '\n' } then EatCharParser('\n').optional()
         ).tryParse(ctx)
     }
 }
@@ -105,15 +105,14 @@ class DeferredExprParser : Parser<Expr.Deferred> {
 
 class ChainExprParser : Parser<Expr.Chain> {
     override fun tryParse(ctx: ParserContext): ParseResult<Expr.Chain>? {
-        val result = run {
-            val leadingWhitespace = EatAllWhitespaceParser().optional().tryParse(ctx) ?: return null
-            ((SingleExprParser() then EatAllWhitespaceParser().optional()).oneOrMore() then EatCommentParser().optional())
-                .tryParse(leadingWhitespace.ctx)
-        } ?: return null
+        val result =
+            (EatAnyWhitespaceParser() then SingleExprParser() then EatAnyWhitespaceParser() then EatCommentParser().optional()).oneOrMore()
+                .tryParse(ctx)
+                ?: return null
 
-        // The first part of the parse result is a list of "expr to whitespace" pairs, and the second part just
-        // represents eaten comments. Here, we get the first part and pull exprs out of hte list of pairs.
-        val exprs = result.first.value.map { it.first.value }
+        // The above parsing creates a List<(((Whitespace to Expr) to Whitespace) to Comment)> chain. We only care
+        // about the inner "Expr" part. It's gnarly to peel it out, but that's what we're doing below!
+        val exprs = result.value.map { it.first.value.first.value.second.value }
         return result.map { Expr.Chain(exprs, ExprContext.from(ctx, result)) }
     }
 }

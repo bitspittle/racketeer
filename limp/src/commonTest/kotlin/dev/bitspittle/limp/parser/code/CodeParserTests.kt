@@ -4,15 +4,19 @@ import com.varabyte.truthish.assertThat
 import com.varabyte.truthish.assertThrows
 import dev.bitspittle.limp.exceptions.ParseException
 import dev.bitspittle.limp.parser.ParserContext
+import dev.bitspittle.limp.parser.parsers.code.DeferredExprParser
 import dev.bitspittle.limp.parser.parsers.code.ExprParser
 import dev.bitspittle.limp.parser.parsers.code.IdentifierExprParser
 import dev.bitspittle.limp.parser.parsers.code.TextExprParser
-import dev.bitspittle.limp.parser.parsers.text.TextParser
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.walk
+import kotlin.math.exp
 import kotlin.test.Test
 
 class CodeParserTests {
+    private fun Expr.debugLines() = this.walk()
+        .map { "${it::class.simpleName}: ${it.ctx.text}" }
+
     @Test
     fun testIdentifierParser() {
         val identifierParser = IdentifierExprParser()
@@ -59,6 +63,31 @@ class CodeParserTests {
     }
 
     @Test
+    fun testDeferredParsing() {
+        val deferredParser = DeferredExprParser()
+
+        deferredParser.tryParse(ParserContext("'symbol"))!!.let { result ->
+            assertThat((result.value.expr as Expr.Identifier).name).isEqualTo("symbol")
+        }
+
+        deferredParser.tryParse(ParserContext("'(a b c)"))!!.let { result ->
+            assertThat(result.value.expr.ctx.text).isEqualTo("(a b c)")
+        }
+
+        deferredParser.tryParse(ParserContext("'''nested"))!!.let { result ->
+            assertThat(result.value.debugLines()).containsExactly(
+                "Deferred: '''nested",
+                "Deferred: ''nested",
+                "Deferred: 'nested",
+                "Identifier: nested",
+            ).inOrder()
+        }
+
+        assertThat(deferredParser.tryParse(ParserContext("not'deferred"))).isNull()
+    }
+
+
+    @Test
     fun testParsingSimpleExpressions() {
         val exprParser = ExprParser()
 
@@ -87,15 +116,41 @@ class CodeParserTests {
             assertThat((result.value as Expr.Identifier).name).isEqualTo("preceding-space-is-ignored")
             assertThat(result.ctx.isFinished).isTrue()
         }
+
+        // Expressions don't care about being broken up into multiple lines
+        exprParser.tryParse(ParserContext("a b c\nd e f"))!!.let { result ->
+            assertThat(result.value.debugLines()).containsExactly(
+                "Chain: a b c\nd e f",
+                "Identifier: a",
+                "Identifier: b",
+                "Identifier: c",
+                "Identifier: d",
+                "Identifier: e",
+                "Identifier: f",
+            ).inOrder()
+
+        }
     }
 
     @Test
     fun testComment() {
         val exprParser = ExprParser()
 
-        exprParser.tryParse(ParserContext("comments-work # I can write whatever I want!"))!!.let { result ->
+        exprParser.tryParse(ParserContext("comments-work #### I can write whatever I want!"))!!.let { result ->
             assertThat((result.value as Expr.Identifier).name).isEqualTo("comments-work")
             assertThat(result.ctx.isFinished).isTrue()
+        }
+
+        exprParser.tryParse(ParserContext("line1 # Comment ends at newline\nline2"))!!.let { result ->
+            (result.value as Expr.Chain).exprs.let { exprs ->
+                assertThat(exprs).hasSize(2)
+                assertThat((exprs[0] as Expr.Identifier).name).isEqualTo("line1")
+                assertThat((exprs[1] as Expr.Identifier).name).isEqualTo("line2")
+            }
+        }
+
+        exprParser.tryParse(ParserContext("\"String # chars are not consumed as a comment\""))!!.let { result ->
+            assertThat((result.value as Expr.Text).text).isEqualTo("String # chars are not consumed as a comment")
         }
 
         exprParser.tryParse(ParserContext("1 2 3 4 # comments work in chains too"))!!.let { result ->
@@ -134,10 +189,7 @@ class CodeParserTests {
         }
 
          exprParser.tryParse(ParserContext("(((nested blocks) are) totally (fine))"))!!.let { result ->
-            assertThat(
-                result.value.walk()
-                    .map { "${it::class.simpleName}: ${it.ctx.text}" }
-            ).containsExactly(
+            assertThat(result.value.debugLines()).containsExactly(
                 "Block: (((nested blocks) are) totally (fine))",
                 "Chain: ((nested blocks) are) totally (fine)",
                 "Block: ((nested blocks) are)",

@@ -4,7 +4,6 @@ import dev.bitspittle.limp.parser.ParseResult
 import dev.bitspittle.limp.parser.Parser
 import dev.bitspittle.limp.parser.ParserContext
 import dev.bitspittle.limp.parser.parsers.combinators.map
-import dev.bitspittle.limp.parser.parsers.combinators.zeroOrMore
 import dev.bitspittle.limp.utils.ifTrue
 
 class AnyCharParser : Parser<Char> {
@@ -93,16 +92,10 @@ class EatCharParser(private val c: Char) : Parser<Unit> {
     }
 }
 
-class EatWhitespaceParser(private val c: Char) : Parser<Unit> {
-    override fun tryParse(ctx: ParserContext): ParseResult<Unit>? {
-        return MatchCharParser(c).map { }.tryParse(ctx) // Convert to Unit
-    }
-}
-
-class EatAllWhitespaceParser : Parser<Unit> {
-    override fun tryParse(ctx: ParserContext): ParseResult<Unit>? {
+class EatAnyWhitespaceParser : Parser<Unit> {
+    override fun tryParse(ctx: ParserContext): ParseResult<Unit> {
         val str = ctx.takeWhile { c -> c.isWhitespace() }
-        return str.isNotEmpty().ifTrue { ParseResult(ctx.incStart(str.length), Unit) }
+        return ParseResult(ctx.incStart(str.length), Unit)
     }
 }
 
@@ -112,8 +105,9 @@ class EatTextParser(private val text: String) : Parser<Unit> {
     }
 }
 
-class EatRemainingParser : Parser<Unit> {
-    override fun tryParse(ctx: ParserContext): ParseResult<Unit>? {
-        return AnyCharParser().zeroOrMore().map { }.tryParse(ctx) // Convert to Unit
+class EatAnyWhileParser(private val cond: (Char) -> Boolean) : Parser<Unit> {
+    override fun tryParse(ctx: ParserContext): ParseResult<Unit> {
+        val str = ctx.takeWhile(cond)
+        return ParseResult(ctx.incStart(str.length), Unit)
     }
 }
