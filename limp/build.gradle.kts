@@ -30,5 +30,11 @@ kotlin {
                 implementation(libs.truthish.jvm)
             }
         }
+
+        val jsTest by getting {
+            dependencies {
+                implementation(libs.truthish.js)
+            }
+        }
     }
 }

@@ -3,7 +3,7 @@ jetbrains-compose = "1.0.1"
 kobweb = "0.9.10"
 kotlin = "1.6.10"
 kotter = "0.9.6"
-truthish = "0.6.1"
+truthish = "0.6.2-SNAPSHOT"
 yamlkt = "0.10.2"
 
 [libraries]
@@ -17,6 +17,7 @@ kotlin-test-annotations-common = { module = "org.jetbrains.kotlin:kotlin-test-an
 kotter = { module = "com.varabyte.kotter:kotter", version.ref = "kotter" }
 truthish-common = { module = "com.varabyte.truthish:truthish", version.ref = "truthish" }
 truthish-jvm = { module = "com.varabyte.truthish:truthish-jvm", version.ref = "truthish" }
+truthish-js = { module = "com.varabyte.truthish:truthish-js", version.ref = "truthish" }
 yamlkt = { module = "net.mamoe.yamlkt:yamlkt", version.ref = "yamlkt" }
 
 [plugins]
