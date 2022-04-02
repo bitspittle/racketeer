@@ -28,6 +28,18 @@ class EvaluatorTest {
     }
 
     @Test
+    fun testEvaluationWithPlaceholder() {
+        val env = Environment()
+        env.add(IntRangeMethod())
+        env.set("_", Value.Placeholder)
+
+        val evaluator = Evaluator()
+        assertThat(evaluator.evaluate(env, ".. _ 10").wrapped).isEqualTo(0 .. 10)
+        assertThat(evaluator.evaluate(env, ".. 1 _").wrapped).isEqualTo(1 .. Int.MAX_VALUE)
+        assertThat(evaluator.evaluate(env, ".. _ _").wrapped).isEqualTo(0 .. Int.MAX_VALUE)
+    }
+
+    @Test
     fun testEvaluationWithOptionalParameters() {
         val env = Environment()
         env.add(IntRangeMethod())
