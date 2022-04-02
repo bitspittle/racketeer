@@ -74,7 +74,7 @@ class Environment {
 
     @Suppress("UNCHECKED_CAST")
     fun <T: Any> convert(value: Value, toClass: KClass<T>): T? {
-        if (value.wrapped::class == toClass) {
+        if (toClass.isInstance(value.wrapped)) {
             return value.wrapped as T
         }
 

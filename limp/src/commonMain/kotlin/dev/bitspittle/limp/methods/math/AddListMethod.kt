@@ -6,7 +6,7 @@ import dev.bitspittle.limp.Value
 
 class AddListMethod : Method("sum", 1) {
     override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
-        val ints = env.expectConvert<ArrayList<Int>>(params[0])
+        val ints = env.expectConvert<List<Int>>(params[0])
         return Value(ints.sum())
     }
 }
