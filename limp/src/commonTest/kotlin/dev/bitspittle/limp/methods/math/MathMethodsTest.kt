@@ -21,4 +21,34 @@ class MathMethodsTest {
 
         assertThat(method.invoke(env, listOf(Value(5), Value(2))).wrapped).isEqualTo(3)
     }
+
+    @Test
+    fun testMinMehthod() {
+        val env = Environment()
+        val method = MinMethod()
+
+        assertThat(method.invoke(env, listOf(Value(5), Value(2))).wrapped).isEqualTo(2)
+        assertThat(method.invoke(env, listOf(Value(-5), Value(2))).wrapped).isEqualTo(-5)
+    }
+
+    @Test
+    fun testMaxMethod() {
+        val env = Environment()
+        val method = MaxMethod()
+
+        assertThat(method.invoke(env, listOf(Value(5), Value(2))).wrapped).isEqualTo(5)
+        assertThat(method.invoke(env, listOf(Value(-5), Value(2))).wrapped).isEqualTo(2)
+    }
+
+    @Test
+    fun testClampMethod() {
+        val env = Environment()
+        val method = ClampMethod()
+
+        assertThat(method.invoke(env, listOf(Value(0), Value(2), Value(5))).wrapped).isEqualTo(2)
+        assertThat(method.invoke(env, listOf(Value(2), Value(2), Value(5))).wrapped).isEqualTo(2)
+        assertThat(method.invoke(env, listOf(Value(4), Value(2), Value(5))).wrapped).isEqualTo(4)
+        assertThat(method.invoke(env, listOf(Value(5), Value(2), Value(5))).wrapped).isEqualTo(5)
+        assertThat(method.invoke(env, listOf(Value(9), Value(2), Value(5))).wrapped).isEqualTo(5)
+    }
 }

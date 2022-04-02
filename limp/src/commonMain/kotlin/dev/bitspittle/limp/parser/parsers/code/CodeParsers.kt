@@ -10,7 +10,7 @@ import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.ExprContext
 import dev.bitspittle.limp.types.from
 
-private val ALLOWED_SYMBOLS = listOf('$', '_', '%', '+', '-', '*', '/', '|', '&', '!', '.', '=', '<', '>')
+private val ALLOWED_SYMBOLS = listOf('$', '_', '%', '+', '-', '*', '^', '/', '|', '&', '!', '?', '.', '=', '<', '>')
 private val END_BOUNDARY_CHARS = listOf(')', '#')
 
 /** Parsing for everything that evaluates to a single item in an expression chain.
