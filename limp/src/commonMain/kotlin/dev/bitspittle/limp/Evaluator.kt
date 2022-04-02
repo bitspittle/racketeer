@@ -8,7 +8,7 @@ class Evaluator {
         return evaluate(env, Expr.parse(code))
     }
 
-    private fun evaluate(env: Environment, expr: Expr): Value {
+    fun evaluate(env: Environment, expr: Expr): Value {
         return when (expr) {
             is Expr.Text -> evaluateText(expr)
             is Expr.Number -> evaluateNumber(expr)

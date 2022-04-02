@@ -6,6 +6,7 @@ import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.collection.ListMethod
 import dev.bitspittle.limp.methods.math.*
 import dev.bitspittle.limp.methods.range.IntRangeMethod
+import dev.bitspittle.limp.methods.system.DefMethod
 import dev.bitspittle.limp.methods.system.SetMethod
 import kotlin.test.Test
 
@@ -109,6 +110,69 @@ class EvaluatorTest {
 
         assertThrows<EvaluationException> {
             assertThat(evaluator.evaluate(env, "set '(invalid variable name) 12")).isEqualTo(Value.Empty)
+        }
+    }
+
+    @Test
+    fun testDefineMethods() {
+        val env = Environment()
+        env.add(MinMethod())
+        env.add(MaxMethod())
+        env.add(DefMethod())
+
+        val evaluator = Evaluator()
+
+        // Define clamp
+        env.scoped {
+            assertThat(env.getValue("val")).isNull()
+            assertThat(env.getValue("low")).isNull()
+            assertThat(env.getValue("hi")).isNull()
+            assertThat(env.getMethod("clamp")).isNull()
+
+            evaluator.evaluate(env, "def 'clamp 'val 'low 'hi '(min (max low val) hi)")
+            env.getMethod("clamp")!!.let { result ->
+                assertThat(result.name).isEqualTo("clamp")
+                assertThat(result.numArgs).isEqualTo(3)
+                assertThat(result.consumeRest).isEqualTo(false)
+            }
+
+            assertThat(evaluator.evaluate(env, "clamp 1 2 4").wrapped).isEqualTo(2)
+            assertThat(evaluator.evaluate(env, "clamp 2 2 4").wrapped).isEqualTo(2)
+            assertThat(evaluator.evaluate(env, "clamp 3 2 4").wrapped).isEqualTo(3)
+            assertThat(evaluator.evaluate(env, "clamp 4 2 4").wrapped).isEqualTo(4)
+            assertThat(evaluator.evaluate(env, "clamp 5 2 4").wrapped).isEqualTo(4)
+
+            assertThat(env.getValue("val")).isNull()
+            assertThat(env.getValue("low")).isNull()
+            assertThat(env.getValue("hi")).isNull()
+        }
+
+        // Check the ability to define environment values AFTER defining a deferred lambda
+        env.scoped {
+            evaluator.evaluate(env, "def 'add3 'a 'b 'c '(+ a + b c)")
+            assertThat(env.getMethod("add3")).isNotNull()
+            assertThat(env.getMethod("+")).isNull()
+
+            assertThrows<EvaluationException> {
+                evaluator.evaluate(env, "add3 1 2 3")
+            }
+
+            env.add(AddMethod())
+            assertThat(evaluator.evaluate(env, "add3 1 2 3").wrapped).isEqualTo(6)
+        }
+
+        // Misc. error checking
+
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "def 'not-enough-params")
+        }
+
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "def '(bad name) 'arg1 'arg2 '(+ arg1 +arg2)")
+        }
+
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "def 'name 'arg1 '(bad name) '(+ arg1 +arg2)")
         }
     }
 
