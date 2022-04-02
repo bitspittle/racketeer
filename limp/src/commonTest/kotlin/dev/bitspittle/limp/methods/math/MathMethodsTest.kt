@@ -15,6 +15,15 @@ class MathMethodsTest {
     }
 
     @Test
+    fun testAddListMethod() {
+        val env = Environment()
+        val method = AddListMethod()
+
+        assertThat(method.invoke(env, listOf(Value(listOf(1, 2, 3)))).wrapped).isEqualTo(6)
+        assertThat(method.invoke(env, listOf(Value(listOf<Int>()))).wrapped).isEqualTo(0)
+    }
+
+    @Test
     fun testSubMethod() {
         val env = Environment()
         val method = SubMethod()
@@ -23,7 +32,42 @@ class MathMethodsTest {
     }
 
     @Test
-    fun testMinMehthod() {
+    fun testMulMethod() {
+        val env = Environment()
+        val method = MulMethod()
+
+        assertThat(method.invoke(env, listOf(Value(3), Value(2))).wrapped).isEqualTo(6)
+    }
+
+    @Test
+    fun testMulListMethod() {
+        val env = Environment()
+        val method = MulListMethod()
+
+        assertThat(method.invoke(env, listOf(Value(listOf(1, 2, 3)))).wrapped).isEqualTo(6)
+        assertThat(method.invoke(env, listOf(Value(listOf<Int>()))).wrapped).isEqualTo(1)
+    }
+
+    @Test
+    fun testDivMethod() {
+        val env = Environment()
+        val method = DivMethod()
+
+        assertThat(method.invoke(env, listOf(Value(9), Value(3))).wrapped).isEqualTo(3)
+        assertThat(method.invoke(env, listOf(Value(9), Value(4))).wrapped).isEqualTo(2)
+    }
+
+    @Test
+    fun testRemainderMethod() {
+        val env = Environment()
+        val method = RemainderMethod()
+
+        assertThat(method.invoke(env, listOf(Value(9), Value(3))).wrapped).isEqualTo(0)
+        assertThat(method.invoke(env, listOf(Value(9), Value(4))).wrapped).isEqualTo(1)
+    }
+
+    @Test
+    fun testMinMethod() {
         val env = Environment()
         val method = MinMethod()
 

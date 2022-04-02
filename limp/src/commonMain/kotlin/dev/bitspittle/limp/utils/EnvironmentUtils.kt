@@ -19,6 +19,7 @@ fun Environment.installUsefulDefaults() {
     add(SubMethod())
     add(MulMethod())
     add(DivMethod())
+    add(RemainderMethod())
 
     add(LessThanMethod())
     add(LessThanEqualsMethod())
