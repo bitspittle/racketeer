@@ -43,8 +43,13 @@ class Evaluator {
                 try {
                     method.invoke(env, params, trackedOptions, rest)
                 }
+                catch (ex: EvaluationException) {
+                    // If our method was kind enough to already throw an evaluation exception for us, use it, as it
+                    // probably has more relevant context for where the issue actually happened.
+                    throw ex
+                }
                 catch (ex: Exception) {
-                    throw EvaluationException(identExpr.ctx, "Method \"${identExpr.name}\" threw an exception while trying to run:\n> ${ex.message}")
+                    throw EvaluationException(identExpr.ctx, "Method \"${identExpr.name}\" threw an exception while trying to run:\n> ${ex.message}", cause = ex)
                 }
                 finally {
                     if (method.consumeRest) values.clear() else params.clear()

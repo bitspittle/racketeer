@@ -3,9 +3,7 @@ package dev.bitspittle.limp.exceptions
 import dev.bitspittle.limp.parser.ParserContext
 import dev.bitspittle.limp.types.ExprContext
 
-abstract class LispishException(msg: String): Exception(msg)
-
-private fun createCodeErrorMessage(code: String, index: Int, msg: String) = createCodeErrorMessage(code, index, length = 1, msg)
+abstract class LispishException(msg: String, cause: Throwable? = null): Exception(msg, cause)
 
 /**
  * Message will look something like:
@@ -21,19 +19,21 @@ private fun createCodeErrorMessage(code: String, index: Int, msg: String) = crea
  */
 private fun createCodeErrorMessage(code: String, index: Int, length: Int, msg: String) =
     """
-$msg
+        $msg
 
-Error occurred here:
-> $code
-  ${"^".repeat(length).padStart(index)}
-    """
+        Error occurred here:
 
-class ParseException(ctx: ParserContext, length: Int, msg: String): LispishException(
-    createCodeErrorMessage(ctx.text, ctx.startIndex, length, msg)
+        > $code
+          ${" ".repeat(index) + "^".repeat(length)}
+
+    """.trimIndent()
+
+class ParseException(val ctx: ParserContext, length: Int, val title: String, cause: Throwable? = null): LispishException(
+    createCodeErrorMessage(ctx.text, ctx.startIndex, length, title), cause
 ) {
     constructor(ctx: ParserContext, msg: String): this(ctx, length = 1, msg)
 }
 
-class EvaluationException(ctx: ExprContext, msg: String): LispishException(
-    createCodeErrorMessage(ctx.code, ctx.start, ctx.length, msg)
+class EvaluationException(val ctx: ExprContext, val title: String, cause: Throwable? = null): LispishException(
+    createCodeErrorMessage(ctx.code, ctx.start, ctx.length, title), cause
 )

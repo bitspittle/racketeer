@@ -4,6 +4,7 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.Value
+import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.types.Expr
 
 /**
@@ -27,11 +28,17 @@ class DefMethod : Method("def", 0, consumeRest = true) {
         val nameExpr = env.expectConvert<Expr>(rest[0])
         val bodyExpr = env.expectConvert<Expr>(rest.last())
 
-        val nameIdentifier = nameExpr as? Expr.Identifier ?: error("First argument to \"def\" should be a simple identifier name, e.g. \"'\$example\". Got: \"'${nameExpr.ctx.text}\".")
+        val nameIdentifier = nameExpr as? Expr.Identifier ?: throw EvaluationException(
+            nameExpr.ctx,
+            "First argument to \"def\" should be a simple identifier name, e.g. \"'\$example\"."
+        )
 
         val argIds = rest.subList(1, rest.lastIndex).mapIndexed { i, value ->
             val argExpr = env.expectConvert<Expr>(value)
-            argExpr as? Expr.Identifier ?: error("Parameter #${i + 1} should be a simple identifier name, e.g. \"'\$example\". Got: \"'${argExpr.ctx.text}\".")
+            argExpr as? Expr.Identifier ?: throw EvaluationException(
+                argExpr.ctx,
+                "Parameter #${i + 1} should be a simple identifier name, e.g. \"'\$example\"."
+            )
         }
 
         env.addMethod(object : Method(nameIdentifier.name, argIds.size) {
