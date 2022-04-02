@@ -5,6 +5,10 @@ import dev.bitspittle.racketeer.model.card.UpgradeNames
 import dev.bitspittle.racketeer.model.tier.Tier
 import kotlinx.serialization.Serializable
 
+/**
+ * @param globalActions Option extra actions which are run once before the game started, into a global scope that
+ *   lives across the whole game.
+ */
 @Serializable
 data class GameData(
     val title: String,
@@ -19,6 +23,7 @@ data class GameData(
     val shopPrices: List<Int>,
     val ratingScores: List<Int>,
     val cards: List<CardTemplate>,
+    val globalActions: List<String> = listOf()
 ) {
     init {
         require(shopPrices.size == tiers.size - 1) { "There should be exactly one less entry for shop prices than tiers" }
