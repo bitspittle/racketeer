@@ -18,6 +18,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(libs.yamlkt)
+                implementation(libs.uuid)
                 implementation(project(":limp"))
             }
         }
