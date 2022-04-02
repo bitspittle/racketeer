@@ -6,6 +6,7 @@ import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.collection.ListMethod
 import dev.bitspittle.limp.methods.math.*
 import dev.bitspittle.limp.methods.range.IntRangeMethod
+import dev.bitspittle.limp.methods.system.SetMethod
 import kotlin.test.Test
 
 class EvaluatorTest {
@@ -71,7 +72,48 @@ class EvaluatorTest {
     }
 
     @Test
-    fun methodsExceptionsWillGetRethrownAsEvaluationExceptions() {
+    fun testSetVariables() {
+        val env = Environment()
+        env.add(SetMethod())
+        env.add(AddMethod())
+        env.add(EqualsMethod())
+        env.add(NotEqualsMethod())
+
+        val evaluator = Evaluator()
+
+        env.pushScope()
+        assertThat(env.getValue("int1")).isNull()
+        assertThat(env.getValue("int2")).isNull()
+        assertThat(env.getValue("str")).isNull()
+
+        assertThat(evaluator.evaluate(env, "set 'int1 12")).isEqualTo(Value.Empty)
+        assertThat(evaluator.evaluate(env, "set 'int2 34")).isEqualTo(Value.Empty)
+        assertThat(env.getValue("int1")!!.wrapped).isEqualTo(12)
+        assertThat(env.getValue("int2")!!.wrapped).isEqualTo(34)
+        assertThat(env.getValue("str")).isNull()
+
+        assertThat(evaluator.evaluate(env, "= int1 12").wrapped).isEqualTo(true)
+        assertThat(evaluator.evaluate(env, "!= int2 int1").wrapped).isEqualTo(true)
+        assertThat(evaluator.evaluate(env, "+ int1 int2").wrapped).isEqualTo(46)
+
+        assertThat(evaluator.evaluate(env, "set 'str \"Dummy text\"")).isEqualTo(Value.Empty)
+        assertThat(env.getValue("str")!!.wrapped).isEqualTo("Dummy text")
+
+        assertThat(evaluator.evaluate(env, "= str \"Dummy text\"").wrapped).isEqualTo(true)
+        assertThat(evaluator.evaluate(env, "= str \"Smart text\"").wrapped).isEqualTo(false)
+
+        env.popScope()
+        assertThat(env.getValue("int1")).isNull()
+        assertThat(env.getValue("int2")).isNull()
+        assertThat(env.getValue("str")).isNull()
+
+        assertThrows<EvaluationException> {
+            assertThat(evaluator.evaluate(env, "set '(invalid variable name) 12")).isEqualTo(Value.Empty)
+        }
+    }
+
+    @Test
+    fun methodExceptionsWillGetRethrownAsEvaluationExceptions() {
         val env = Environment()
         env.add(DivMethod())
 

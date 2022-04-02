@@ -21,13 +21,12 @@ private fun createCodeErrorMessage(code: String, index: Int, msg: String) = crea
  */
 private fun createCodeErrorMessage(code: String, index: Int, length: Int, msg: String) =
     """
-        $msg
+$msg
 
-        Error occurred here:
-
-        > $code
-          ${"^".repeat(length).padStart(index)}
-    """.trimIndent()
+Error occurred here:
+> $code
+  ${"^".repeat(length).padStart(index)}
+    """
 
 class ParseException(ctx: ParserContext, length: Int, msg: String): LispishException(
     createCodeErrorMessage(ctx.text, ctx.startIndex, length, msg)

@@ -15,7 +15,7 @@ class Environment {
         val methods = methodsStack.last() ?: mutableMapOf()
         methodsStack[methodsStack.lastIndex] = methods
 
-        require(!methods.contains(method.name)) { "Attempted to register a method named \"${method.name}\" when one already exists at the current scope. Use `pushScope` first if you really want to do this."}
+        require(!methods.contains(method.name)) { "Attempted to register a method named \"${method.name}\" when one already exists at the current scope."}
         methods[method.name] = method
     }
 
@@ -30,7 +30,7 @@ class Environment {
         val variables = variablesStack.last() ?: mutableMapOf()
         variablesStack[variablesStack.lastIndex] = variables
 
-        require(!variables.contains(name)) { "Attempted to register a variable named \"$name\" when one already exists at the current scope. Use `pushScope` first if you really want to do this."}
+        require(!variables.contains(name)) { "Attempted to register a variable named \"$name\" when one already exists at the current scope."}
         variables[name] = value
     }
 

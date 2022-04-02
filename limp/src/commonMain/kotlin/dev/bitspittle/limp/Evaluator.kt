@@ -35,7 +35,7 @@ class Evaluator {
         return env.getValue(identExpr.name)
             ?: env.getMethod(identExpr.name)?.let { method ->
                 if (method.numArgs > values.size) {
-                    throw EvaluationException(identExpr.ctx, "Method \"${identExpr.name}\" takes ${method.numArgs} argument(s) but only ${values.size} were provided.")
+                    throw EvaluationException(identExpr.ctx, "Method \"${identExpr.name}\" takes ${method.numArgs} argument(s) but only ${values.size} was/were provided.")
                 }
                 val params = values.subList(0, method.numArgs)
                 val options = SelfDestructingMap(options)
@@ -44,7 +44,7 @@ class Evaluator {
                     method.invoke(env, params, options, rest)
                 }
                 catch (ex: Exception) {
-                    throw EvaluationException(identExpr.ctx, "Method \"${identExpr.name}\" threw an exception while trying to run: ${ex.message}")
+                    throw EvaluationException(identExpr.ctx, "Method \"${identExpr.name}\" threw an exception while trying to run:\n> ${ex.message}")
                 }
                 finally {
                     if (method.consumeRest) values.clear() else params.clear()

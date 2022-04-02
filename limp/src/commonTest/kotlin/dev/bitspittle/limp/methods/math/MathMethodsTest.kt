@@ -103,6 +103,7 @@ class MathMethodsTest {
         val lt = LessThanMethod()
         val lte = LessThanEqualsMethod()
         val eq = EqualsMethod()
+        val neq = NotEqualsMethod()
         val gt = GreaterThanMethod()
         val gte = GreaterThanEqualsMethod()
 
@@ -110,6 +111,7 @@ class MathMethodsTest {
             assertThat(lt.invoke(env, nums).wrapped).isEqualTo(true)
             assertThat(lte.invoke(env, nums).wrapped).isEqualTo(true)
             assertThat(eq.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(neq.invoke(env, nums).wrapped).isEqualTo(true)
             assertThat(gte.invoke(env, nums).wrapped).isEqualTo(false)
             assertThat(gt.invoke(env, nums).wrapped).isEqualTo(false)
         }
@@ -118,6 +120,7 @@ class MathMethodsTest {
             assertThat(lt.invoke(env, nums).wrapped).isEqualTo(false)
             assertThat(lte.invoke(env, nums).wrapped).isEqualTo(true)
             assertThat(eq.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(neq.invoke(env, nums).wrapped).isEqualTo(false)
             assertThat(gte.invoke(env, nums).wrapped).isEqualTo(true)
             assertThat(gt.invoke(env, nums).wrapped).isEqualTo(false)
         }
@@ -126,6 +129,7 @@ class MathMethodsTest {
             assertThat(lt.invoke(env, nums).wrapped).isEqualTo(false)
             assertThat(lte.invoke(env, nums).wrapped).isEqualTo(false)
             assertThat(eq.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(neq.invoke(env, nums).wrapped).isEqualTo(true)
             assertThat(gte.invoke(env, nums).wrapped).isEqualTo(true)
             assertThat(gt.invoke(env, nums).wrapped).isEqualTo(true)
         }

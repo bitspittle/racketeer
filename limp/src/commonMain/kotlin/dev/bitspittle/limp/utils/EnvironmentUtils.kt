@@ -10,10 +10,12 @@ import dev.bitspittle.limp.methods.logic.NotMethod
 import dev.bitspittle.limp.methods.logic.OrMethod
 import dev.bitspittle.limp.methods.math.*
 import dev.bitspittle.limp.methods.range.IntRangeMethod
+import dev.bitspittle.limp.methods.system.SetMethod
 
 fun Environment.installUsefulDefaults() {
-    // Misc
+    // System
     set("_", Value.Placeholder)
+    add(SetMethod())
 
     // Math
     add(AddMethod())
@@ -25,6 +27,7 @@ fun Environment.installUsefulDefaults() {
     add(LessThanMethod())
     add(LessThanEqualsMethod())
     add(EqualsMethod())
+    add(NotEqualsMethod())
     add(GreaterThanMethod())
     add(GreaterThanEqualsMethod())
 

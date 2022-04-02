@@ -99,7 +99,7 @@ class IdentifierExprParser : Parser<Expr.Identifier> {
 
 class DeferredExprParser : Parser<Expr.Deferred> {
     override fun tryParse(ctx: ParserContext): ParseResult<Expr.Deferred>? {
-        val result = (MatchCharParser('\'') then ExprParser()).tryParse(ctx) ?: return null
+        val result = (MatchCharParser('\'') then SingleExprParser()).tryParse(ctx) ?: return null
         return result.map { Expr.Deferred(result.second.value, ExprContext.from(ctx, result)) }
     }
 }
