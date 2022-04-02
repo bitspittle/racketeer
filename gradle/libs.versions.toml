@@ -3,7 +3,7 @@ jetbrains-compose = "1.0.1"
 kobweb = "0.9.10"
 kotlin = "1.6.10"
 kotter = "0.9.6"
-truthish = "0.6.2-SNAPSHOT"
+truthish = "0.6.1"
 uuid = "0.4.0"
 yamlkt = "0.10.2"
 
