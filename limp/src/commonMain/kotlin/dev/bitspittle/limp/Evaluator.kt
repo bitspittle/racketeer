@@ -38,18 +38,19 @@ class Evaluator {
                     throw EvaluationException(identExpr.ctx, "Method \"${identExpr.name}\" takes ${method.numArgs} argument(s) but only ${values.size} was/were provided.")
                 }
                 val params = values.subList(0, method.numArgs)
-                val options = SelfDestructingMap(options)
+                val trackedOptions = TrackedMap(options)
                 val rest = if (method.consumeRest) values.subList(method.numArgs, values.size - method.numArgs) else mutableListOf()
                 try {
-                    method.invoke(env, params, options, rest)
+                    method.invoke(env, params, trackedOptions, rest)
                 }
                 catch (ex: Exception) {
                     throw EvaluationException(identExpr.ctx, "Method \"${identExpr.name}\" threw an exception while trying to run:\n> ${ex.message}")
                 }
                 finally {
                     if (method.consumeRest) values.clear() else params.clear()
+                    options.keys.removeAll(trackedOptions.accessedKeys)
                     if (options.isNotEmpty()) {
-                        throw EvaluationException(identExpr.ctx, "Method \"${identExpr.name}\" was handed optional parameter(s) it did not consume: ${options.keys}.")
+                        throw EvaluationException(identExpr.ctx, "Method \"${identExpr.name}\" was handed optional parameter(s) it did not use: ${options.keys}.")
                     }
                 } // TODO: Support rest
             }
