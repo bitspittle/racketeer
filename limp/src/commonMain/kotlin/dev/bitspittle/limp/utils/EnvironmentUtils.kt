@@ -20,6 +20,12 @@ fun Environment.installUsefulDefaults() {
     add(MulMethod())
     add(DivMethod())
 
+    add(LessThanMethod())
+    add(LessThanEqualsMethod())
+    add(EqualsMethod())
+    add(GreaterThanMethod())
+    add(GreaterThanEqualsMethod())
+
     add(MinMethod())
     add(MaxMethod())
     add(ClampMethod())

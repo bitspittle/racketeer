@@ -51,4 +51,39 @@ class MathMethodsTest {
         assertThat(method.invoke(env, listOf(Value(5), Value(2), Value(5))).wrapped).isEqualTo(5)
         assertThat(method.invoke(env, listOf(Value(9), Value(2), Value(5))).wrapped).isEqualTo(5)
     }
+
+    @Test
+    fun testComparisonMethods() {
+        val env = Environment()
+
+        val lt = LessThanMethod()
+        val lte = LessThanEqualsMethod()
+        val eq = EqualsMethod()
+        val gt = GreaterThanMethod()
+        val gte = GreaterThanEqualsMethod()
+
+        listOf(Value(1), Value(2)).let { nums ->
+            assertThat(lt.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(lte.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(eq.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(gte.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(gt.invoke(env, nums).wrapped).isEqualTo(false)
+        }
+
+        listOf(Value(2), Value(2)).let { nums ->
+            assertThat(lt.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(lte.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(eq.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(gte.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(gt.invoke(env, nums).wrapped).isEqualTo(false)
+        }
+
+        listOf(Value(3), Value(2)).let { nums ->
+            assertThat(lt.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(lte.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(eq.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(gte.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(gt.invoke(env, nums).wrapped).isEqualTo(true)
+        }
+    }
 }
