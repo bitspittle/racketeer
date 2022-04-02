@@ -15,5 +15,7 @@ class RangeMethodsTest {
         assertThat(method.invoke(env, listOf(Value.Placeholder, Value(2))).wrapped).isEqualTo(IntRange(0, 2))
         assertThat(method.invoke(env, listOf(Value(1), Value.Placeholder)).wrapped).isEqualTo(IntRange(1, Int.MAX_VALUE))
         assertThat(method.invoke(env, listOf(Value.Placeholder, Value.Placeholder)).wrapped).isEqualTo(IntRange(0, Int.MAX_VALUE))
+
+        assertThat(method.invoke(env, listOf(Value(1), Value(10)), mapOf("step" to Value(2))).wrapped).isEqualTo(IntRange(1, 10) step 2)
     }
 }

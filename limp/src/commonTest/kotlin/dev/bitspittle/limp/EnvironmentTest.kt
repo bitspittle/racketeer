@@ -9,10 +9,10 @@ class EnvironmentTest {
     fun canRegisterMethodsAndVariables() {
         val env = Environment()
         env.add(object : Method("fun1", 0) {
-            override fun invoke(env: Environment, params: List<Value>, optionals: Map<String, Value>, rest: List<Value>) = Value.Empty
+            override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>) = Value.Empty
         })
         env.add(object : Method("fun2", 0) {
-            override fun invoke(env: Environment, params: List<Value>, optionals: Map<String, Value>, rest: List<Value>) = Value.Empty
+            override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>) = Value.Empty
         })
 
         assertThrows<IllegalArgumentException> {
@@ -20,7 +20,7 @@ class EnvironmentTest {
                 override fun invoke(
                     env: Environment,
                     params: List<Value>,
-                    optionals: Map<String, Value>,
+                    options: Map<String, Value>,
                     rest: List<Value>
                 ) = Value.Empty
             })
@@ -52,19 +52,19 @@ class EnvironmentTest {
         val env = Environment()
 
         env.add(object : Method("fun", 0) {
-            override fun invoke(env: Environment, params: List<Value>, optionals: Map<String, Value>, rest: List<Value>) = Value.Empty
+            override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>) = Value.Empty
         })
         env.set("var", Value(0))
 
         env.pushScope()
         env.add(object : Method("fun", 1) {
-            override fun invoke(env: Environment, params: List<Value>, optionals: Map<String, Value>, rest: List<Value>) = Value.Empty
+            override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>) = Value.Empty
         })
         env.set("var", Value(10))
 
         env.pushScope()
         env.add(object : Method("fun", 2) {
-            override fun invoke(env: Environment, params: List<Value>, optionals: Map<String, Value>, rest: List<Value>) = Value.Empty
+            override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>) = Value.Empty
         })
         env.set("var", Value(20))
 

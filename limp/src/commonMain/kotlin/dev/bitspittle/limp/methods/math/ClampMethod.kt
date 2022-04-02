@@ -7,7 +7,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 class ClampMethod : Method("clamp", 3) {
-    override fun invoke(env: Environment, params: List<Value>, optionals: Map<String, Value>, rest: List<Value>): Value {
+    override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
         val value = env.expectConvert<Int>(params[0])
         val low = env.expectConvert<Int>(params[1])
         val hi = env.expectConvert<Int>(params[2])

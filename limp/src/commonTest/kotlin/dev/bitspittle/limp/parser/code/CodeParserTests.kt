@@ -4,10 +4,7 @@ import com.varabyte.truthish.assertThat
 import com.varabyte.truthish.assertThrows
 import dev.bitspittle.limp.exceptions.ParseException
 import dev.bitspittle.limp.parser.ParserContext
-import dev.bitspittle.limp.parser.parsers.code.DeferredExprParser
-import dev.bitspittle.limp.parser.parsers.code.ExprParser
-import dev.bitspittle.limp.parser.parsers.code.IdentifierExprParser
-import dev.bitspittle.limp.parser.parsers.code.TextExprParser
+import dev.bitspittle.limp.parser.parsers.code.*
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.walk
 import kotlin.test.Test
@@ -85,6 +82,22 @@ class CodeParserTests {
         assertThat(deferredParser.tryParse(ParserContext("not'deferred"))).isNull()
     }
 
+    @Test
+    fun testOptionParsing() {
+        val optionParser = OptionExprParser()
+
+        optionParser.tryParse(ParserContext("--pos"))!!.let { result ->
+            assertThat((result.value.identifier).name).isEqualTo("pos")
+        }
+
+        optionParser.tryParse(ParserContext("-----not-great-but-allowed"))!!.let { result ->
+            assertThat((result.value.identifier).name).isEqualTo("---not-great-but-allowed")
+        }
+
+        assertThat(optionParser.tryParse(ParserContext("-pos"))).isNull()
+        assertThat(optionParser.tryParse(ParserContext("--"))).isNull()
+        assertThat(optionParser.tryParse(ParserContext("--'deferred"))).isNull()
+    }
 
     @Test
     fun testParsingExpressions() {

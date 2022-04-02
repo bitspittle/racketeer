@@ -23,6 +23,7 @@ class SingleExprParser : Parser<Expr> {
         NumberExprParser().tryParse(ctx)?.let { return it }
         TextExprParser().tryParse(ctx)?.let { return it }
         DeferredExprParser().tryParse(ctx)?.let { return it }
+        OptionExprParser().tryParse(ctx)?.let { return it }
         IdentifierExprParser().tryParse(ctx)?.let { return it }
         BlockExprParser().tryParse(ctx)?.let { return it }
 
@@ -100,6 +101,13 @@ class DeferredExprParser : Parser<Expr.Deferred> {
     override fun tryParse(ctx: ParserContext): ParseResult<Expr.Deferred>? {
         val result = (MatchCharParser('\'') then ExprParser()).tryParse(ctx) ?: return null
         return result.map { Expr.Deferred(result.second.value, ExprContext.from(ctx, result)) }
+    }
+}
+
+class OptionExprParser : Parser<Expr.Option> {
+    override fun tryParse(ctx: ParserContext): ParseResult<Expr.Option>? {
+        val result = (MatchTextParser("--") then IdentifierExprParser()).tryParse(ctx) ?: return null
+        return result.map { Expr.Option(result.second.value, ExprContext.from(ctx, result)) }
     }
 }
 

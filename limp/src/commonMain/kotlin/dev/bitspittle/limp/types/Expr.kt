@@ -35,12 +35,13 @@ fun ExprContext.Companion.from(ctx: ParserContext, result: ParseResult<*>): Expr
  * The following line demonstrates all expressions in this simple language:
  *
  * ```
- * union (take $letters 3) (filter $numbers '(> $it 0)) (list "hello" "world")
+ * union (take --from 'back $letters 3) (filter $numbers '(> $it 0)) (list "hello" "world")
  * ```
  *
  * - Text is a quoted string, e.g. "hello" and "world"
  * - Number is a numeric value, e.g. 3 and 0
  * - Identifier is all other text, e.g. "union", "$letters", ">"
+ * - Option indicates that the next expression should be passed into a method indirectly, e.g. "--from 'back"
  * - Deferred is an expression prepended with a apostrophe, e.g. '(> $it 0)
  * - Chain is a list of two or more expressions, e.g. "take, $letters, 3"; also, "union, (...), (...), (...)"
  * - A block is parens wrapping an expression, e.g. (take $letters 3)
@@ -69,6 +70,7 @@ sealed class Expr(val ctx: ExprContext) {
     class Text(val text: String, ctx: ExprContext) : Expr(ctx)
     class Number(val number: Int, ctx: ExprContext) : Expr(ctx)
     class Identifier(val name: String, ctx: ExprContext) : Expr(ctx)
+    class Option(val identifier: Identifier, ctx: ExprContext) : Expr(ctx)
     class Deferred(val expr: Expr, ctx: ExprContext) : Expr(ctx)
     class Chain(val exprs: List<Expr>, ctx: ExprContext) : Expr(ctx)
     class Block(val expr: Expr, ctx: ExprContext) : Expr(ctx)

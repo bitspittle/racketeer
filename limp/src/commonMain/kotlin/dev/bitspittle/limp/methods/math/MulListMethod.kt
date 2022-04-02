@@ -4,10 +4,9 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.Value
 
-class MulMethod : Method("*", 2) {
+class MulListMethod : Method("mul", 1) {
     override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
-        val a = env.expectConvert<Int>(params[0])
-        val b = env.expectConvert<Int>(params[1])
-        return Value(a * b)
+        val ints = env.expectConvert<ArrayList<Int>>(params[0])
+        return Value(ints.fold(1) { acc, i -> acc * i })
     }
 }
