@@ -53,7 +53,7 @@ sealed class Expr(val ctx: ExprContext) {
             val ctx = ParserContext(code)
             val result = ExprParser().tryParse(ctx) ?: throw ParseException(
                 ctx,
-                "Unknown parsing error. Please file a bug with the above code."
+                "Unknown parsing error. Please file a bug including the statement below."
             )
 
             if (!result.ctx.isFinished) {
