@@ -14,9 +14,9 @@ class EvaluatorTest {
     @Test
     fun testSimpleEvaluation() {
         val env = Environment()
-        env.add(AddMethod())
-        env.add(MulMethod())
-        env.add(SubMethod())
+        env.addMethod(AddMethod())
+        env.addMethod(MulMethod())
+        env.addMethod(SubMethod())
 
         val evaluator = Evaluator()
         assertThat(evaluator.evaluate(env, "+ 1 2").wrapped).isEqualTo(3)
@@ -24,16 +24,16 @@ class EvaluatorTest {
         assertThat(evaluator.evaluate(env, "+ 1 * 3 - 8 2").wrapped).isEqualTo(19)
         assertThat(evaluator.evaluate(env, "(+ 1 (* 3 (- 8 2)))").wrapped).isEqualTo(19)
 
-        env.set("\$a", Value(5))
-        env.set("\$b", Value(90))
+        env.storeValue("\$a", Value(5))
+        env.storeValue("\$b", Value(90))
         assertThat(evaluator.evaluate(env, "+ \$a (* 2 \$b)").wrapped).isEqualTo(185)
     }
 
     @Test
     fun testEvaluationWithPlaceholder() {
         val env = Environment()
-        env.add(IntRangeMethod())
-        env.set("_", Value.Placeholder)
+        env.addMethod(IntRangeMethod())
+        env.storeValue("_", Value.Placeholder)
 
         val evaluator = Evaluator()
         assertThat(evaluator.evaluate(env, ".. _ 10").wrapped).isEqualTo(0 .. 10)
@@ -44,7 +44,7 @@ class EvaluatorTest {
     @Test
     fun testEvaluationWithOptionalParameters() {
         val env = Environment()
-        env.add(IntRangeMethod())
+        env.addMethod(IntRangeMethod())
 
         val evaluator = Evaluator()
         assertThat(evaluator.evaluate(env, ".. 1 10").wrapped).isEqualTo(1 .. 10)
@@ -59,10 +59,10 @@ class EvaluatorTest {
     @Test
     fun testEvaluationWithRestParameters() {
         val env = Environment()
-        env.add(ListMethod())
-        env.add(AddMethod())
-        env.add(AddListMethod())
-        env.add(MulListMethod())
+        env.addMethod(ListMethod())
+        env.addMethod(AddMethod())
+        env.addMethod(AddListMethod())
+        env.addMethod(MulListMethod())
 
         val evaluator = Evaluator()
         assertThat(evaluator.evaluate(env, "list 1 2 3 4 5").wrapped as List<Int>).containsExactly(1, 2, 3, 4, 5)
@@ -75,38 +75,38 @@ class EvaluatorTest {
     @Test
     fun testSetVariables() {
         val env = Environment()
-        env.add(SetMethod())
-        env.add(AddMethod())
-        env.add(EqualsMethod())
-        env.add(NotEqualsMethod())
+        env.addMethod(SetMethod())
+        env.addMethod(AddMethod())
+        env.addMethod(EqualsMethod())
+        env.addMethod(NotEqualsMethod())
 
         val evaluator = Evaluator()
 
         env.pushScope()
-        assertThat(env.getValue("int1")).isNull()
-        assertThat(env.getValue("int2")).isNull()
-        assertThat(env.getValue("str")).isNull()
+        assertThat(env.loadValue("int1")).isNull()
+        assertThat(env.loadValue("int2")).isNull()
+        assertThat(env.loadValue("str")).isNull()
 
         assertThat(evaluator.evaluate(env, "set 'int1 12")).isEqualTo(Value.Empty)
         assertThat(evaluator.evaluate(env, "set 'int2 34")).isEqualTo(Value.Empty)
-        assertThat(env.getValue("int1")!!.wrapped).isEqualTo(12)
-        assertThat(env.getValue("int2")!!.wrapped).isEqualTo(34)
-        assertThat(env.getValue("str")).isNull()
+        assertThat(env.loadValue("int1")!!.wrapped).isEqualTo(12)
+        assertThat(env.loadValue("int2")!!.wrapped).isEqualTo(34)
+        assertThat(env.loadValue("str")).isNull()
 
         assertThat(evaluator.evaluate(env, "= int1 12").wrapped).isEqualTo(true)
         assertThat(evaluator.evaluate(env, "!= int2 int1").wrapped).isEqualTo(true)
         assertThat(evaluator.evaluate(env, "+ int1 int2").wrapped).isEqualTo(46)
 
         assertThat(evaluator.evaluate(env, "set 'str \"Dummy text\"")).isEqualTo(Value.Empty)
-        assertThat(env.getValue("str")!!.wrapped).isEqualTo("Dummy text")
+        assertThat(env.loadValue("str")!!.wrapped).isEqualTo("Dummy text")
 
         assertThat(evaluator.evaluate(env, "= str \"Dummy text\"").wrapped).isEqualTo(true)
         assertThat(evaluator.evaluate(env, "= str \"Smart text\"").wrapped).isEqualTo(false)
 
         env.popScope()
-        assertThat(env.getValue("int1")).isNull()
-        assertThat(env.getValue("int2")).isNull()
-        assertThat(env.getValue("str")).isNull()
+        assertThat(env.loadValue("int1")).isNull()
+        assertThat(env.loadValue("int2")).isNull()
+        assertThat(env.loadValue("str")).isNull()
 
         assertThrows<EvaluationException> {
             assertThat(evaluator.evaluate(env, "set '(invalid variable name) 12")).isEqualTo(Value.Empty)
@@ -116,17 +116,17 @@ class EvaluatorTest {
     @Test
     fun testDefineMethods() {
         val env = Environment()
-        env.add(MinMethod())
-        env.add(MaxMethod())
-        env.add(DefMethod())
+        env.addMethod(MinMethod())
+        env.addMethod(MaxMethod())
+        env.addMethod(DefMethod())
 
         val evaluator = Evaluator()
 
         // Define clamp
         env.scoped {
-            assertThat(env.getValue("val")).isNull()
-            assertThat(env.getValue("low")).isNull()
-            assertThat(env.getValue("hi")).isNull()
+            assertThat(env.loadValue("val")).isNull()
+            assertThat(env.loadValue("low")).isNull()
+            assertThat(env.loadValue("hi")).isNull()
             assertThat(env.getMethod("clamp")).isNull()
 
             evaluator.evaluate(env, "def 'clamp 'val 'low 'hi '(min (max low val) hi)")
@@ -142,9 +142,9 @@ class EvaluatorTest {
             assertThat(evaluator.evaluate(env, "clamp 4 2 4").wrapped).isEqualTo(4)
             assertThat(evaluator.evaluate(env, "clamp 5 2 4").wrapped).isEqualTo(4)
 
-            assertThat(env.getValue("val")).isNull()
-            assertThat(env.getValue("low")).isNull()
-            assertThat(env.getValue("hi")).isNull()
+            assertThat(env.loadValue("val")).isNull()
+            assertThat(env.loadValue("low")).isNull()
+            assertThat(env.loadValue("hi")).isNull()
         }
 
         // Check the ability to define environment values AFTER defining a deferred lambda
@@ -157,7 +157,7 @@ class EvaluatorTest {
                 evaluator.evaluate(env, "add3 1 2 3")
             }
 
-            env.add(AddMethod())
+            env.addMethod(AddMethod())
             assertThat(evaluator.evaluate(env, "add3 1 2 3").wrapped).isEqualTo(6)
         }
 
@@ -179,7 +179,7 @@ class EvaluatorTest {
     @Test
     fun methodExceptionsWillGetRethrownAsEvaluationExceptions() {
         val env = Environment()
-        env.add(DivMethod())
+        env.addMethod(DivMethod())
 
         val evaluator = Evaluator()
         assertThrows<EvaluationException> {

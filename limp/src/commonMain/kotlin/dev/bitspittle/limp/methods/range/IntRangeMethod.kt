@@ -10,12 +10,12 @@ class IntRangeMethod : Method("..", 2) {
         val step = options["step"]?.let { env.expectConvert<Int>(it) }
 
         val start = env.scoped {
-            env.add(PlaceholderConverter(0))
+            env.addConverter(PlaceholderConverter(0))
             env.expectConvert<Int>(params[0])
         }
 
         val end = env.scoped {
-            env.add(PlaceholderConverter(Int.MAX_VALUE))
+            env.addConverter(PlaceholderConverter(Int.MAX_VALUE))
             env.expectConvert<Int>(params[1])
         }
 

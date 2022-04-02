@@ -32,7 +32,7 @@ class Evaluator {
         values: MutableList<Value> = mutableListOf(),
         options: MutableMap<String, Value> = mutableMapOf()
     ): Value {
-        return env.getValue(identExpr.name)
+        return env.loadValue(identExpr.name)
             ?: env.getMethod(identExpr.name)?.let { method ->
                 if (method.numArgs > values.size) {
                     throw EvaluationException(identExpr.ctx, "Method \"${identExpr.name}\" takes ${method.numArgs} argument(s) but only ${values.size} was/were provided.")

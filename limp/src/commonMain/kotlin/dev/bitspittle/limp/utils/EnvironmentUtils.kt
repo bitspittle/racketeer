@@ -1,7 +1,6 @@
 package dev.bitspittle.limp.utils
 
 import dev.bitspittle.limp.Environment
-import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.Value
 import dev.bitspittle.limp.methods.collection.InMethod
 import dev.bitspittle.limp.methods.collection.ListMethod
@@ -15,43 +14,43 @@ import dev.bitspittle.limp.methods.system.SetMethod
 
 fun Environment.installUsefulDefaults() {
     // System
-    set("_", Value.Placeholder)
-    add(SetMethod())
-    add(DefMethod())
+    storeValue("_", Value.Placeholder)
+    addMethod(SetMethod())
+    addMethod(DefMethod())
 
     // Math
-    add(AddMethod())
-    add(SubMethod())
-    add(MulMethod())
-    add(DivMethod())
-    add(RemainderMethod())
+    addMethod(AddMethod())
+    addMethod(SubMethod())
+    addMethod(MulMethod())
+    addMethod(DivMethod())
+    addMethod(RemainderMethod())
 
-    add(LessThanMethod())
-    add(LessThanEqualsMethod())
-    add(EqualsMethod())
-    add(NotEqualsMethod())
-    add(GreaterThanMethod())
-    add(GreaterThanEqualsMethod())
+    addMethod(LessThanMethod())
+    addMethod(LessThanEqualsMethod())
+    addMethod(EqualsMethod())
+    addMethod(NotEqualsMethod())
+    addMethod(GreaterThanMethod())
+    addMethod(GreaterThanEqualsMethod())
 
-    add(MinMethod())
-    add(MaxMethod())
-    add(ClampMethod())
+    addMethod(MinMethod())
+    addMethod(MaxMethod())
+    addMethod(ClampMethod())
 
-    add(AddListMethod())
-    add(MulListMethod())
+    addMethod(AddListMethod())
+    addMethod(MulListMethod())
 
     // Logic
-    set("true", Value(true))
-    set("false", Value(false))
+    storeValue("true", Value(true))
+    storeValue("false", Value(false))
 
-    add(NotMethod())
-    add(AndMethod())
-    add(OrMethod())
+    addMethod(NotMethod())
+    addMethod(AndMethod())
+    addMethod(OrMethod())
 
     // Range
-    add(IntRangeMethod())
+    addMethod(IntRangeMethod())
 
     // Collection
-    add(ListMethod())
-    add(InMethod())
+    addMethod(ListMethod())
+    addMethod(InMethod())
 }

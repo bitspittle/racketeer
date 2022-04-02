@@ -34,7 +34,7 @@ class DefMethod : Method("def", 0, consumeRest = true) {
             argExpr as? Expr.Identifier ?: error("Parameter #${i + 1} should be a simple identifier name, e.g. \"'\$example\". Got: \"'${argExpr.ctx.text}\".")
         }
 
-        env.add(object : Method(nameIdentifier.name, argIds.size) {
+        env.addMethod(object : Method(nameIdentifier.name, argIds.size) {
             override fun invoke(
                 env: Environment,
                 params: List<Value>,
@@ -43,7 +43,7 @@ class DefMethod : Method("def", 0, consumeRest = true) {
             ): Value {
                 return env.scoped {
                     params.forEachIndexed { i, value ->
-                        env.set(argIds[i].name, value)
+                        env.storeValue(argIds[i].name, value)
                     }
 
                     val evaluator = Evaluator()

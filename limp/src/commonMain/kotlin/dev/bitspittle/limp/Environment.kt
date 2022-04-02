@@ -11,7 +11,7 @@ class Environment {
         pushScope()
     }
 
-    fun add(method: Method) {
+    fun addMethod(method: Method) {
         val methods = methodsStack.last() ?: mutableMapOf()
         methodsStack[methodsStack.lastIndex] = methods
 
@@ -19,14 +19,14 @@ class Environment {
         methods[method.name] = method
     }
 
-    fun add(converter: Converter<*>) {
+    fun addConverter(converter: Converter<*>) {
         val converters = convertersStack.last() ?: Converters()
         convertersStack[convertersStack.lastIndex] = converters
 
         converters.register(converter)
     }
 
-    fun set(name: String, value: Value) {
+    fun storeValue(name: String, value: Value) {
         val variables = variablesStack.last() ?: mutableMapOf()
         variablesStack[variablesStack.lastIndex] = variables
 
@@ -65,7 +65,7 @@ class Environment {
             .firstOrNull()
     }
 
-    fun getValue(name: String): Value? {
+    fun loadValue(name: String): Value? {
         return variablesStack.reversed().asSequence()
             .filterNotNull()
             .mapNotNull { variables -> variables[name] }
@@ -89,7 +89,7 @@ class Environment {
     }
 
     fun expectValue(name: String): Value {
-        return getValue(name) ?: error("No variable named \"$name\" is registered")
+        return loadValue(name) ?: error("No variable named \"$name\" is registered")
     }
 
     fun <T: Any> expectConvert(value: Value, toClass: KClass<T>): T {
