@@ -10,7 +10,6 @@ import dev.bitspittle.limp.parser.parsers.code.IdentifierExprParser
 import dev.bitspittle.limp.parser.parsers.code.TextExprParser
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.walk
-import kotlin.math.exp
 import kotlin.test.Test
 
 class CodeParserTests {
@@ -88,7 +87,7 @@ class CodeParserTests {
 
 
     @Test
-    fun testParsingSimpleExpressions() {
+    fun testParsingExpressions() {
         val exprParser = ExprParser()
 
         exprParser.tryParse(ParserContext("chain \"of\" 4 identifiers"))!!.let { result ->
@@ -128,7 +127,19 @@ class CodeParserTests {
                 "Identifier: e",
                 "Identifier: f",
             ).inOrder()
+        }
 
+        // A chain of blocks
+        exprParser.tryParse(ParserContext("(a) (b) (c)"))!!.let { result ->
+            assertThat(result.value.debugLines()).containsExactly(
+                "Chain: (a) (b) (c)",
+                "Block: (a)",
+                "Identifier: a",
+                "Block: (b)",
+                "Identifier: b",
+                "Block: (c)",
+                "Identifier: c",
+            ).inOrder()
         }
     }
 

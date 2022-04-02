@@ -28,6 +28,24 @@ fun ExprContext.Companion.from(ctx: ParserContext, result: ParseResult<*>): Expr
     return from(ctx, result.ctx.startIndex - ctx.startIndex)
 }
 
+/**
+ * An expression represents a sequence that is parsable in the Limp language. Both the smallest primitives and the
+ * whole line of code are both considered expressions.
+ *
+ * The following line demonstrates all expressions in this simple language:
+ *
+ * ```
+ * union (take $letters 3) (filter $numbers '(> $it 0)) (list "hello" "world")
+ * ```
+ *
+ * - Text is a quoted string, e.g. "hello" and "world"
+ * - Number is a numeric value, e.g. 3 and 0
+ * - Identifier is all other text, e.g. "union", "$letters", ">"
+ * - Deferred is an expression prepended with a apostrophe, e.g. '(> $it 0)
+ * - Chain is a list of two or more expressions, e.g. "take, $letters, 3"; also, "union, (...), (...), (...)"
+ * - A block is parens wrapping an expression, e.g. (take $letters 3)
+ *   Blocks can be nested.
+ */
 sealed class Expr(val ctx: ExprContext) {
     companion object {
         fun parse(code: String): Expr {
@@ -52,9 +70,7 @@ sealed class Expr(val ctx: ExprContext) {
     class Number(val number: Int, ctx: ExprContext) : Expr(ctx)
     class Identifier(val name: String, ctx: ExprContext) : Expr(ctx)
     class Deferred(val expr: Expr, ctx: ExprContext) : Expr(ctx)
-    /** A list of expressions */
     class Chain(val exprs: List<Expr>, ctx: ExprContext) : Expr(ctx)
-    /** A chain of expressions wrapped by parentheses. */
     class Block(val expr: Expr, ctx: ExprContext) : Expr(ctx)
 }
 
