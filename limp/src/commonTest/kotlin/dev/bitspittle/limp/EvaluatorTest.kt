@@ -57,4 +57,15 @@ class EvaluatorTest {
         assertThat(evaluator.evaluate(env, "sum list 1 2 3 4 5").wrapped).isEqualTo(15)
         assertThat(evaluator.evaluate(env, "+ (mul list 1 2 3) (sum list 4 5 6)").wrapped).isEqualTo(21)
     }
+
+    @Test
+    fun methodsExceptionsWillGetRethrownAsEvaluationExceptions() {
+        val env = Environment()
+        env.add(DivMethod())
+
+        val evaluator = Evaluator()
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "/ 10 0")
+        }
+    }
 }

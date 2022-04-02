@@ -40,7 +40,13 @@ class Evaluator {
                 val params = values.subList(0, method.numArgs)
                 val options = SelfDestructingMap(options)
                 val rest = if (method.consumeRest) values.subList(method.numArgs, values.size - method.numArgs) else mutableListOf()
-                method.invoke(env, params, options, rest).also {
+                try {
+                    method.invoke(env, params, options, rest)
+                }
+                catch (ex: Exception) {
+                    throw EvaluationException(identExpr.ctx, "Method \"${identExpr.name}\" threw an exception while trying to run: ${ex.message}")
+                }
+                finally {
                     if (method.consumeRest) values.clear() else params.clear()
                     if (options.isNotEmpty()) {
                         throw EvaluationException(identExpr.ctx, "Method \"${identExpr.name}\" was handed optional parameter(s) it did not consume: ${options.keys}.")
