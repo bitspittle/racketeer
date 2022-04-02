@@ -18,15 +18,16 @@ abstract class LispishException(msg: String, cause: Throwable? = null): Exceptio
  * ```
  */
 private fun createCodeErrorMessage(code: String, index: Int, length: Int, msg: String) =
-    """
-        $msg
+    // NOTE: KEEP THE TEXT LEFT JUSTIFIED, BECAUSE $msg MAY HAVE A NEWLINE IN IT, WHICH SCREWS UP INDENTATION
+"""
+$msg
 
-        Error occurred here:
+Error occurred here:
 
-        > $code
-          ${" ".repeat(index) + "^".repeat(length)}
+> $code
+  ${" ".repeat(index) + "^".repeat(length)}
 
-    """.trimIndent()
+"""
 
 class ParseException(val ctx: ParserContext, length: Int, val title: String, cause: Throwable? = null): LispishException(
     createCodeErrorMessage(ctx.text, ctx.startIndex, length, title), cause

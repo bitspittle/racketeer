@@ -74,6 +74,8 @@ sealed class Expr(val ctx: ExprContext) {
     class Deferred(val expr: Expr, ctx: ExprContext) : Expr(ctx)
     class Chain(val exprs: List<Expr>, ctx: ExprContext) : Expr(ctx)
     class Block(val expr: Expr, ctx: ExprContext) : Expr(ctx)
+    /** A dummy expression used for cases where you want to stub out the expression passed into a method */
+    object Empty : Expr(ExprContext("", 0, 0))
 }
 
 fun Expr.walk(): Sequence<Expr> {

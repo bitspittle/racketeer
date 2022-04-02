@@ -7,6 +7,7 @@ import dev.bitspittle.limp.methods.collection.ListMethod
 import dev.bitspittle.limp.methods.collection.ShuffleMethod
 import dev.bitspittle.limp.methods.collection.UnionMethod
 import dev.bitspittle.limp.methods.logic.AndMethod
+import dev.bitspittle.limp.methods.logic.IfMethod
 import dev.bitspittle.limp.methods.logic.NotMethod
 import dev.bitspittle.limp.methods.logic.OrMethod
 import dev.bitspittle.limp.methods.math.*
@@ -48,6 +49,8 @@ fun Environment.installUsefulDefaults() {
     addMethod(NotMethod())
     addMethod(AndMethod())
     addMethod(OrMethod())
+
+    addMethod(IfMethod())
 
     // Range
     addMethod(IntRangeMethod())

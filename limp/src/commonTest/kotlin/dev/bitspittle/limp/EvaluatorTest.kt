@@ -4,6 +4,7 @@ import com.varabyte.truthish.assertThat
 import com.varabyte.truthish.assertThrows
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.collection.ListMethod
+import dev.bitspittle.limp.methods.logic.IfMethod
 import dev.bitspittle.limp.methods.math.*
 import dev.bitspittle.limp.methods.range.IntRangeMethod
 import dev.bitspittle.limp.methods.system.DefMethod
@@ -173,6 +174,29 @@ class EvaluatorTest {
 
         assertThrows<EvaluationException> {
             evaluator.evaluate(env, "def 'name 'arg1 '(bad name) '(+ arg1 +arg2)")
+        }
+    }
+
+    @Test
+    fun testIfBranching() {
+        val env = Environment()
+        env.addMethod(IfMethod())
+        env.addMethod(AddMethod())
+        env.storeValue("true", Value(true))
+        env.storeValue("false", Value(false))
+        env.storeValue("_", Value.Placeholder)
+
+        val evaluator = Evaluator()
+        assertThat(evaluator.evaluate(env, "if true '3 '4").wrapped).isEqualTo(3)
+        assertThat(evaluator.evaluate(env, "if false '3 '4").wrapped).isEqualTo(4)
+
+        assertThat(evaluator.evaluate(env, "if true _ '4")).isEqualTo(Value.Empty)
+        assertThat(evaluator.evaluate(env, "if false '3 _")).isEqualTo(Value.Empty)
+
+        assertThat(evaluator.evaluate(env, "if true '(+ 8 7) '(this would crash if run)").wrapped).isEqualTo(15)
+
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "if false '(+ 8 7) '(this would crash if run)")
         }
     }
 

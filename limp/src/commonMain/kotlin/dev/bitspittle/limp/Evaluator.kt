@@ -17,6 +17,7 @@ class Evaluator {
             is Expr.Deferred -> evaluateDeferred(expr)
             is Expr.Chain -> evaluateChain(env, expr)
             is Expr.Block -> evaluateBlock(env, expr)
+            is Expr.Empty -> Value.Empty
         }
     }
 
