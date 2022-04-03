@@ -6,8 +6,8 @@ import dev.bitspittle.limp.Value
 
 class LessThanMethod : Method("<", 2) {
     override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
-        val a = env.expectConvert<Int>(params[0])
-        val b = env.expectConvert<Int>(params[1])
+        val a = env.expectConvert<Comparable<Any>>(params[0])
+        val b = env.expectConvert<Comparable<Any>>(params[1])
         return Value(a < b)
     }
 }

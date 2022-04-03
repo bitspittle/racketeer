@@ -45,5 +45,59 @@ class CompareMethodsTest {
             assertThat(gte.invoke(env, nums).wrapped).isEqualTo(true)
             assertThat(gt.invoke(env, nums).wrapped).isEqualTo(true)
         }
+
+        listOf(Value('a'), Value('b')).let { nums ->
+            assertThat(lt.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(lte.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(eq.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(neq.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(gte.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(gt.invoke(env, nums).wrapped).isEqualTo(false)
+        }
+
+        listOf(Value('b'), Value('b')).let { nums ->
+            assertThat(lt.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(lte.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(eq.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(neq.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(gte.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(gt.invoke(env, nums).wrapped).isEqualTo(false)
+        }
+
+        listOf(Value('c'), Value('b')).let { nums ->
+            assertThat(lt.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(lte.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(eq.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(neq.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(gte.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(gt.invoke(env, nums).wrapped).isEqualTo(true)
+        }
+
+        listOf(Value("A"), Value("B")).let { nums ->
+            assertThat(lt.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(lte.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(eq.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(neq.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(gte.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(gt.invoke(env, nums).wrapped).isEqualTo(false)
+        }
+
+        listOf(Value("B"), Value("B")).let { nums ->
+            assertThat(lt.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(lte.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(eq.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(neq.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(gte.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(gt.invoke(env, nums).wrapped).isEqualTo(false)
+        }
+
+        listOf(Value("C"), Value("B")).let { nums ->
+            assertThat(lt.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(lte.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(eq.invoke(env, nums).wrapped).isEqualTo(false)
+            assertThat(neq.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(gte.invoke(env, nums).wrapped).isEqualTo(true)
+            assertThat(gt.invoke(env, nums).wrapped).isEqualTo(true)
+        }
     }
 }

@@ -26,13 +26,6 @@ fun Environment.installUsefulDefaults() {
     addMethod(DivMethod())
     addMethod(RemainderMethod())
 
-    addMethod(LessThanMethod())
-    addMethod(LessThanEqualsMethod())
-    addMethod(EqualsMethod())
-    addMethod(NotEqualsMethod())
-    addMethod(GreaterThanMethod())
-    addMethod(GreaterThanEqualsMethod())
-
     addMethod(MinMethod())
     addMethod(MaxMethod())
     addMethod(ClampMethod())
@@ -49,6 +42,14 @@ fun Environment.installUsefulDefaults() {
     addMethod(OrMethod())
 
     addMethod(IfMethod())
+
+    // Comparison
+    addMethod(LessThanMethod())
+    addMethod(LessThanEqualsMethod())
+    addMethod(EqualsMethod())
+    addMethod(NotEqualsMethod())
+    addMethod(GreaterThanMethod())
+    addMethod(GreaterThanEqualsMethod())
 
     // Range
     addMethod(IntRangeMethod())
