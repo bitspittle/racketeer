@@ -2,10 +2,7 @@ package dev.bitspittle.limp.utils
 
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Value
-import dev.bitspittle.limp.methods.collection.InMethod
-import dev.bitspittle.limp.methods.collection.ListMethod
-import dev.bitspittle.limp.methods.collection.ShuffleMethod
-import dev.bitspittle.limp.methods.collection.UnionMethod
+import dev.bitspittle.limp.methods.collection.*
 import dev.bitspittle.limp.methods.logic.AndMethod
 import dev.bitspittle.limp.methods.logic.IfMethod
 import dev.bitspittle.limp.methods.logic.NotMethod
@@ -58,6 +55,7 @@ fun Environment.installUsefulDefaults() {
     // Collection
     addMethod(ListMethod())
     addMethod(InMethod())
+    addMethod(TakeMethod())
     addMethod(ShuffleMethod())
     addMethod(UnionMethod())
 }

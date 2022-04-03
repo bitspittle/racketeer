@@ -6,8 +6,6 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.Value
 import dev.bitspittle.limp.converters.PlaceholderConverter
 import dev.bitspittle.limp.types.Expr
-import kotlin.math.max
-import kotlin.math.min
 
 class IfMethod : Method("if", 3) {
     override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {

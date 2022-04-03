@@ -1,11 +1,19 @@
 package dev.bitspittle.limp.methods
 
 import com.varabyte.truthish.assertThat
+import com.varabyte.truthish.assertThrows
 import dev.bitspittle.limp.Environment
+import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Value
+import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.collection.InMethod
 import dev.bitspittle.limp.methods.collection.ShuffleMethod
+import dev.bitspittle.limp.methods.collection.TakeMethod
 import dev.bitspittle.limp.methods.collection.UnionMethod
+import dev.bitspittle.limp.methods.math.AddMethod
+import dev.bitspittle.limp.methods.math.EqualsMethod
+import dev.bitspittle.limp.methods.math.NotEqualsMethod
+import dev.bitspittle.limp.methods.system.SetMethod
 import kotlin.random.Random
 import kotlin.test.Test
 
@@ -32,6 +40,31 @@ class CollectionMethodsTest {
         assertThat(method.invoke(env, listOf(Value(fruits), Value("Banana"))).wrapped as Boolean).isTrue()
         assertThat(method.invoke(env, listOf(Value(fruits), Value("Cherry"))).wrapped as Boolean).isFalse()
         assertThat(method.invoke(env, listOf(Value(fruits), Value("banana"))).wrapped as Boolean).isFalse()
+    }
+
+    @Test
+    fun testTakeMethod() {
+        val env = Environment(Random(123)) // Fixed seed so that we get the same shuffle everytime for this test
+        env.addMethod(TakeMethod())
+        env.storeValue("_", Value.Placeholder)
+
+        val evaluator = Evaluator()
+
+        env.storeValue("ints", Value(listOf(1, 2, 3, 4, 5)))
+        env.storeValue("strs", Value(listOf("Aa", "Bb", "Cc", "Dd")))
+
+        assertThat(evaluator.evaluate(env, "take ints 2").wrapped as List<Int>).containsExactly(1, 2).inOrder()
+        assertThat(evaluator.evaluate(env, "take ints 8").wrapped as List<Int>).containsExactly(1, 2, 3, 4, 5).inOrder()
+        assertThat(evaluator.evaluate(env, "take ints 0").wrapped as List<Int>).isEmpty()
+        assertThat(evaluator.evaluate(env, "take ints _").wrapped as List<Int>).containsExactly(1, 2, 3, 4, 5).inOrder()
+
+        assertThat(evaluator.evaluate(env, "take --from 'back ints 2").wrapped as List<Int>).containsExactly(4, 5).inOrder()
+        assertThat(evaluator.evaluate(env, "take --from 'back ints _").wrapped as List<Int>).containsExactly(1, 2, 3, 4, 5).inOrder()
+
+        assertThat(evaluator.evaluate(env, "take --from 'random ints 3").wrapped as List<Int>).containsExactly(3, 1, 4).inOrder()
+
+        assertThat(evaluator.evaluate(env, "take strs 2").wrapped as List<String>).containsExactly("Aa", "Bb").inOrder()
+        assertThat(evaluator.evaluate(env, "take --from 'back strs 2").wrapped as List<String>).containsExactly("Cc", "Dd").inOrder()
     }
 
     @Test
