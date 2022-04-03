@@ -100,4 +100,14 @@ class CompareMethodsTest {
             assertThat(gt.invoke(env, nums).wrapped).isEqualTo(true)
         }
     }
+
+    @Test
+    fun testCompareMethod() {
+        val env = Environment()
+        val compareMethod = CompareMethod()
+
+        assertThat(compareMethod.invoke(env, listOf(Value(1), Value(2))).wrapped as Int).isLessThan(0)
+        assertThat(compareMethod.invoke(env, listOf(Value(2), Value(2))).wrapped as Int).isEqualTo(0)
+        assertThat(compareMethod.invoke(env, listOf(Value(3), Value(2))).wrapped as Int).isGreaterThan(0)
+    }
 }

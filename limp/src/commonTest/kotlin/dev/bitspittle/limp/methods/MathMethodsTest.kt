@@ -42,6 +42,17 @@ class MathMethodsTest {
     }
 
     @Test
+    fun testPowMethod() {
+        val env = Environment()
+        val method = PowMethod()
+
+        assertThat(method.invoke(env, listOf(Value(2), Value(3))).wrapped).isEqualTo(8)
+        assertThat(method.invoke(env, listOf(Value(3), Value(2))).wrapped).isEqualTo(9)
+        assertThat(method.invoke(env, listOf(Value(1000), Value(0))).wrapped).isEqualTo(1)
+        assertThat(method.invoke(env, listOf(Value(20), Value(1))).wrapped).isEqualTo(20)
+    }
+
+    @Test
     fun testMulListMethod() {
         val env = Environment()
         val method = MulListMethod()

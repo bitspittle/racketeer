@@ -7,8 +7,12 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Value
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.collection.*
+import dev.bitspittle.limp.methods.compare.CompareMethod
 import dev.bitspittle.limp.methods.compare.EqualsMethod
 import dev.bitspittle.limp.methods.compare.GreaterThanMethod
+import dev.bitspittle.limp.methods.convert.ToIntMethod
+import dev.bitspittle.limp.methods.convert.ToStringMethod
+import dev.bitspittle.limp.methods.math.PowMethod
 import dev.bitspittle.limp.methods.math.RemainderMethod
 import kotlin.random.Random
 import kotlin.test.Test
@@ -82,6 +86,21 @@ class CollectionMethodsTest {
     }
 
     @Test
+    fun testMapMethod() {
+        val env = Environment()
+        env.addMethod(MapMethod())
+        env.addMethod(PowMethod())
+        env.addMethod(ToStringMethod())
+        env.storeValue("ints", Value((1..5).toList()))
+
+        val evaluator = Evaluator()
+
+        assertThat(evaluator.evaluate(env, "map ints '(^ \$it 2)").wrapped as List<Int>).containsExactly(1, 4, 9, 16, 25).inOrder()
+        assertThat(evaluator.evaluate(env, "map ints '(to-string \$it)").wrapped as List<String>).containsExactly("1", "2", "3", "4", "5").inOrder()
+        assertThat(evaluator.evaluate(env, "map ints '\$it").wrapped as List<Int>).containsExactly(1, 2, 3, 4, 5).inOrder()
+    }
+
+    @Test
     fun testFirstMethod() {
         val env = Environment()
         env.addMethod(FirstMethod())
@@ -150,6 +169,7 @@ class CollectionMethodsTest {
 
         val ints = listOf(3, 1, 4, 5, 2)
         val letters = listOf('c', 'a', 'd', 'e', 'b')
+        val strNumbers = listOf("3", "2", "1", "30", "20", "10")
 
         assertThat(method.invoke(env, listOf(Value(ints))).wrapped as List<Int>)
             .containsExactly(1, 2, 3, 4, 5).inOrder()
@@ -160,17 +180,31 @@ class CollectionMethodsTest {
         // Descending order is easier to test through higher level due to how optional parameters work
         val evaluator = Evaluator()
         env.addMethod(method)
+        env.addMethod(CompareMethod())
+        env.addMethod(ToIntMethod())
         env.storeValue("ints", Value(ints))
         env.storeValue("letters", Value(letters))
+        env.storeValue("str-numbers", Value(strNumbers))
+
         assertThat(evaluator.evaluate(env, "sort --order 'descending ints").wrapped as List<Int>)
             .containsExactly(5, 4, 3, 2, 1).inOrder()
 
         assertThat(evaluator.evaluate(env, "sort --order 'descending letters").wrapped as List<Char>)
             .containsExactly('e', 'd', 'c', 'b', 'a').inOrder()
 
+        assertThat(evaluator.evaluate(env, "sort str-numbers").wrapped as List<String>)
+            .containsExactly("1", "10", "2", "20", "3", "30").inOrder()
+
+        assertThat(evaluator.evaluate(env, "sort --with '(compare to-int \$l to-int \$r) str-numbers").wrapped as List<String>)
+            .containsExactly("1", "2", "3", "10", "20", "30").inOrder()
+
+        assertThat(evaluator.evaluate(env, "sort --order 'descending --with '(compare to-int \$l to-int \$r) str-numbers").wrapped as List<String>)
+            .containsExactly("30", "20", "10", "3", "2", "1").inOrder()
+
         // Original lists are not affected
         assertThat(ints).containsExactly(3, 1, 4, 5, 2).inOrder()
         assertThat(letters).containsExactly('c', 'a', 'd', 'e', 'b').inOrder()
+        assertThat(strNumbers).containsExactly("3", "2", "1", "30", "20", "10").inOrder()
     }
 
     @Test

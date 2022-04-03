@@ -4,6 +4,8 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Value
 import dev.bitspittle.limp.methods.collection.*
 import dev.bitspittle.limp.methods.compare.*
+import dev.bitspittle.limp.methods.convert.ToIntMethod
+import dev.bitspittle.limp.methods.convert.ToStringMethod
 import dev.bitspittle.limp.methods.logic.AndMethod
 import dev.bitspittle.limp.methods.logic.IfMethod
 import dev.bitspittle.limp.methods.logic.NotMethod
@@ -13,7 +15,7 @@ import dev.bitspittle.limp.methods.range.IntRangeMethod
 import dev.bitspittle.limp.methods.system.DefMethod
 import dev.bitspittle.limp.methods.system.SetMethod
 
-fun Environment.installUsefulDefaults() {
+fun Environment.installDefaults() {
     // System
     storeValue("_", Value.Placeholder)
     addMethod(SetMethod())
@@ -24,6 +26,7 @@ fun Environment.installUsefulDefaults() {
     addMethod(SubMethod())
     addMethod(MulMethod())
     addMethod(DivMethod())
+    addMethod(PowMethod())
     addMethod(RemainderMethod())
 
     addMethod(MinMethod())
@@ -50,6 +53,7 @@ fun Environment.installUsefulDefaults() {
     addMethod(NotEqualsMethod())
     addMethod(GreaterThanMethod())
     addMethod(GreaterThanEqualsMethod())
+    addMethod(CompareMethod())
 
     // Range
     addMethod(IntRangeMethod())
@@ -57,6 +61,7 @@ fun Environment.installUsefulDefaults() {
     // Collection
     addMethod(ListMethod())
     addMethod(InMethod())
+    addMethod(MapMethod())
     addMethod(FilterMethod())
     addMethod(FirstMethod())
     addMethod(SingleMethod())
@@ -64,4 +69,8 @@ fun Environment.installUsefulDefaults() {
     addMethod(ShuffleMethod())
     addMethod(SortMethod())
     addMethod(UnionMethod())
+
+    // Convert
+    addMethod(ToIntMethod())
+    addMethod(ToStringMethod())
 }
