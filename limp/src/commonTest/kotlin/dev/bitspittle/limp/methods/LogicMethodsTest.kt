@@ -11,9 +11,6 @@ import dev.bitspittle.limp.methods.logic.IfMethod
 import dev.bitspittle.limp.methods.logic.NotMethod
 import dev.bitspittle.limp.methods.logic.OrMethod
 import dev.bitspittle.limp.methods.math.AddMethod
-import dev.bitspittle.limp.methods.math.EqualsMethod
-import dev.bitspittle.limp.methods.math.NotEqualsMethod
-import dev.bitspittle.limp.methods.system.SetMethod
 import kotlin.test.Test
 
 class LogicMethodsTest {

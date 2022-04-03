@@ -3,6 +3,7 @@ package dev.bitspittle.limp.utils
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Value
 import dev.bitspittle.limp.methods.collection.*
+import dev.bitspittle.limp.methods.compare.*
 import dev.bitspittle.limp.methods.logic.AndMethod
 import dev.bitspittle.limp.methods.logic.IfMethod
 import dev.bitspittle.limp.methods.logic.NotMethod

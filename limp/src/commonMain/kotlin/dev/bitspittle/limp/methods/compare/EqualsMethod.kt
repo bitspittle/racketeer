@@ -1,4 +1,4 @@
-package dev.bitspittle.limp.methods.math
+package dev.bitspittle.limp.methods.compare
 
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Method

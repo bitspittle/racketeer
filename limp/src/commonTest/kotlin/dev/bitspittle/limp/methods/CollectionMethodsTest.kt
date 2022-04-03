@@ -7,8 +7,8 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Value
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.collection.*
-import dev.bitspittle.limp.methods.math.EqualsMethod
-import dev.bitspittle.limp.methods.math.GreaterThanMethod
+import dev.bitspittle.limp.methods.compare.EqualsMethod
+import dev.bitspittle.limp.methods.compare.GreaterThanMethod
 import dev.bitspittle.limp.methods.math.RemainderMethod
 import kotlin.random.Random
 import kotlin.test.Test

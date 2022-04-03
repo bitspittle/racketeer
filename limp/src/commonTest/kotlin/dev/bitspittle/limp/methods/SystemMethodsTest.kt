@@ -6,9 +6,8 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Value
 import dev.bitspittle.limp.exceptions.EvaluationException
-import dev.bitspittle.limp.methods.logic.AndMethod
-import dev.bitspittle.limp.methods.logic.NotMethod
-import dev.bitspittle.limp.methods.logic.OrMethod
+import dev.bitspittle.limp.methods.compare.EqualsMethod
+import dev.bitspittle.limp.methods.compare.NotEqualsMethod
 import dev.bitspittle.limp.methods.math.*
 import dev.bitspittle.limp.methods.system.DefMethod
 import dev.bitspittle.limp.methods.system.SetMethod
