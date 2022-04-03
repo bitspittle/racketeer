@@ -9,15 +9,17 @@ import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.ListStrategy
 
 /**
- * Take a list and return a copy with some elements removed, based on some test expression.
+ * Take a list and return the ONLY element in it that matches some test expression, or throw an error.
+ *
+ * In other words, only use this when you're sure there's only exactly one match.
  */
-class FilterMethod : Method("filter", 2) {
+class SingleMethod : Method("single", 2) {
     override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
         val list = env.expectConvert<List<Any>>(params[0])
         val predicate = env.expectConvert<Expr>(params[1])
 
         val evaluator = Evaluator()
-        return Value(list.filter { item ->
+        return Value(list.single { item ->
             env.scoped {
                 env.storeValue("\$it", Value(item))
                 env.expectConvert(evaluator.evaluate(env, predicate))

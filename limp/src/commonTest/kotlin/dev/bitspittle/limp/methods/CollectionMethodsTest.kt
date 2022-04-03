@@ -1,9 +1,11 @@
 package dev.bitspittle.limp.methods
 
 import com.varabyte.truthish.assertThat
+import com.varabyte.truthish.assertThrows
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Value
+import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.collection.*
 import dev.bitspittle.limp.methods.math.EqualsMethod
 import dev.bitspittle.limp.methods.math.GreaterThanMethod
@@ -77,6 +79,54 @@ class CollectionMethodsTest {
         assertThat(evaluator.evaluate(env, "filter ints '(> \$it 5)").wrapped as List<Int>).containsExactly(6, 7, 8, 9, 10).inOrder()
         assertThat(evaluator.evaluate(env, "filter ints '(= % \$it 2 0)").wrapped as List<Int>).containsExactly(2, 4, 6, 8, 10).inOrder()
         assertThat(evaluator.evaluate(env, "filter ints 'false").wrapped as List<Int>).isEmpty()
+    }
+
+    @Test
+    fun testFirstMethod() {
+        val env = Environment()
+        env.addMethod(FirstMethod())
+        env.addMethod(GreaterThanMethod())
+        env.addMethod(RemainderMethod())
+        env.addMethod(EqualsMethod())
+        env.storeValue("false", Value.False)
+
+        val evaluator = Evaluator()
+
+        env.storeValue("ints", Value((1 .. 10).toList()))
+
+        assertThat(evaluator.evaluate(env, "first ints '(> \$it 5)").wrapped).isEqualTo(6)
+        assertThat(evaluator.evaluate(env, "first ints '(= % \$it 2 0)").wrapped).isEqualTo(2)
+
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "first ints 'false")
+        }
+    }
+
+    @Test
+    fun testSingleMethod() {
+        val env = Environment()
+        env.addMethod(SingleMethod())
+        env.addMethod(GreaterThanMethod())
+        env.addMethod(RemainderMethod())
+        env.addMethod(EqualsMethod())
+        env.storeValue("false", Value.False)
+
+        val evaluator = Evaluator()
+
+        env.storeValue("ints", Value((1 .. 10).toList()))
+
+        assertThat(evaluator.evaluate(env, "single ints '(= \$it 8)").wrapped).isEqualTo(8)
+        assertThat(evaluator.evaluate(env, "single ints '(= % \$it 7 0)").wrapped).isEqualTo(7)
+
+        assertThrows<EvaluationException> {
+            // Single must not return an empty list
+            evaluator.evaluate(env, "single ints 'false")
+        }
+
+        assertThrows<EvaluationException> {
+            // Single must not return a list with 2+ elements
+            evaluator.evaluate(env, "single ints 'true")
+        }
     }
 
     @Test
