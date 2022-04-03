@@ -13,13 +13,10 @@ class SortMethod : Method("sort", 1) {
     override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
         val list = env.expectConvert<List<Comparable<Any>>>(params[0])
 
-        val order = env.scoped {
-            options["order"]?.let { from ->
-                val fromIdentifier = env.expectConvert<Expr.Identifier>(from)
-                SortOrder.values().single { it.name.lowercase() == fromIdentifier.name }
-            }
+        val order = options["order"]?.let { from ->
+            val fromIdentifier = env.expectConvert<Expr.Identifier>(from)
+            SortOrder.values().single { it.name.lowercase() == fromIdentifier.name }
         } ?: SortOrder.ASCENDING
-
 
         return Value(when (order) {
             SortOrder.ASCENDING -> list.sorted()

@@ -19,17 +19,18 @@ class TakeMethod : Method("take", 2) {
             env.expectConvert<Int>(params[1])
         }.coerceAtMost(list.size)
 
-        val strategy = env.scoped {
+        val strategy =
             options["from"]?.let { from ->
                 val fromIdentifier = env.expectConvert<Expr.Identifier>(from)
                 ListStrategy.values().single { it.name.lowercase() == fromIdentifier.name }
-            }
-        } ?: ListStrategy.FRONT
+            } ?: ListStrategy.FRONT
 
-        return Value(when(strategy) {
-            ListStrategy.FRONT -> list.take(count)
-            ListStrategy.BACK -> list.takeLast(count)
-            ListStrategy.RANDOM -> list.shuffled(env.random).take(count)
-        })
+        return Value(
+            when (strategy) {
+                ListStrategy.FRONT -> list.take(count)
+                ListStrategy.BACK -> list.takeLast(count)
+                ListStrategy.RANDOM -> list.shuffled(env.random).take(count)
+            }
+        )
     }
 }
