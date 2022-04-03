@@ -144,6 +144,36 @@ class CollectionMethodsTest {
     }
 
     @Test
+    fun testSortMethod() {
+        val env = Environment()
+        val method = SortMethod()
+
+        val ints = listOf(3, 1, 4, 5, 2)
+        val letters = listOf('c', 'a', 'd', 'e', 'b')
+
+        assertThat(method.invoke(env, listOf(Value(ints))).wrapped as List<Int>)
+            .containsExactly(1, 2, 3, 4, 5).inOrder()
+
+        assertThat(method.invoke(env, listOf(Value(letters))).wrapped as List<Char>)
+            .containsExactly('a', 'b', 'c', 'd', 'e').inOrder()
+
+        // Descending order is easier to test through higher level due to how optional parameters work
+        val evaluator = Evaluator()
+        env.addMethod(method)
+        env.storeValue("ints", Value(ints))
+        env.storeValue("letters", Value(letters))
+        assertThat(evaluator.evaluate(env, "sort --order 'descending ints").wrapped as List<Int>)
+            .containsExactly(5, 4, 3, 2, 1).inOrder()
+
+        assertThat(evaluator.evaluate(env, "sort --order 'descending letters").wrapped as List<Char>)
+            .containsExactly('e', 'd', 'c', 'b', 'a').inOrder()
+
+        // Original lists are not affected
+        assertThat(ints).containsExactly(3, 1, 4, 5, 2).inOrder()
+        assertThat(letters).containsExactly('c', 'a', 'd', 'e', 'b').inOrder()
+    }
+
+    @Test
     fun testUnionMethod() {
         val env = Environment()
         val method = UnionMethod()
