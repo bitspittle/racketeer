@@ -17,4 +17,12 @@ class Value(val wrapped: Any) {
     override fun toString(): String {
         return "Value { $wrapped }"
     }
+
+    override fun equals(other: Any?): Boolean {
+        return (other is Value) && wrapped == other.wrapped
+    }
+
+    override fun hashCode(): Int {
+        return wrapped.hashCode()
+    }
 }
