@@ -1,19 +1,13 @@
 package dev.bitspittle.limp.methods
 
 import com.varabyte.truthish.assertThat
-import com.varabyte.truthish.assertThrows
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Value
-import dev.bitspittle.limp.exceptions.EvaluationException
-import dev.bitspittle.limp.methods.collection.InMethod
-import dev.bitspittle.limp.methods.collection.ShuffleMethod
-import dev.bitspittle.limp.methods.collection.TakeMethod
-import dev.bitspittle.limp.methods.collection.UnionMethod
-import dev.bitspittle.limp.methods.math.AddMethod
+import dev.bitspittle.limp.methods.collection.*
 import dev.bitspittle.limp.methods.math.EqualsMethod
-import dev.bitspittle.limp.methods.math.NotEqualsMethod
-import dev.bitspittle.limp.methods.system.SetMethod
+import dev.bitspittle.limp.methods.math.GreaterThanMethod
+import dev.bitspittle.limp.methods.math.RemainderMethod
 import kotlin.random.Random
 import kotlin.test.Test
 
@@ -65,6 +59,24 @@ class CollectionMethodsTest {
 
         assertThat(evaluator.evaluate(env, "take strs 2").wrapped as List<String>).containsExactly("Aa", "Bb").inOrder()
         assertThat(evaluator.evaluate(env, "take --from 'back strs 2").wrapped as List<String>).containsExactly("Cc", "Dd").inOrder()
+    }
+
+    @Test
+    fun testFilterMethod() {
+        val env = Environment()
+        env.addMethod(FilterMethod())
+        env.addMethod(GreaterThanMethod())
+        env.addMethod(RemainderMethod())
+        env.addMethod(EqualsMethod())
+        env.storeValue("false", Value.False)
+
+        val evaluator = Evaluator()
+
+        env.storeValue("ints", Value((1 .. 10).toList()))
+
+        assertThat(evaluator.evaluate(env, "filter ints '(> \$it 5)").wrapped as List<Int>).containsExactly(6, 7, 8, 9, 10).inOrder()
+        assertThat(evaluator.evaluate(env, "filter ints '(= % \$it 2 0)").wrapped as List<Int>).containsExactly(2, 4, 6, 8, 10).inOrder()
+        assertThat(evaluator.evaluate(env, "filter ints 'false").wrapped as List<Int>).isEmpty()
     }
 
     @Test

@@ -40,8 +40,8 @@ fun Environment.installUsefulDefaults() {
     addMethod(MulListMethod())
 
     // Logic
-    storeValue("true", Value(true))
-    storeValue("false", Value(false))
+    storeValue("true", Value.True)
+    storeValue("false", Value.False)
 
     addMethod(NotMethod())
     addMethod(AndMethod())
@@ -55,6 +55,7 @@ fun Environment.installUsefulDefaults() {
     // Collection
     addMethod(ListMethod())
     addMethod(InMethod())
+    addMethod(FilterMethod())
     addMethod(TakeMethod())
     addMethod(ShuffleMethod())
     addMethod(UnionMethod())

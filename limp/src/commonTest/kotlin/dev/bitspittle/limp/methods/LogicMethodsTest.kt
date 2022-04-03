@@ -22,8 +22,8 @@ class LogicMethodsTest {
         val env = Environment()
         val method = NotMethod()
 
-        assertThat(method.invoke(env, listOf(Value(true))).wrapped as Boolean).isFalse()
-        assertThat(method.invoke(env, listOf(Value(false))).wrapped as Boolean).isTrue()
+        assertThat(method.invoke(env, listOf(Value.True)).wrapped as Boolean).isFalse()
+        assertThat(method.invoke(env, listOf(Value.False)).wrapped as Boolean).isTrue()
     }
 
     @Test
@@ -31,10 +31,10 @@ class LogicMethodsTest {
         val env = Environment()
         val method = AndMethod()
 
-        assertThat(method.invoke(env, listOf(Value(true), Value(true))).wrapped).isEqualTo(true)
-        assertThat(method.invoke(env, listOf(Value(true), Value(false))).wrapped).isEqualTo(false)
-        assertThat(method.invoke(env, listOf(Value(false), Value(true))).wrapped).isEqualTo(false)
-        assertThat(method.invoke(env, listOf(Value(false), Value(false))).wrapped).isEqualTo(false)
+        assertThat(method.invoke(env, listOf(Value.True, Value.True)).wrapped).isEqualTo(true)
+        assertThat(method.invoke(env, listOf(Value.True, Value.False)).wrapped).isEqualTo(false)
+        assertThat(method.invoke(env, listOf(Value.False, Value.True)).wrapped).isEqualTo(false)
+        assertThat(method.invoke(env, listOf(Value.False, Value.False)).wrapped).isEqualTo(false)
     }
 
     @Test
@@ -42,10 +42,10 @@ class LogicMethodsTest {
         val env = Environment()
         val method = OrMethod()
 
-        assertThat(method.invoke(env, listOf(Value(true), Value(true))).wrapped).isEqualTo(true)
-        assertThat(method.invoke(env, listOf(Value(true), Value(false))).wrapped).isEqualTo(true)
-        assertThat(method.invoke(env, listOf(Value(false), Value(true))).wrapped).isEqualTo(true)
-        assertThat(method.invoke(env, listOf(Value(false), Value(false))).wrapped).isEqualTo(false)
+        assertThat(method.invoke(env, listOf(Value.True, Value.True)).wrapped).isEqualTo(true)
+        assertThat(method.invoke(env, listOf(Value.True, Value.False)).wrapped).isEqualTo(true)
+        assertThat(method.invoke(env, listOf(Value.False, Value.True)).wrapped).isEqualTo(true)
+        assertThat(method.invoke(env, listOf(Value.False, Value.False)).wrapped).isEqualTo(false)
     }
 
     @Test
@@ -53,8 +53,8 @@ class LogicMethodsTest {
         val env = Environment()
         env.addMethod(IfMethod())
         env.addMethod(AddMethod())
-        env.storeValue("true", Value(true))
-        env.storeValue("false", Value(false))
+        env.storeValue("true", Value.True)
+        env.storeValue("false", Value.False)
         env.storeValue("_", Value.Placeholder)
 
         val evaluator = Evaluator()
