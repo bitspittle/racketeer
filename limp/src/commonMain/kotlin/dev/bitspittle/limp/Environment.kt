@@ -94,7 +94,7 @@ class Environment(val random: Random = Random.Default) {
     }
 
     fun <T: Any> expectConvert(value: Value, toClass: KClass<T>): T {
-        return convert(value, toClass) ?: error("Could not convert $value to $toClass")
+        return convert(value, toClass) ?: error("Could not convert ${value.wrapped::class} (value = \"${value.wrapped}\") to $toClass")
     }
 
     inline fun <reified T: Any> convert(value: Value): T? = convert(value, T::class)
