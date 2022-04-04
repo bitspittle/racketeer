@@ -5,11 +5,12 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Value
 import dev.bitspittle.limp.methods.compare.*
 import dev.bitspittle.limp.methods.math.*
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
 class MathMethodsTest {
     @Test
-    fun testAddMethod() {
+    fun testAddMethod() = runTest {
         val env = Environment()
         val method = AddMethod()
 
@@ -17,7 +18,7 @@ class MathMethodsTest {
     }
 
     @Test
-    fun testAddListMethod() {
+    fun testAddListMethod() = runTest {
         val env = Environment()
         val method = AddListMethod()
 
@@ -26,7 +27,7 @@ class MathMethodsTest {
     }
 
     @Test
-    fun testSubMethod() {
+    fun testSubMethod() = runTest {
         val env = Environment()
         val method = SubMethod()
 
@@ -34,7 +35,7 @@ class MathMethodsTest {
     }
 
     @Test
-    fun testMulMethod() {
+    fun testMulMethod() = runTest {
         val env = Environment()
         val method = MulMethod()
 
@@ -42,7 +43,7 @@ class MathMethodsTest {
     }
 
     @Test
-    fun testPowMethod() {
+    fun testPowMethod() = runTest {
         val env = Environment()
         val method = PowMethod()
 
@@ -53,7 +54,7 @@ class MathMethodsTest {
     }
 
     @Test
-    fun testMulListMethod() {
+    fun testMulListMethod() = runTest {
         val env = Environment()
         val method = MulListMethod()
 
@@ -62,7 +63,7 @@ class MathMethodsTest {
     }
 
     @Test
-    fun testDivMethod() {
+    fun testDivMethod() = runTest {
         val env = Environment()
         val method = DivMethod()
 
@@ -71,7 +72,7 @@ class MathMethodsTest {
     }
 
     @Test
-    fun testRemainderMethod() {
+    fun testRemainderMethod() = runTest {
         val env = Environment()
         val method = RemainderMethod()
 
@@ -80,7 +81,7 @@ class MathMethodsTest {
     }
 
     @Test
-    fun testMinMethod() {
+    fun testMinMethod() = runTest {
         val env = Environment()
         val method = MinMethod()
 
@@ -89,7 +90,7 @@ class MathMethodsTest {
     }
 
     @Test
-    fun testMaxMethod() {
+    fun testMaxMethod() = runTest {
         val env = Environment()
         val method = MaxMethod()
 
@@ -98,7 +99,7 @@ class MathMethodsTest {
     }
 
     @Test
-    fun testClampMethod() {
+    fun testClampMethod() = runTest {
         val env = Environment()
         val method = ClampMethod()
 

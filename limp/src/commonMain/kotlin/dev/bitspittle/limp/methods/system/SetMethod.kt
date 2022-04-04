@@ -10,7 +10,7 @@ import dev.bitspittle.limp.types.Expr
  * Store a value with some variable name label.
  */
 class SetMethod : Method("set", 2) {
-    override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
+    override suspend fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
         val nameExpr = env.expectConvert<Expr>(params[0])
         val nameIdentifier = nameExpr as? Expr.Identifier ?: throw EvaluationException(nameExpr.ctx, "First argument to \"set\" should be a simple identifier name, e.g. \"'\$example\".")
 

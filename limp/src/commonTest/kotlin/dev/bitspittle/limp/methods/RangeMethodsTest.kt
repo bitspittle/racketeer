@@ -4,11 +4,12 @@ import com.varabyte.truthish.assertThat
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Value
 import dev.bitspittle.limp.methods.range.IntRangeMethod
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
 class RangeMethodsTest {
     @Test
-    fun testIntRangeMethod() {
+    fun testIntRangeMethod() = runTest {
         val env = Environment()
         val method = IntRangeMethod()
 

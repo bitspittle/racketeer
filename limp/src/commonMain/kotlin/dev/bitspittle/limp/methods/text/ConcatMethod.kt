@@ -9,7 +9,7 @@ import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.types.Expr
 
 class ConcatMethod : Method("concat", 2) {
-    override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
+    override suspend fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
         return env.scoped {
             env.addConverter(CharToStringConverter())
             val str1 = env.expectConvert<String>(params[0])

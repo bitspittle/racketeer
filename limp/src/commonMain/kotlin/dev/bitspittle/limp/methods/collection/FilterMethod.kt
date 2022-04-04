@@ -12,7 +12,7 @@ import dev.bitspittle.limp.types.ListStrategy
  * Take a list and return a copy with some elements removed, based on some test expression.
  */
 class FilterMethod : Method("filter", 2) {
-    override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
+    override suspend fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
         val list = env.expectConvert<List<Any>>(params[0])
         val predicate = env.expectConvert<Expr>(params[1])
 

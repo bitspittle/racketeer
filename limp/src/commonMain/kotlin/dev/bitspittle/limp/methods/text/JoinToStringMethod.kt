@@ -7,7 +7,7 @@ import dev.bitspittle.limp.Value
 import dev.bitspittle.limp.types.Expr
 
 class JoinToStringMethod : Method("join-to-string", 1) {
-    override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
+    override suspend fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
         val list = env.expectConvert<List<Any>>(params[0])
         val separator = options["separator"]?.let { env.expectConvert(it)} ?: ", "
         val format = options["format"]?.let { env.expectConvert<Expr>(it)}

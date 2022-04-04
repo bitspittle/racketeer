@@ -106,7 +106,7 @@ assertThat(result.wrapped).isEqualTo(12)
 // Defining a method
 val env = Environment()
 env.add(object : Method("concat", 2) {
-   override fun invoke(env: Environment, params: List<Value>, rest: List<Value>): Value {
+   override suspend fun invoke(env: Environment, params: List<Value>, rest: List<Value>): Value {
        return Value(env.expectConvert<String>(params[0]) + env.expectConvert<String>(params[1]))
    }
 })
@@ -134,7 +134,7 @@ val env = Environment()
 // > take $list 2 -> new list of size 2
 // > take $list _ -> take the whole list
 env.add(object : Method("take", 2) {
-   override fun invoke(env: Environment, params: List<Value>, optionals: Map<String, Value>, rest: List<Value>): Value {
+   override suspend fun invoke(env: Environment, params: List<Value>, optionals: Map<String, Value>, rest: List<Value>): Value {
        val listIn = env.expectConvert<List>(params[0])
        val count = env.scoped {
            env.add(PlaceholderConverter(listIn.size))

@@ -23,7 +23,7 @@ import dev.bitspittle.limp.types.Expr
  * body `'(min ...)`.
  */
 class DefMethod : Method("def", 0, consumeRest = true) {
-    override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
+    override suspend fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
         require(rest.size >= 2) { "The \"def\" method was not provided with enough arguments. It needs at least a name and a body." }
         val nameExpr = env.expectConvert<Expr>(rest[0])
         val bodyExpr = env.expectConvert<Expr>(rest.last())
@@ -42,7 +42,7 @@ class DefMethod : Method("def", 0, consumeRest = true) {
         }
 
         env.addMethod(object : Method(nameIdentifier.name, argIds.size) {
-            override fun invoke(
+            override suspend fun invoke(
                 env: Environment,
                 params: List<Value>,
                 options: Map<String, Value>,

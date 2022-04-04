@@ -9,12 +9,13 @@ import dev.bitspittle.limp.methods.math.*
 import dev.bitspittle.limp.methods.range.IntRangeMethod
 import dev.bitspittle.limp.methods.system.DefMethod
 import dev.bitspittle.limp.methods.system.SetMethod
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
 @Suppress("UNCHECKED_CAST")
 class EvaluatorTest {
     @Test
-    fun testSimpleEvaluation() {
+    fun testSimpleEvaluation() = runTest {
         val env = Environment()
         env.addMethod(AddMethod())
         env.addMethod(MulMethod())
@@ -32,7 +33,7 @@ class EvaluatorTest {
     }
 
     @Test
-    fun testEvaluationWithPlaceholder() {
+    fun testEvaluationWithPlaceholder() = runTest {
         val env = Environment()
         env.addMethod(IntRangeMethod())
         env.storeValue("_", Value.Placeholder)
@@ -44,7 +45,7 @@ class EvaluatorTest {
     }
 
     @Test
-    fun testEvaluationWithOptionalParameters() {
+    fun testEvaluationWithOptionalParameters() = runTest {
         val env = Environment()
         env.addMethod(IntRangeMethod())
 
@@ -59,7 +60,7 @@ class EvaluatorTest {
     }
 
     @Test
-    fun testEvaluationWithRestParameters() {
+    fun testEvaluationWithRestParameters() = runTest {
         val env = Environment()
         env.addMethod(ListMethod())
         env.addMethod(AddMethod())
@@ -75,7 +76,7 @@ class EvaluatorTest {
     }
 
     @Test
-    fun methodExceptionsWillGetRethrownAsEvaluationExceptions() {
+    fun methodExceptionsWillGetRethrownAsEvaluationExceptions() = runTest {
         val env = Environment()
         env.addMethod(DivMethod())
 
@@ -89,7 +90,7 @@ class EvaluatorTest {
     // function calls, which wasn't expected (because variables in the environment are kinda global, while method
     // parameters should be hyper local
     @Test
-    fun methodParametersDontLeakOutOfTheirOwnMethod() {
+    fun methodParametersDontLeakOutOfTheirOwnMethod() = runTest {
         val env = Environment()
         env.addMethod(DefMethod())
         env.addMethod(AddMethod())

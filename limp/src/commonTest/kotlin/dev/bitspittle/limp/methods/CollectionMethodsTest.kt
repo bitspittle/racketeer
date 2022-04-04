@@ -14,13 +14,14 @@ import dev.bitspittle.limp.methods.convert.ToIntMethod
 import dev.bitspittle.limp.methods.convert.ToStringMethod
 import dev.bitspittle.limp.methods.math.PowMethod
 import dev.bitspittle.limp.methods.math.RemainderMethod
+import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.Test
 
 @Suppress("UNCHECKED_CAST")
 class CollectionMethodsTest {
     @Test
-    fun testInMethod() {
+    fun testInMethod() = runTest {
         val env = Environment()
         val method = InMethod()
 
@@ -43,7 +44,7 @@ class CollectionMethodsTest {
     }
 
     @Test
-    fun testTakeMethod() {
+    fun testTakeMethod() = runTest {
         val env = Environment(Random(123)) // Fixed seed so that we get the same shuffle everytime for this test
         env.addMethod(TakeMethod())
         env.storeValue("_", Value.Placeholder)
@@ -68,7 +69,7 @@ class CollectionMethodsTest {
     }
 
     @Test
-    fun testFilterMethod() {
+    fun testFilterMethod() = runTest {
         val env = Environment()
         env.addMethod(FilterMethod())
         env.addMethod(GreaterThanMethod())
@@ -86,7 +87,7 @@ class CollectionMethodsTest {
     }
 
     @Test
-    fun testMapMethod() {
+    fun testMapMethod() = runTest {
         val env = Environment()
         env.addMethod(MapMethod())
         env.addMethod(PowMethod())
@@ -101,8 +102,9 @@ class CollectionMethodsTest {
     }
 
     @Test
-    fun testFirstMethod() {
+    fun testFirstMethod() = runTest {
         val env = Environment()
+        env.storeValue("_", Value.Placeholder)
         env.addMethod(FirstMethod())
         env.addMethod(GreaterThanMethod())
         env.addMethod(RemainderMethod())
@@ -124,7 +126,7 @@ class CollectionMethodsTest {
     }
 
     @Test
-    fun testSingleMethod() {
+    fun testSingleMethod() = runTest {
         val env = Environment()
         env.addMethod(SingleMethod())
         env.addMethod(GreaterThanMethod())
@@ -151,7 +153,7 @@ class CollectionMethodsTest {
     }
 
     @Test
-    fun testShuffleMethod() {
+    fun testShuffleMethod() = runTest {
         val env = Environment(Random(123)) // Fixed seed so that we get the same shuffle everytime for this test
         val method = ShuffleMethod()
 
@@ -165,28 +167,26 @@ class CollectionMethodsTest {
     }
 
     @Test
-    fun testSortMethod() {
+    fun testSortMethod() = runTest {
         val env = Environment()
-        val method = SortMethod()
 
         val ints = listOf(3, 1, 4, 5, 2)
         val letters = listOf('c', 'a', 'd', 'e', 'b')
-        val strNumbers = listOf("3", "2", "1", "30", "20", "10")
+        val strNumbers = listOf("3", "2", "1", "30", "20", "10", "20")
 
-        assertThat(method.invoke(env, listOf(Value(ints))).wrapped as List<Int>)
-            .containsExactly(1, 2, 3, 4, 5).inOrder()
-
-        assertThat(method.invoke(env, listOf(Value(letters))).wrapped as List<Char>)
-            .containsExactly('a', 'b', 'c', 'd', 'e').inOrder()
-
-        // Descending order is easier to test through higher level due to how optional parameters work
         val evaluator = Evaluator()
-        env.addMethod(method)
+        env.addMethod(SortMethod())
         env.addMethod(CompareMethod())
         env.addMethod(ToIntMethod())
         env.storeValue("ints", Value(ints))
         env.storeValue("letters", Value(letters))
         env.storeValue("str-numbers", Value(strNumbers))
+
+        assertThat(evaluator.evaluate(env, "sort ints").wrapped as List<Int>)
+            .containsExactly(1, 2, 3, 4, 5).inOrder()
+
+        assertThat(evaluator.evaluate(env, "sort letters").wrapped as List<Char>)
+            .containsExactly('a', 'b', 'c', 'd', 'e').inOrder()
 
         assertThat(evaluator.evaluate(env, "sort --order 'descending ints").wrapped as List<Int>)
             .containsExactly(5, 4, 3, 2, 1).inOrder()
@@ -195,22 +195,22 @@ class CollectionMethodsTest {
             .containsExactly('e', 'd', 'c', 'b', 'a').inOrder()
 
         assertThat(evaluator.evaluate(env, "sort str-numbers").wrapped as List<String>)
-            .containsExactly("1", "10", "2", "20", "3", "30").inOrder()
+            .containsExactly("1", "10", "2", "20", "20", "3", "30").inOrder()
 
         assertThat(evaluator.evaluate(env, "sort --with '(compare to-int \$l to-int \$r) str-numbers").wrapped as List<String>)
-            .containsExactly("1", "2", "3", "10", "20", "30").inOrder()
+            .containsExactly("1", "2", "3", "10", "20", "20", "30").inOrder()
 
         assertThat(evaluator.evaluate(env, "sort --order 'descending --with '(compare to-int \$l to-int \$r) str-numbers").wrapped as List<String>)
-            .containsExactly("30", "20", "10", "3", "2", "1").inOrder()
+            .containsExactly("30", "20", "20", "10", "3", "2", "1").inOrder()
 
         // Original lists are not affected
         assertThat(ints).containsExactly(3, 1, 4, 5, 2).inOrder()
         assertThat(letters).containsExactly('c', 'a', 'd', 'e', 'b').inOrder()
-        assertThat(strNumbers).containsExactly("3", "2", "1", "30", "20", "10").inOrder()
+        assertThat(strNumbers).containsExactly("3", "2", "1", "30", "20", "10", "20").inOrder()
     }
 
     @Test
-    fun testUnionMethod() {
+    fun testUnionMethod() = runTest {
         val env = Environment()
         val method = UnionMethod()
 

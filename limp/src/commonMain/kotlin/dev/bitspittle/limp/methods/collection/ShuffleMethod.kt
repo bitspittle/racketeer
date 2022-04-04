@@ -7,7 +7,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 class ShuffleMethod : Method("shuffle", 1) {
-    override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
+    override suspend fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
         val list = env.expectConvert<List<*>>(params[0])
 
         return Value(list.shuffled(env.random))

@@ -11,11 +11,12 @@ import dev.bitspittle.limp.methods.logic.IfMethod
 import dev.bitspittle.limp.methods.logic.NotMethod
 import dev.bitspittle.limp.methods.logic.OrMethod
 import dev.bitspittle.limp.methods.math.AddMethod
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
 class LogicMethodsTest {
     @Test
-    fun testNotMethod() {
+    fun testNotMethod() = runTest {
         val env = Environment()
         val method = NotMethod()
 
@@ -24,7 +25,7 @@ class LogicMethodsTest {
     }
 
     @Test
-    fun testAndMethod() {
+    fun testAndMethod() = runTest {
         val env = Environment()
         val method = AndMethod()
 
@@ -35,7 +36,7 @@ class LogicMethodsTest {
     }
 
     @Test
-    fun testOrMethod() {
+    fun testOrMethod() = runTest {
         val env = Environment()
         val method = OrMethod()
 
@@ -46,7 +47,7 @@ class LogicMethodsTest {
     }
 
     @Test
-    fun testIfBranching() {
+    fun testIfBranching() = runTest {
         val env = Environment()
         env.addMethod(IfMethod())
         env.addMethod(AddMethod())

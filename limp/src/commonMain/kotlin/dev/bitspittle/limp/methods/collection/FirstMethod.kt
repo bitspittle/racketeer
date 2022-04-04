@@ -13,10 +13,10 @@ import dev.bitspittle.limp.types.Expr
  * In other words, only use this when you're sure there's at least one match.
  */
 class FirstMethod : Method("first", 2) {
-    override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
+    override suspend fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
         val list = env.expectConvert<List<Any>>(params[0])
         val predicate = env.scoped {
-            env.addConverter(PlaceholderConverter<Expr>(Expr.Stub(true)))
+            env.addConverter(PlaceholderConverter(Expr.Stub(true), toClass = Expr::class))
             env.expectConvert<Expr>(params[1])
         }
 

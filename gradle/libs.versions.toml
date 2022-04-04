@@ -2,8 +2,9 @@
 jetbrains-compose = "1.0.1"
 kobweb = "0.9.10"
 kotlin = "1.6.10"
+kotlinx-coroutines = "1.6.1"
 kotter = "0.9.6"
-truthish = "0.6.1"
+truthish = "0.6.2"
 uuid = "0.4.0"
 yamlkt = "0.10.2"
 
@@ -15,6 +16,8 @@ kobweb-silk-icons-fa = { module = "com.varabyte.kobweb:kobweb-silk-icons-fa", ve
 kobwebx-markdown = { module = "com.varabyte.kobwebx:kobwebx-markdown", version.ref = "kobweb" }
 kotlin-test-common = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-annotations-common = { module = "org.jetbrains.kotlin:kotlin-test-annotations-common", version.ref = "kotlin" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 kotter = { module = "com.varabyte.kotter:kotter", version.ref = "kotter" }
 truthish-common = { module = "com.varabyte.truthish:truthish", version.ref = "truthish" }
 truthish-jvm = { module = "com.varabyte.truthish:truthish-jvm", version.ref = "truthish" }

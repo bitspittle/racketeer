@@ -11,11 +11,12 @@ import dev.bitspittle.limp.methods.compare.NotEqualsMethod
 import dev.bitspittle.limp.methods.math.*
 import dev.bitspittle.limp.methods.system.DefMethod
 import dev.bitspittle.limp.methods.system.SetMethod
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
 class SystemMethodsTest {
     @Test
-    fun testSetVariables() {
+    fun testSetVariables() = runTest {
         val env = Environment()
         env.addMethod(SetMethod())
         env.addMethod(AddMethod())
@@ -56,7 +57,7 @@ class SystemMethodsTest {
     }
 
     @Test
-    fun testDefineMethods() {
+    fun testDefineMethods() = runTest {
         val env = Environment()
         env.addMethod(MinMethod())
         env.addMethod(MaxMethod())

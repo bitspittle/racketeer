@@ -12,7 +12,7 @@ import dev.bitspittle.limp.types.ListStrategy
  * Take a list and an expression and return a new list with that expression applied on each element.
  */
 class MapMethod : Method("map", 2) {
-    override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
+    override suspend fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
         val list = env.expectConvert<List<Any>>(params[0])
         val transform = env.expectConvert<Expr>(params[1])
 

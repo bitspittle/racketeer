@@ -12,11 +12,11 @@ import dev.bitspittle.limp.types.Expr
  *   lifetime of some lambda call, e.g. the `$it` value in `filter`.
  */
 class Evaluator(private val transients: Map<String, Value> = emptyMap()) {
-    fun evaluate(env: Environment, code: String): Value {
+    suspend fun evaluate(env: Environment, code: String): Value {
         return evaluate(env, Expr.parse(code))
     }
 
-    fun evaluate(env: Environment, expr: Expr): Value {
+    suspend fun evaluate(env: Environment, expr: Expr): Value {
         return when (expr) {
             is Expr.Text -> evaluateText(expr)
             is Expr.Number -> evaluateNumber(expr)
@@ -36,7 +36,7 @@ class Evaluator(private val transients: Map<String, Value> = emptyMap()) {
     private fun evaluateNumber(numberExpr: Expr.Number): Value {
         return Value(numberExpr.number)
     }
-    private fun evaluateIdentifier(
+    private suspend fun evaluateIdentifier(
         env: Environment,
         identExpr: Expr.Identifier,
         values: MutableList<Value> = mutableListOf(),
@@ -89,7 +89,7 @@ class Evaluator(private val transients: Map<String, Value> = emptyMap()) {
     private fun evaluateDeferred(deferredExpr: Expr.Deferred): Value {
         return Value(deferredExpr.expr)
     }
-    private fun evaluateChain(env: Environment, chainExpr: Expr.Chain): Value {
+    private suspend fun evaluateChain(env: Environment, chainExpr: Expr.Chain): Value {
         // Work backwards, so we can call methods with arguments we resolved earlier...
         // e.g. "+ 1 * 2 3" becomes ...
         // - 3
@@ -116,7 +116,7 @@ class Evaluator(private val transients: Map<String, Value> = emptyMap()) {
         return evaluated[0]
     }
 
-    private fun evaluateBlock(env: Environment, blockExpr: Expr.Block): Value {
+    private suspend fun evaluateBlock(env: Environment, blockExpr: Expr.Block): Value {
         return evaluate(env, blockExpr.expr)
     }
 }

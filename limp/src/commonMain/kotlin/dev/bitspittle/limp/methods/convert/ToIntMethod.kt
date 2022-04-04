@@ -6,7 +6,7 @@ import dev.bitspittle.limp.Value
 
 /** Convert a string that represents an integer to an integer */
 class ToIntMethod : Method("to-int", 1) {
-    override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
+    override suspend fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
         val a = env.expectConvert<String>(params[0])
         return Value(a.toInt())
     }

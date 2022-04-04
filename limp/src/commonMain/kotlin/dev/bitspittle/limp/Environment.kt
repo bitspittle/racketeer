@@ -36,7 +36,7 @@ class Environment(val random: Random = Random.Default) {
         variables[name] = value
     }
 
-    fun <T: Any?> scoped(block: () -> T): T {
+    inline fun <T: Any?> scoped(block: () -> T): T {
         return try {
             pushScope()
             block()

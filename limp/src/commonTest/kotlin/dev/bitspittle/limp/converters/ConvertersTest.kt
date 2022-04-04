@@ -8,11 +8,12 @@ import dev.bitspittle.limp.methods.collection.ListMethod
 import dev.bitspittle.limp.methods.collection.TakeMethod
 import dev.bitspittle.limp.methods.system.DefMethod
 import dev.bitspittle.limp.methods.system.SetMethod
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
 class ConvertersTest {
     @Test
-    fun testItemToSingletonListConverter() {
+    fun testItemToSingletonListConverter() = runTest {
         val env = Environment()
         env.addConverter(ItemToSingletonListConverter(Int::class))
         env.addMethod(DefMethod())

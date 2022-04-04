@@ -12,7 +12,7 @@ import dev.bitspittle.limp.types.ListStrategy
  * Take some number of elements from a list, returning what was taken.
  */
 class TakeMethod : Method("take", 2) {
-    override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
+    override suspend fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
         val list = env.expectConvert<List<*>>(params[0])
         val count = env.scoped {
             env.addConverter(PlaceholderConverter(list.size))

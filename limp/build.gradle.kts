@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
 }
@@ -14,6 +16,11 @@ kotlin {
         browser()
     }
     sourceSets {
+        all {
+            // For "runTest"
+            languageSettings.optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
+        }
+
         val commonMain by getting {
         }
 
@@ -22,6 +29,7 @@ kotlin {
                 implementation(libs.kotlin.test.common)
                 implementation(libs.kotlin.test.annotations.common)
                 implementation(libs.truthish.common)
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
 

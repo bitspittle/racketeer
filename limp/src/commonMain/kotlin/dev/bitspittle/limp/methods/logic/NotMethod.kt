@@ -7,7 +7,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 class NotMethod : Method("!", 1) {
-    override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
+    override suspend fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
         val value = env.expectConvert<Boolean>(params[0])
         return Value(!value)
     }

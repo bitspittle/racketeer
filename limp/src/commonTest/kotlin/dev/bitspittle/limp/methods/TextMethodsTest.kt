@@ -10,11 +10,12 @@ import dev.bitspittle.limp.methods.text.ConcatMethod
 import dev.bitspittle.limp.methods.text.JoinToStringMethod
 import dev.bitspittle.limp.methods.text.LowerMethod
 import dev.bitspittle.limp.methods.text.UpperMethod
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
 class TextMethodsTest {
     @Test
-    fun testConcatMethod() {
+    fun testConcatMethod() = runTest {
         val env = Environment()
         val method = ConcatMethod()
 
@@ -28,7 +29,7 @@ class TextMethodsTest {
     }
 
     @Test
-    fun testUpperMethod() {
+    fun testUpperMethod() = runTest {
         val env = Environment()
         val method = UpperMethod()
 
@@ -40,7 +41,7 @@ class TextMethodsTest {
     }
 
     @Test
-    fun toLowerMethod() {
+    fun testLowerMethod() = runTest {
         val env = Environment()
         val method = LowerMethod()
 
@@ -52,7 +53,7 @@ class TextMethodsTest {
     }
 
     @Test
-    fun testJoinToStringMethod() {
+    fun testJoinToStringMethod() = runTest {
         val env = Environment()
         env.addMethod(JoinToStringMethod())
         env.addMethod(ConcatMethod())

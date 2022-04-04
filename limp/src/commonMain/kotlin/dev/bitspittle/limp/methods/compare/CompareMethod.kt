@@ -10,7 +10,7 @@ import dev.bitspittle.limp.Value
  * A negative value means the first item is smaller than the second, a positive means larger, and a 0 means equal.
  */
 class CompareMethod : Method("compare", 2) {
-    override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
+    override suspend fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
         val a = env.expectConvert<Comparable<Any>>(params[0])
         val b = env.expectConvert<Comparable<Any>>(params[1])
         return Value(a.compareTo(b))

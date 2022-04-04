@@ -5,11 +5,12 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Value
 import dev.bitspittle.limp.methods.compare.*
 import dev.bitspittle.limp.methods.math.*
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
 class CompareMethodsTest {
     @Test
-    fun testComparisonMethods() {
+    fun testComparisonMethods() = runTest {
         val env = Environment()
 
         val lt = LessThanMethod()
@@ -102,7 +103,7 @@ class CompareMethodsTest {
     }
 
     @Test
-    fun testCompareMethod() {
+    fun testCompareMethod() = runTest {
         val env = Environment()
         val compareMethod = CompareMethod()
 

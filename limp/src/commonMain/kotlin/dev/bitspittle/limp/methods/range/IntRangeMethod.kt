@@ -6,7 +6,7 @@ import dev.bitspittle.limp.Value
 import dev.bitspittle.limp.converters.PlaceholderConverter
 
 class IntRangeMethod : Method("..", 2) {
-    override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
+    override suspend fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
         val step = options["step"]?.let { env.expectConvert<Int>(it) }
 
         val start = env.scoped {
