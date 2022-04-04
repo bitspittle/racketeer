@@ -18,32 +18,44 @@ class LogicMethodsTest {
     @Test
     fun testNotMethod() = runTest {
         val env = Environment()
-        val method = NotMethod()
+        env.addMethod(NotMethod())
+        env.storeValue("true", Value.True)
+        env.storeValue("false", Value.False)
 
-        assertThat(method.invoke(env, listOf(Value.True)).wrapped as Boolean).isFalse()
-        assertThat(method.invoke(env, listOf(Value.False)).wrapped as Boolean).isTrue()
+        val evaluator = Evaluator()
+
+        assertThat(evaluator.evaluate(env, "! true").wrapped as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "! false").wrapped as Boolean).isTrue()
     }
 
     @Test
     fun testAndMethod() = runTest {
         val env = Environment()
-        val method = AndMethod()
+        env.addMethod(AndMethod())
+        env.storeValue("true", Value.True)
+        env.storeValue("false", Value.False)
 
-        assertThat(method.invoke(env, listOf(Value.True, Value.True)).wrapped).isEqualTo(true)
-        assertThat(method.invoke(env, listOf(Value.True, Value.False)).wrapped).isEqualTo(false)
-        assertThat(method.invoke(env, listOf(Value.False, Value.True)).wrapped).isEqualTo(false)
-        assertThat(method.invoke(env, listOf(Value.False, Value.False)).wrapped).isEqualTo(false)
+        val evaluator = Evaluator()
+
+        assertThat(evaluator.evaluate(env, "&& true true").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "&& true false").wrapped as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "&& false true").wrapped as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "&& false false").wrapped as Boolean).isFalse()
     }
 
     @Test
     fun testOrMethod() = runTest {
         val env = Environment()
-        val method = OrMethod()
+        env.addMethod(OrMethod())
+        env.storeValue("true", Value.True)
+        env.storeValue("false", Value.False)
 
-        assertThat(method.invoke(env, listOf(Value.True, Value.True)).wrapped).isEqualTo(true)
-        assertThat(method.invoke(env, listOf(Value.True, Value.False)).wrapped).isEqualTo(true)
-        assertThat(method.invoke(env, listOf(Value.False, Value.True)).wrapped).isEqualTo(true)
-        assertThat(method.invoke(env, listOf(Value.False, Value.False)).wrapped).isEqualTo(false)
+        val evaluator = Evaluator()
+
+        assertThat(evaluator.evaluate(env, "|| true true").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "|| true false").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "|| false true").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "|| false false").wrapped as Boolean).isFalse()
     }
 
     @Test

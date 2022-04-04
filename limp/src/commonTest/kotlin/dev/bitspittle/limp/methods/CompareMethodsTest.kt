@@ -2,6 +2,7 @@ package dev.bitspittle.limp.methods
 
 import com.varabyte.truthish.assertThat
 import dev.bitspittle.limp.Environment
+import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Value
 import dev.bitspittle.limp.methods.compare.*
 import dev.bitspittle.limp.methods.math.*
@@ -12,103 +13,72 @@ class CompareMethodsTest {
     @Test
     fun testComparisonMethods() = runTest {
         val env = Environment()
+        val methods = listOf(
+            LessThanMethod(),
+            LessThanEqualsMethod(),
+            EqualsMethod(),
+            NotEqualsMethod(),
+            GreaterThanMethod(),
+            GreaterThanEqualsMethod(),
+        )
+        methods.forEach { env.addMethod(it) }
 
-        val lt = LessThanMethod()
-        val lte = LessThanEqualsMethod()
-        val eq = EqualsMethod()
-        val neq = NotEqualsMethod()
-        val gt = GreaterThanMethod()
-        val gte = GreaterThanEqualsMethod()
+        val evaluator = Evaluator()
 
-        listOf(Value(1), Value(2)).let { nums ->
-            assertThat(lt.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(lte.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(eq.invoke(env, nums).wrapped).isEqualTo(false)
-            assertThat(neq.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(gte.invoke(env, nums).wrapped).isEqualTo(false)
-            assertThat(gt.invoke(env, nums).wrapped).isEqualTo(false)
-        }
+        // Works on numbers of course...
+        assertThat(evaluator.evaluate(env, "< 1 2").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "<= 1 2").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "= 1 2").wrapped as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "!= 1 2").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, ">= 1 2").wrapped as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "> 1 2").wrapped as Boolean).isFalse()
 
-        listOf(Value(2), Value(2)).let { nums ->
-            assertThat(lt.invoke(env, nums).wrapped).isEqualTo(false)
-            assertThat(lte.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(eq.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(neq.invoke(env, nums).wrapped).isEqualTo(false)
-            assertThat(gte.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(gt.invoke(env, nums).wrapped).isEqualTo(false)
-        }
+        assertThat(evaluator.evaluate(env, "< 2 2").wrapped as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "<= 2 2").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "= 2 2").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "!= 2 2").wrapped as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, ">= 2 2").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "> 2 2").wrapped as Boolean).isFalse()
 
-        listOf(Value(3), Value(2)).let { nums ->
-            assertThat(lt.invoke(env, nums).wrapped).isEqualTo(false)
-            assertThat(lte.invoke(env, nums).wrapped).isEqualTo(false)
-            assertThat(eq.invoke(env, nums).wrapped).isEqualTo(false)
-            assertThat(neq.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(gte.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(gt.invoke(env, nums).wrapped).isEqualTo(true)
-        }
+        assertThat(evaluator.evaluate(env, "< 3 2").wrapped as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "<= 3 2").wrapped as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "= 3 2").wrapped as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "!= 3 2").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, ">= 3 2").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "> 3 2").wrapped as Boolean).isTrue()
 
-        listOf(Value('a'), Value('b')).let { nums ->
-            assertThat(lt.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(lte.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(eq.invoke(env, nums).wrapped).isEqualTo(false)
-            assertThat(neq.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(gte.invoke(env, nums).wrapped).isEqualTo(false)
-            assertThat(gt.invoke(env, nums).wrapped).isEqualTo(false)
-        }
+        // But also works on strings!
+        assertThat(evaluator.evaluate(env, "< \"a\" \"b\"").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "<= \"a\" \"b\"").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "= \"a\" \"b\"").wrapped as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "!= \"a\" \"b\"").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, ">= \"a\" \"b\"").wrapped as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "> \"a\" \"b\"").wrapped as Boolean).isFalse()
 
-        listOf(Value('b'), Value('b')).let { nums ->
-            assertThat(lt.invoke(env, nums).wrapped).isEqualTo(false)
-            assertThat(lte.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(eq.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(neq.invoke(env, nums).wrapped).isEqualTo(false)
-            assertThat(gte.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(gt.invoke(env, nums).wrapped).isEqualTo(false)
-        }
+        assertThat(evaluator.evaluate(env, "< \"b\" \"b\"").wrapped as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "<= \"b\" \"b\"").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "= \"b\" \"b\"").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "!= \"b\" \"b\"").wrapped as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, ">= \"b\" \"b\"").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "> \"b\" \"b\"").wrapped as Boolean).isFalse()
 
-        listOf(Value('c'), Value('b')).let { nums ->
-            assertThat(lt.invoke(env, nums).wrapped).isEqualTo(false)
-            assertThat(lte.invoke(env, nums).wrapped).isEqualTo(false)
-            assertThat(eq.invoke(env, nums).wrapped).isEqualTo(false)
-            assertThat(neq.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(gte.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(gt.invoke(env, nums).wrapped).isEqualTo(true)
-        }
-
-        listOf(Value("A"), Value("B")).let { nums ->
-            assertThat(lt.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(lte.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(eq.invoke(env, nums).wrapped).isEqualTo(false)
-            assertThat(neq.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(gte.invoke(env, nums).wrapped).isEqualTo(false)
-            assertThat(gt.invoke(env, nums).wrapped).isEqualTo(false)
-        }
-
-        listOf(Value("B"), Value("B")).let { nums ->
-            assertThat(lt.invoke(env, nums).wrapped).isEqualTo(false)
-            assertThat(lte.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(eq.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(neq.invoke(env, nums).wrapped).isEqualTo(false)
-            assertThat(gte.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(gt.invoke(env, nums).wrapped).isEqualTo(false)
-        }
-
-        listOf(Value("C"), Value("B")).let { nums ->
-            assertThat(lt.invoke(env, nums).wrapped).isEqualTo(false)
-            assertThat(lte.invoke(env, nums).wrapped).isEqualTo(false)
-            assertThat(eq.invoke(env, nums).wrapped).isEqualTo(false)
-            assertThat(neq.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(gte.invoke(env, nums).wrapped).isEqualTo(true)
-            assertThat(gt.invoke(env, nums).wrapped).isEqualTo(true)
-        }
+        assertThat(evaluator.evaluate(env, "< \"c\" \"b\"").wrapped as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "<= \"c\" \"b\"").wrapped as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "= \"c\" \"b\"").wrapped as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "!= \"c\" \"b\"").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, ">= \"c\" \"b\"").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "> \"c\" \"b\"").wrapped as Boolean).isTrue()
     }
 
     @Test
     fun testCompareMethod() = runTest {
         val env = Environment()
-        val compareMethod = CompareMethod()
+        env.addMethod(CompareMethod())
 
-        assertThat(compareMethod.invoke(env, listOf(Value(1), Value(2))).wrapped as Int).isLessThan(0)
-        assertThat(compareMethod.invoke(env, listOf(Value(2), Value(2))).wrapped as Int).isEqualTo(0)
-        assertThat(compareMethod.invoke(env, listOf(Value(3), Value(2))).wrapped as Int).isGreaterThan(0)
+        val evaluator = Evaluator()
+
+        assertThat(evaluator.evaluate(env, "compare 1 2").wrapped as Int).isLessThan(0)
+        assertThat(evaluator.evaluate(env, "compare 2 2").wrapped as Int).isEqualTo(0)
+        assertThat(evaluator.evaluate(env, "compare 3 2").wrapped as Int).isGreaterThan(0)
     }
 }

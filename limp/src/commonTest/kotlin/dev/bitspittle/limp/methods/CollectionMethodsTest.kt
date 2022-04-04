@@ -23,24 +23,20 @@ class CollectionMethodsTest {
     @Test
     fun testInMethod() = runTest {
         val env = Environment()
-        val method = InMethod()
+        env.addMethod(InMethod())
 
-        val ints = listOf(1, 2, 3, 4, 5)
-        val letters = listOf('a', 'b', 'c', 'd', 'e')
-        val fruits = listOf("Apple", "Banana", "Cantaloupe")
+        env.storeValue("ints", Value(listOf(1, 2, 3, 4, 5)))
+        env.storeValue("fruits", Value(listOf("Apple", "Banana", "Cantaloupe")))
 
-        assertThat(method.invoke(env, listOf(Value(ints), Value(3))).wrapped as Boolean).isTrue()
-        assertThat(method.invoke(env, listOf(Value(ints), Value(6))).wrapped as Boolean).isFalse()
-        assertThat(method.invoke(env, listOf(Value(ints), Value("3"))).wrapped as Boolean).isFalse()
+        val evaluator = Evaluator()
 
-        assertThat(method.invoke(env, listOf(Value(letters), Value('c'))).wrapped as Boolean).isTrue()
-        assertThat(method.invoke(env, listOf(Value(letters), Value('z'))).wrapped as Boolean).isFalse()
-        assertThat(method.invoke(env, listOf(Value(letters), Value("c"))).wrapped as Boolean).isFalse()
-        assertThat(method.invoke(env, listOf(Value(letters), Value('c'.code))).wrapped as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "in ints 3").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "in ints 6").wrapped as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "in ints \"6\"").wrapped as Boolean).isFalse()
 
-        assertThat(method.invoke(env, listOf(Value(fruits), Value("Banana"))).wrapped as Boolean).isTrue()
-        assertThat(method.invoke(env, listOf(Value(fruits), Value("Cherry"))).wrapped as Boolean).isFalse()
-        assertThat(method.invoke(env, listOf(Value(fruits), Value("banana"))).wrapped as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "in fruits \"Banana\"").wrapped as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "in fruits \"Cherry\"").wrapped as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "in fruits \"banana\"").wrapped as Boolean).isFalse()
     }
 
     @Test
@@ -155,44 +151,35 @@ class CollectionMethodsTest {
     @Test
     fun testShuffleMethod() = runTest {
         val env = Environment(Random(123)) // Fixed seed so that we get the same shuffle everytime for this test
-        val method = ShuffleMethod()
+        env.addMethod(ShuffleMethod())
+        env.storeValue("ints", Value(listOf(1, 2, 3, 4, 5)))
 
-        val ints = listOf(1, 2, 3, 4, 5)
+        val evaluator = Evaluator()
 
-        assertThat(method.invoke(env, listOf(Value(ints))).wrapped as List<Int>)
+        assertThat(evaluator.evaluate(env, "shuffle ints").wrapped as List<Int>)
             .containsExactly(3, 1, 4, 5, 2).inOrder()
 
         // Original ints are not affected
-        assertThat(ints).containsExactly(1, 2, 3, 4, 5).inOrder()
+        assertThat(evaluator.evaluate(env, "ints").wrapped as List<Int>)
+            .containsExactly(1, 2, 3, 4, 5).inOrder()
     }
 
     @Test
     fun testSortMethod() = runTest {
         val env = Environment()
 
-        val ints = listOf(3, 1, 4, 5, 2)
-        val letters = listOf('c', 'a', 'd', 'e', 'b')
-        val strNumbers = listOf("3", "2", "1", "30", "20", "10", "20")
-
         val evaluator = Evaluator()
         env.addMethod(SortMethod())
         env.addMethod(CompareMethod())
         env.addMethod(ToIntMethod())
-        env.storeValue("ints", Value(ints))
-        env.storeValue("letters", Value(letters))
-        env.storeValue("str-numbers", Value(strNumbers))
+        env.storeValue("ints", Value(listOf(3, 1, 4, 5, 2)))
+        env.storeValue("str-numbers", Value(listOf("3", "2", "1", "30", "20", "10", "20")))
 
         assertThat(evaluator.evaluate(env, "sort ints").wrapped as List<Int>)
             .containsExactly(1, 2, 3, 4, 5).inOrder()
 
-        assertThat(evaluator.evaluate(env, "sort letters").wrapped as List<Char>)
-            .containsExactly('a', 'b', 'c', 'd', 'e').inOrder()
-
         assertThat(evaluator.evaluate(env, "sort --order 'descending ints").wrapped as List<Int>)
             .containsExactly(5, 4, 3, 2, 1).inOrder()
-
-        assertThat(evaluator.evaluate(env, "sort --order 'descending letters").wrapped as List<Char>)
-            .containsExactly('e', 'd', 'c', 'b', 'a').inOrder()
 
         assertThat(evaluator.evaluate(env, "sort str-numbers").wrapped as List<String>)
             .containsExactly("1", "10", "2", "20", "20", "3", "30").inOrder()
@@ -204,23 +191,24 @@ class CollectionMethodsTest {
             .containsExactly("30", "20", "20", "10", "3", "2", "1").inOrder()
 
         // Original lists are not affected
-        assertThat(ints).containsExactly(3, 1, 4, 5, 2).inOrder()
-        assertThat(letters).containsExactly('c', 'a', 'd', 'e', 'b').inOrder()
-        assertThat(strNumbers).containsExactly("3", "2", "1", "30", "20", "10", "20").inOrder()
+        assertThat(evaluator.evaluate(env, "ints").wrapped as List<Int>).containsExactly(3, 1, 4, 5, 2).inOrder()
+        assertThat(evaluator.evaluate(env, "str-numbers").wrapped as List<String>)
+            .containsExactly("3", "2", "1", "30", "20", "10", "20").inOrder()
     }
 
     @Test
     fun testUnionMethod() = runTest {
         val env = Environment()
-        val method = UnionMethod()
+        env.addMethod(UnionMethod())
+        env.storeValue("ints1", Value(listOf(1, 2, 3, 4, 5)))
+        env.storeValue("ints2", Value(listOf(6, 7, 8, 9, 10)))
+        env.storeValue("ints3", Value(listOf(11, 12, 13, 14, 15)))
 
-        val ints1 = listOf(1, 2, 3, 4, 5)
-        val ints2 = listOf(6, 7, 8, 9, 10)
-        val ints3 = listOf(11, 12, 13, 14, 15)
+        val evaluator = Evaluator()
 
-        assertThat(method.invoke(env, listOf(), rest = listOf(Value(ints1), Value(ints2), Value(ints3))).wrapped as List<Int>)
+        assertThat(evaluator.evaluate(env, "union ints1 ints2 ints3").wrapped as List<Int>)
             .containsExactly(1 .. 15).inOrder()
 
-        assertThat(method.invoke(env, listOf()).wrapped as List<Int>).isEmpty()
+        assertThat(evaluator.evaluate(env, "union").wrapped as List<Int>).isEmpty()
     }
 }

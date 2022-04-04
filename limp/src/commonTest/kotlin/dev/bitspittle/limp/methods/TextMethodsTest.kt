@@ -5,6 +5,7 @@ import com.varabyte.truthish.assertThrows
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Value
+import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.collection.ListMethod
 import dev.bitspittle.limp.methods.text.ConcatMethod
 import dev.bitspittle.limp.methods.text.JoinToStringMethod
@@ -17,38 +18,43 @@ class TextMethodsTest {
     @Test
     fun testConcatMethod() = runTest {
         val env = Environment()
-        val method = ConcatMethod()
+        env.addMethod(ConcatMethod())
 
-        assertThat(method.invoke(env, listOf(Value("Hello "), Value("World"))).wrapped).isEqualTo("Hello World")
-        assertThat(method.invoke(env, listOf(Value('a'), Value('z'))).wrapped).isEqualTo("az")
+        val evaluator = Evaluator()
 
-        assertThrows<IllegalArgumentException> {
+        assertThat(evaluator.evaluate(env, "concat \"Hello \" \"World\"").wrapped).isEqualTo("Hello World")
+
+        assertThrows<EvaluationException> {
             // Only strings!
-            method.invoke(env, listOf(Value(123), Value("456"))).wrapped
+            evaluator.evaluate(env, "concat \"123\" 456")
         }
     }
 
     @Test
     fun testUpperMethod() = runTest {
         val env = Environment()
-        val method = UpperMethod()
+        env.addMethod(UpperMethod())
 
-        assertThat(method.invoke(env, listOf(Value("Hello There!? 123"))).wrapped).isEqualTo("HELLO THERE!? 123")
-        assertThrows<IllegalArgumentException> {
+        val evaluator = Evaluator()
+
+        assertThat(evaluator.evaluate(env, "upper \"Hello There!? 123\"").wrapped).isEqualTo("HELLO THERE!? 123")
+        assertThrows<EvaluationException> {
             // Only strings
-            method.invoke(env, listOf(Value(123))).wrapped
+            evaluator.evaluate(env, "upper 123")
         }
     }
 
     @Test
     fun testLowerMethod() = runTest {
         val env = Environment()
-        val method = LowerMethod()
+        env.addMethod(LowerMethod())
 
-        assertThat(method.invoke(env, listOf(Value("Hello There!? 123"))).wrapped).isEqualTo("hello there!? 123")
-        assertThrows<IllegalArgumentException> {
+        val evaluator = Evaluator()
+
+        assertThat(evaluator.evaluate(env, "lower \"Hello There!? 123\"").wrapped).isEqualTo("hello there!? 123")
+        assertThrows<EvaluationException> {
             // Only strings
-            method.invoke(env, listOf(Value(123))).wrapped
+            evaluator.evaluate(env, "lower 123")
         }
     }
 
