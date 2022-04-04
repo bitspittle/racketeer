@@ -11,6 +11,7 @@ import dev.bitspittle.limp.methods.system.DefMethod
 import dev.bitspittle.limp.methods.system.SetMethod
 import kotlin.test.Test
 
+@Suppress("UNCHECKED_CAST")
 class EvaluatorTest {
     @Test
     fun testSimpleEvaluation() {
@@ -81,6 +82,35 @@ class EvaluatorTest {
         val evaluator = Evaluator()
         assertThrows<EvaluationException> {
             evaluator.evaluate(env, "/ 10 0")
+        }
+    }
+
+    // Originally, we used to bind method parameters to variables in the environment, but those would leak into other
+    // function calls, which wasn't expected (because variables in the environment are kinda global, while method
+    // parameters should be hyper local
+    @Test
+    fun methodParametersDontLeakOutOfTheirOwnMethod() {
+        val env = Environment()
+        env.addMethod(DefMethod())
+        env.addMethod(AddMethod())
+        env.addMethod(SetMethod())
+
+        val evaluator = Evaluator()
+        env.scoped {
+            evaluator.evaluate(env, "def 'add-ab '(+ a b)")
+            evaluator.evaluate(env, "def 'add 'a 'b 'add-ab")
+
+            assertThrows<EvaluationException> {
+                evaluator.evaluate(env, "add 1 2")
+            }
+        }
+
+        // Method parameters take precedence over variables created elsewhere
+        env.scoped {
+            evaluator.evaluate(env, "def 'sum 'a 'b '(+ a b)")
+            evaluator.evaluate(env, "set 'a 99")
+            evaluator.evaluate(env, "set 'b 100")
+            assertThat(evaluator.evaluate(env, "sum 1 2").wrapped).isEqualTo(3)
         }
     }
 }

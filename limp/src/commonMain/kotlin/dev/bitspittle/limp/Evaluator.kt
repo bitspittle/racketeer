@@ -3,7 +3,15 @@ package dev.bitspittle.limp
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.types.Expr
 
-class Evaluator {
+/**
+ * @param transients A list of extra variables which only exist during the evaluation, without affecting the
+ *   underlying environment. Transients take priority and will intercept a variable in the environment with the same
+ *   name, in case of conflicts. Transients are a useful way to ensure that a handful of variables don't leak outside a
+ *   very tight scope. For example, when defining methods, you want to bind parameters to local values that don't
+ *   escape from that method. This could also be a good place to define variables that only exist within the
+ *   lifetime of some lambda call, e.g. the `$it` value in `filter`.
+ */
+class Evaluator(private val transients: Map<String, Value> = emptyMap()) {
     fun evaluate(env: Environment, code: String): Value {
         return evaluate(env, Expr.parse(code))
     }
@@ -33,7 +41,8 @@ class Evaluator {
         values: MutableList<Value> = mutableListOf(),
         options: MutableMap<String, Value> = mutableMapOf()
     ): Value {
-        return env.loadValue(identExpr.name)
+        return transients[identExpr.name]
+            ?: env.loadValue(identExpr.name)
             ?: env.getMethod(identExpr.name)?.let { method ->
                 if (method.numArgs > values.size) {
                     throw EvaluationException(identExpr.ctx, "Method \"${identExpr.name}\" takes ${method.numArgs} argument(s) but only ${values.size} was/were provided.")

@@ -18,12 +18,8 @@ class FirstMethod : Method("first", 2) {
         val list = env.expectConvert<List<Any>>(params[0])
         val predicate = env.expectConvert<Expr>(params[1])
 
-        val evaluator = Evaluator()
         return Value(list.first { item ->
-            env.scoped {
-                env.storeValue("\$it", Value(item))
-                env.expectConvert(evaluator.evaluate(env, predicate))
-            }
+            env.expectConvert(Evaluator(mapOf("\$it" to Value(item))).evaluate(env, predicate))
         })
     }
 }

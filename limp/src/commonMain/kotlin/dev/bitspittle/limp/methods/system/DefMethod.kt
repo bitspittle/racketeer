@@ -49,11 +49,7 @@ class DefMethod : Method("def", 0, consumeRest = true) {
                 rest: List<Value>
             ): Value {
                 return env.scoped {
-                    params.forEachIndexed { i, value ->
-                        env.storeValue(argIds[i].name, value)
-                    }
-
-                    val evaluator = Evaluator()
+                    val evaluator = Evaluator(params.mapIndexed { i, value -> argIds[i].name to value }.toMap())
                     evaluator.evaluate(env, bodyExpr)
                 }
             }

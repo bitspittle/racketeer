@@ -16,12 +16,8 @@ class MapMethod : Method("map", 2) {
         val list = env.expectConvert<List<Any>>(params[0])
         val transform = env.expectConvert<Expr>(params[1])
 
-        val evaluator = Evaluator()
         return Value(list.map { item ->
-            env.scoped {
-                env.storeValue("\$it", Value(item))
-                env.expectConvert<Any>(evaluator.evaluate(env, transform))
-            }
+            env.expectConvert<Any>(Evaluator(mapOf("\$it" to Value(item))).evaluate(env, transform))
         })
     }
 }
