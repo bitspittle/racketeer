@@ -75,7 +75,7 @@ class Environment(val random: Random = Random.Default) {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T: Any> convert(value: Value, toClass: KClass<T>): T? {
+    fun <T: Any> tryConvert(value: Value, toClass: KClass<T>): T? {
         if (toClass.isInstance(value.wrapped)) {
             return value.wrapped as T
         }
@@ -87,17 +87,17 @@ class Environment(val random: Random = Random.Default) {
     }
 
     fun expectMethod(name: String): Method {
-        return getMethod(name) ?: error("No method named \"$name\" is registered")
+        return getMethod(name) ?: throw IllegalArgumentException("No method named \"$name\" is registered")
     }
 
     fun expectValue(name: String): Value {
-        return loadValue(name) ?: error("No variable named \"$name\" is registered")
+        return loadValue(name) ?: throw IllegalArgumentException("No variable named \"$name\" is registered")
     }
 
     fun <T: Any> expectConvert(value: Value, toClass: KClass<T>): T {
-        return convert(value, toClass) ?: error("Could not convert ${value.wrapped::class} (value = \"${value.wrapped}\") to $toClass")
+        return tryConvert(value, toClass) ?: throw IllegalArgumentException("Could not convert ${value.wrapped::class} (value = \"${value.wrapped}\") to $toClass")
     }
 
-    inline fun <reified T: Any> convert(value: Value): T? = convert(value, T::class)
+    inline fun <reified T: Any> tryConvert(value: Value): T? = tryConvert(value, T::class)
     inline fun <reified T: Any> expectConvert(value: Value): T = expectConvert(value, T::class)
 }

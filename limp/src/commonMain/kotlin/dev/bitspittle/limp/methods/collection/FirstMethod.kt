@@ -6,7 +6,6 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.Value
 import dev.bitspittle.limp.converters.PlaceholderConverter
 import dev.bitspittle.limp.types.Expr
-import dev.bitspittle.limp.types.ListStrategy
 
 /**
  * Take a list and return the first element in it that matches some test expression, or throw an error.
@@ -16,7 +15,10 @@ import dev.bitspittle.limp.types.ListStrategy
 class FirstMethod : Method("first", 2) {
     override fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
         val list = env.expectConvert<List<Any>>(params[0])
-        val predicate = env.expectConvert<Expr>(params[1])
+        val predicate = env.scoped {
+            env.addConverter(PlaceholderConverter<Expr>(Expr.Stub(true)))
+            env.expectConvert<Expr>(params[1])
+        }
 
         return Value(list.first { item ->
             env.expectConvert(Evaluator(mapOf("\$it" to Value(item))).evaluate(env, predicate))

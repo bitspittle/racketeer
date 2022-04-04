@@ -2,6 +2,7 @@ package dev.bitspittle.limp.utils
 
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Value
+import dev.bitspittle.limp.converters.CharToStringConverter
 import dev.bitspittle.limp.methods.collection.*
 import dev.bitspittle.limp.methods.compare.*
 import dev.bitspittle.limp.methods.convert.ToIntMethod
@@ -14,6 +15,10 @@ import dev.bitspittle.limp.methods.math.*
 import dev.bitspittle.limp.methods.range.IntRangeMethod
 import dev.bitspittle.limp.methods.system.DefMethod
 import dev.bitspittle.limp.methods.system.SetMethod
+import dev.bitspittle.limp.methods.text.ConcatMethod
+import dev.bitspittle.limp.methods.text.JoinToStringMethod
+import dev.bitspittle.limp.methods.text.LowerMethod
+import dev.bitspittle.limp.methods.text.UpperMethod
 
 fun Environment.installDefaults() {
     // System
@@ -60,6 +65,7 @@ fun Environment.installDefaults() {
 
     // Collection
     addMethod(ListMethod())
+    addMethod(ListGetMethod())
     addMethod(InMethod())
     addMethod(MapMethod())
     addMethod(FilterMethod())
@@ -73,4 +79,11 @@ fun Environment.installDefaults() {
     // Convert
     addMethod(ToIntMethod())
     addMethod(ToStringMethod())
+
+    // Text
+    addConverter(CharToStringConverter())
+    addMethod(ConcatMethod())
+    addMethod(UpperMethod())
+    addMethod(LowerMethod())
+    addMethod(JoinToStringMethod())
 }

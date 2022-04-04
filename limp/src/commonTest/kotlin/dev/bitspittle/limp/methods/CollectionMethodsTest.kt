@@ -115,6 +115,8 @@ class CollectionMethodsTest {
 
         assertThat(evaluator.evaluate(env, "first ints '(> \$it 5)").wrapped).isEqualTo(6)
         assertThat(evaluator.evaluate(env, "first ints '(= % \$it 2 0)").wrapped).isEqualTo(2)
+        // Placeholder just means get the very first item in the list (although you can use list-get 0 as well)
+        assertThat(evaluator.evaluate(env, "first ints _").wrapped).isEqualTo(1)
 
         assertThrows<EvaluationException> {
             evaluator.evaluate(env, "first ints 'false")
