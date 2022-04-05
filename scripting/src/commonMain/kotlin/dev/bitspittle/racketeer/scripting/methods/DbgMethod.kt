@@ -9,19 +9,24 @@ import dev.bitspittle.racketeer.scripting.types.GameResources
 import dev.bitspittle.racketeer.scripting.types.GameService
 
 /**
- * game-add (resource: 'Ident) (value: Int)
+ * dbg --msg (String) (Any)
+ *   returns (Any)
+ *
+ * Print a value out to the console, passing it through afterwards, so you can temporarily insert a dbg statement into
+ * a chain while experimenting.
  */
 class DbgMethod(private val service: GameService) : Method("dbg", 1) {
     override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
         val message = options["msg"]?.let { env.expectConvert<String>(it) }
         service.log(buildString {
+            append("[DBG] ")
             if (!message.isNullOrBlank()) {
                 append(message)
-                append(" ")
+                append(": ")
             }
             append(params[0])
         })
 
-        return Unit
+        return params[0]
     }
 }

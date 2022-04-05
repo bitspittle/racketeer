@@ -61,7 +61,7 @@ class GameSession(
             }
 
             override fun log(message: String) {
-                lastErrorMessage = message
+                lastErrorMessage = lastErrorMessage?.let { it + "\n\n" + message } ?: message
             }
         }
         val ctx = GameContext(
