@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlinx.serialization)
 }
 
-group = "dev.bitspittle.racketeer.model"
+group = "dev.bitspittle.racketeer.scripting"
 
 repositories {
     maven("https://us-central1-maven.pkg.dev/varabyte-repos/public")
@@ -15,10 +15,14 @@ kotlin {
         browser()
     }
     sourceSets {
+        all {
+            // For "runTest"
+            languageSettings.optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
+        }
         val commonMain by getting {
             dependencies {
-                implementation(libs.yamlkt)
-                implementation(libs.uuid)
+                implementation(project(":limp"))
+                implementation(project(":model"))
             }
         }
 
@@ -27,6 +31,7 @@ kotlin {
                 implementation(libs.kotlin.test.common)
                 implementation(libs.kotlin.test.annotations.common)
                 implementation(libs.truthish.common)
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
     }

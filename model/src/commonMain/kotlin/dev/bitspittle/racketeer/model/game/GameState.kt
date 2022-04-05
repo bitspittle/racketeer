@@ -89,8 +89,8 @@ class GameState(
     val shop: Shop = _shop
 
     val deck: Pile = _deck
-    val street: Pile = _street
     val hand: Pile = _hand
+    val street: Pile = _street
     val discard: Pile = _discard
     val jail: Pile = _jail
 

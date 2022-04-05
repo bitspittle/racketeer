@@ -10,6 +10,7 @@ rootProject.name = "racketeer"
 
 include(":limp")
 include(":model")
+include(":scripting")
 include(":console")
 include(":site")
 
