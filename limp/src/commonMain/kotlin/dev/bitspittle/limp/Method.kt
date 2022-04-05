@@ -23,6 +23,9 @@ abstract class Method(val name: String, val numArgs: Int, val consumeRest: Boole
      * @param params The list of required parameters. Its length is guaranteed to match [numArgs].
      * @param options Additional parameters specified using a `--option value` syntax.
      * @param rest All remaining values to the end of the expression. Will be empty unless [consumeRest] is set to true.
+     *
+     * @return The result of invoking the method. You may return Unit here if the method doesn't return any value,
+     *   particularly useful for methods with side effects.
      */
     abstract suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any> = mapOf(), rest: List<Any> = listOf()): Any
 }
