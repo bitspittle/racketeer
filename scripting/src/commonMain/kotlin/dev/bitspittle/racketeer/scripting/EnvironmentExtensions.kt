@@ -7,11 +7,14 @@ import dev.bitspittle.racketeer.scripting.methods.GameAddMethod
 
 /**
  * Add a bunch of game-specific methods and other values here.
+ *
+ * @param getGameState Returns the current game state (via a callback as it will change throughout the lifetime of the
+ *   game)
  */
-fun Environment.installGameLogic(produceGameState: () -> GameState) {
+fun Environment.installGameLogic(getGameState: () -> GameState) {
     addConverter(PileToCardsConverter())
 
-    addMethod(GameAddMethod(produceGameState))
+    addMethod(GameAddMethod(getGameState))
 }
 
 fun Environment.withCardVariables(gameState: GameState, block: () -> Unit) {

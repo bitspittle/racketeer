@@ -10,13 +10,13 @@ import dev.bitspittle.racketeer.scripting.types.GameResources
 /**
  * game-add (resource: 'Ident) (value: Int)
  */
-class GameAddMethod(private val produceGameState: () -> GameState) : Method("game-add", 2) {
+class GameAddMethod(private val getGameState: () -> GameState) : Method("game-add", 2) {
     override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
         val nameIdent = env.expectConvert<Expr.Identifier>(params[0])
         val resource = nameIdent.toEnum(GameResources.values())
         val amount = env.expectConvert<Int>(params[1])
 
-        val gameState = produceGameState()
+        val gameState = getGameState()
         when (resource) {
             GameResources.CASH -> gameState.cash += amount
             GameResources.VP -> gameState.vp += amount
