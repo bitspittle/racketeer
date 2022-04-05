@@ -184,10 +184,10 @@ class CollectionMethodsTest {
         assertThat(evaluator.evaluate(env, "sort str-numbers") as List<String>)
             .containsExactly("1", "10", "2", "20", "20", "3", "30").inOrder()
 
-        assertThat(evaluator.evaluate(env, "sort --with '(compare to-int \$l to-int \$r) str-numbers") as List<String>)
+        assertThat(evaluator.evaluate(env, "sort --with '(compare to-int \$a to-int \$b) str-numbers") as List<String>)
             .containsExactly("1", "2", "3", "10", "20", "20", "30").inOrder()
 
-        assertThat(evaluator.evaluate(env, "sort --order 'descending --with '(compare to-int \$l to-int \$r) str-numbers") as List<String>)
+        assertThat(evaluator.evaluate(env, "sort --order 'descending --with '(compare to-int \$a to-int \$b) str-numbers") as List<String>)
             .containsExactly("30", "20", "20", "10", "3", "2", "1").inOrder()
 
         // Original lists are not affected

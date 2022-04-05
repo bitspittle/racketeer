@@ -34,8 +34,8 @@ class SortMethod : Method("sort", 1) {
                     val compare = env.expectConvert<Int>(
                         Evaluator(
                             mapOf(
-                                "\$l" to toInsert,
-                                "\$r" to currItem,
+                                "\$a" to toInsert,
+                                "\$b" to currItem,
                             )
                         ).evaluate(env, comparator)
                     )
