@@ -9,6 +9,7 @@ import kotlin.random.Random
 class GameState internal constructor(
     numTurns: Int,
     turn: Int,
+    totalCashEarned: Int,
     cash: Int,
     influence: Int,
     luck: Int,
@@ -26,6 +27,7 @@ class GameState internal constructor(
     constructor(data: GameData, random: Random = Random.Default) : this(
         numTurns = data.numTurns,
         turn = 0,
+        totalCashEarned = 0,
         cash = 0,
         influence = 0,
         luck = 0,
@@ -63,6 +65,14 @@ class GameState internal constructor(
      * 0-indexed turn
      */
     var turn = turn
+        private set
+
+    /**
+     * How much cash the player got over the course of the whole game.
+     *
+     * Not particularly useful when playing, but could be a nice stat to show players on some sort of summary page.
+     */
+    var totalCashEarned = totalCashEarned
         private set
 
     /**
@@ -186,10 +196,13 @@ class GameState internal constructor(
     }
 
     fun endTurn(): Boolean {
+        // Always remove cash, even if there are no more turns. This way, the final reporting page summarizing your
+        // won't show weird leftover cash.
+        totalCashEarned += cash
+        cash = 0
         if (turn >= numTurns - 1) return false
 
         turn++
-        cash = 0
 
         move(_street, _discard)
         move(_hand, _discard)
@@ -201,6 +214,7 @@ class GameState internal constructor(
         return GameState(
             numTurns,
             turn,
+            totalCashEarned,
             cash,
             influence,
             luck,
