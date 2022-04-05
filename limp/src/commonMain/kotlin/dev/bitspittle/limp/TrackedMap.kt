@@ -10,6 +10,11 @@ class TrackedMap<K, V>(private val wrapped: Map<K, V>): Map<K, V> by wrapped {
     private val _accessedKeys = mutableSetOf<K>()
     val accessedKeys: Set<K> = _accessedKeys
 
+    override fun containsKey(key: K): Boolean {
+        _accessedKeys.add(key)
+        return wrapped.containsKey(key)
+    }
+
     override fun get(key: K): V? {
         _accessedKeys.add(key)
         return wrapped[key]
