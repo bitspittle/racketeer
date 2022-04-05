@@ -3,7 +3,6 @@ package dev.bitspittle.limp.methods.system
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
-import dev.bitspittle.limp.Value
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.types.Expr
 
@@ -23,7 +22,7 @@ import dev.bitspittle.limp.types.Expr
  * body `'(min ...)`.
  */
 class DefMethod : Method("def", 0, consumeRest = true) {
-    override suspend fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>): Value {
+    override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
         require(rest.size >= 2) { "The \"def\" method was not provided with enough arguments. It needs at least a name and a body." }
         val nameExpr = env.expectConvert<Expr>(rest[0])
         val bodyExpr = env.expectConvert<Expr>(rest.last())
@@ -44,10 +43,10 @@ class DefMethod : Method("def", 0, consumeRest = true) {
         env.addMethod(object : Method(nameIdentifier.name, argIds.size) {
             override suspend fun invoke(
                 env: Environment,
-                params: List<Value>,
-                options: Map<String, Value>,
-                rest: List<Value>
-            ): Value {
+                params: List<Any>,
+                options: Map<String, Any>,
+                rest: List<Any>
+            ): Any {
                 return env.scoped {
                     val evaluator = Evaluator(params.mapIndexed { i, value -> argIds[i].name to value }.toMap())
                     evaluator.evaluate(env, bodyExpr)
@@ -55,6 +54,6 @@ class DefMethod : Method("def", 0, consumeRest = true) {
             }
         })
 
-        return Value.Empty
+        return Unit
     }
 }

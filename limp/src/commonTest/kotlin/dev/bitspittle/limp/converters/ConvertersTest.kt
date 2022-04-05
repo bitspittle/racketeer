@@ -29,7 +29,7 @@ class ConvertersTest {
         evaluator.evaluate(env, "def 'first '\$list '(list-get \$list 0)")
         evaluator.evaluate(env, "set '\$ints (list 1 2 3 4 5)")
 
-        assertThat(evaluator.evaluate(env, "(first \$ints)").wrapped).isEqualTo(1)
-        assertThat(evaluator.evaluate(env, "(first 5)").wrapped).isEqualTo(5)
+        assertThat(evaluator.evaluate(env, "(first \$ints)")).isEqualTo(1)
+        assertThat(evaluator.evaluate(env, "(first 5)")).isEqualTo(5)
     }
 }

@@ -4,7 +4,6 @@ import com.varabyte.truthish.assertThat
 import com.varabyte.truthish.assertThrows
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
-import dev.bitspittle.limp.Value
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.collection.ListMethod
 import dev.bitspittle.limp.methods.compare.*
@@ -19,7 +18,7 @@ class MathMethodsTest {
         env.addMethod(AddMethod())
 
         val evaluator = Evaluator()
-        assertThat(evaluator.evaluate(env, "+ 1 2").wrapped).isEqualTo(3)
+        assertThat(evaluator.evaluate(env, "+ 1 2")).isEqualTo(3)
     }
 
     @Test
@@ -29,8 +28,8 @@ class MathMethodsTest {
         env.addMethod(ListMethod())
 
         val evaluator = Evaluator()
-        assertThat(evaluator.evaluate(env, "sum list 1 2 3").wrapped).isEqualTo(6)
-        assertThat(evaluator.evaluate(env, "sum list").wrapped).isEqualTo(0)
+        assertThat(evaluator.evaluate(env, "sum list 1 2 3")).isEqualTo(6)
+        assertThat(evaluator.evaluate(env, "sum list")).isEqualTo(0)
     }
 
     @Test
@@ -39,7 +38,7 @@ class MathMethodsTest {
         env.addMethod(SubMethod())
 
         val evaluator = Evaluator()
-        assertThat(evaluator.evaluate(env, "- 5 2").wrapped).isEqualTo(3)
+        assertThat(evaluator.evaluate(env, "- 5 2")).isEqualTo(3)
     }
 
     @Test
@@ -48,7 +47,7 @@ class MathMethodsTest {
         env.addMethod(MulMethod())
 
         val evaluator = Evaluator()
-        assertThat(evaluator.evaluate(env, "* 3 2").wrapped).isEqualTo(6)
+        assertThat(evaluator.evaluate(env, "* 3 2")).isEqualTo(6)
     }
 
     @Test
@@ -58,8 +57,8 @@ class MathMethodsTest {
         env.addMethod(ListMethod())
 
         val evaluator = Evaluator()
-        assertThat(evaluator.evaluate(env, "mul list 1 2 3").wrapped).isEqualTo(6)
-        assertThat(evaluator.evaluate(env, "mul list").wrapped).isEqualTo(1)
+        assertThat(evaluator.evaluate(env, "mul list 1 2 3")).isEqualTo(6)
+        assertThat(evaluator.evaluate(env, "mul list")).isEqualTo(1)
     }
 
     @Test
@@ -69,10 +68,10 @@ class MathMethodsTest {
 
         val evaluator = Evaluator()
 
-        assertThat(evaluator.evaluate(env, "^ 2 3").wrapped).isEqualTo(8)
-        assertThat(evaluator.evaluate(env, "^ 3 2").wrapped).isEqualTo(9)
-        assertThat(evaluator.evaluate(env, "^ 1000 0").wrapped).isEqualTo(1)
-        assertThat(evaluator.evaluate(env, "^ 20 1").wrapped).isEqualTo(20)
+        assertThat(evaluator.evaluate(env, "^ 2 3")).isEqualTo(8)
+        assertThat(evaluator.evaluate(env, "^ 3 2")).isEqualTo(9)
+        assertThat(evaluator.evaluate(env, "^ 1000 0")).isEqualTo(1)
+        assertThat(evaluator.evaluate(env, "^ 20 1")).isEqualTo(20)
 
         assertThrows<EvaluationException> {
             evaluator.evaluate(env, "^ 5 -1")
@@ -86,9 +85,9 @@ class MathMethodsTest {
 
         val evaluator = Evaluator()
 
-        assertThat(evaluator.evaluate(env, "/ 9 3").wrapped).isEqualTo(3)
-        assertThat(evaluator.evaluate(env, "/ 9 4").wrapped).isEqualTo(2)
-        assertThat(evaluator.evaluate(env, "/ 9 -1").wrapped).isEqualTo(-9)
+        assertThat(evaluator.evaluate(env, "/ 9 3")).isEqualTo(3)
+        assertThat(evaluator.evaluate(env, "/ 9 4")).isEqualTo(2)
+        assertThat(evaluator.evaluate(env, "/ 9 -1")).isEqualTo(-9)
 
         assertThrows<EvaluationException> {
             evaluator.evaluate(env, "/ 9 0")
@@ -102,8 +101,8 @@ class MathMethodsTest {
 
         val evaluator = Evaluator()
 
-        assertThat(evaluator.evaluate(env, "% 9 3").wrapped).isEqualTo(0)
-        assertThat(evaluator.evaluate(env, "% 9 4").wrapped).isEqualTo(1)
+        assertThat(evaluator.evaluate(env, "% 9 3")).isEqualTo(0)
+        assertThat(evaluator.evaluate(env, "% 9 4")).isEqualTo(1)
 
         assertThrows<EvaluationException> {
             evaluator.evaluate(env, "% 9 0")
@@ -116,8 +115,8 @@ class MathMethodsTest {
         env.addMethod(MinMethod())
 
         val evaluator = Evaluator()
-        assertThat(evaluator.evaluate(env, "min 5 2").wrapped).isEqualTo(2)
-        assertThat(evaluator.evaluate(env, "min -5 2").wrapped).isEqualTo(-5)
+        assertThat(evaluator.evaluate(env, "min 5 2")).isEqualTo(2)
+        assertThat(evaluator.evaluate(env, "min -5 2")).isEqualTo(-5)
     }
 
     @Test
@@ -126,8 +125,8 @@ class MathMethodsTest {
         env.addMethod(MaxMethod())
 
         val evaluator = Evaluator()
-        assertThat(evaluator.evaluate(env, "max 5 2").wrapped).isEqualTo(5)
-        assertThat(evaluator.evaluate(env, "max -5 2").wrapped).isEqualTo(2)
+        assertThat(evaluator.evaluate(env, "max 5 2")).isEqualTo(5)
+        assertThat(evaluator.evaluate(env, "max -5 2")).isEqualTo(2)
     }
 
     @Test
@@ -137,10 +136,10 @@ class MathMethodsTest {
 
         val evaluator = Evaluator()
 
-        assertThat(evaluator.evaluate(env, "clamp 0 2 5").wrapped).isEqualTo(2)
-        assertThat(evaluator.evaluate(env, "clamp 2 2 5").wrapped).isEqualTo(2)
-        assertThat(evaluator.evaluate(env, "clamp 4 2 5").wrapped).isEqualTo(4)
-        assertThat(evaluator.evaluate(env, "clamp 5 2 5").wrapped).isEqualTo(5)
-        assertThat(evaluator.evaluate(env, "clamp 9 2 5").wrapped).isEqualTo(5)
+        assertThat(evaluator.evaluate(env, "clamp 0 2 5")).isEqualTo(2)
+        assertThat(evaluator.evaluate(env, "clamp 2 2 5")).isEqualTo(2)
+        assertThat(evaluator.evaluate(env, "clamp 4 2 5")).isEqualTo(4)
+        assertThat(evaluator.evaluate(env, "clamp 5 2 5")).isEqualTo(5)
+        assertThat(evaluator.evaluate(env, "clamp 9 2 5")).isEqualTo(5)
     }
 }

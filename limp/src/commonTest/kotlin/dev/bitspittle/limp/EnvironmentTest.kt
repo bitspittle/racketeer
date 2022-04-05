@@ -9,28 +9,28 @@ class EnvironmentTest {
     fun canRegisterMethodsAndVariables() {
         val env = Environment()
         env.addMethod(object : Method("fun1", 0) {
-            override suspend fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>) = Value.Empty
+            override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>) = Unit
         })
         env.addMethod(object : Method("fun2", 0) {
-            override suspend fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>) = Value.Empty
+            override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>) = Unit
         })
 
         assertThrows<IllegalArgumentException> {
             env.addMethod(object : Method("fun2", 2) {
                 override suspend fun invoke(
                     env: Environment,
-                    params: List<Value>,
-                    options: Map<String, Value>,
-                    rest: List<Value>
-                ) = Value.Empty
+                    params: List<Any>,
+                    options: Map<String, Any>,
+                    rest: List<Any>
+                ) = Unit
             })
         }
 
-        env.storeValue("var1", Value(10))
-        env.storeValue("var2", Value(20))
+        env.storeValue("var1", 10)
+        env.storeValue("var2", 20)
 
         assertThrows<IllegalArgumentException> {
-            env.storeValue("var2", Value(30))
+            env.storeValue("var2", 30)
         }
 
         assertThat(env.getMethod("does-not-exist")).isNull()
@@ -43,8 +43,8 @@ class EnvironmentTest {
             assertThat(m.numArgs).isEqualTo(0)
         }
         assertThat(env.loadValue("does-not-exist")).isNull()
-        assertThat(env.loadValue("var1")!!.wrapped).isEqualTo(10)
-        assertThat(env.loadValue("var2")!!.wrapped).isEqualTo(20)
+        assertThat(env.loadValue("var1")!!).isEqualTo(10)
+        assertThat(env.loadValue("var2")!!).isEqualTo(20)
     }
 
     @Test
@@ -52,32 +52,32 @@ class EnvironmentTest {
         val env = Environment()
 
         env.addMethod(object : Method("fun", 0) {
-            override suspend fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>) = Value.Empty
+            override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>) = Unit
         })
-        env.storeValue("var", Value(0))
+        env.storeValue("var", 0)
 
         env.pushScope()
         env.addMethod(object : Method("fun", 1) {
-            override suspend fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>) = Value.Empty
+            override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>) = Unit
         })
-        env.storeValue("var", Value(10))
+        env.storeValue("var", 10)
 
         env.pushScope()
         env.addMethod(object : Method("fun", 2) {
-            override suspend fun invoke(env: Environment, params: List<Value>, options: Map<String, Value>, rest: List<Value>) = Value.Empty
+            override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>) = Unit
         })
-        env.storeValue("var", Value(20))
+        env.storeValue("var", 20)
 
         assertThat(env.getMethod("fun")!!.numArgs).isEqualTo(2)
-        assertThat(env.loadValue("var")!!.wrapped).isEqualTo(20)
+        assertThat(env.loadValue("var")!!).isEqualTo(20)
 
         env.popScope()
         assertThat(env.getMethod("fun")!!.numArgs).isEqualTo(1)
-        assertThat(env.loadValue("var")!!.wrapped).isEqualTo(10)
+        assertThat(env.loadValue("var")!!).isEqualTo(10)
 
         env.popScope()
         assertThat(env.getMethod("fun")!!.numArgs).isEqualTo(0)
-        assertThat(env.loadValue("var")!!.wrapped).isEqualTo(0)
+        assertThat(env.loadValue("var")!!).isEqualTo(0)
 
         assertThrows<IllegalStateException> { env.popScope() }
     }

@@ -95,11 +95,11 @@ removed.
 ```kotlin
 // The basics
 val env = Environment()
-env.installUsefulDefaults()
+env.installDefaults()
 
 val evaluator = Evaluator()
 val result = evaluator.evaluate(env, "* 2 + 5 1")
-assertThat(result.wrapped).isEqualTo(12)
+assertThat(result).isEqualTo(12)
 ```
 
 ```kotlin
@@ -107,13 +107,13 @@ assertThat(result.wrapped).isEqualTo(12)
 val env = Environment()
 env.add(object : Method("concat", 2) {
    override suspend fun invoke(env: Environment, params: List<Value>, rest: List<Value>): Value {
-       return Value(env.expectConvert<String>(params[0]) + env.expectConvert<String>(params[1]))
+       return env.expectConvert<String>(params[0]) + env.expectConvert<String>(params[1])
    }
 })
 
 val evaluator = Evaluator()
 val result = evaluator.evaluate(env, "concat \"Hello \" \"World\"")
-assertThat(result.wrapped).isEqualTo("Hello World")
+assertThat(result).isEqualTo("Hello World")
 ```
 
 ```kotlin
@@ -141,18 +141,18 @@ env.add(object : Method("take", 2) {
            env.expectConvert<Int>(params[1])
        }
 
-       return Value(listIn.take(count))
+       return listIn.take(count)
    }
 })
-env.set("$numbers", Value(listOf(1, 2, 3, 4, 5)))
+env.set("$numbers", listOf(1, 2, 3, 4, 5))
 
 val evaluator = Evaluator()
 run {
     val result = evaluator.evaluate(env, "take $numbers 3")
-    assertThat(result.wrapped).isEqualTo(listOf(1, 2, 3))
+    assertThat(result).isEqualTo(listOf(1, 2, 3))
 }
 run {
     val result = evaluator.evaluate(env, "take $numbers _")
-    assertThat(result.wrapped).isEqualTo(listOf(1, 2, 3, 4, 5))
+    assertThat(result).isEqualTo(listOf(1, 2, 3, 4, 5))
 }
 ```

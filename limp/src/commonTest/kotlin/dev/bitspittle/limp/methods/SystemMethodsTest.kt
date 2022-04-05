@@ -4,7 +4,6 @@ import com.varabyte.truthish.assertThat
 import com.varabyte.truthish.assertThrows
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
-import dev.bitspittle.limp.Value
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.compare.EqualsMethod
 import dev.bitspittle.limp.methods.compare.NotEqualsMethod
@@ -30,21 +29,21 @@ class SystemMethodsTest {
         assertThat(env.loadValue("int2")).isNull()
         assertThat(env.loadValue("str")).isNull()
 
-        assertThat(evaluator.evaluate(env, "set 'int1 12")).isEqualTo(Value.Empty)
-        assertThat(evaluator.evaluate(env, "set 'int2 34")).isEqualTo(Value.Empty)
-        assertThat(env.loadValue("int1")!!.wrapped).isEqualTo(12)
-        assertThat(env.loadValue("int2")!!.wrapped).isEqualTo(34)
+        assertThat(evaluator.evaluate(env, "set 'int1 12")).isEqualTo(Unit)
+        assertThat(evaluator.evaluate(env, "set 'int2 34")).isEqualTo(Unit)
+        assertThat(env.loadValue("int1")!!).isEqualTo(12)
+        assertThat(env.loadValue("int2")!!).isEqualTo(34)
         assertThat(env.loadValue("str")).isNull()
 
-        assertThat(evaluator.evaluate(env, "= int1 12").wrapped).isEqualTo(true)
-        assertThat(evaluator.evaluate(env, "!= int2 int1").wrapped).isEqualTo(true)
-        assertThat(evaluator.evaluate(env, "+ int1 int2").wrapped).isEqualTo(46)
+        assertThat(evaluator.evaluate(env, "= int1 12")).isEqualTo(true)
+        assertThat(evaluator.evaluate(env, "!= int2 int1")).isEqualTo(true)
+        assertThat(evaluator.evaluate(env, "+ int1 int2")).isEqualTo(46)
 
-        assertThat(evaluator.evaluate(env, "set 'str \"Dummy text\"")).isEqualTo(Value.Empty)
-        assertThat(env.loadValue("str")!!.wrapped).isEqualTo("Dummy text")
+        assertThat(evaluator.evaluate(env, "set 'str \"Dummy text\"")).isEqualTo(Unit)
+        assertThat(env.loadValue("str")!!).isEqualTo("Dummy text")
 
-        assertThat(evaluator.evaluate(env, "= str \"Dummy text\"").wrapped).isEqualTo(true)
-        assertThat(evaluator.evaluate(env, "= str \"Smart text\"").wrapped).isEqualTo(false)
+        assertThat(evaluator.evaluate(env, "= str \"Dummy text\"")).isEqualTo(true)
+        assertThat(evaluator.evaluate(env, "= str \"Smart text\"")).isEqualTo(false)
 
         env.popScope()
         assertThat(env.loadValue("int1")).isNull()
@@ -52,7 +51,7 @@ class SystemMethodsTest {
         assertThat(env.loadValue("str")).isNull()
 
         assertThrows<EvaluationException> {
-            assertThat(evaluator.evaluate(env, "set '(invalid variable name) 12")).isEqualTo(Value.Empty)
+            assertThat(evaluator.evaluate(env, "set '(invalid variable name) 12")).isEqualTo(Unit)
         }
     }
 
@@ -79,11 +78,11 @@ class SystemMethodsTest {
                 assertThat(result.consumeRest).isEqualTo(false)
             }
 
-            assertThat(evaluator.evaluate(env, "clamp 1 2 4").wrapped).isEqualTo(2)
-            assertThat(evaluator.evaluate(env, "clamp 2 2 4").wrapped).isEqualTo(2)
-            assertThat(evaluator.evaluate(env, "clamp 3 2 4").wrapped).isEqualTo(3)
-            assertThat(evaluator.evaluate(env, "clamp 4 2 4").wrapped).isEqualTo(4)
-            assertThat(evaluator.evaluate(env, "clamp 5 2 4").wrapped).isEqualTo(4)
+            assertThat(evaluator.evaluate(env, "clamp 1 2 4")).isEqualTo(2)
+            assertThat(evaluator.evaluate(env, "clamp 2 2 4")).isEqualTo(2)
+            assertThat(evaluator.evaluate(env, "clamp 3 2 4")).isEqualTo(3)
+            assertThat(evaluator.evaluate(env, "clamp 4 2 4")).isEqualTo(4)
+            assertThat(evaluator.evaluate(env, "clamp 5 2 4")).isEqualTo(4)
 
             assertThat(env.loadValue("val")).isNull()
             assertThat(env.loadValue("low")).isNull()
@@ -101,7 +100,7 @@ class SystemMethodsTest {
             }
 
             env.addMethod(AddMethod())
-            assertThat(evaluator.evaluate(env, "add3 1 2 3").wrapped).isEqualTo(6)
+            assertThat(evaluator.evaluate(env, "add3 1 2 3")).isEqualTo(6)
         }
 
         // Misc. error checking

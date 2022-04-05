@@ -1,7 +1,6 @@
 package dev.bitspittle.limp.utils
 
 import dev.bitspittle.limp.Environment
-import dev.bitspittle.limp.Value
 import dev.bitspittle.limp.converters.CharToStringConverter
 import dev.bitspittle.limp.methods.collection.*
 import dev.bitspittle.limp.methods.compare.*
@@ -19,10 +18,11 @@ import dev.bitspittle.limp.methods.text.ConcatMethod
 import dev.bitspittle.limp.methods.text.JoinToStringMethod
 import dev.bitspittle.limp.methods.text.LowerMethod
 import dev.bitspittle.limp.methods.text.UpperMethod
+import dev.bitspittle.limp.types.Placeholder
 
 fun Environment.installDefaults() {
     // System
-    storeValue("_", Value.Placeholder)
+    storeValue("_", Placeholder)
     addMethod(SetMethod())
     addMethod(DefMethod())
 
@@ -42,8 +42,8 @@ fun Environment.installDefaults() {
     addMethod(MulListMethod())
 
     // Logic
-    storeValue("true", Value.True)
-    storeValue("false", Value.False)
+    storeValue("true", true)
+    storeValue("false", false)
 
     addMethod(NotMethod())
     addMethod(AndMethod())

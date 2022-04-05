@@ -5,7 +5,7 @@ import kotlin.reflect.KClass
 
 class Environment(val random: Random = Random.Default) {
     private val methodsStack = mutableListOf<MutableMap<String, Method>?>()
-    private val variablesStack = mutableListOf<MutableMap<String, Value>?>()
+    private val variablesStack = mutableListOf<MutableMap<String, Any>?>()
     private val convertersStack = mutableListOf<MutableMap<KClass<*>, Converter<*>>?>()
     init {
         // Populate stacks
@@ -28,7 +28,7 @@ class Environment(val random: Random = Random.Default) {
         converters[converter.toClass] = converter
     }
 
-    fun storeValue(name: String, value: Value) {
+    fun storeValue(name: String, value: Any) {
         val variables = variablesStack.last() ?: mutableMapOf()
         variablesStack[variablesStack.lastIndex] = variables
 
@@ -67,7 +67,7 @@ class Environment(val random: Random = Random.Default) {
             .firstOrNull()
     }
 
-    fun loadValue(name: String): Value? {
+    fun loadValue(name: String): Any? {
         return variablesStack.reversed().asSequence()
             .filterNotNull()
             .mapNotNull { variables -> variables[name] }
@@ -75,14 +75,14 @@ class Environment(val random: Random = Random.Default) {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T: Any> tryConvert(value: Value, toClass: KClass<T>): T? {
-        if (toClass.isInstance(value.wrapped)) {
-            return value.wrapped as T
+    fun <T: Any> tryConvert(value: Any, toClass: KClass<T>): T? {
+        if (toClass.isInstance(value)) {
+            return value as T
         }
 
         return convertersStack.reversed().asSequence()
             .filterNotNull()
-            .mapNotNull { converters -> converters[toClass]?.convert(value.wrapped) as T? }
+            .mapNotNull { converters -> converters[toClass]?.convert(value) as T? }
             .firstOrNull()
     }
 
@@ -90,14 +90,14 @@ class Environment(val random: Random = Random.Default) {
         return getMethod(name) ?: throw IllegalArgumentException("No method named \"$name\" is registered")
     }
 
-    fun expectValue(name: String): Value {
+    fun expectValue(name: String): Any {
         return loadValue(name) ?: throw IllegalArgumentException("No variable named \"$name\" is registered")
     }
 
-    fun <T: Any> expectConvert(value: Value, toClass: KClass<T>): T {
-        return tryConvert(value, toClass) ?: throw IllegalArgumentException("Could not convert ${value.wrapped::class} (value = \"${value.wrapped}\") to $toClass")
+    fun <T: Any> expectConvert(value: Any, toClass: KClass<T>): T {
+        return tryConvert(value, toClass) ?: throw IllegalArgumentException("Could not convert ${value::class} (value = \"${value}\") to $toClass")
     }
 
-    inline fun <reified T: Any> tryConvert(value: Value): T? = tryConvert(value, T::class)
-    inline fun <reified T: Any> expectConvert(value: Value): T = expectConvert(value, T::class)
+    inline fun <reified T: Any> tryConvert(value: Any): T? = tryConvert(value, T::class)
+    inline fun <reified T: Any> expectConvert(value: Any): T = expectConvert(value, T::class)
 }

@@ -11,12 +11,12 @@ import dev.bitspittle.limp.types.Expr
  *   escape from that method. This could also be a good place to define variables that only exist within the
  *   lifetime of some lambda call, e.g. the `$it` value in `filter`.
  */
-class Evaluator(private val transients: Map<String, Value> = emptyMap()) {
-    suspend fun evaluate(env: Environment, code: String): Value {
+class Evaluator(private val transients: Map<String, Any> = emptyMap()) {
+    suspend fun evaluate(env: Environment, code: String): Any {
         return evaluate(env, Expr.parse(code))
     }
 
-    suspend fun evaluate(env: Environment, expr: Expr): Value {
+    suspend fun evaluate(env: Environment, expr: Expr): Any {
         return when (expr) {
             is Expr.Text -> evaluateText(expr)
             is Expr.Number -> evaluateNumber(expr)
@@ -25,23 +25,23 @@ class Evaluator(private val transients: Map<String, Value> = emptyMap()) {
             is Expr.Deferred -> evaluateDeferred(expr)
             is Expr.Chain -> evaluateChain(env, expr)
             is Expr.Block -> evaluateBlock(env, expr)
-            is Expr.Empty -> Value.Empty
-            is Expr.Stub -> Value(expr.value)
+            is Expr.Empty -> Unit
+            is Expr.Stub -> expr.value
         }
     }
 
-    private fun evaluateText(textExpr: Expr.Text): Value {
-        return Value(textExpr.text)
+    private fun evaluateText(textExpr: Expr.Text): Any {
+        return textExpr.text
     }
-    private fun evaluateNumber(numberExpr: Expr.Number): Value {
-        return Value(numberExpr.number)
+    private fun evaluateNumber(numberExpr: Expr.Number): Any {
+        return numberExpr.number
     }
     private suspend fun evaluateIdentifier(
         env: Environment,
         identExpr: Expr.Identifier,
-        values: MutableList<Value> = mutableListOf(),
-        options: MutableMap<String, Value> = mutableMapOf()
-    ): Value {
+        values: MutableList<Any> = mutableListOf(),
+        options: MutableMap<String, Any> = mutableMapOf()
+    ): Any {
         return transients[identExpr.name]
             ?: env.loadValue(identExpr.name)
             ?: env.getMethod(identExpr.name)?.let { method ->
@@ -75,21 +75,21 @@ class Evaluator(private val transients: Map<String, Value> = emptyMap()) {
 
     private fun evaluateOption(
         optionExpr: Expr.Option,
-        values: MutableList<Value> = mutableListOf(),
-        options: MutableMap<String, Value> = mutableMapOf()
-    ): Value {
+        values: MutableList<Any> = mutableListOf(),
+        options: MutableMap<String, Any> = mutableMapOf()
+    ): Any {
         if (values.isEmpty()) {
             throw EvaluationException(optionExpr.ctx, "Optional parameter specifier \"${optionExpr.identifier.name}\" was not followed by a value.")
         }
 
         options[optionExpr.identifier.name] = values.removeFirst()
-        return Value.Empty
+        return Unit
     }
 
-    private fun evaluateDeferred(deferredExpr: Expr.Deferred): Value {
-        return Value(deferredExpr.expr)
+    private fun evaluateDeferred(deferredExpr: Expr.Deferred): Any {
+        return deferredExpr.expr
     }
-    private suspend fun evaluateChain(env: Environment, chainExpr: Expr.Chain): Value {
+    private suspend fun evaluateChain(env: Environment, chainExpr: Expr.Chain): Any {
         // Work backwards, so we can call methods with arguments we resolved earlier...
         // e.g. "+ 1 * 2 3" becomes ...
         // - 3
@@ -97,8 +97,8 @@ class Evaluator(private val transients: Map<String, Value> = emptyMap()) {
         // - 3, 2, * -> 6
         // - 6, 1
         // - 6, 1, + -> 7
-        val evaluated = mutableListOf<Value>()
-        val options = mutableMapOf<String, Value>()
+        val evaluated = mutableListOf<Any>()
+        val options = mutableMapOf<String, Any>()
         chainExpr.exprs.reversed().forEach { expr ->
             val value = when(expr) {
                 is Expr.Identifier -> evaluateIdentifier(env, expr, evaluated, options)
@@ -116,7 +116,7 @@ class Evaluator(private val transients: Map<String, Value> = emptyMap()) {
         return evaluated[0]
     }
 
-    private suspend fun evaluateBlock(env: Environment, blockExpr: Expr.Block): Value {
+    private suspend fun evaluateBlock(env: Environment, blockExpr: Expr.Block): Any {
         return evaluate(env, blockExpr.expr)
     }
 }

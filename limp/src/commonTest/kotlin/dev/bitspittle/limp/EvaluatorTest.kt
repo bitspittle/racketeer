@@ -4,11 +4,11 @@ import com.varabyte.truthish.assertThat
 import com.varabyte.truthish.assertThrows
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.collection.ListMethod
-import dev.bitspittle.limp.methods.logic.IfMethod
 import dev.bitspittle.limp.methods.math.*
 import dev.bitspittle.limp.methods.range.IntRangeMethod
 import dev.bitspittle.limp.methods.system.DefMethod
 import dev.bitspittle.limp.methods.system.SetMethod
+import dev.bitspittle.limp.types.Placeholder
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -22,26 +22,26 @@ class EvaluatorTest {
         env.addMethod(SubMethod())
 
         val evaluator = Evaluator()
-        assertThat(evaluator.evaluate(env, "+ 1 2").wrapped).isEqualTo(3)
-        assertThat(evaluator.evaluate(env, "+ 1 * 3 2").wrapped).isEqualTo(7)
-        assertThat(evaluator.evaluate(env, "+ 1 * 3 - 8 2").wrapped).isEqualTo(19)
-        assertThat(evaluator.evaluate(env, "(+ 1 (* 3 (- 8 2)))").wrapped).isEqualTo(19)
+        assertThat(evaluator.evaluate(env, "+ 1 2")).isEqualTo(3)
+        assertThat(evaluator.evaluate(env, "+ 1 * 3 2")).isEqualTo(7)
+        assertThat(evaluator.evaluate(env, "+ 1 * 3 - 8 2")).isEqualTo(19)
+        assertThat(evaluator.evaluate(env, "(+ 1 (* 3 (- 8 2)))")).isEqualTo(19)
 
-        env.storeValue("\$a", Value(5))
-        env.storeValue("\$b", Value(90))
-        assertThat(evaluator.evaluate(env, "+ \$a (* 2 \$b)").wrapped).isEqualTo(185)
+        env.storeValue("\$a", 5)
+        env.storeValue("\$b", 90)
+        assertThat(evaluator.evaluate(env, "+ \$a (* 2 \$b)")).isEqualTo(185)
     }
 
     @Test
     fun testEvaluationWithPlaceholder() = runTest {
         val env = Environment()
         env.addMethod(IntRangeMethod())
-        env.storeValue("_", Value.Placeholder)
+        env.storeValue("_", Placeholder)
 
         val evaluator = Evaluator()
-        assertThat(evaluator.evaluate(env, ".. _ 10").wrapped).isEqualTo(0 .. 10)
-        assertThat(evaluator.evaluate(env, ".. 1 _").wrapped).isEqualTo(1 .. Int.MAX_VALUE)
-        assertThat(evaluator.evaluate(env, ".. _ _").wrapped).isEqualTo(0 .. Int.MAX_VALUE)
+        assertThat(evaluator.evaluate(env, ".. _ 10")).isEqualTo(0 .. 10)
+        assertThat(evaluator.evaluate(env, ".. 1 _")).isEqualTo(1 .. Int.MAX_VALUE)
+        assertThat(evaluator.evaluate(env, ".. _ _")).isEqualTo(0 .. Int.MAX_VALUE)
     }
 
     @Test
@@ -50,12 +50,12 @@ class EvaluatorTest {
         env.addMethod(IntRangeMethod())
 
         val evaluator = Evaluator()
-        assertThat(evaluator.evaluate(env, ".. 1 10").wrapped).isEqualTo(1 .. 10)
-        assertThat(evaluator.evaluate(env, ".. --step 4 1 20").wrapped).isEqualTo(1 .. 20 step 4)
+        assertThat(evaluator.evaluate(env, ".. 1 10")).isEqualTo(1 .. 10)
+        assertThat(evaluator.evaluate(env, ".. --step 4 1 20")).isEqualTo(1 .. 20 step 4)
 
         assertThrows<EvaluationException> {
             // Whoops, typo!
-            assertThat(evaluator.evaluate(env, ".. --stop 4 1 20").wrapped).isEqualTo(1..20 step 4)
+            assertThat(evaluator.evaluate(env, ".. --stop 4 1 20")).isEqualTo(1..20 step 4)
         }
     }
 
@@ -68,11 +68,11 @@ class EvaluatorTest {
         env.addMethod(MulListMethod())
 
         val evaluator = Evaluator()
-        assertThat(evaluator.evaluate(env, "list 1 2 3 4 5").wrapped as List<Int>).containsExactly(1, 2, 3, 4, 5)
+        assertThat(evaluator.evaluate(env, "list 1 2 3 4 5") as List<Int>).containsExactly(1, 2, 3, 4, 5)
             .inOrder()
 
-        assertThat(evaluator.evaluate(env, "sum list 1 2 3 4 5").wrapped).isEqualTo(15)
-        assertThat(evaluator.evaluate(env, "+ (mul list 1 2 3) (sum list 4 5 6)").wrapped).isEqualTo(21)
+        assertThat(evaluator.evaluate(env, "sum list 1 2 3 4 5")).isEqualTo(15)
+        assertThat(evaluator.evaluate(env, "+ (mul list 1 2 3) (sum list 4 5 6)")).isEqualTo(21)
     }
 
     @Test
@@ -111,7 +111,7 @@ class EvaluatorTest {
             evaluator.evaluate(env, "def 'sum 'a 'b '(+ a b)")
             evaluator.evaluate(env, "set 'a 99")
             evaluator.evaluate(env, "set 'b 100")
-            assertThat(evaluator.evaluate(env, "sum 1 2").wrapped).isEqualTo(3)
+            assertThat(evaluator.evaluate(env, "sum 1 2")).isEqualTo(3)
         }
     }
 }
