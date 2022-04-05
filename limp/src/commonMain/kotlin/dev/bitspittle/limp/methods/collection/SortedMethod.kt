@@ -11,7 +11,7 @@ import dev.bitspittle.limp.utils.toEnumOrNull
 /**
  * Take a list and return a sorted copy of it.
  */
-class SortMethod : Method("sort", 1) {
+class SortedMethod : Method("sorted", 1) {
     override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
         val list = env.expectConvert<List<Comparable<Any>>>(params[0])
 

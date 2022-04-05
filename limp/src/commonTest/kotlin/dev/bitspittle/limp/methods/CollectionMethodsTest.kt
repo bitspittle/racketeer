@@ -149,14 +149,14 @@ class CollectionMethodsTest {
     }
 
     @Test
-    fun testShuffleMethod() = runTest {
+    fun testShuffledMethod() = runTest {
         val env = Environment(Random(123)) // Fixed seed so that we get the same shuffle everytime for this test
-        env.addMethod(ShuffleMethod())
+        env.addMethod(ShuffledMethod())
         env.storeValue("ints", listOf(1, 2, 3, 4, 5))
 
         val evaluator = Evaluator()
 
-        assertThat(evaluator.evaluate(env, "shuffle ints") as List<Int>)
+        assertThat(evaluator.evaluate(env, "shuffled ints") as List<Int>)
             .containsExactly(3, 1, 4, 5, 2).inOrder()
 
         // Original ints are not affected
@@ -165,29 +165,29 @@ class CollectionMethodsTest {
     }
 
     @Test
-    fun testSortMethod() = runTest {
+    fun testSortedMethod() = runTest {
         val env = Environment()
 
         val evaluator = Evaluator()
-        env.addMethod(SortMethod())
+        env.addMethod(SortedMethod())
         env.addMethod(CompareMethod())
         env.addMethod(ToIntMethod())
         env.storeValue("ints", listOf(3, 1, 4, 5, 2))
         env.storeValue("str-numbers", listOf("3", "2", "1", "30", "20", "10", "20"))
 
-        assertThat(evaluator.evaluate(env, "sort ints") as List<Int>)
+        assertThat(evaluator.evaluate(env, "sorted ints") as List<Int>)
             .containsExactly(1, 2, 3, 4, 5).inOrder()
 
-        assertThat(evaluator.evaluate(env, "sort --order 'descending ints") as List<Int>)
+        assertThat(evaluator.evaluate(env, "sorted --order 'descending ints") as List<Int>)
             .containsExactly(5, 4, 3, 2, 1).inOrder()
 
-        assertThat(evaluator.evaluate(env, "sort str-numbers") as List<String>)
+        assertThat(evaluator.evaluate(env, "sorted str-numbers") as List<String>)
             .containsExactly("1", "10", "2", "20", "20", "3", "30").inOrder()
 
-        assertThat(evaluator.evaluate(env, "sort --with '(compare to-int \$a to-int \$b) str-numbers") as List<String>)
+        assertThat(evaluator.evaluate(env, "sorted --with '(compare to-int \$a to-int \$b) str-numbers") as List<String>)
             .containsExactly("1", "2", "3", "10", "20", "20", "30").inOrder()
 
-        assertThat(evaluator.evaluate(env, "sort --order 'descending --with '(compare to-int \$a to-int \$b) str-numbers") as List<String>)
+        assertThat(evaluator.evaluate(env, "sorted --order 'descending --with '(compare to-int \$a to-int \$b) str-numbers") as List<String>)
             .containsExactly("30", "20", "20", "10", "3", "2", "1").inOrder()
 
         // Original lists are not affected
