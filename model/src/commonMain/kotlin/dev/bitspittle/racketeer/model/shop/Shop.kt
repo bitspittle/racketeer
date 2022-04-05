@@ -13,4 +13,6 @@ class MutableShop private constructor(tier: Int, stock: MutableList<CardTemplate
     override var tier: Int = tier
         private set
     override val cards = stock
+
+    fun copy() = MutableShop(tier, cards.toMutableList())
 }

@@ -20,6 +20,12 @@ import dev.bitspittle.limp.methods.text.LowerMethod
 import dev.bitspittle.limp.methods.text.UpperMethod
 import dev.bitspittle.limp.types.Placeholder
 
+/**
+ * Install default methods and values that make a limp environment somewhat useful.
+ *
+ * Defaults are guaranteed not to contain any blocking behavior, so it is save to evaluate them in a `runBlocking`
+ * context without worrying about blocking the thread.
+ */
 fun Environment.installDefaults() {
     // System
     storeValue("_", Placeholder)

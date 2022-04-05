@@ -1,5 +1,6 @@
 package dev.bitspittle.racketeer.model.game
 
+import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.shop.MutableShop
 import dev.bitspittle.racketeer.model.shop.Shop
@@ -13,17 +14,61 @@ import kotlin.random.Random
 //    vp: Int,
 //    handSize: Int,
 //    shopTier: Int,
+//    val shop: Shop = _shop
+//    val deck: Pile = _deck
+//    val hand: Pile = _hand
+//    val street: Pile = _street
+//    val discard: Pile = _discard
+//    val jail: Pile = _jail
 //) {
 
-class GameState(
-    private val data: GameData,
+class GameState internal constructor(
+    turn: Int,
+    cash: Int,
+    influence: Int,
+    luck: Int,
+    vp: Int,
+    handSize: Int,
+    shopTier: Int,
+    shop: MutableShop,
+    deck: MutablePile,
+    hand: MutablePile,
+    street: MutablePile,
+    discard: MutablePile,
+    jail: MutablePile,
+    private val random: Random,
 ) {
-    private val random = Random.Default
+    constructor(data: GameData, random: Random = Random.Default) : this(
+        turn = 0,
+        cash = 0,
+        influence = 0,
+        luck = 0,
+        vp = 0,
+        handSize = data.initialHandSize,
+        shopTier = 0,
+        shop = MutableShop(),
+        deck = MutablePile(data.initialDeck
+            .flatMap {  entry ->
+                val cardName = entry.substringBeforeLast(' ')
+                val count = entry.substringAfterLast(' ', missingDelimiterValue = "").toIntOrNull() ?: 1
+
+                val card = data.cards.single { it.name == cardName }
+                List(count) { card.instantiate() }
+            }
+            .toMutableList()
+            .apply { shuffle() }
+        ),
+        hand = MutablePile(),
+        street = MutablePile(),
+        discard = MutablePile(),
+        jail = MutablePile(),
+        random = random
+    )
 
     /**
      * 0-indexed turn
      */
-    var turn = 0
+    var turn = turn
         private set
 
     /**
@@ -31,13 +76,13 @@ class GameState(
      *
      * Will be cleared at the end of the current turn.
      */
-    var cash = 0
+    var cash = cash
         private set
 
     /**
      * How much influence the player currently has.
      */
-    var influence = 0
+    var influence = influence
         private set
 
     /**
@@ -45,7 +90,7 @@ class GameState(
      *
      * Luck can be used to re-roll the shop.
      */
-    var luck = 0
+    var luck = luck
         private set
 
     /**
@@ -53,38 +98,28 @@ class GameState(
      *
      * Luck can be used to re-roll the shop.
      */
-    var vp = 0
+    var vp = vp
         private set
 
     /**
      * How many cards get drawn at the beginning of the turn.
      */
-    var handSize = data.initialHandSize
+    var handSize = handSize
         private set
 
     /**
      * The 0-indexed tier value of the shop (i.e. how many times it has been upgraded)
      */
-    var shopTier = 0
+    var shopTier = shopTier
         private set
 
-    private val _shop = MutableShop()
+    private val _shop = shop
 
-    private val _deck = MutablePile(data.initialDeck
-        .flatMap {  entry ->
-            val cardName = entry.substringBeforeLast(' ')
-            val count = entry.substringAfterLast(' ', missingDelimiterValue = "").toIntOrNull() ?: 1
-
-            val card = data.cards.single { it.name == cardName }
-            List(count) { card.instantiate() }
-        }
-        .toMutableList()
-        .apply { shuffle() }
-    )
-    private val _hand = MutablePile()
-    private val _street = MutablePile()
-    private val _discard = MutablePile()
-    private val _jail = MutablePile()
+    private val _deck = deck
+    private val _hand = hand
+    private val _street = street
+    private val _discard = discard
+    private val _jail = jail
 
     val shop: Shop = _shop
 
@@ -101,35 +136,29 @@ class GameState(
         }
     }
 
-    private fun move(card: Card, pile: MutablePile, insertStrategy: InsertStrategy = InsertStrategy.BACK) {
-        move(listOf(card), pile, insertStrategy)
+    private fun move(card: Card, pileTo: MutablePile, listStrategy: ListStrategy = ListStrategy.BACK) {
+        move(listOf(card), pileTo, listStrategy)
     }
 
-    private fun move(cards: List<Card>, pile: MutablePile, insertStrategy: InsertStrategy = InsertStrategy.BACK) {
+    private fun move(cards: List<Card>, pileTo: MutablePile, listStrategy: ListStrategy = ListStrategy.BACK) {
         cards.forEach { card ->
             cardPiles.remove(card)?.also { pile -> pile.cards.remove(card) }
-            cardPiles[card] = pile
+            cardPiles[card] = pileTo
         }
-        pile.cards.insert(cards, insertStrategy, random)
+        pileTo.cards.insert(cards, listStrategy, random)
     }
 
-    private fun move(pileFrom: MutablePile, pileTo: MutablePile, insertStrategy: InsertStrategy = InsertStrategy.BACK) {
+    private fun move(pileFrom: MutablePile, pileTo: MutablePile, listStrategy: ListStrategy = ListStrategy.BACK) {
         if (pileFrom === pileTo) {
             throw GameException("Attempting to move a pile of cards into itself")
         }
 
         pileFrom.cards.forEach { card -> cardPiles[card] = pileTo }
-        pileTo.cards.insert(pileFrom.cards, insertStrategy, random)
+        pileTo.cards.insert(pileFrom.cards, listStrategy, random)
         pileFrom.cards.clear()
     }
 
-    private fun dieIfGameOver() {
-        if (turn >= data.numTurns) throw GameException("Can't change game state after the game is already over!")
-    }
-
     fun draw(count: Int = handSize) {
-        dieIfGameOver()
-
         var remainingCount = count.coerceAtMost(deck.cards.size + discard.cards.size)
         if (remainingCount == 0) return
 
@@ -149,23 +178,30 @@ class GameState(
         }
     }
 
-    fun play(handIndex: Int) {
-        dieIfGameOver()
-
-        if (handIndex !in _hand.cards.indices) {
-            throw GameException("Attempt to play hand card with invalid index $handIndex")
-        }
-        // TODO: Run actions
-        move(_hand.cards.removeAt(handIndex), _street)
-    }
-
     fun endTurn() {
-        dieIfGameOver()
-
         turn++
         cash = 0
 
         move(_street, _discard)
         move(_hand, _discard)
+    }
+
+    fun copy(): GameState {
+        return GameState(
+            turn,
+            cash,
+            influence,
+            luck,
+            vp,
+            handSize,
+            shopTier,
+            _shop.copy(),
+            _deck.copy(),
+            _hand.copy(),
+            _street.copy(),
+            _discard.copy(),
+            _jail.copy(),
+            random
+        )
     }
 }

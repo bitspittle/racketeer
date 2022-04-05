@@ -6,6 +6,7 @@ import com.varabyte.kotter.foundation.session
 import com.varabyte.kotter.foundation.text.bold
 import com.varabyte.kotter.foundation.text.red
 import com.varabyte.kotter.foundation.text.textLine
+import com.varabyte.kotter.foundation.text.yellow
 import com.varabyte.kotterx.decorations.BorderCharacters
 import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.limp.Environment
@@ -40,6 +41,7 @@ class GameSession(
         val env = Environment()
         env.installDefaults()
         Evaluator().let { evaluator ->
+            // Safe to call runBlocking at this point because limp defaults all promise not to suspend
             runBlocking {
                 gameData.globalActions.forEach { action ->
                     evaluator.evaluate(env, action)
@@ -48,16 +50,22 @@ class GameSession(
         }
 
         val viewStack = ViewStackImpl()
+        var lastErrorMessage: String? = null
         var shouldQuit = false
         val ctx = GameContext(
             gameData,
             Describer(gameData),
             GameState(gameData),
+            env,
             compiledActions = gameData.cards.associateWith { card -> card.actions.map { Expr.parse(it) } },
             viewStack,
             object : App {
                 override fun quit() {
                     shouldQuit = true
+                }
+
+                override fun log(message: String) {
+                    lastErrorMessage = message
                 }
             }
         )
@@ -65,6 +73,11 @@ class GameSession(
         viewStack.pushView(PreDrawView(ctx))
         section {
             viewStack.currentView.renderInto(this)
+            lastErrorMessage?.let { message ->
+                textLine()
+                yellow { textLine(message) }
+                lastErrorMessage = null
+            }
         }.runUntilSignal {
             onKeyPressed {
                 if (viewStack.currentView.handleKey(key)) {

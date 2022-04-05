@@ -19,6 +19,7 @@ kotlin {
             dependencies {
                 implementation(libs.yamlkt)
                 implementation(libs.uuid)
+                implementation(project(":limp"))
             }
         }
 
