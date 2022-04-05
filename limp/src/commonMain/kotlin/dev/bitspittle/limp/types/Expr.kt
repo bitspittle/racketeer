@@ -54,13 +54,13 @@ sealed class Expr(val ctx: ExprContext) {
             val ctx = ParserContext(code)
             val result = ExprParser().tryParse(ctx) ?: throw ParseException(
                 ctx,
-                "Unknown parsing error. Please file a bug including the statement below."
+                "Parsing failed after encountering an unexpected character."
             )
 
             if (!result.ctx.isFinished) {
                 throw ParseException(
                     result.ctx,
-                    "Leftover code could not be parsed. Did you forget to close a right parentheses?"
+                    "Leftover code could not be parsed. Did you type an invalid character or forget to close a right parentheses?"
                 )
             }
 
