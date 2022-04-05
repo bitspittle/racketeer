@@ -14,7 +14,6 @@ class ExprContext(val code: String, val start: Int, val length: Int) {
     val text: String get() = code.substring(start, start + length)
 
     companion object {
-        val Empty = ExprContext("", 0, 0)
         fun from(ctxStart: ParserContext, length: Int): ExprContext {
             return ExprContext(ctxStart.text, ctxStart.startIndex, length)
         }
@@ -50,6 +49,9 @@ fun ExprContext.Companion.from(ctx: ParserContext, result: ParseResult<*>): Expr
  */
 sealed class Expr(val ctx: ExprContext) {
     companion object {
+        /** A dummy expression that does nothing when evaluated. */
+        val Empty = Stub(Unit)
+
         fun parse(code: String): Expr {
             val ctx = ParserContext(code)
             val result = ExprParser().tryParse(ctx) ?: throw ParseException(
@@ -75,14 +77,16 @@ sealed class Expr(val ctx: ExprContext) {
     class Deferred(val expr: Expr, ctx: ExprContext) : Expr(ctx)
     class Chain(val exprs: List<Expr>, ctx: ExprContext) : Expr(ctx)
     class Block(val expr: Expr, ctx: ExprContext) : Expr(ctx)
-    /** A dummy expression used for cases where you want to stub out the expression passed into a method */
-    object Empty : Expr(ExprContext.Empty)
 
     /**
      * An expression not meant to be parsed but to be created manually if you want to stub out the expression passed
      * into a method that should evaluate to some value.
      */
-    class Stub(val value: Any) : Expr(ExprContext.Empty)
+    class Stub(val value: Any) : Expr(value.toString().let { valueStr -> ExprContext(valueStr, 0, valueStr.length) })
+
+    override fun toString(): String {
+        return ctx.text
+    }
 }
 
 fun Expr.walk(): Sequence<Expr> {

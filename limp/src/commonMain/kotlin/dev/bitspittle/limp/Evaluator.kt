@@ -25,7 +25,6 @@ class Evaluator(private val transients: Map<String, Any> = emptyMap()) {
             is Expr.Deferred -> evaluateDeferred(expr)
             is Expr.Chain -> evaluateChain(env, expr)
             is Expr.Block -> evaluateBlock(env, expr)
-            is Expr.Empty -> Unit
             is Expr.Stub -> expr.value
         }
     }
