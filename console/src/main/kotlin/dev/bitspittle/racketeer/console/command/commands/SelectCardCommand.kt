@@ -7,8 +7,8 @@ import dev.bitspittle.racketeer.model.card.Card
 class SelectCardCommand(
     ctx: GameContext, private val card: Card, var selected: Boolean = false
 ) : Command(ctx) {
-    override val title get() = "[${if (selected) 'x' else ' '}] ${ctx.describers.describe(card, concise = true)}"
-    override val description = ctx.describers.describe(card)
+    override val title get() = "[${if (selected) 'x' else ' '}] ${ctx.describer.describe(card, concise = true)}"
+    override val description = ctx.describer.describe(card)
 
     override fun invoke(): Boolean {
         selected = !selected

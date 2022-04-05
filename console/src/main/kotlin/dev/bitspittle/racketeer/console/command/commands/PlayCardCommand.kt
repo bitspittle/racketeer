@@ -11,9 +11,9 @@ import kotlinx.coroutines.runBlocking
 class PlayCardCommand(ctx: GameContext, private val handIndex: Int) : Command(ctx) {
     private val card = ctx.state.hand.cards[handIndex]
 
-    override val title = "Play: ${ctx.describers.describe(card, concise = true)}"
+    override val title = "Play: ${ctx.describer.describe(card, concise = true)}"
 
-    override val description = ctx.describers.describe(card)
+    override val description = ctx.describer.describe(card)
 
     override fun invoke(): Boolean {
         val prevState = ctx.state

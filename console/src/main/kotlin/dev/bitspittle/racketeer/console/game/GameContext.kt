@@ -10,7 +10,7 @@ import dev.bitspittle.racketeer.model.text.Describer
 
 class GameContext(
     val data: GameData,
-    val describers: Describer,
+    val describer: Describer,
     var state: GameState,
     val env: Environment,
     val compiledActions: Map<CardTemplate, List<Expr>>,

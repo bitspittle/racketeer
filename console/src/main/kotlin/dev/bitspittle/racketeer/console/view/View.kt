@@ -2,7 +2,6 @@ package dev.bitspittle.racketeer.console.view
 
 import com.varabyte.kotter.foundation.input.Key
 import com.varabyte.kotter.foundation.input.Keys
-import com.varabyte.kotter.foundation.text.black
 import com.varabyte.kotter.foundation.text.bold
 import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.foundation.text.underline
