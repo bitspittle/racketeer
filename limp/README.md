@@ -20,26 +20,23 @@ For parsing simplicity, Limp uses polish (also called *prefix*) notation. That i
 of `(1 + 2)`.
 
 This removes ambiguity if parentheses aren't used. That is, `(* 2 + 5 1)` is always 12, while in a language like Java,
-evaluating `2 * 5 + 1` depends on knowledge of operator precedence, and it actually evaluates to 11 unless you
+evaluating `2 * 5 + 1` depends on knowledge of operator precedence, where there it evaluates to 11 unless you
 explicitly add parentheses (as in `2 * (5 + 1)`).
 
 ### Deferred expressions
 
-By default, when you evaluate a Limp expression, ever part of the expression is evaluated immediately. However, by
-preceding parts of the expression with an apostrophe, it tells the evaluator to postpone evaluation on that for later.
+By default, when you evaluate a Limp expression, every part of the expression is evaluated immediately. However, by
+prefixing parts of the expression with an apostrophe (`'`), it tells the evaluator to postpone evaluation on that for
+later.
 
-This can be very useful when defining logic that you don't want to execute yourself, but you want to hand down into some
-method and have it do it later.
-
-One example is the "set variable" method, which can look like this: `set '$example 123`. If you didn't defer the
+A concrete example is the "set variable" method, which looks like this: `set '$example 123`. If you didn't defer the
 variable name there, instead writing `set $example 123`, the evaluator would try to evaluate the variable immediately
 and barf because it hasn't been defined yet!
 
-Another example for deferment is when using some list iterating method, like a filter: `filter $numbers '(>= $it 0)`.
-This expression means take in a list of numbers and return a new list which only has positive numbers in it. You can see
-that we define some logic (checking if a value is positive) but we don't want to run it ourselves! We want to let the
-`filter` method call it internally. (It is also up to the `filter` method to correctly define the `$it` variable for
-us.)
+Another example for deferment is for lambdas. Here's filter: `filter $numbers '(>= $it 0)`.
+This expression means "take in a list of numbers and return a new list which only has positive numbers in it". We don't
+want to run the logic for checking if a number is positive immediately! Instead, we want to let the `filter` method call
+it internally. (It is also up to the `filter` method to correctly define the `$it` variable for us.)
 
 ## Using Limp in your project
 
@@ -50,11 +47,16 @@ Limp works by combining two classes, `Environment` and `Evaluator`.
 An environment is a scoped collection of methods, variables, and converters.
 
 When constructed, a new environment is totally empty, but you can use the provided utility method,
-`Environment.installUsefulDefaults()`, to add a bunch of useful logic, math, and other generally helpful behavior. 
+`Environment.installDefaults()`, to add a bunch of useful logic, math, and other generally helpful behavior. (You
+probably want to do this!)
 
 #### Method
 
+You can define and add methods.
+
 A method is some logic, tagged with a name and specifying the number of arguments it can consume.
+
+For example, the add method takes two arguments (and returns their sum, if the two arguments are integers).
 
 A method can additionally be configured to accept optional parameters as well as to consume all remaining arguments in
 the expression. The latter is useful for a method that can take a dynamic number of arguments, say a method like
@@ -64,8 +66,8 @@ the expression. The latter is useful for a method that can take a dynamic number
 
 A variable is a value tagged with a name.
 
-You can register these directly into the environment or, if you installed the `SetMethod` into the environment, a user
-can define a variable using syntax like `set '$example 123`
+You can register these directly into the environment using `env.storeValue("\$example", 123)`. Or, if you added the
+`SetMethod` into the environment, a user can define a variable using syntax like `set '$example 123`
 
 By convention, when you define a variable, you should prepend it with a `$`, for readability. However, it's not strictly
 required you do so.
@@ -76,7 +78,7 @@ A converter is some logic to automatically convert a value of one type into anot
 make some of your methods a bit more flexible.
 
 For example, if you have a method that takes in a list, but it gets passed a single item, you can create a converter
-that converts it into a singleton list for you on the fly.
+that converts non-list items into a singleton list for you on the fly.
 
 It can also be a good way to handle default values, by adding a converter for your method that converts a placeholder
 value into a default value for you.
@@ -119,9 +121,7 @@ assertThat(result).isEqualTo("Hello World")
 ```kotlin
 // Using a converter
 
-// This is actually defined in Limp, but we pretend here as if we wrote it from scratch.
-// A converter tries to convert one value type to another. Here, we check if that value is a special
-// Placeholder instance, and if so, convert to some default value specified in the constructor.
+// If we get a Placeholder object, translate it into some other value, e.g. _ -> 0 or "hi"
 class PlaceholderConverter<T: Any>(private val toValue: T) : Converter<T>(toValue::class) {
     override fun convert(value: Any): T? {
         return if (value === Placeholder) { toValue } else { null }
@@ -129,30 +129,18 @@ class PlaceholderConverter<T: Any>(private val toValue: T) : Converter<T>(toValu
 }
 
 val env = Environment()
-// "take" pulls item from a list. The first argument is the list and the second argument is a count.
-// The special placeholder character means "take everything"
-// > take $list 2 -> new list of size 2
-// > take $list _ -> take the whole list
-env.add(object : Method("take", 2) {
+// Pretend there wasn't already an add method...
+env.add(object : Method("add", 2) {
    override suspend fun invoke(env: Environment, params: List<Value>, optionals: Map<String, Value>, rest: List<Value>): Value {
-       val listIn = env.expectConvert<List>(params[0])
-       val count = env.scoped {
-           env.add(PlaceholderConverter(listIn.size))
-           env.expectConvert<Int>(params[1])
+       // This code supports: "add 1 2", "add _ 2", "add 1 _", and "add _ _", thanks to our converter
+       val sum = env.scoped {
+           env.add(PlaceholderConverter(0))
+           val a = env.expectConvert<Int>(params[0])
+           val b = env.expectConvert<Int>(params[1])
+           a + b
        }
 
-       return listIn.take(count)
+       return sum
    }
 })
-env.set("$numbers", listOf(1, 2, 3, 4, 5))
-
-val evaluator = Evaluator()
-run {
-    val result = evaluator.evaluate(env, "take $numbers 3")
-    assertThat(result).isEqualTo(listOf(1, 2, 3))
-}
-run {
-    val result = evaluator.evaluate(env, "take $numbers _")
-    assertThat(result).isEqualTo(listOf(1, 2, 3, 4, 5))
-}
 ```
