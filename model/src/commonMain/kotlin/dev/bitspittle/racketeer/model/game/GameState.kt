@@ -6,23 +6,8 @@ import dev.bitspittle.racketeer.model.shop.MutableShop
 import dev.bitspittle.racketeer.model.shop.Shop
 import kotlin.random.Random
 
-//class GameState2 private constructor(
-//    turn: Int,
-//    cash: Int,
-//    influence: Int,
-//    luck: Int,
-//    vp: Int,
-//    handSize: Int,
-//    shopTier: Int,
-//    val shop: Shop = _shop
-//    val deck: Pile = _deck
-//    val hand: Pile = _hand
-//    val street: Pile = _street
-//    val discard: Pile = _discard
-//    val jail: Pile = _jail
-//) {
-
 class GameState internal constructor(
+    numTurns: Int,
     turn: Int,
     cash: Int,
     influence: Int,
@@ -39,6 +24,7 @@ class GameState internal constructor(
     private val random: Random,
 ) {
     constructor(data: GameData, random: Random = Random.Default) : this(
+        numTurns = data.numTurns,
         turn = 0,
         cash = 0,
         influence = 0,
@@ -64,6 +50,14 @@ class GameState internal constructor(
         jail = MutablePile(),
         random = random
     )
+
+    /**
+     * How many turns are in a game.
+     */
+    var numTurns = numTurns
+        set(value) {
+            field = value.coerceAtLeast(turn + 1)
+        }
 
     /**
      * 0-indexed turn
@@ -191,16 +185,21 @@ class GameState internal constructor(
         }
     }
 
-    fun endTurn() {
+    fun endTurn(): Boolean {
+        if (turn >= numTurns - 1) return false
+
         turn++
         cash = 0
 
         move(_street, _discard)
         move(_hand, _discard)
+
+        return true
     }
 
     fun copy(): GameState {
         return GameState(
+            numTurns,
             turn,
             cash,
             influence,

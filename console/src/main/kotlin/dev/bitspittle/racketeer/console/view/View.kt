@@ -100,7 +100,7 @@ abstract class View(protected val ctx: GameContext) {
         val state = ctx.state
         textLine("${icons.cash} ${state.cash} ${icons.influence} ${state.influence} ${icons.luck} ${state.luck} ${icons.vp} ${state.vp}")
         textLine()
-        bold { textLine("Turn ${state.turn + 1}") }
+        bold { textLine("Turn ${state.turn + 1} out of ${state.numTurns}") }
         textLine()
         subtitle?.let { subtitle ->
             underline { textLine(subtitle) }

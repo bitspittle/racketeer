@@ -27,7 +27,7 @@ class GameOverView(ctx: GameContext) : View(ctx) {
         )
 
     override fun RenderScope.renderContent() {
-        textLine("You ended the game with ${ctx.state.vp} victory points, to earn a ranking of: ")
+        textLine("You ended the game with ${ctx.data.icons.vp} ${ctx.state.vp}, to earn a ranking of: ")
         textLine()
         bold { textLine(" ${Rating.from(ctx.data, ctx.state.vp)}") }
         textLine()
