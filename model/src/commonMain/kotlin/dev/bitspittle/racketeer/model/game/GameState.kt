@@ -77,13 +77,17 @@ class GameState internal constructor(
      * Will be cleared at the end of the current turn.
      */
     var cash = cash
-        private set
+        set(value) {
+            field = value.coerceAtLeast(0)
+        }
 
     /**
      * How much influence the player currently has.
      */
     var influence = influence
-        private set
+        set(value) {
+            field = value.coerceAtLeast(0)
+        }
 
     /**
      * How many points of luck the player currently has.
@@ -91,7 +95,9 @@ class GameState internal constructor(
      * Luck can be used to re-roll the shop.
      */
     var luck = luck
-        private set
+        set(value) {
+            field = value.coerceAtLeast(0)
+        }
 
     /**
      * How many victory points the player currently has.
@@ -99,13 +105,17 @@ class GameState internal constructor(
      * Luck can be used to re-roll the shop.
      */
     var vp = vp
-        private set
+        set(value) {
+            field = value.coerceAtLeast(0)
+        }
 
     /**
      * How many cards get drawn at the beginning of the turn.
      */
     var handSize = handSize
-        private set
+        set(value) {
+            field = value.coerceAtLeast(1)
+        }
 
     /**
      * The 0-indexed tier value of the shop (i.e. how many times it has been upgraded)
@@ -136,11 +146,12 @@ class GameState internal constructor(
         }
     }
 
-    private fun move(card: Card, pileTo: MutablePile, listStrategy: ListStrategy = ListStrategy.BACK) {
+    fun move(card: Card, pileTo: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
         move(listOf(card), pileTo, listStrategy)
     }
 
-    private fun move(cards: List<Card>, pileTo: MutablePile, listStrategy: ListStrategy = ListStrategy.BACK) {
+    fun move(cards: List<Card>, pileTo: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
+        val pileTo = pileTo as MutablePile
         cards.forEach { card ->
             cardPiles.remove(card)?.also { pile -> pile.cards.remove(card) }
             cardPiles[card] = pileTo
@@ -148,7 +159,9 @@ class GameState internal constructor(
         pileTo.cards.insert(cards, listStrategy, random)
     }
 
-    private fun move(pileFrom: MutablePile, pileTo: MutablePile, listStrategy: ListStrategy = ListStrategy.BACK) {
+    fun move(pileFrom: Pile, pileTo: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
+        val pileFrom = pileFrom as MutablePile
+        val pileTo = pileTo as MutablePile
         if (pileFrom === pileTo) {
             throw GameException("Attempting to move a pile of cards into itself")
         }

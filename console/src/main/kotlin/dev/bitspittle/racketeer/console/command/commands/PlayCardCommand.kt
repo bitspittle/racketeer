@@ -27,6 +27,7 @@ class PlayCardCommand(ctx: GameContext, private val handIndex: Int) : Command(ct
                 }
             }
 
+            ctx.state.move(card, ctx.state.street)
             ctx.viewStack.replaceView(PlayCardsView(ctx))
         }
         catch (ex: EvaluationException) {

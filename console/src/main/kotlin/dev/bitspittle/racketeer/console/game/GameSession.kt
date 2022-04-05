@@ -18,6 +18,7 @@ import dev.bitspittle.racketeer.console.view.views.PreDrawView
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.text.Describer
+import dev.bitspittle.racketeer.scripting.installGameLogic
 import kotlinx.coroutines.runBlocking
 
 class GameSession(
@@ -69,6 +70,7 @@ class GameSession(
                 }
             }
         )
+        env.installGameLogic { ctx.state }
 
         viewStack.pushView(PreDrawView(ctx))
         section {
