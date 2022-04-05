@@ -5,6 +5,7 @@ import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.view.views.PlayCardsView
+import dev.bitspittle.racketeer.scripting.withCardVariables
 import kotlinx.coroutines.runBlocking
 
 class PlayCardCommand(ctx: GameContext, private val handIndex: Int) : Command(ctx) {
@@ -21,9 +22,11 @@ class PlayCardCommand(ctx: GameContext, private val handIndex: Int) : Command(ct
         try {
             val evaluator = Evaluator()
             // TODO: MAKE INVOKE A SUSPEND FUN PROBABLY? THIS SHOULD NOT BE RUN BLOCKING
-            runBlocking {
-                ctx.compiledActions.getValue(card.template).forEach { expr ->
-                    evaluator.evaluate(ctx.env, expr)
+            ctx.env.withCardVariables(ctx.state, card) {
+                runBlocking {
+                    ctx.compiledActions.getValue(card.template).forEach { expr ->
+                        evaluator.evaluate(ctx.env, expr)
+                    }
                 }
             }
 

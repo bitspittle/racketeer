@@ -5,6 +5,7 @@ import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.converters.MutablePileToCardsConverter
+import dev.bitspittle.racketeer.scripting.methods.CardGetMethod
 import dev.bitspittle.racketeer.scripting.methods.DbgMethod
 import dev.bitspittle.racketeer.scripting.methods.GameAddMethod
 import dev.bitspittle.racketeer.scripting.types.GameService
@@ -17,7 +18,10 @@ fun Environment.installGameLogic(service: GameService) {
     addConverter(PileToCardsConverter())
 
     addMethod(DbgMethod(service))
+
     addMethod(GameAddMethod(service))
+
+    addMethod(CardGetMethod())
 }
 
 fun Environment.withCardVariables(gameState: GameState, card: Card, block: () -> Unit) {

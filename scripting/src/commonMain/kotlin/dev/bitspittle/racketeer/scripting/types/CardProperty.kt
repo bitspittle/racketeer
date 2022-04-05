@@ -1,7 +1,6 @@
 package dev.bitspittle.racketeer.scripting.types
 
-enum class GameResources {
-    CASH,
+enum class CardProperty {
+    NAME,
     VP,
-    INFLUENCE,
 }

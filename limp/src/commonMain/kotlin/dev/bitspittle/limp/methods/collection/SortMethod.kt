@@ -15,15 +15,15 @@ import dev.bitspittle.limp.utils.toEnumOrNull
  */
 class SortMethod : Method("sort", 1) {
     override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
-        val toSort = env.expectConvert<MutableList<Comparable<Any>>>(params[0])
-
         val order = options["order"]?.let { from ->
             env.expectConvert<Expr.Identifier>(from).toEnumOrNull(SortOrder.values())
         } ?: SortOrder.ASCENDING
 
         val comparator = options["with"]?.let { comparator -> env.expectConvert<Expr>(comparator) }
 
-        if (toSort.isNotEmpty() && comparator != null) {
+        if (comparator != null) {
+            val toSort = env.expectConvert<MutableList<Any>>(params[0])
+
             // We need to implement sort ourselves because we want an algorithm that's suspendable. Sort into a second
             // buffer and then set ourselves to it.
             val sorted = mutableListOf(toSort[0])
@@ -67,6 +67,8 @@ class SortMethod : Method("sort", 1) {
                 SortOrder.DESCENDING -> toSort.addAll(sorted.reversed())
             }
         } else {
+            val toSort = env.expectConvert<MutableList<Comparable<Any>>>(params[0])
+
             when (order) {
                 SortOrder.ASCENDING -> toSort.sort()
                 SortOrder.DESCENDING -> toSort.sortDescending()
