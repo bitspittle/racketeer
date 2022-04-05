@@ -88,9 +88,8 @@ abstract class View(protected val ctx: GameContext) {
     }
 
     private fun RenderScope.renderHeader() {
-        val icons = ctx.data.icons
         val state = ctx.state
-        textLine("${icons.cash} ${state.cash} ${icons.influence} ${state.influence} ${icons.luck} ${state.luck} ${icons.vp} ${state.vp}")
+        textLine("${ctx.describer.describeCash(state.cash)} ${ctx.describer.describeInfluence(state.influence)} ${ctx.describer.describeLuck(state.luck)} ${ctx.describer.describeVictoryPoints(state.vp)} ")
         textLine()
         bold { textLine("Turn ${state.turn + 1} out of ${state.numTurns}") }
         textLine()
