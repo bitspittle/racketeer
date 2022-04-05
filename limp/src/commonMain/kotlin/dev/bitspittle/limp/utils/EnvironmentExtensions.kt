@@ -33,6 +33,8 @@ fun Environment.installDefaults() {
     addMethod(DefMethod())
 
     // Math
+    addMethod(AbsMethod())
+    addMethod(NegMethod())
     addMethod(AddMethod())
     addMethod(SubMethod())
     addMethod(MulMethod())

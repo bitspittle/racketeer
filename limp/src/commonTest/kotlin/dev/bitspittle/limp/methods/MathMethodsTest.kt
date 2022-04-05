@@ -13,6 +13,26 @@ import kotlin.test.Test
 
 class MathMethodsTest {
     @Test
+    fun testNegMethod() = runTest {
+        val env = Environment()
+        env.addMethod(NegMethod())
+
+        val evaluator = Evaluator()
+        assertThat(evaluator.evaluate(env, "neg 123")).isEqualTo(-123)
+        assertThat(evaluator.evaluate(env, "neg -123")).isEqualTo(123)
+    }
+
+    @Test
+    fun testAbsMethod() = runTest {
+        val env = Environment()
+        env.addMethod(AbsMethod())
+
+        val evaluator = Evaluator()
+        assertThat(evaluator.evaluate(env, "abs 123")).isEqualTo(123)
+        assertThat(evaluator.evaluate(env, "abs -123")).isEqualTo(123)
+    }
+
+    @Test
     fun testAddMethod() = runTest {
         val env = Environment()
         env.addMethod(AddMethod())
