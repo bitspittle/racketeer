@@ -19,6 +19,7 @@ import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.installGameLogic
+import dev.bitspittle.racketeer.scripting.types.GameService
 import kotlinx.coroutines.runBlocking
 
 class GameSession(
@@ -53,6 +54,16 @@ class GameSession(
         val viewStack = ViewStackImpl()
         var lastErrorMessage: String? = null
         var shouldQuit = false
+
+        val app = object : App {
+            override fun quit() {
+                shouldQuit = true
+            }
+
+            override fun log(message: String) {
+                lastErrorMessage = message
+            }
+        }
         val ctx = GameContext(
             gameData,
             Describer(gameData),
@@ -60,17 +71,15 @@ class GameSession(
             env,
             compiledActions = gameData.cards.associateWith { card -> card.actions.map { Expr.parse(it) } },
             viewStack,
-            object : App {
-                override fun quit() {
-                    shouldQuit = true
-                }
-
-                override fun log(message: String) {
-                    lastErrorMessage = message
-                }
-            }
+            app,
         )
-        env.installGameLogic { ctx.state }
+        env.installGameLogic(object : GameService {
+            override val gameState get() = ctx.state
+
+            override fun log(message: String) {
+                app.log(message)
+            }
+        })
 
         viewStack.pushView(PreDrawView(ctx))
         section {
