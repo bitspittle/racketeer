@@ -49,13 +49,6 @@ abstract class View(protected val ctx: GameContext) {
             commandsSection.renderInto(this)
 
             commandsSection.currCommand.description?.let { description ->
-                @Suppress("NAME_SHADOWING")
-                val description = description
-                        .replace("$", ctx.data.icons.cash)
-                        .replace("&", ctx.data.icons.influence)
-                        .replace("%", ctx.data.icons.luck)
-                        .replace("*", ctx.data.icons.vp)
-
                 bordered(borderCharacters = BorderCharacters.CURVED, paddingLeftRight = 1) {
                     val MAX_WIDTH = 60
                     val descParts = description.split(" ")

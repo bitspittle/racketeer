@@ -13,13 +13,17 @@ class Describer(private val data: GameData) {
     private fun StringBuilder.describeCardBody(template: CardTemplate) {
         appendLine() // Finish title
         appendLine() // Newline
-        append(template.flavor)
-
+        append(
+            template.flavor.replace("$", data.icons.cash)
+                .replace("&", data.icons.influence)
+                .replace("%", data.icons.luck)
+                .replace("*", data.icons.vp)
+        )
         if (template.actions.isNotEmpty()) {
             appendLine() // Finish desc
             appendLine() // Newline
             template.actions.forEachIndexed { i, action ->
-                append(" - $action")
+                append("~ $action")
                 if (i < template.actions.lastIndex) {
                     appendLine()
                 }
