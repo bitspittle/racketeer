@@ -6,6 +6,7 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.SortOrder
 import dev.bitspittle.limp.utils.BinarySearchHelper
+import dev.bitspittle.limp.utils.toEnumOrNull
 
 /**
  * Take a list and return a sorted copy of it.
@@ -15,8 +16,7 @@ class SortMethod : Method("sort", 1) {
         val list = env.expectConvert<List<Comparable<Any>>>(params[0])
 
         val order = options["order"]?.let { from ->
-            val fromIdentifier = env.expectConvert<Expr.Identifier>(from)
-            SortOrder.values().single { it.name.lowercase() == fromIdentifier.name }
+            env.expectConvert<Expr.Identifier>(from).toEnumOrNull(SortOrder.values())
         } ?: SortOrder.ASCENDING
 
         val comparator = options["with"]?.let { comparator -> env.expectConvert<Expr>(comparator) }

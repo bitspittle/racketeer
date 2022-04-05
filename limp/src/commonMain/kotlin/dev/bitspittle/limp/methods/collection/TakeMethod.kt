@@ -5,6 +5,7 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.converters.PlaceholderConverter
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.ListStrategy
+import dev.bitspittle.limp.utils.toEnumOrNull
 
 /**
  * Take some number of elements from a list, returning what was taken.
@@ -19,8 +20,7 @@ class TakeMethod : Method("take", 2) {
 
         val strategy =
             options["from"]?.let { from ->
-                val fromIdentifier = env.expectConvert<Expr.Identifier>(from)
-                ListStrategy.values().single { it.name.lowercase() == fromIdentifier.name }
+                env.expectConvert<Expr.Identifier>(from).toEnumOrNull(ListStrategy.values())
             } ?: ListStrategy.FRONT
 
         return when (strategy) {
