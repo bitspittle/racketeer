@@ -72,7 +72,9 @@ fun main() {
                         if (multilineIndentLength == 0) {
                             multilineIndentLength = line.indentLength
                         }
-                        append(line.drop(multilineIndentLength))
+                        // Be careful of nesting quotes within quotes!
+                        val escapedLine = line.replace("\"", "\\\"")
+                        append(escapedLine.drop(multilineIndentLength))
                         prependNewline = true
                     }
                 }
