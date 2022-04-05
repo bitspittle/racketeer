@@ -78,7 +78,9 @@ fun Environment.installDefaults() {
     addMethod(FirstMethod())
     addMethod(SingleMethod())
     addMethod(TakeMethod())
+    addMethod(ShuffleMethod())
     addMethod(ShuffledMethod())
+    addMethod(SortMethod())
     addMethod(SortedMethod())
     addMethod(UnionMethod())
 

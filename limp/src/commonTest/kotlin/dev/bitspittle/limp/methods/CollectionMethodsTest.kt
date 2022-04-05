@@ -165,6 +165,20 @@ class CollectionMethodsTest {
     }
 
     @Test
+    fun testShuffleMethod() = runTest {
+        val env = Environment(Random(123)) // Fixed seed so that we get the same shuffle everytime for this test
+        env.addMethod(ShuffleMethod())
+        // Limp does not (at the moment) support creating mutable lists, but they can be passed in via code
+        env.storeValue("ints", mutableListOf(1, 2, 3, 4, 5))
+
+        val evaluator = Evaluator()
+
+        evaluator.evaluate(env, "shuffle ints")
+        assertThat(evaluator.evaluate(env, "ints") as List<Int>)
+            .containsExactly(3, 1, 4, 5, 2).inOrder()
+    }
+
+    @Test
     fun testSortedMethod() = runTest {
         val env = Environment()
 
@@ -194,6 +208,20 @@ class CollectionMethodsTest {
         assertThat(evaluator.evaluate(env, "ints") as List<Int>).containsExactly(3, 1, 4, 5, 2).inOrder()
         assertThat(evaluator.evaluate(env, "str-numbers") as List<String>)
             .containsExactly("3", "2", "1", "30", "20", "10", "20").inOrder()
+    }
+
+    @Test
+    fun testSortMethod() = runTest {
+        val env = Environment(Random(123)) // Fixed seed so that we get the same shuffle everytime for this test
+        env.addMethod(SortMethod())
+        // Limp does not (at the moment) support creating mutable lists, but they can be passed in via code
+        env.storeValue("ints", mutableListOf(3, 1, 4, 5, 2))
+
+        val evaluator = Evaluator()
+
+        evaluator.evaluate(env, "sort ints")
+        assertThat(evaluator.evaluate(env, "ints") as List<Int>)
+            .containsExactly(1, 2, 3, 4, 5).inOrder()
     }
 
     @Test
