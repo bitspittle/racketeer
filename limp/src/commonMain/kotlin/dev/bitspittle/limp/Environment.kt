@@ -6,7 +6,7 @@ import kotlin.reflect.KClass
 class Environment {
     private val methodsStack = mutableListOf<MutableMap<String, Method>?>()
     private val variablesStack = mutableListOf<MutableMap<String, Any>?>()
-    private val convertersStack = mutableListOf<MutableMap<KClass<*>, Converter<*>>?>()
+    private val convertersStack = mutableListOf<MutableList<Converter<*>>?>()
     init {
         // Populate stacks
         pushScope()
@@ -23,11 +23,9 @@ class Environment {
     }
 
     fun addConverter(converter: Converter<*>) {
-        val converters = convertersStack.last() ?: mutableMapOf()
+        val converters = convertersStack.last() ?: mutableListOf()
         convertersStack[convertersStack.lastIndex] = converters
-
-        require(converters.values.none { it::class == converter::class }) { "Attempting to register more than once instance of a ${converter::class}" }
-        converters[converter.toClass] = converter
+        converters.add(converter)
     }
 
     fun storeValue(name: String, value: Any, allowOverwrite: Boolean = false) {
@@ -86,7 +84,8 @@ class Environment {
 
         return convertersStack.reversed().asSequence()
             .filterNotNull()
-            .mapNotNull { converters -> converters[toClass]?.convert(value) as T? }
+            .flatMap { converters -> converters.asSequence() }
+            .mapNotNull { converter -> converter.convert(value) as T? }
             .firstOrNull()
     }
 
