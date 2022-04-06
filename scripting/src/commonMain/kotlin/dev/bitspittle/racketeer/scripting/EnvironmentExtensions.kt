@@ -8,10 +8,11 @@ import dev.bitspittle.racketeer.scripting.converters.MutablePileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.card.CardAddMethod
 import dev.bitspittle.racketeer.scripting.methods.card.CardGetMethod
 import dev.bitspittle.racketeer.scripting.methods.card.CardSetMethod
-import dev.bitspittle.racketeer.scripting.methods.system.DbgMethod
 import dev.bitspittle.racketeer.scripting.methods.game.GameAddMethod
 import dev.bitspittle.racketeer.scripting.methods.game.GameGetMethod
 import dev.bitspittle.racketeer.scripting.methods.game.GameSetMethod
+import dev.bitspittle.racketeer.scripting.methods.pile.CopyToMethod
+import dev.bitspittle.racketeer.scripting.methods.pile.MoveToMethod
 import dev.bitspittle.racketeer.scripting.types.GameService
 
 /**
@@ -28,17 +29,33 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(CardGetMethod())
     addMethod(CardSetMethod())
     addMethod(CardAddMethod())
+
+    addMethod(CopyToMethod(service::gameState))
+    addMethod(MoveToMethod(service::gameState))
+
+    (0..4).forEach { i -> storeValue("\$tier${i + 1}", i) }
 }
 
-fun Environment.withCardVariables(gameState: GameState, card: Card, block: () -> Unit) {
-    scoped {
-        storeValue("\$this", card)
-        storeValue("\$deck", gameState.deck)
-        storeValue("\$hand", gameState.hand)
-        storeValue("\$street", gameState.street)
-        storeValue("\$discard", gameState.discard)
-        storeValue("\$jail", gameState.jail)
+/**
+ * Add all variables related to the current game state into the environment.
+ *
+ * You probably want to do this within an [Environment.scoped] block, to avoid ever accidentally referring to stale game
+ * state from previous turns.
+ */
+fun GameState.addVariablesInto(env: Environment) {
+    env.storeValue("\$deck", deck)
+    env.storeValue("\$hand", hand)
+    env.storeValue("\$street", street)
+    env.storeValue("\$discard", discard)
+    env.storeValue("\$jail", jail)
+}
 
-        block()
-    }
+/**
+ * Store the current card in the environment.
+ *
+ * You probably want to do this within an [Environment.scoped] block, tied to the lifetime of the current card being
+ * played.
+ */
+fun Card.addVariableTo(env: Environment) {
+    env.storeValue("\$this", this)
 }

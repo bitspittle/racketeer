@@ -1,7 +1,10 @@
 package dev.bitspittle.racketeer.model.game
 
 import dev.bitspittle.limp.types.ListStrategy
-import dev.bitspittle.racketeer.model.card.*
+import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.card.MutablePile
+import dev.bitspittle.racketeer.model.card.Pile
+import dev.bitspittle.racketeer.model.card.insert
 import dev.bitspittle.racketeer.model.shop.MutableShop
 import dev.bitspittle.racketeer.model.shop.Shop
 import kotlin.random.Random
@@ -154,10 +157,11 @@ class GameState internal constructor(
         move(listOf(card), pileTo, listStrategy)
     }
 
-    fun move(cards: List<Card>, pileTo: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
-        val pileTo = pileTo as MutablePile
+    fun move(cards: List<Card>, toPile: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
+        val pileTo = toPile as MutablePile
+
         cards.forEach { card ->
-            cardPiles.remove(card)?.also { pile -> pile.cards.remove(card) }
+            cardPiles.remove(card)?.also { pileFrom -> pileFrom.cards.remove(card) }
             cardPiles[card] = pileTo
         }
         pileTo.cards.insert(cards, listStrategy, random)

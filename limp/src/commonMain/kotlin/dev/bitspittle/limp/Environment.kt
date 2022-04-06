@@ -1,8 +1,5 @@
 package dev.bitspittle.limp
 
-import kotlin.random.Random
-import kotlin.reflect.KClass
-
 class Environment {
     private val methodsStack = mutableListOf<MutableMap<String, Method>?>()
     private val variablesStack = mutableListOf<MutableMap<String, Any>?>()
@@ -77,8 +74,8 @@ class Environment {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T: Any> tryConvert(value: Any, toClass: KClass<T>): T? {
-        if (toClass.isInstance(value)) {
+    fun <T: Any> tryConvert(value: Any, typeChecker: TypeChecker<T>): T? {
+        if (typeChecker.isInstance(value)) {
             return value as T
         }
 
@@ -97,10 +94,10 @@ class Environment {
         return loadValue(name) ?: throw IllegalArgumentException("No variable named \"$name\" is registered")
     }
 
-    fun <T: Any> expectConvert(value: Any, toClass: KClass<T>): T {
-        return tryConvert(value, toClass) ?: throw IllegalArgumentException("Could not convert ${value::class} (value = \"${value}\") to $toClass")
+    fun <T: Any> expectConvert(value: Any, typeChecker: TypeChecker<T>): T {
+        return tryConvert(value, typeChecker) ?: throw IllegalArgumentException("Could not convert ${value::class} (value = \"${value}\") to ${typeChecker.targetClass.qualifiedName}")
     }
 
-    inline fun <reified T: Any> tryConvert(value: Any): T? = tryConvert(value, T::class)
-    inline fun <reified T: Any> expectConvert(value: Any): T = expectConvert(value, T::class)
+    inline fun <reified T: Any> tryConvert(value: Any): T? = tryConvert(value, typeOf())
+    inline fun <reified T: Any> expectConvert(value: Any): T = expectConvert(value, typeOf())
 }
