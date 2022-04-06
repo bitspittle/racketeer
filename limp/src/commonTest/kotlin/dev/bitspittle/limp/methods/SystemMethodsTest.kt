@@ -8,7 +8,9 @@ import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.compare.EqualsMethod
 import dev.bitspittle.limp.methods.compare.NotEqualsMethod
 import dev.bitspittle.limp.methods.math.*
+import dev.bitspittle.limp.methods.system.DefAlwaysMethod
 import dev.bitspittle.limp.methods.system.DefMethod
+import dev.bitspittle.limp.methods.system.SetAlwaysMethod
 import dev.bitspittle.limp.methods.system.SetMethod
 import dev.bitspittle.limp.types.Placeholder
 import kotlinx.coroutines.test.runTest
@@ -19,6 +21,7 @@ class SystemMethodsTest {
     fun testSetVariables() = runTest {
         val env = Environment()
         env.addMethod(SetMethod())
+        env.addMethod(SetAlwaysMethod())
         env.addMethod(AddMethod())
         env.addMethod(EqualsMethod())
         env.addMethod(NotEqualsMethod())
@@ -31,8 +34,8 @@ class SystemMethodsTest {
         assertThat(env.loadValue("int2")).isNull()
         assertThat(env.loadValue("str")).isNull()
 
-        assertThat(evaluator.evaluate(env, "set 'int1 12")).isEqualTo(Unit)
-        assertThat(evaluator.evaluate(env, "set 'int2 34")).isEqualTo(Unit)
+        evaluator.evaluate(env, "set 'int1 12")
+        evaluator.evaluate(env, "set 'int2 34")
         assertThat(env.loadValue("int1")!!).isEqualTo(12)
         assertThat(env.loadValue("int2")!!).isEqualTo(34)
         assertThat(env.loadValue("str")).isNull()
@@ -41,7 +44,7 @@ class SystemMethodsTest {
         assertThat(evaluator.evaluate(env, "!= int2 int1")).isEqualTo(true)
         assertThat(evaluator.evaluate(env, "+ int1 int2")).isEqualTo(46)
 
-        assertThat(evaluator.evaluate(env, "set 'str \"Dummy text\"")).isEqualTo(Unit)
+        evaluator.evaluate(env, "set 'str \"Dummy text\"")
         assertThat(env.loadValue("str")!!).isEqualTo("Dummy text")
 
         assertThat(evaluator.evaluate(env, "= str \"Dummy text\"")).isEqualTo(true)
@@ -53,17 +56,19 @@ class SystemMethodsTest {
         assertThat(env.loadValue("str")).isNull()
 
         assertThrows<EvaluationException> {
-            assertThat(evaluator.evaluate(env, "set '(invalid variable name) 12")).isEqualTo(Unit)
+            evaluator.evaluate(env, "set '(invalid variable name) 12")
         }
 
         // By default, overwriting is not allowed! But you can specify an option
         evaluator.evaluate(env, "set 'set-multiple-times 123")
         assertThrows<EvaluationException> {
-            assertThat(evaluator.evaluate(env, "set 'set-multiple-times 456")).isEqualTo(Unit)
+            evaluator.evaluate(env, "set 'set-multiple-times 456")
         }
         assertThat(env.loadValue("set-multiple-times")).isEqualTo(123)
-        assertThat(evaluator.evaluate(env, "set --overwrite _ 'set-multiple-times 456")).isEqualTo(Unit)
+        evaluator.evaluate(env, "set --overwrite _ 'set-multiple-times 456")
         assertThat(env.loadValue("set-multiple-times")).isEqualTo(456)
+        evaluator.evaluate(env, "set! 'set-multiple-times 789")
+        assertThat(env.loadValue("set-multiple-times")).isEqualTo(789)
     }
 
     @Test
@@ -72,6 +77,7 @@ class SystemMethodsTest {
         env.addMethod(MinMethod())
         env.addMethod(MaxMethod())
         env.addMethod(DefMethod())
+        env.addMethod(DefAlwaysMethod())
         env.storeValue("_", Placeholder)
 
         val evaluator = Evaluator()
@@ -134,7 +140,11 @@ class SystemMethodsTest {
         assertThrows<EvaluationException> {
             evaluator.evaluate(env, "def 'onetwothree '123")
         }
-        evaluator.evaluate(env, "def --overwrite _ 'onetwothree '123")
+        evaluator.evaluate(env, "def --overwrite _ 'onetwothree '124")
+        assertThat(evaluator.evaluate(env, "onetwothree")).isEqualTo(124)
+
+        // def! can overwrite, too
+        evaluator.evaluate(env, "def! 'onetwothree '123")
         assertThat(evaluator.evaluate(env, "onetwothree")).isEqualTo(123)
     }
 }

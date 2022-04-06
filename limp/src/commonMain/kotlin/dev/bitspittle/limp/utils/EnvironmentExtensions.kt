@@ -12,7 +12,9 @@ import dev.bitspittle.limp.methods.logic.NotMethod
 import dev.bitspittle.limp.methods.logic.OrMethod
 import dev.bitspittle.limp.methods.math.*
 import dev.bitspittle.limp.methods.range.IntRangeMethod
+import dev.bitspittle.limp.methods.system.DefAlwaysMethod
 import dev.bitspittle.limp.methods.system.DefMethod
+import dev.bitspittle.limp.methods.system.SetAlwaysMethod
 import dev.bitspittle.limp.methods.system.SetMethod
 import dev.bitspittle.limp.methods.text.ConcatMethod
 import dev.bitspittle.limp.methods.text.JoinToStringMethod
@@ -31,6 +33,8 @@ fun Environment.installDefaults() {
     storeValue("_", Placeholder)
     addMethod(SetMethod())
     addMethod(DefMethod())
+    addMethod(SetAlwaysMethod())
+    addMethod(DefAlwaysMethod())
 
     // Math
     addMethod(AbsMethod())
