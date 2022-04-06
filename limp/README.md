@@ -92,6 +92,38 @@ By scoped, what it means is you can use `pushScope` (and `popScope`) at any poin
 local scope. All methods, variables, and converters defined while this scope is active will be discarded when it is
 removed.
 
+### Evaluator
+
+An evaluator is a class which is responsible for taking a code statement and an accompanying environment and processing
+the two together to produce a result.
+
+Most of the time you can just instance an evaluator anywhere you have an environment and fire its `evaluate` method:
+
+```kotlin
+val env: Environment = ...
+val evaluator = Evaluator()
+evaluator.evaluate(env, "+ 1 2")
+```
+
+This will both parse the code AND run through the processed result, pulling values out of and writing others back into
+the environment as it goes along. If it dies at any point, it will throw an `EvaluationException` explaining what went
+wrong.
+
+#### Parsing Expressions
+
+Although evaluators handle parsing for you, it's trivial to parse a limp expression on your own. Just use the
+`Expr.parse` method:
+
+```kotlin
+val compiled = Expr.parse("+ 1 2")
+```
+
+You can feed in such compiled results into an evaluator, e.g. `evaluator.evaluate(env, compiled)`, instead of raw code.
+
+This change is unlikely to matter too much in most applications -- if performance is *that* critical for you, you
+probably should look elsewhere -- but it can be useful to compile all your code upfront, so that an accidental syntax
+error will be caught at startup time instead of hours later at runtime.
+
 ### Code Examples
 
 ```kotlin
