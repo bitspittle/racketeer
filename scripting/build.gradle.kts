@@ -23,6 +23,7 @@ kotlin {
             dependencies {
                 api(project(":limp"))
                 implementation(project(":model"))
+                implementation(libs.uuid)
             }
         }
 
@@ -32,7 +33,6 @@ kotlin {
                 implementation(libs.kotlin.test.annotations.common)
                 implementation(libs.truthish.common)
                 implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.uuid)
             }
         }
     }
