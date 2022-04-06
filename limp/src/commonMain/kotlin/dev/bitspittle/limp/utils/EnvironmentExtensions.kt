@@ -2,6 +2,8 @@ package dev.bitspittle.limp.utils
 
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.converters.CharToStringConverter
+import dev.bitspittle.limp.converters.IntRangeToListConverter
+import dev.bitspittle.limp.converters.IntToIntRangeConverter
 import dev.bitspittle.limp.methods.collection.*
 import dev.bitspittle.limp.methods.compare.*
 import dev.bitspittle.limp.methods.convert.ToIntMethod
@@ -74,6 +76,8 @@ fun Environment.installDefaults(service: LangService = DefaultLangService()) {
 
     // Range
     addMethod(IntRangeMethod())
+    addConverter(IntToIntRangeConverter())
+    addConverter(IntRangeToListConverter())
 
     // Collection
     addMethod(ListMethod())
