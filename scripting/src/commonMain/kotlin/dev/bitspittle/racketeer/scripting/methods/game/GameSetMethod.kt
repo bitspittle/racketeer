@@ -7,7 +7,7 @@ import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.racketeer.scripting.types.GameProperty
 import dev.bitspittle.racketeer.scripting.types.GameService
 
-class GameSetMethod(private val service: GameService) : Method("game-set", 2) {
+class GameSetMethod(private val service: GameService) : Method("game-set!", 2) {
     override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
         val identifier = env.expectConvert<Expr.Identifier>(params[0])
         val property = identifier.toEnum(GameProperty.values())

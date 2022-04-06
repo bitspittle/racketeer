@@ -9,7 +9,6 @@ import dev.bitspittle.racketeer.scripting.TestGameService
 import dev.bitspittle.racketeer.scripting.methods.game.GameAddMethod
 import dev.bitspittle.racketeer.scripting.methods.game.GameGetMethod
 import dev.bitspittle.racketeer.scripting.methods.game.GameSetMethod
-import dev.bitspittle.racketeer.scripting.methods.game.GameSubMethod
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -22,24 +21,24 @@ class GameMethodsTest {
 
         val evaluator = Evaluator()
         assertThat(service.gameState.cash).isEqualTo(0)
-        evaluator.evaluate(env, "game-set 'cash 3")
+        evaluator.evaluate(env, "game-set! 'cash 3")
         assertThat(service.gameState.cash).isEqualTo(3)
 
         assertThat(service.gameState.influence).isEqualTo(0)
-        evaluator.evaluate(env, "game-set 'influence 2")
+        evaluator.evaluate(env, "game-set! 'influence 2")
         assertThat(service.gameState.influence).isEqualTo(2)
 
         assertThat(service.gameState.vp).isEqualTo(0)
-        evaluator.evaluate(env, "game-set 'vp 5")
+        evaluator.evaluate(env, "game-set! 'vp 5")
         assertThat(service.gameState.vp).isEqualTo(5)
 
         // Negative numbers are clamped
         assertThat(service.gameState.cash).isEqualTo(3)
-        evaluator.evaluate(env, "game-set 'cash -5")
+        evaluator.evaluate(env, "game-set! 'cash -5")
         assertThat(service.gameState.cash).isEqualTo(0)
 
         assertThrows<EvaluationException> {
-            evaluator.evaluate(env, "game-set 'invalid-label 2")
+            evaluator.evaluate(env, "game-set! 'invalid-label 2")
         }
     }
 
@@ -72,50 +71,24 @@ class GameMethodsTest {
 
         val evaluator = Evaluator()
         assertThat(service.gameState.cash).isEqualTo(0)
-        evaluator.evaluate(env, "game-add 'cash 3")
+        evaluator.evaluate(env, "game-add! 'cash 3")
         assertThat(service.gameState.cash).isEqualTo(3)
 
         assertThat(service.gameState.influence).isEqualTo(0)
-        evaluator.evaluate(env, "game-add 'influence 2")
+        evaluator.evaluate(env, "game-add! 'influence 2")
         assertThat(service.gameState.influence).isEqualTo(2)
 
         assertThat(service.gameState.vp).isEqualTo(0)
-        evaluator.evaluate(env, "game-add 'vp 5")
+        evaluator.evaluate(env, "game-add! 'vp 5")
         assertThat(service.gameState.vp).isEqualTo(5)
 
-        assertThrows<EvaluationException> {
-            evaluator.evaluate(env, "game-add 'invalid-label 2")
-        }
-    }
-
-    @Test
-    fun testGameSubMethod() = runTest {
-        val env = Environment()
-        val service = TestGameService()
-        env.addMethod(GameSubMethod(service))
-
-        val evaluator = Evaluator()
-        service.gameState.cash = 5
-        service.gameState.influence = 5
-        service.gameState.vp = 5
-        assertThat(service.gameState.cash).isEqualTo(5)
-        evaluator.evaluate(env, "game-sub 'cash 3")
-        assertThat(service.gameState.cash).isEqualTo(2)
-
-        assertThat(service.gameState.influence).isEqualTo(5)
-        evaluator.evaluate(env, "game-sub 'influence 2")
-        assertThat(service.gameState.influence).isEqualTo(3)
-
+        // Negative values are clamped
         assertThat(service.gameState.vp).isEqualTo(5)
-        evaluator.evaluate(env, "game-sub 'vp 5")
+        evaluator.evaluate(env, "game-add! 'vp -100")
         assertThat(service.gameState.vp).isEqualTo(0)
 
-        // Negative numbers are clamped
-        evaluator.evaluate(env, "game-sub 'cash 99")
-        assertThat(service.gameState.cash).isEqualTo(0)
-
         assertThrows<EvaluationException> {
-            evaluator.evaluate(env, "game-sub 'invalid-label 2")
+            evaluator.evaluate(env, "game-add! 'invalid-label 2")
         }
     }
 }

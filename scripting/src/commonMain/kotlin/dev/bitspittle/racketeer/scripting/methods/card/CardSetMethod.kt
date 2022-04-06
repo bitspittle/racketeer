@@ -8,7 +8,7 @@ import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.scripting.types.CardProperty
 
-class CardSetMethod : Method("card-set", 3) {
+class CardSetMethod : Method("card-set!", 3) {
     override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
         val card = env.expectConvert<Card>(params[0])
         val identifier = env.expectConvert<Expr.Identifier>(params[1])
