@@ -8,7 +8,7 @@ import dev.bitspittle.limp.Method
  *
  * Take a mutable list and randomize it in place.
  */
-class ShuffleMethod : Method("shuffle", 1) {
+class ShuffleMethod : Method("shuffle!", 1) {
     override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
         val list = env.expectConvert<MutableList<*>>(params[0])
         list.shuffle(env.random)

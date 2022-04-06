@@ -173,7 +173,7 @@ class CollectionMethodsTest {
 
         val evaluator = Evaluator()
 
-        evaluator.evaluate(env, "shuffle ints")
+        evaluator.evaluate(env, "shuffle! ints")
         assertThat(evaluator.evaluate(env, "ints") as List<Int>)
             .containsExactly(3, 1, 4, 5, 2).inOrder()
     }
@@ -219,7 +219,7 @@ class CollectionMethodsTest {
 
         val evaluator = Evaluator()
 
-        evaluator.evaluate(env, "sort ints")
+        evaluator.evaluate(env, "sort! ints")
         assertThat(evaluator.evaluate(env, "ints") as List<Int>)
             .containsExactly(1, 2, 3, 4, 5).inOrder()
     }
