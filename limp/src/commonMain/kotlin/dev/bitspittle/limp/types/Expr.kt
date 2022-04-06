@@ -54,15 +54,13 @@ sealed class Expr(val ctx: ExprContext) {
 
         fun parse(code: String): Expr {
             val ctx = ParserContext(code)
-            val result = ExprParser().tryParse(ctx) ?: throw ParseException(
-                ctx,
-                "Parsing failed after encountering an unexpected character."
-            )
+            val genericParseError = "Parsing failed after encountering an unexpected character."
+            val result = ExprParser().tryParse(ctx) ?: throw ParseException(ctx, genericParseError)
 
             if (!result.ctx.isFinished) {
                 throw ParseException(
                     result.ctx,
-                    "Leftover code could not be parsed. Did you type an invalid character or forget to close a right parentheses?"
+                    if (result.ctx.startsWith(")")) "Extra closed parentheses was found." else genericParseError
                 )
             }
 

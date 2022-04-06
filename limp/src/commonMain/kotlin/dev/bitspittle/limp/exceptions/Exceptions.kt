@@ -24,7 +24,7 @@ $msg
 
 Error occurred here:
 
-  $code
+  ${code.replace("\n", " ").replace("\t", " ")}
   ${" ".repeat(index) + "^".repeat(length)}
 """
 

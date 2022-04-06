@@ -21,18 +21,33 @@ fun main() = runBlocking {
         }
     })
 
+    println("Welcome to the Limp Interpreter")
+    println()
+    println("* Enter an expression. If it returns a value, it will be assigned to a variable called \"\$last\".")
+    println("* End a line with \"\\\" if you want to split an expression out over multiple lines")
+    println("* Type \"quit\" (or press CTRL-C) to end this program")
+    println()
+
     val evaluator = Evaluator()
+    val codeBuilder = StringBuilder()
     while (!shouldQuit) {
-        print("> ")
-        val input = readln()
-        try {
-            val result = evaluator.evaluate(env, input)
-            if (result != Unit) {
-                env.storeValue("\$last", result, allowOverwrite = true)
-                println(result)
+        print(if (codeBuilder.isEmpty()) "> " else "  ")
+        codeBuilder.append(readln().trim())
+        if (codeBuilder.endsWith('\\')) {
+            codeBuilder.deleteAt(codeBuilder.lastIndex)
+            codeBuilder.append('\n')
+        }
+        else {
+            try {
+                val code = codeBuilder.toString().also { codeBuilder.clear() }
+                val result = evaluator.evaluate(env, code)
+                if (result != Unit) {
+                    env.storeValue("\$last", result, allowOverwrite = true)
+                    println(result)
+                }
+            } catch (ex: Exception) {
+                println(ex.message)
             }
-        } catch (ex: Exception) {
-            println(ex.message)
         }
     }
 }
