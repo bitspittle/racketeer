@@ -44,7 +44,7 @@ class GameState internal constructor(
                 List(count) { card.instantiate() }
             }
             .toMutableList()
-            .apply { shuffle() }
+            .apply { shuffle(random) }
         ),
         hand = MutablePile(),
         street = MutablePile(),
