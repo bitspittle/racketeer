@@ -24,9 +24,8 @@ $msg
 
 Error occurred here:
 
-> $code
+  $code
   ${" ".repeat(index) + "^".repeat(length)}
-
 """
 
 class ParseException(val ctx: ParserContext, length: Int, val title: String, cause: Throwable? = null): LispishException(

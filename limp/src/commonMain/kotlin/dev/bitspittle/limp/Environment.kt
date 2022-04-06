@@ -28,11 +28,13 @@ class Environment(val random: Random = Random.Default) {
         converters[converter.toClass] = converter
     }
 
-    fun storeValue(name: String, value: Any) {
+    fun storeValue(name: String, value: Any, allowOverwrite: Boolean = false) {
         val variables = variablesStack.last() ?: mutableMapOf()
         variablesStack[variablesStack.lastIndex] = variables
 
-        require(!variables.contains(name)) { "Attempted to register a variable named \"$name\" when one already exists at the current scope."}
+        if (!allowOverwrite) {
+            require(!variables.contains(name)) { "Attempted to register a variable named \"$name\" when one already exists at the current scope." }
+        }
         variables[name] = value
     }
 

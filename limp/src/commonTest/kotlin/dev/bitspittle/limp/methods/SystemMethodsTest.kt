@@ -10,6 +10,7 @@ import dev.bitspittle.limp.methods.compare.NotEqualsMethod
 import dev.bitspittle.limp.methods.math.*
 import dev.bitspittle.limp.methods.system.DefMethod
 import dev.bitspittle.limp.methods.system.SetMethod
+import dev.bitspittle.limp.types.Placeholder
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -21,6 +22,7 @@ class SystemMethodsTest {
         env.addMethod(AddMethod())
         env.addMethod(EqualsMethod())
         env.addMethod(NotEqualsMethod())
+        env.storeValue("_", Placeholder)
 
         val evaluator = Evaluator()
 
@@ -53,6 +55,15 @@ class SystemMethodsTest {
         assertThrows<EvaluationException> {
             assertThat(evaluator.evaluate(env, "set '(invalid variable name) 12")).isEqualTo(Unit)
         }
+
+        // By default, overwriting is not allowed! But you can specify an option
+        evaluator.evaluate(env, "set 'set-multiple-times 123")
+        assertThrows<EvaluationException> {
+            assertThat(evaluator.evaluate(env, "set 'set-multiple-times 456")).isEqualTo(Unit)
+        }
+        assertThat(env.loadValue("set-multiple-times")).isEqualTo(123)
+        assertThat(evaluator.evaluate(env, "set --overwrite _ 'set-multiple-times 456")).isEqualTo(Unit)
+        assertThat(env.loadValue("set-multiple-times")).isEqualTo(456)
     }
 
     @Test
