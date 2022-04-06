@@ -12,14 +12,13 @@ import dev.bitspittle.limp.methods.logic.NotMethod
 import dev.bitspittle.limp.methods.logic.OrMethod
 import dev.bitspittle.limp.methods.math.*
 import dev.bitspittle.limp.methods.range.IntRangeMethod
-import dev.bitspittle.limp.methods.system.DefAlwaysMethod
-import dev.bitspittle.limp.methods.system.DefMethod
-import dev.bitspittle.limp.methods.system.SetAlwaysMethod
-import dev.bitspittle.limp.methods.system.SetMethod
+import dev.bitspittle.limp.methods.system.*
 import dev.bitspittle.limp.methods.text.ConcatMethod
 import dev.bitspittle.limp.methods.text.JoinToStringMethod
 import dev.bitspittle.limp.methods.text.LowerMethod
 import dev.bitspittle.limp.methods.text.UpperMethod
+import dev.bitspittle.limp.types.DefaultLangService
+import dev.bitspittle.limp.types.LangService
 import dev.bitspittle.limp.types.Placeholder
 
 /**
@@ -28,13 +27,14 @@ import dev.bitspittle.limp.types.Placeholder
  * Defaults are guaranteed not to contain any blocking behavior, so it is save to evaluate them in a `runBlocking`
  * context without worrying about blocking the thread.
  */
-fun Environment.installDefaults() {
+fun Environment.installDefaults(service: LangService = DefaultLangService()) {
     // System
     storeValue("_", Placeholder)
     addMethod(SetMethod())
     addMethod(DefMethod())
     addMethod(SetAlwaysMethod())
     addMethod(DefAlwaysMethod())
+    addMethod(DbgMethod(service::log))
 
     // Math
     addMethod(AbsMethod())
@@ -83,9 +83,9 @@ fun Environment.installDefaults() {
     addMethod(FilterMethod())
     addMethod(FirstMethod())
     addMethod(SingleMethod())
-    addMethod(TakeMethod())
-    addMethod(ShuffleMethod())
-    addMethod(ShuffledMethod())
+    addMethod(TakeMethod(service.random))
+    addMethod(ShuffleMethod(service.random))
+    addMethod(ShuffledMethod(service.random))
     addMethod(SortMethod())
     addMethod(SortedMethod())
     addMethod(UnionMethod())

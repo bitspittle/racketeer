@@ -9,20 +9,5 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
 class SystemMethodsTest {
-    @Test
-    fun testDbgMethod() = runTest {
-        val env = Environment()
-        val service = TestGameService()
-        env.addMethod(DbgMethod(service))
 
-        assertThat(service.logs.isEmpty())
-
-        val evaluator = Evaluator()
-
-        evaluator.evaluate(env, "dbg 123")
-        assertThat(service.logs).containsExactly("[DBG] 123")
-
-        evaluator.evaluate(env, "dbg --msg \"Debug value\" 456")
-        assertThat(service.logs).containsExactly("[DBG] 123", "[DBG] Debug value: 456")
-    }
 }

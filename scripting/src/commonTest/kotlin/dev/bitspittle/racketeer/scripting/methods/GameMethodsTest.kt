@@ -17,7 +17,7 @@ class GameMethodsTest {
     fun testGameSetMethod() = runTest {
         val env = Environment()
         val service = TestGameService()
-        env.addMethod(GameSetMethod(service))
+        env.addMethod(GameSetMethod(service::gameState))
 
         val evaluator = Evaluator()
         assertThat(service.gameState.cash).isEqualTo(0)
@@ -46,7 +46,7 @@ class GameMethodsTest {
     fun testGameGetMethod() = runTest {
         val env = Environment()
         val service = TestGameService()
-        env.addMethod(GameGetMethod(service))
+        env.addMethod(GameGetMethod(service::gameState))
 
         val evaluator = Evaluator()
 
@@ -67,7 +67,7 @@ class GameMethodsTest {
     fun testGameAddMethod() = runTest {
         val env = Environment()
         val service = TestGameService()
-        env.addMethod(GameAddMethod(service))
+        env.addMethod(GameAddMethod(service::gameState))
 
         val evaluator = Evaluator()
         assertThat(service.gameState.cash).isEqualTo(0)

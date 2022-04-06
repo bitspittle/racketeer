@@ -9,6 +9,7 @@ import dev.bitspittle.limp.methods.collection.TakeMethod
 import dev.bitspittle.limp.methods.system.DefMethod
 import dev.bitspittle.limp.methods.system.SetMethod
 import kotlinx.coroutines.test.runTest
+import kotlin.random.Random
 import kotlin.test.Test
 
 class ConvertersTest {
@@ -20,7 +21,7 @@ class ConvertersTest {
         env.addMethod(SetMethod())
         env.addMethod(ListMethod())
         env.addMethod(ListGetMethod())
-        env.addMethod(TakeMethod())
+        env.addMethod(TakeMethod(Random.Default)) // Random doesn't matter -- we don't call `take --from 'random`
 
         val evaluator = Evaluator()
         // Normally, list-get has to take in a list as its first element, or it's error time baby. However, we added

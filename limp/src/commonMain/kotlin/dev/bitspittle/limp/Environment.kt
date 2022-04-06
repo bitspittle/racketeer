@@ -3,7 +3,7 @@ package dev.bitspittle.limp
 import kotlin.random.Random
 import kotlin.reflect.KClass
 
-class Environment(val random: Random = Random.Default) {
+class Environment {
     private val methodsStack = mutableListOf<MutableMap<String, Method>?>()
     private val variablesStack = mutableListOf<MutableMap<String, Any>?>()
     private val convertersStack = mutableListOf<MutableMap<KClass<*>, Converter<*>>?>()

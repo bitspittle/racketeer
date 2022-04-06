@@ -4,14 +4,12 @@ import com.varabyte.truthish.assertThat
 import com.varabyte.truthish.assertThrows
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
+import dev.bitspittle.limp.TestLangService
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.compare.EqualsMethod
 import dev.bitspittle.limp.methods.compare.NotEqualsMethod
 import dev.bitspittle.limp.methods.math.*
-import dev.bitspittle.limp.methods.system.DefAlwaysMethod
-import dev.bitspittle.limp.methods.system.DefMethod
-import dev.bitspittle.limp.methods.system.SetAlwaysMethod
-import dev.bitspittle.limp.methods.system.SetMethod
+import dev.bitspittle.limp.methods.system.*
 import dev.bitspittle.limp.types.Placeholder
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -146,5 +144,22 @@ class SystemMethodsTest {
         // def! can overwrite, too
         evaluator.evaluate(env, "def! 'onetwothree '123")
         assertThat(evaluator.evaluate(env, "onetwothree")).isEqualTo(123)
+    }
+
+    @Test
+    fun testDbgMethod() = runTest {
+        val env = Environment()
+        val service = TestLangService()
+        env.addMethod(DbgMethod(service::log))
+
+        assertThat(service.logs.isEmpty())
+
+        val evaluator = Evaluator()
+
+        evaluator.evaluate(env, "dbg 123")
+        assertThat(service.logs).containsExactly("[DBG] 123")
+
+        evaluator.evaluate(env, "dbg --msg \"Debug value\" 456")
+        assertThat(service.logs).containsExactly("[DBG] 123", "[DBG] Debug value: 456")
     }
 }

@@ -41,8 +41,8 @@ class CollectionMethodsTest {
 
     @Test
     fun testTakeMethod() = runTest {
-        val env = Environment(Random(123)) // Fixed seed so that we get the same shuffle everytime for this test
-        env.addMethod(TakeMethod())
+        val env = Environment() // Fixed seed so that we get the same shuffle everytime for this test
+        env.addMethod(TakeMethod(Random(123)))
         env.storeValue("_", Placeholder)
 
         val evaluator = Evaluator()
@@ -150,8 +150,8 @@ class CollectionMethodsTest {
 
     @Test
     fun testShuffledMethod() = runTest {
-        val env = Environment(Random(123)) // Fixed seed so that we get the same shuffle everytime for this test
-        env.addMethod(ShuffledMethod())
+        val env = Environment() // Fixed seed so that we get the same shuffle everytime for this test
+        env.addMethod(ShuffledMethod(Random(123)))
         env.storeValue("ints", listOf(1, 2, 3, 4, 5))
 
         val evaluator = Evaluator()
@@ -166,8 +166,8 @@ class CollectionMethodsTest {
 
     @Test
     fun testShuffleMethod() = runTest {
-        val env = Environment(Random(123)) // Fixed seed so that we get the same shuffle everytime for this test
-        env.addMethod(ShuffleMethod())
+        val env = Environment() // Fixed seed so that we get the same shuffle everytime for this test
+        env.addMethod(ShuffleMethod(Random(123)))
         // Limp does not (at the moment) support creating mutable lists, but they can be passed in via code
         env.storeValue("ints", mutableListOf(1, 2, 3, 4, 5))
 
@@ -212,7 +212,7 @@ class CollectionMethodsTest {
 
     @Test
     fun testSortMethod() = runTest {
-        val env = Environment(Random(123)) // Fixed seed so that we get the same shuffle everytime for this test
+        val env = Environment()
         env.addMethod(SortMethod())
         // Limp does not (at the moment) support creating mutable lists, but they can be passed in via code
         env.storeValue("ints", mutableListOf(3, 1, 4, 5, 2))

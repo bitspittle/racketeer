@@ -12,6 +12,7 @@ import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.types.Expr
+import dev.bitspittle.limp.types.LangService
 import dev.bitspittle.limp.utils.installDefaults
 import dev.bitspittle.racketeer.console.view.ViewStackImpl
 import dev.bitspittle.racketeer.console.view.views.PreDrawView
@@ -21,6 +22,7 @@ import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.installGameLogic
 import dev.bitspittle.racketeer.scripting.types.GameService
 import kotlinx.coroutines.runBlocking
+import kotlin.random.Random
 
 class GameSession(
     private val gameData: GameData
@@ -40,8 +42,25 @@ class GameSession(
             textLine()
         }.run()
 
+        val latestLogs = mutableListOf<String>()
+        var shouldQuit = false
+        val app = object : App {
+            override fun quit() {
+                shouldQuit = true
+            }
+
+            override fun log(message: String) {
+                latestLogs.add(message)
+            }
+        }
+
         val env = Environment()
-        env.installDefaults()
+        env.installDefaults(object : LangService {
+            override val random = Random.Default
+            override fun log(message: String) {
+                app.log(message)
+            }
+        })
         Evaluator().let { evaluator ->
             // Safe to call runBlocking at this point because limp defaults all promise not to suspend
             runBlocking {
@@ -52,18 +71,6 @@ class GameSession(
         }
 
         val viewStack = ViewStackImpl()
-        var lastErrorMessage: String? = null
-        var shouldQuit = false
-
-        val app = object : App {
-            override fun quit() {
-                shouldQuit = true
-            }
-
-            override fun log(message: String) {
-                lastErrorMessage = lastErrorMessage?.let { it + "\n\n" + message } ?: message
-            }
-        }
         val ctx = GameContext(
             gameData,
             Describer(gameData),
@@ -84,10 +91,12 @@ class GameSession(
         viewStack.pushView(PreDrawView(ctx))
         section {
             viewStack.currentView.renderInto(this)
-            lastErrorMessage?.let { message ->
+            if (latestLogs.isNotEmpty()) {
                 textLine()
-                yellow { textLine(message) }
-                lastErrorMessage = null
+                yellow {
+                    textLine(latestLogs.joinToString("\n\n"))
+                }
+                latestLogs.clear()
             }
         }.runUntilSignal {
             onKeyPressed {
