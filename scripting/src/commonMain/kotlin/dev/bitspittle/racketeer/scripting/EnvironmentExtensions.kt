@@ -5,9 +5,9 @@ import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.converters.MutablePileToCardsConverter
-import dev.bitspittle.racketeer.scripting.methods.CardGetMethod
-import dev.bitspittle.racketeer.scripting.methods.DbgMethod
-import dev.bitspittle.racketeer.scripting.methods.GameAddMethod
+import dev.bitspittle.racketeer.scripting.methods.card.CardGetMethod
+import dev.bitspittle.racketeer.scripting.methods.system.DbgMethod
+import dev.bitspittle.racketeer.scripting.methods.game.GameAddMethod
 import dev.bitspittle.racketeer.scripting.types.GameService
 
 /**

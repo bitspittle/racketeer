@@ -1,4 +1,4 @@
-package dev.bitspittle.racketeer.scripting.methods
+package dev.bitspittle.racketeer.scripting.methods.system
 
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Method

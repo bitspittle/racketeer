@@ -32,6 +32,7 @@ kotlin {
                 implementation(libs.kotlin.test.annotations.common)
                 implementation(libs.truthish.common)
                 implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.uuid)
             }
         }
     }
