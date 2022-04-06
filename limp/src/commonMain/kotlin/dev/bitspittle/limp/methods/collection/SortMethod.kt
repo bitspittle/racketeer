@@ -6,6 +6,7 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.SortOrder
 import dev.bitspittle.limp.utils.BinarySearchHelper
+import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.limp.utils.toEnumOrNull
 
 /**
@@ -16,7 +17,7 @@ import dev.bitspittle.limp.utils.toEnumOrNull
 class SortMethod : Method("sort!", 1) {
     override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
         val order = options["order"]?.let { from ->
-            env.expectConvert<Expr.Identifier>(from).toEnumOrNull(SortOrder.values())
+            env.expectConvert<Expr.Identifier>(from).toEnum(SortOrder.values())
         } ?: SortOrder.ASCENDING
 
         val comparator = options["with"]?.let { comparator -> env.expectConvert<Expr>(comparator) }

@@ -5,6 +5,7 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.converters.PlaceholderConverter
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.ListStrategy
+import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.limp.utils.toEnumOrNull
 import kotlin.random.Random
 
@@ -21,7 +22,7 @@ class TakeMethod(private val random: Random) : Method("take", 2) {
 
         val strategy =
             options["from"]?.let { from ->
-                env.expectConvert<Expr.Identifier>(from).toEnumOrNull(ListStrategy.values())
+                env.expectConvert<Expr.Identifier>(from).toEnum(ListStrategy.values())
             } ?: ListStrategy.FRONT
 
         return when (strategy) {
