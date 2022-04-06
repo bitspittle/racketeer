@@ -12,11 +12,13 @@ class Environment(val random: Random = Random.Default) {
         pushScope()
     }
 
-    fun addMethod(method: Method) {
+    fun addMethod(method: Method, allowOverwrite: Boolean = false) {
         val methods = methodsStack.last() ?: mutableMapOf()
         methodsStack[methodsStack.lastIndex] = methods
 
-        require(!methods.contains(method.name)) { "Attempted to register a method named \"${method.name}\" when one already exists at the current scope."}
+        if (!allowOverwrite) {
+            require(!methods.contains(method.name)) { "Attempted to register a method named \"${method.name}\" when one already exists at the current scope." }
+        }
         methods[method.name] = method
     }
 

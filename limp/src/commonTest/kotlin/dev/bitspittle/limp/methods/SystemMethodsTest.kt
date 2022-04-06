@@ -72,6 +72,7 @@ class SystemMethodsTest {
         env.addMethod(MinMethod())
         env.addMethod(MaxMethod())
         env.addMethod(DefMethod())
+        env.storeValue("_", Placeholder)
 
         val evaluator = Evaluator()
 
@@ -127,5 +128,13 @@ class SystemMethodsTest {
         assertThrows<EvaluationException> {
             evaluator.evaluate(env, "def 'name 'arg1 '(bad name) '(+ arg1 +arg2)")
         }
+
+        // Overwrite flag required to allow overwriting a function with the same name
+        evaluator.evaluate(env, "def 'onetwothree '122")
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "def 'onetwothree '123")
+        }
+        evaluator.evaluate(env, "def --overwrite _ 'onetwothree '123")
+        assertThat(evaluator.evaluate(env, "onetwothree")).isEqualTo(123)
     }
 }

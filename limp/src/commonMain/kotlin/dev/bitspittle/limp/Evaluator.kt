@@ -51,7 +51,14 @@ class Evaluator(private val transients: Map<String, Any> = emptyMap()) {
                 val trackedOptions = TrackedMap(options)
                 val rest = if (method.consumeRest) values.subList(method.numArgs, values.size - method.numArgs) else mutableListOf()
                 try {
-                    method.invoke(env, params, trackedOptions, rest)
+                    val result = method.invoke(env, params, trackedOptions, rest)
+                    if (method.consumeRest) values.clear() else params.clear()
+                    options.keys.removeAll(trackedOptions.accessedKeys)
+                    if (options.isNotEmpty()) {
+                        throw EvaluationException(identExpr.ctx, "Method \"${identExpr.name}\" was handed optional parameter(s) it did not use: ${options.keys}.")
+                    }
+
+                    result
                 }
                 catch (ex: EvaluationException) {
                     // If our method was kind enough to already throw an evaluation exception for us, use it, as it
@@ -61,13 +68,6 @@ class Evaluator(private val transients: Map<String, Any> = emptyMap()) {
                 catch (ex: Exception) {
                     throw EvaluationException(identExpr.ctx, "Method \"${identExpr.name}\" threw an exception while trying to run:\n> ${ex.message}", cause = ex)
                 }
-                finally {
-                    if (method.consumeRest) values.clear() else params.clear()
-                    options.keys.removeAll(trackedOptions.accessedKeys)
-                    if (options.isNotEmpty()) {
-                        throw EvaluationException(identExpr.ctx, "Method \"${identExpr.name}\" was handed optional parameter(s) it did not use: ${options.keys}.")
-                    }
-                } // TODO: Support rest
             }
             ?: throw EvaluationException(identExpr.ctx, "Could not resolve identifier \"${identExpr.name}\" as either a variable or a method.")
     }

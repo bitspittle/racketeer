@@ -3,6 +3,7 @@ package dev.bitspittle.limp.methods.system
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
+import dev.bitspittle.limp.converters.PlaceholderConverter
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.types.Expr
 
@@ -40,6 +41,11 @@ class DefMethod : Method("def", 0, consumeRest = true) {
             )
         }
 
+        val allowOverwrite = env.scoped {
+            env.addConverter(PlaceholderConverter(true))
+            options["overwrite"]?.let { env.expectConvert(it) }
+        } ?: false
+
         env.addMethod(object : Method(nameIdentifier.name, argIds.size) {
             override suspend fun invoke(
                 env: Environment,
@@ -52,7 +58,7 @@ class DefMethod : Method("def", 0, consumeRest = true) {
                     evaluator.evaluate(env, bodyExpr)
                 }
             }
-        })
+        }, allowOverwrite)
 
         return Unit
     }
