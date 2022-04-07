@@ -1,5 +1,6 @@
 package dev.bitspittle.racketeer.model.game
 
+import com.benasher44.uuid.Uuid
 import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.shop.MutableShop
@@ -145,10 +146,10 @@ class GameState internal constructor(
     val discard: Pile = _discard
     val jail: Pile = _jail
 
-    private val cardPiles = mutableMapOf<Card, MutablePile>()
+    private val cardPiles = mutableMapOf<Uuid, MutablePile>()
     init {
         listOf(_deck, _street, _hand, _discard, _jail).forEach { pile ->
-            pile.cards.forEach { card -> cardPiles[card] = pile }
+            pile.cards.forEach { card -> cardPiles[card.id] = pile }
         }
     }
 
@@ -158,10 +159,12 @@ class GameState internal constructor(
 
     fun move(cards: List<Card>, toPile: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
         val pileTo = toPile as MutablePile
-
-        remove(cards)
+        // Make a copy of the list of cards, as modifying the files below may inadvertently change the list as well,
+        // due to some internal, aggressive casting between piles and mutable piles
+        val cards = cards.toList()
         cards.forEach { card ->
-            cardPiles[card] = toPile
+            remove(card)
+            cardPiles[card.id] = toPile
         }
         pileTo.cards.insert(cards, listStrategy, random)
     }
@@ -173,15 +176,19 @@ class GameState internal constructor(
             throw GameException("Attempting to move a pile of cards into itself")
         }
 
-        pileFrom.cards.forEach { card -> cardPiles[card] = pileTo }
+        pileFrom.cards.forEach { card -> cardPiles[card.id] = pileTo }
         pileTo.cards.insert(pileFrom.cards, listStrategy, random)
         pileFrom.cards.clear()
     }
 
     fun remove(cards: List<Card>) {
-        cards.forEach { card ->
-            cardPiles.remove(card)?.also { pileFrom -> pileFrom.cards.remove(card) }
-        }
+        // Make a copy of the list of cards, as modifying the files below may inadvertently change the list as well,
+        // due to some internal, aggressive casting between piles and mutable piles
+        cards.toList().forEach(::remove)
+    }
+
+    private fun remove(card: Card) {
+        cardPiles.remove(card.id)?.also { pileFrom -> pileFrom.cards.removeAll { it.id == card.id }}
     }
 
 
@@ -189,9 +196,9 @@ class GameState internal constructor(
         var remainingCount = count.coerceAtMost(deck.cards.size + discard.cards.size)
         if (remainingCount == 0) return
 
-        while (remainingCount > 0 && _deck.cards.isNotEmpty()) {
-            move(_deck.cards.removeFirst(), _hand)
-            --remainingCount
+        _deck.cards.take(remainingCount).let { cards ->
+            remainingCount -= cards.size
+            move(cards, _hand)
         }
 
         if (remainingCount > 0) {
@@ -199,9 +206,9 @@ class GameState internal constructor(
             _deck.cards.shuffle()
         }
 
-        while (remainingCount > 0) {
-            move(_deck.cards.removeFirst(), _hand)
-            --remainingCount
+        _deck.cards.take(remainingCount).let { cards ->
+            check(cards.size == remainingCount) // Should be guaranteed by our coerce line at the top
+            move(cards, _hand)
         }
     }
 

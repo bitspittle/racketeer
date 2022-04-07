@@ -47,6 +47,9 @@ ratingScores:
   - 30 # A
   - 40 # S
 
+globalActions:
+  - def 'game-add! '$property '$amount '(game-set! $property '(+ $it $amount))
+
 cards:
   # TIER 1
 

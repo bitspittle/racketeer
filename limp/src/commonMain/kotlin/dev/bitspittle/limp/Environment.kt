@@ -35,7 +35,7 @@ class Environment {
         variables[name] = value
     }
 
-    inline fun <T: Any?> scoped(block: () -> T): T {
+    inline fun <T: Any?> scoped(block: Environment.() -> T): T {
         return try {
             pushScope()
             block()
