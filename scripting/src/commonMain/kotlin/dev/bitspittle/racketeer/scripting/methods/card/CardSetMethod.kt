@@ -13,7 +13,7 @@ import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.scripting.types.CardProperty
 
 class CardSetMethod : Method("card-set!", 3) {
-    override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
+    override suspend fun invoke(env: Environment, eval: Evaluator, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
         val cards = env.scoped {
             env.addConverter(ItemToSingletonListConverter(Card::class))
             env.expectConvert<List<Card>>(params[0], listTypeOf())
@@ -35,7 +35,7 @@ class CardSetMethod : Method("card-set!", 3) {
                 )
             }
 
-            val evaluator = Evaluator(mapOf("\$it" to currValue))
+            val evaluator = eval.extend(mapOf("\$it" to currValue))
             val newValue = env.expectConvert<Int>(evaluator.evaluate(env, setExpr))
             when (property) {
                 CardProperty.VP -> card.vp = newValue

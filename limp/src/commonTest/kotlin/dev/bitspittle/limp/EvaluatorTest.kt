@@ -3,7 +3,9 @@ package dev.bitspittle.limp
 import com.varabyte.truthish.assertThat
 import com.varabyte.truthish.assertThrows
 import dev.bitspittle.limp.exceptions.EvaluationException
+import dev.bitspittle.limp.methods.collection.FilterMethod
 import dev.bitspittle.limp.methods.collection.ListMethod
+import dev.bitspittle.limp.methods.compare.GreaterThanEqualsMethod
 import dev.bitspittle.limp.methods.math.*
 import dev.bitspittle.limp.methods.range.IntRangeMethod
 import dev.bitspittle.limp.methods.system.DefMethod
@@ -90,16 +92,31 @@ class EvaluatorTest {
     // function calls, which wasn't expected (because variables in the environment are kinda global, while method
     // parameters should be hyper local
     @Test
-    fun methodParametersDontLeakOutOfTheirOwnMethod() = runTest {
+    fun testEvaluationClosureLogic() = runTest {
         val env = Environment()
         env.addMethod(DefMethod())
         env.addMethod(AddMethod())
         env.addMethod(SetMethod())
+        env.addMethod(ListMethod())
+        env.addMethod(FilterMethod())
+        env.addMethod(GreaterThanEqualsMethod())
 
         val evaluator = Evaluator()
+        evaluator.evaluate(env, "set '\$ints (list 1 2 3 4 5)")
+
+        // Basic closure case works
         env.scoped {
-            evaluator.evaluate(env, "def 'add-ab '(+ a b)")
-            evaluator.evaluate(env, "def 'add 'a 'b 'add-ab")
+            evaluator.evaluate(env, "def 'filter-gte '\$list '\$low '(filter \$list '(>= \$it \$low))")
+            assertThat(evaluator.evaluate(env, "filter-gte \$ints 3") as List<Int>)
+                .containsExactly(3, 4, 5)
+                .inOrder()
+        }
+
+        // Parameters don't leak out of their own local scope
+        env.scoped {
+
+            evaluator.evaluate(env, "def 'add-ab '(+ \$a \$b)")
+            evaluator.evaluate(env, "def 'add '\$a '\$b 'add-ab")
 
             assertThrows<EvaluationException> {
                 evaluator.evaluate(env, "add 1 2")

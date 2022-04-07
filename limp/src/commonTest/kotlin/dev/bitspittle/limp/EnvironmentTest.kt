@@ -9,16 +9,17 @@ class EnvironmentTest {
     fun canRegisterMethodsAndVariables() {
         val env = Environment()
         env.addMethod(object : Method("fun1", 0) {
-            override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>) = Unit
+            override suspend fun invoke(env: Environment, eval: Evaluator, params: List<Any>, options: Map<String, Any>, rest: List<Any>) = Unit
         })
         env.addMethod(object : Method("fun2", 0) {
-            override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>) = Unit
+            override suspend fun invoke(env: Environment, eval: Evaluator, params: List<Any>, options: Map<String, Any>, rest: List<Any>) = Unit
         })
 
         assertThrows<IllegalArgumentException> {
             env.addMethod(object : Method("fun2", 2) {
                 override suspend fun invoke(
                     env: Environment,
+                    eval: Evaluator,
                     params: List<Any>,
                     options: Map<String, Any>,
                     rest: List<Any>
@@ -52,19 +53,19 @@ class EnvironmentTest {
         val env = Environment()
 
         env.addMethod(object : Method("fun", 0) {
-            override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>) = Unit
+            override suspend fun invoke(env: Environment, eval: Evaluator, params: List<Any>, options: Map<String, Any>, rest: List<Any>) = Unit
         })
         env.storeValue("var", 0)
 
         env.pushScope()
         env.addMethod(object : Method("fun", 1) {
-            override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>) = Unit
+            override suspend fun invoke(env: Environment, eval: Evaluator, params: List<Any>, options: Map<String, Any>, rest: List<Any>) = Unit
         })
         env.storeValue("var", 10)
 
         env.pushScope()
         env.addMethod(object : Method("fun", 2) {
-            override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>) = Unit
+            override suspend fun invoke(env: Environment, eval: Evaluator, params: List<Any>, options: Map<String, Any>, rest: List<Any>) = Unit
         })
         env.storeValue("var", 20)
 

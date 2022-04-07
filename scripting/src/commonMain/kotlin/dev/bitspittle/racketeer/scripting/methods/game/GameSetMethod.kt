@@ -10,7 +10,7 @@ import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.scripting.types.GameProperty
 
 class GameSetMethod(private val getGameState: () -> GameState) : Method("game-set!", 2) {
-    override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
+    override suspend fun invoke(env: Environment, eval: Evaluator, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
         val identifier = env.expectConvert<Expr.Identifier>(params[0])
         val property = identifier.toEnum(GameProperty.values())
 
@@ -26,7 +26,7 @@ class GameSetMethod(private val getGameState: () -> GameState) : Method("game-se
             GameProperty.INFLUENCE -> gameState.influence
         }
 
-        val evaluator = Evaluator(mapOf("\$it" to currValue))
+        val evaluator = eval.extend(mapOf("\$it" to currValue))
         val newValue = env.expectConvert<Int>(evaluator.evaluate(env, setExpr))
         when (property) {
             GameProperty.CASH -> gameState.cash = newValue

@@ -2,6 +2,7 @@ package dev.bitspittle.limp
 
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.types.Expr
+import dev.bitspittle.limp.types.walk
 
 /**
  * @param transients A list of extra variables which only exist during the evaluation, without affecting the
@@ -11,12 +12,54 @@ import dev.bitspittle.limp.types.Expr
  *   escape from that method. This could also be a good place to define variables that only exist within the
  *   lifetime of some lambda call, e.g. the `$it` value in `filter`.
  */
-class Evaluator(private val transients: Map<String, Any> = emptyMap()) {
+class Evaluator private constructor(private val transients: Map<String, Any>, private val closures: MutableMap<Expr, MutableList<Map<String, Any>>>) {
+    constructor() : this(emptyMap(), mutableMapOf())
+
+    /**
+     * Extend this evaluator with more transients.
+     *
+     * This effectively supports closures. This layers a new evaluator on top of the existing one, where transients from
+     * an underlying layer won't leak into this evaluator, EXCEPT for expressions that were already evaluated by the
+     * parent evaluator.
+     *
+     * A concrete case can help here:
+     *
+     * ```
+     * def 'filter-gte '$list '$low '(filter $list '(>= $it $low))
+     * ```
+     *
+     * Above, the "filter" method itself, internally, should not have access to "$list" or "$low" values, but the
+     * lambda we pass *into* filter should have access to them. The way the above works is that, when you call "def",
+     * you have one evaluator, which defines the "$list" and "$low" variables, and then wraps all expressions with
+     * closures that can access them (including the ">= $it $low" lambda). Then, filter internally "extends" the root
+     * evaluator, which inherits its closures but NOT the variables "$list" and "$low". Phew.
+     */
+    fun extend(transients: Map<String, Any>) = Evaluator(transients, closures)
+
     suspend fun evaluate(env: Environment, code: String): Any {
         return evaluate(env, Expr.parse(code))
     }
 
     suspend fun evaluate(env: Environment, expr: Expr): Any {
+        expr.walk().forEach {
+            closures.getOrPut(it) { mutableListOf() }.add(transients)
+        }
+        try {
+            return handleEvaluate(env, expr)
+        }
+        finally {
+            expr.walk().forEach {
+                closures.getValue(it).apply {
+                    remove(transients)
+                    if (this.isEmpty()) {
+                        closures.remove(it)
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun handleEvaluate(env: Environment, expr: Expr): Any {
         return when (expr) {
             is Expr.Text -> evaluateText(expr)
             is Expr.Number -> evaluateNumber(expr)
@@ -41,7 +84,7 @@ class Evaluator(private val transients: Map<String, Any> = emptyMap()) {
         values: MutableList<Any> = mutableListOf(),
         options: MutableMap<String, Any> = mutableMapOf()
     ): Any {
-        return transients[identExpr.name]
+        return closures[identExpr]?.reversed()?.firstNotNullOfOrNull { transients -> transients[identExpr.name] }
             ?: env.loadValue(identExpr.name)
             ?: env.getMethod(identExpr.name)?.let { method ->
                 if (method.numArgs > values.size) {
@@ -51,7 +94,7 @@ class Evaluator(private val transients: Map<String, Any> = emptyMap()) {
                 val trackedOptions = TrackedMap(options)
                 val rest = if (method.consumeRest) values.subList(method.numArgs, values.size - method.numArgs) else mutableListOf()
                 try {
-                    val result = method.invoke(env, params, trackedOptions, rest)
+                    val result = method.invoke(env, this, params, trackedOptions, rest)
                     if (method.consumeRest) values.clear() else params.clear()
                     options.keys.removeAll(trackedOptions.accessedKeys)
                     if (options.isNotEmpty()) {
@@ -103,7 +146,7 @@ class Evaluator(private val transients: Map<String, Any> = emptyMap()) {
                 is Expr.Identifier -> evaluateIdentifier(env, expr, evaluated, options)
                 // Options consume values and return EMPTY. Don't return the useless result.
                 is Expr.Option -> { evaluateOption(expr, evaluated, options); null }
-                else -> evaluate(env, expr)
+                else -> handleEvaluate(env, expr)
             }
             value?.let { evaluated.add(0, it) }
         }
@@ -116,6 +159,6 @@ class Evaluator(private val transients: Map<String, Any> = emptyMap()) {
     }
 
     private suspend fun evaluateBlock(env: Environment, blockExpr: Expr.Block): Any {
-        return evaluate(env, blockExpr.expr)
+        return handleEvaluate(env, blockExpr.expr)
     }
 }

@@ -7,7 +7,13 @@ import dev.bitspittle.limp.converters.ValueToExprConverter
 import dev.bitspittle.limp.types.Expr
 
 class InMethod : Method("in?", 2) {
-    override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
-        return (IndexOfMethod().invoke(env, params, options, rest) as Int) >= 0
+    override suspend fun invoke(
+        env: Environment,
+        eval: Evaluator,
+        params: List<Any>,
+        options: Map<String, Any>,
+        rest: List<Any>
+    ): Any {
+        return (IndexOfMethod().invoke(env, eval, params, options, rest) as Int) >= 0
     }
 }

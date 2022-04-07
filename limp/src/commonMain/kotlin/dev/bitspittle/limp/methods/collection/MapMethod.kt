@@ -9,12 +9,18 @@ import dev.bitspittle.limp.types.Expr
  * Take a list and an expression and return a new list with that expression applied on each element.
  */
 class MapMethod : Method("map", 2) {
-    override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
+    override suspend fun invoke(
+        env: Environment,
+        eval: Evaluator,
+        params: List<Any>,
+        options: Map<String, Any>,
+        rest: List<Any>
+    ): Any {
         val list = env.expectConvert<List<Any>>(params[0])
         val transform = env.expectConvert<Expr>(params[1])
 
         return list.map { item ->
-            env.expectConvert<Any>(Evaluator(mapOf("\$it" to item)).evaluate(env, transform))
+            env.expectConvert<Any>(eval.extend(mapOf("\$it" to item)).evaluate(env, transform))
         }
     }
 }

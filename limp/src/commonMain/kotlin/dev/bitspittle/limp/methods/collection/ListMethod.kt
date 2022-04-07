@@ -1,10 +1,17 @@
 package dev.bitspittle.limp.methods.collection
 
 import dev.bitspittle.limp.Environment
+import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 
 class ListMethod : Method("list", 0, consumeRest = true) {
-    override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
+    override suspend fun invoke(
+        env: Environment,
+        eval: Evaluator,
+        params: List<Any>,
+        options: Map<String, Any>,
+        rest: List<Any>
+    ): Any {
         // Make a copy of the list, as otherwise it will get deleted out from under us
         return rest.toList()
     }

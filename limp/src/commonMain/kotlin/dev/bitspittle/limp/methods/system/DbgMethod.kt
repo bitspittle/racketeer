@@ -1,6 +1,7 @@
 package dev.bitspittle.limp.methods.system
 
 import dev.bitspittle.limp.Environment
+import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 
 /**
@@ -8,7 +9,13 @@ import dev.bitspittle.limp.Method
  * a chain while experimenting.
  */
 class DbgMethod(private val log: (String) -> Unit) : Method("dbg", 1) {
-    override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
+    override suspend fun invoke(
+        env: Environment,
+        eval: Evaluator,
+        params: List<Any>,
+        options: Map<String, Any>,
+        rest: List<Any>
+    ): Any {
         val message = options["msg"]?.let { env.expectConvert<String>(it) }
         log(buildString {
             append(message.takeUnless { it.isNullOrBlank() } ?: "Debug")

@@ -7,7 +7,13 @@ import dev.bitspittle.limp.converters.PlaceholderConverter
 import dev.bitspittle.limp.types.Expr
 
 class SizeMethod : Method("size", 1) {
-    override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
+    override suspend fun invoke(
+        env: Environment,
+        eval: Evaluator,
+        params: List<Any>,
+        options: Map<String, Any>,
+        rest: List<Any>
+    ): Any {
         val list = env.expectConvert<List<Any>>(params[0])
         return list.size
     }

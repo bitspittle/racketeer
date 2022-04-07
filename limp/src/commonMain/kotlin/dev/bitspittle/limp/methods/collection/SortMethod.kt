@@ -15,7 +15,13 @@ import dev.bitspittle.limp.utils.toEnumOrNull
  * Take a mutable list and sort it in place.
  */
 class SortMethod : Method("sort!", 1) {
-    override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
+    override suspend fun invoke(
+        env: Environment,
+        eval: Evaluator,
+        params: List<Any>,
+        options: Map<String, Any>,
+        rest: List<Any>
+    ): Any {
         val order = options["order"]?.let { from ->
             env.expectConvert<Expr.Identifier>(from).toEnum(SortOrder.values())
         } ?: SortOrder.ASCENDING
@@ -36,7 +42,7 @@ class SortMethod : Method("sort!", 1) {
                     val i = binarySearch.mid
                     val currItem = sorted[i]
                     val compare = env.expectConvert<Int>(
-                        Evaluator(
+                        eval.extend(
                             mapOf(
                                 "\$a" to toInsert,
                                 "\$b" to currItem,
