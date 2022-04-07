@@ -6,12 +6,19 @@ import com.varabyte.truthish.assertThrows
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.exceptions.EvaluationException
+import dev.bitspittle.limp.methods.collection.ListGetMethod
 import dev.bitspittle.limp.methods.collection.ListMethod
+import dev.bitspittle.limp.methods.collection.SizeMethod
+import dev.bitspittle.limp.methods.collection.TakeMethod
 import dev.bitspittle.limp.methods.math.MulMethod
 import dev.bitspittle.racketeer.model.card.CardTemplate
+import dev.bitspittle.racketeer.scripting.TestGameService
+import dev.bitspittle.racketeer.scripting.addVariablesInto
 import dev.bitspittle.racketeer.scripting.methods.card.CardGetMethod
 import dev.bitspittle.racketeer.scripting.methods.card.CardSetMethod
+import dev.bitspittle.racketeer.scripting.methods.card.RemoveMethod
 import kotlinx.coroutines.test.runTest
+import kotlin.random.Random
 import kotlin.test.Test
 
 class CardMethodsTest {
@@ -82,5 +89,49 @@ class CardMethodsTest {
         assertThrows<EvaluationException> {
             evaluator.evaluate(env, "card-get card 'invalid-label")
         }
+    }
+
+    @Test
+    fun testRemoveMethod() = runTest {
+        val env = Environment()
+        val service = TestGameService(Random(123))
+
+        val gameState = service.gameState
+        env.addMethod(RemoveMethod { gameState })
+        env.addMethod(SizeMethod())
+        env.addMethod(TakeMethod(service.random))
+        env.addMethod(ListGetMethod())
+
+        gameState.draw(4)
+        val evaluator = Evaluator()
+
+        val ownedCount = env.scoped {
+            gameState.addVariablesInto(env)
+            evaluator.evaluate(env, "size \$owned") as Int
+        }
+
+        env.scoped {
+            gameState.addVariablesInto(env)
+            evaluator.evaluate(env, "remove! take \$owned 2")
+        }
+
+        val ownedCountRemoveMultipleCards = env.scoped {
+            gameState.addVariablesInto(env)
+            evaluator.evaluate(env, "size \$owned") as Int
+        }
+
+        assertThat(ownedCount - 2).isEqualTo(ownedCountRemoveMultipleCards)
+
+        env.scoped {
+            gameState.addVariablesInto(env)
+            evaluator.evaluate(env, "remove! list-get \$owned 0")
+        }
+
+        val ownedCountRemoveSingleCard = env.scoped {
+            gameState.addVariablesInto(env)
+            evaluator.evaluate(env, "size \$owned") as Int
+        }
+
+        assertThat(ownedCountRemoveMultipleCards - 1).isEqualTo(ownedCountRemoveSingleCard)
     }
 }

@@ -7,6 +7,7 @@ import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.converters.MutablePileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.card.CardGetMethod
 import dev.bitspittle.racketeer.scripting.methods.card.CardSetMethod
+import dev.bitspittle.racketeer.scripting.methods.card.RemoveMethod
 import dev.bitspittle.racketeer.scripting.methods.game.GameGetMethod
 import dev.bitspittle.racketeer.scripting.methods.game.GameSetMethod
 import dev.bitspittle.racketeer.scripting.methods.pile.CopyToMethod
@@ -25,6 +26,7 @@ fun Environment.installGameLogic(service: GameService) {
 
     addMethod(CardGetMethod())
     addMethod(CardSetMethod())
+    addMethod(RemoveMethod(service::gameState))
 
     addMethod(CopyToMethod(service::gameState))
     addMethod(MoveToMethod(service::gameState))
@@ -39,11 +41,16 @@ fun Environment.installGameLogic(service: GameService) {
  * state from previous turns.
  */
 fun GameState.addVariablesInto(env: Environment) {
+    env.storeValue("\$all-cards", allCards)
+    env.storeValue("\$shop-tier", shopTier)
+
     env.storeValue("\$deck", deck)
     env.storeValue("\$hand", hand)
     env.storeValue("\$street", street)
     env.storeValue("\$discard", discard)
     env.storeValue("\$jail", jail)
+
+    env.storeValue("\$owned", listOf(deck, hand, street, discard, jail).flatMap { it.cards })
 }
 
 /**

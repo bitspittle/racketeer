@@ -1,15 +1,13 @@
 package dev.bitspittle.racketeer.model.game
 
 import dev.bitspittle.limp.types.ListStrategy
-import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.card.MutablePile
-import dev.bitspittle.racketeer.model.card.Pile
-import dev.bitspittle.racketeer.model.card.insert
+import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.shop.MutableShop
 import dev.bitspittle.racketeer.model.shop.Shop
 import kotlin.random.Random
 
 class GameState internal constructor(
+    val allCards: List<CardTemplate>,
     numTurns: Int,
     turn: Int,
     totalCashEarned: Int,
@@ -28,6 +26,7 @@ class GameState internal constructor(
     private val random: Random,
 ) {
     constructor(data: GameData, random: Random = Random.Default) : this(
+        allCards = data.cards,
         numTurns = data.numTurns,
         turn = 0,
         totalCashEarned = 0,
@@ -160,9 +159,9 @@ class GameState internal constructor(
     fun move(cards: List<Card>, toPile: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
         val pileTo = toPile as MutablePile
 
+        remove(cards)
         cards.forEach { card ->
-            cardPiles.remove(card)?.also { pileFrom -> pileFrom.cards.remove(card) }
-            cardPiles[card] = pileTo
+            cardPiles[card] = toPile
         }
         pileTo.cards.insert(cards, listStrategy, random)
     }
@@ -178,6 +177,13 @@ class GameState internal constructor(
         pileTo.cards.insert(pileFrom.cards, listStrategy, random)
         pileFrom.cards.clear()
     }
+
+    fun remove(cards: List<Card>) {
+        cards.forEach { card ->
+            cardPiles.remove(card)?.also { pileFrom -> pileFrom.cards.remove(card) }
+        }
+    }
+
 
     fun draw(count: Int = handSize) {
         var remainingCount = count.coerceAtMost(deck.cards.size + discard.cards.size)
@@ -216,6 +222,7 @@ class GameState internal constructor(
 
     fun copy(): GameState {
         return GameState(
+            allCards,
             numTurns,
             turn,
             totalCashEarned,
