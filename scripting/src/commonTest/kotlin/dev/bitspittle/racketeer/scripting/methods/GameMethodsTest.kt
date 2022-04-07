@@ -7,10 +7,9 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.math.PowMethod
 import dev.bitspittle.racketeer.scripting.TestGameService
-import dev.bitspittle.racketeer.scripting.addVariablesInto
-import dev.bitspittle.racketeer.scripting.methods.game.DrawMethod
-import dev.bitspittle.racketeer.scripting.methods.game.GameGetMethod
-import dev.bitspittle.racketeer.scripting.methods.game.GameSetMethod
+import dev.bitspittle.racketeer.scripting.methods.game.*
+import dev.bitspittle.racketeer.scripting.types.CancelPlayException
+import dev.bitspittle.racketeer.scripting.types.FinishPlayException
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -133,6 +132,27 @@ class GameMethodsTest {
         // Negative draw counts are not allowed
         assertThrows<EvaluationException> {
             evaluator.evaluate(env, "draw! -1")
+        }
+    }
+
+    @Test
+    fun testPlayExceptionMethods() = runTest {
+        val env = Environment()
+        env.addMethod(StopMethod())
+        env.addMethod(CancelMethod())
+
+        val evaluator = Evaluator()
+
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "stop!")
+        }.also { ex ->
+            assertThat(ex.cause is FinishPlayException)
+        }
+
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "cancel!")
+        }.also { ex ->
+            assertThat(ex.cause is CancelPlayException)
         }
     }
 }

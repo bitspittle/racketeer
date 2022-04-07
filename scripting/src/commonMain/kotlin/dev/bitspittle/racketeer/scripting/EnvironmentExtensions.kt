@@ -8,9 +8,7 @@ import dev.bitspittle.racketeer.scripting.converters.MutablePileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.card.CardGetMethod
 import dev.bitspittle.racketeer.scripting.methods.card.CardSetMethod
 import dev.bitspittle.racketeer.scripting.methods.card.RemoveMethod
-import dev.bitspittle.racketeer.scripting.methods.game.DrawMethod
-import dev.bitspittle.racketeer.scripting.methods.game.GameGetMethod
-import dev.bitspittle.racketeer.scripting.methods.game.GameSetMethod
+import dev.bitspittle.racketeer.scripting.methods.game.*
 import dev.bitspittle.racketeer.scripting.methods.pile.CopyToMethod
 import dev.bitspittle.racketeer.scripting.methods.pile.MoveToMethod
 import dev.bitspittle.racketeer.scripting.types.GameService
@@ -25,6 +23,8 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(GameGetMethod(service::gameState))
     addMethod(GameSetMethod(service::gameState))
     addMethod(DrawMethod(service::gameState))
+    addMethod(StopMethod())
+    addMethod(CancelMethod())
 
     addMethod(CardGetMethod())
     addMethod(CardSetMethod())
