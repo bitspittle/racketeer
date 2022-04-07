@@ -5,8 +5,8 @@ import com.varabyte.truthish.assertThrows
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.exceptions.EvaluationException
+import dev.bitspittle.limp.methods.math.PowMethod
 import dev.bitspittle.racketeer.scripting.TestGameService
-import dev.bitspittle.racketeer.scripting.methods.game.GameAddMethod
 import dev.bitspittle.racketeer.scripting.methods.game.GameGetMethod
 import dev.bitspittle.racketeer.scripting.methods.game.GameSetMethod
 import kotlinx.coroutines.test.runTest
@@ -18,6 +18,7 @@ class GameMethodsTest {
         val env = Environment()
         val service = TestGameService()
         env.addMethod(GameSetMethod(service::gameState))
+        env.addMethod(PowMethod())
 
         val evaluator = Evaluator()
         assertThat(service.gameState.cash).isEqualTo(0)
@@ -27,6 +28,8 @@ class GameMethodsTest {
         assertThat(service.gameState.influence).isEqualTo(0)
         evaluator.evaluate(env, "game-set! 'influence 2")
         assertThat(service.gameState.influence).isEqualTo(2)
+        evaluator.evaluate(env, "game-set! 'influence '(^ \$it 3)")
+        assertThat(service.gameState.influence).isEqualTo(8)
 
         assertThat(service.gameState.vp).isEqualTo(0)
         evaluator.evaluate(env, "game-set! 'vp 5")
@@ -60,35 +63,6 @@ class GameMethodsTest {
 
         assertThrows<EvaluationException> {
             evaluator.evaluate(env, "game-get 'invalid-label 2")
-        }
-    }
-
-    @Test
-    fun testGameAddMethod() = runTest {
-        val env = Environment()
-        val service = TestGameService()
-        env.addMethod(GameAddMethod(service::gameState))
-
-        val evaluator = Evaluator()
-        assertThat(service.gameState.cash).isEqualTo(0)
-        evaluator.evaluate(env, "game-add! 'cash 3")
-        assertThat(service.gameState.cash).isEqualTo(3)
-
-        assertThat(service.gameState.influence).isEqualTo(0)
-        evaluator.evaluate(env, "game-add! 'influence 2")
-        assertThat(service.gameState.influence).isEqualTo(2)
-
-        assertThat(service.gameState.vp).isEqualTo(0)
-        evaluator.evaluate(env, "game-add! 'vp 5")
-        assertThat(service.gameState.vp).isEqualTo(5)
-
-        // Negative values are clamped
-        assertThat(service.gameState.vp).isEqualTo(5)
-        evaluator.evaluate(env, "game-add! 'vp -100")
-        assertThat(service.gameState.vp).isEqualTo(0)
-
-        assertThrows<EvaluationException> {
-            evaluator.evaluate(env, "game-add! 'invalid-label 2")
         }
     }
 }
