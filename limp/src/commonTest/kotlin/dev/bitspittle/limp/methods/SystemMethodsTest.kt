@@ -151,6 +151,7 @@ class SystemMethodsTest {
         val env = Environment()
         val service = TestLangService()
         env.addMethod(DbgMethod(service::log))
+        env.addMethod(AddMethod())
 
         assertThat(service.logs.isEmpty())
 
@@ -159,7 +160,13 @@ class SystemMethodsTest {
         evaluator.evaluate(env, "dbg 123")
         assertThat(service.logs).containsExactly("[DBG] 123")
 
+        service.clearLogs()
         evaluator.evaluate(env, "dbg --msg \"Debug value\" 456")
-        assertThat(service.logs).containsExactly("[DBG] 123", "[DBG] Debug value: 456")
+        assertThat(service.logs).containsExactly("[DBG] Debug value: 456")
+
+        // You can chain debug statements
+        service.clearLogs()
+        evaluator.evaluate(env, "dbg + dbg 10 dbg 20")
+        assertThat(service.logs).containsExactly("[DBG] 20", "[DBG] 10", "[DBG] 30")
     }
 }

@@ -9,4 +9,6 @@ class TestLangService(override val random: Random = Random.Default) : LangServic
     override fun log(message: String) {
         _logs.add(message)
     }
+
+    fun clearLogs() { _logs.clear() }
 }
