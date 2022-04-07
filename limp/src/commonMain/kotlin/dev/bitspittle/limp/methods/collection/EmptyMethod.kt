@@ -6,8 +6,9 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.converters.ValueToExprConverter
 import dev.bitspittle.limp.types.Expr
 
-class InMethod : Method("in?", 2) {
+class EmptyMethod : Method("empty?", 1) {
     override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
-        return (IndexOfMethod().invoke(env, params, options, rest) as Int) >= 0
+        val list = env.expectConvert<List<*>>(params[0])
+        return list.isEmpty()
     }
 }

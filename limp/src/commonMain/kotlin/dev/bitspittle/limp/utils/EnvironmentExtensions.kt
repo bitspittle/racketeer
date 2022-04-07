@@ -82,7 +82,9 @@ fun Environment.installDefaults(service: LangService = DefaultLangService()) {
     // Collection
     addMethod(ListMethod())
     addMethod(SizeMethod())
+    addMethod(EmptyMethod())
     addMethod(ListGetMethod())
+    addMethod(IndexOfMethod())
     addMethod(InMethod())
     addMethod(MapMethod())
     addMethod(CountMethod())

@@ -56,6 +56,43 @@ class CollectionMethodsTest {
     }
 
     @Test
+    fun testIndexOfMethod() = runTest {
+        val env = Environment()
+        env.addMethod(IndexOfMethod())
+        env.addMethod(SetMethod())
+        env.addMethod(GreaterThanMethod())
+        env.addMethod(LessThanMethod())
+        env.addMethod(ListMethod())
+
+        val evaluator = Evaluator()
+        evaluator.evaluate(env, "set 'ints (list 1 2 3 4 5)")
+        evaluator.evaluate(env, "set 'empty (list)")
+
+        assertThat(evaluator.evaluate(env, "index-of ints 3")).isEqualTo(2)
+        assertThat(evaluator.evaluate(env, "index-of ints 6")).isEqualTo(-1)
+        assertThat(evaluator.evaluate(env, "index-of ints '(> \$it 4)")).isEqualTo(4)
+        assertThat(evaluator.evaluate(env, "index-of ints '(< \$it 0)")).isEqualTo(-1)
+
+        // When there are dupes, first match returned
+        assertThat(evaluator.evaluate(env, "index-of (list 1 2 2 2 2 2) 2")).isEqualTo(1)
+    }
+
+    @Test
+    fun testEmptyMethod() = runTest {
+        val env = Environment()
+        env.addMethod(EmptyMethod())
+        env.addMethod(SetMethod())
+        env.addMethod(ListMethod())
+
+        val evaluator = Evaluator()
+        evaluator.evaluate(env, "set 'ints (list 1 2 3 4 5)")
+        evaluator.evaluate(env, "set 'empty (list)")
+
+        assertThat(evaluator.evaluate(env, "empty? ints") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "empty? empty") as Boolean).isTrue()
+    }
+
+    @Test
     fun testTakeMethod() = runTest {
         val env = Environment() // Fixed seed so that we get the same shuffle everytime for this test
         env.addMethod(TakeMethod(Random(123)))
