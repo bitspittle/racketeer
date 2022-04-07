@@ -9,10 +9,12 @@ import dev.bitspittle.limp.methods.collection.*
 import dev.bitspittle.limp.methods.compare.CompareMethod
 import dev.bitspittle.limp.methods.compare.EqualsMethod
 import dev.bitspittle.limp.methods.compare.GreaterThanMethod
+import dev.bitspittle.limp.methods.compare.LessThanMethod
 import dev.bitspittle.limp.methods.convert.ToIntMethod
 import dev.bitspittle.limp.methods.convert.ToStringMethod
 import dev.bitspittle.limp.methods.math.PowMethod
 import dev.bitspittle.limp.methods.math.RemainderMethod
+import dev.bitspittle.limp.methods.system.SetMethod
 import dev.bitspittle.limp.types.Placeholder
 import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
@@ -24,19 +26,33 @@ class CollectionMethodsTest {
     fun testInMethod() = runTest {
         val env = Environment()
         env.addMethod(InMethod())
-
-        env.storeValue("ints", listOf(1, 2, 3, 4, 5))
-        env.storeValue("fruits", listOf("Apple", "Banana", "Cantaloupe"))
+        env.addMethod(SetMethod())
+        env.addMethod(GreaterThanMethod())
+        env.addMethod(LessThanMethod())
+        env.addMethod(ListMethod())
+        env.addMethod(UnionMethod())
 
         val evaluator = Evaluator()
+        evaluator.evaluate(env, "set 'ints (list 1 2 3 4 5)")
+        evaluator.evaluate(env, "set 'fruits (list \"Apple\" \"Banana\" \"Cantaloupe\")")
+        evaluator.evaluate(env, "set 'empty (list)")
+        evaluator.evaluate(env, "set 'mixed (union ints fruits)")
 
-        assertThat(evaluator.evaluate(env, "in ints 3") as Boolean).isTrue()
-        assertThat(evaluator.evaluate(env, "in ints 6") as Boolean).isFalse()
-        assertThat(evaluator.evaluate(env, "in ints \"6\"") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "in? ints 3") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "in? ints 6") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "in? ints '(> \$it 4)") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "in? ints '(< \$it 0)") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "in? ints \"6\"") as Boolean).isFalse()
 
-        assertThat(evaluator.evaluate(env, "in fruits \"Banana\"") as Boolean).isTrue()
-        assertThat(evaluator.evaluate(env, "in fruits \"Cherry\"") as Boolean).isFalse()
-        assertThat(evaluator.evaluate(env, "in fruits \"banana\"") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "in? fruits \"Banana\"") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "in? fruits \"Cherry\"") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "in? fruits \"banana\"") as Boolean).isFalse()
+
+        assertThat(evaluator.evaluate(env, "in? empty 3") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "in? empty \"Apple\"") as Boolean).isFalse()
+
+        assertThat(evaluator.evaluate(env, "in? mixed 3") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "in? mixed \"Apple\"") as Boolean).isTrue()
     }
 
     @Test
