@@ -9,6 +9,7 @@ Limp is designed to be very simple, with a limited number of expression types:
 - Quoted strings (e.g. `"Hello"`)
 - Integers (e.g. `123` or `-456`)
 - Symbols (e.g. `some-identifier-name` or `+`)
+- Options (e.g. `--param 123`)
 - Blocks (e.g. `(+ 1 2)`)
 - Deferred expressions (e.g. `'symbol` or `'(+ 1 2)`)
 
