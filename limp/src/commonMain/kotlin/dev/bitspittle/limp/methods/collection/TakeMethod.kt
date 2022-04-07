@@ -6,7 +6,6 @@ import dev.bitspittle.limp.converters.PlaceholderConverter
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.limp.utils.toEnum
-import dev.bitspittle.limp.utils.toEnumOrNull
 import kotlin.random.Random
 
 /**
@@ -14,7 +13,7 @@ import kotlin.random.Random
  */
 class TakeMethod(private val random: Random) : Method("take", 2) {
     override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
-        val list = env.expectConvert<List<*>>(params[0])
+        val list = env.expectConvert<List<Any>>(params[0])
         val count = env.scoped {
             env.addConverter(PlaceholderConverter(list.size))
             env.expectConvert<Int>(params[1])
