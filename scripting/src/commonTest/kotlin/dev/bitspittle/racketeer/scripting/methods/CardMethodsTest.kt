@@ -106,29 +106,29 @@ class CardMethodsTest {
         val evaluator = Evaluator()
 
         val ownedCount = env.scoped {
-            gameState.addVariablesInto(env)
+            gameState.addVariablesInto(this)
             evaluator.evaluate(env, "size \$owned") as Int
         }
 
         env.scoped {
-            gameState.addVariablesInto(env)
+            gameState.addVariablesInto(this)
             evaluator.evaluate(env, "remove! take \$owned 2")
         }
 
         val ownedCountRemoveMultipleCards = env.scoped {
-            gameState.addVariablesInto(env)
+            gameState.addVariablesInto(this)
             evaluator.evaluate(env, "size \$owned") as Int
         }
 
         assertThat(ownedCount - 2).isEqualTo(ownedCountRemoveMultipleCards)
 
         env.scoped {
-            gameState.addVariablesInto(env)
+            gameState.addVariablesInto(this)
             evaluator.evaluate(env, "remove! list-get \$owned 0")
         }
 
         val ownedCountRemoveSingleCard = env.scoped {
-            gameState.addVariablesInto(env)
+            gameState.addVariablesInto(this)
             evaluator.evaluate(env, "size \$owned") as Int
         }
 

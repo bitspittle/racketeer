@@ -7,6 +7,8 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.math.PowMethod
 import dev.bitspittle.racketeer.scripting.TestGameService
+import dev.bitspittle.racketeer.scripting.addVariablesInto
+import dev.bitspittle.racketeer.scripting.methods.game.DrawMethod
 import dev.bitspittle.racketeer.scripting.methods.game.GameGetMethod
 import dev.bitspittle.racketeer.scripting.methods.game.GameSetMethod
 import kotlinx.coroutines.test.runTest
@@ -63,6 +65,74 @@ class GameMethodsTest {
 
         assertThrows<EvaluationException> {
             evaluator.evaluate(env, "game-get 'invalid-label 2")
+        }
+    }
+
+    @Test
+    fun testDrawMethod() = runTest {
+        val env = Environment()
+        val service = TestGameService()
+        val gameState = service.gameState
+        gameState.numTurns = Int.MAX_VALUE // Don't want to worry about running out; using endTurn to reset discard
+        env.addMethod(DrawMethod { gameState })
+
+        val evaluator = Evaluator()
+
+        assertThat(gameState.deck.cards).hasSize(8)
+        assertThat(gameState.hand.cards).hasSize(0)
+        assertThat(gameState.discard.cards).hasSize(0)
+        evaluator.evaluate(env, "draw! 3")
+
+        assertThat(gameState.deck.cards).hasSize(5)
+        assertThat(gameState.hand.cards).hasSize(3)
+        assertThat(gameState.discard.cards).hasSize(0)
+
+        gameState.endTurn()
+        assertThat(gameState.deck.cards).hasSize(5)
+        assertThat(gameState.hand.cards).hasSize(0)
+        assertThat(gameState.discard.cards).hasSize(3)
+
+        // Emptying the deck shuffles doesn't trigger a discard refill
+        evaluator.evaluate(env, "draw! 5")
+        assertThat(gameState.deck.cards).hasSize(0)
+        assertThat(gameState.hand.cards).hasSize(5)
+        assertThat(gameState.discard.cards).hasSize(3)
+
+        evaluator.evaluate(env, "draw! 1") // Refill triggered
+        assertThat(gameState.deck.cards).hasSize(2)
+        assertThat(gameState.hand.cards).hasSize(6)
+        assertThat(gameState.discard.cards).hasSize(0)
+
+        gameState.endTurn()
+        assertThat(gameState.deck.cards).hasSize(2)
+        assertThat(gameState.hand.cards).hasSize(0)
+        assertThat(gameState.discard.cards).hasSize(6)
+
+        // Overdrawing will refill it from the discard pile automatically
+        evaluator.evaluate(env, "draw! 6")
+        assertThat(gameState.deck.cards).hasSize(2)
+        assertThat(gameState.hand.cards).hasSize(6)
+        assertThat(gameState.discard.cards).hasSize(0)
+
+        gameState.endTurn()
+        assertThat(gameState.deck.cards).hasSize(2)
+        assertThat(gameState.hand.cards).hasSize(0)
+        assertThat(gameState.discard.cards).hasSize(6)
+
+        // Draw count gets clamped to what you actually have
+        evaluator.evaluate(env, "draw! 999")
+        assertThat(gameState.deck.cards).hasSize(0)
+        assertThat(gameState.hand.cards).hasSize(8)
+        assertThat(gameState.discard.cards).hasSize(0)
+
+        gameState.endTurn()
+        assertThat(gameState.deck.cards).hasSize(0)
+        assertThat(gameState.hand.cards).hasSize(0)
+        assertThat(gameState.discard.cards).hasSize(8)
+
+        // Negative draw counts are not allowed
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "draw! -1")
         }
     }
 }

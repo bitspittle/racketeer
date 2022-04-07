@@ -115,6 +115,11 @@ class CollectionMethodsTest {
 
         assertThat(evaluator.evaluate(env, "take strs 2") as List<String>).containsExactly("Aa", "Bb").inOrder()
         assertThat(evaluator.evaluate(env, "take --from 'back strs 2") as List<String>).containsExactly("Cc", "Dd").inOrder()
+
+        assertThrows<EvaluationException> {
+            // Negative numbers are not allowed
+            evaluator.evaluate(env, "take ints -5")
+        }
     }
 
     @Test
