@@ -11,7 +11,7 @@ class IfMethod : Method("if", 3) {
         val cond = env.expectConvert<Boolean>(params[0])
 
         return env.scoped {
-            env.addConverter(PlaceholderConverter(Expr.Empty, Expr::class))
+            env.addConverter(PlaceholderConverter(Expr.Empty))
 
             val trueExpr = env.expectConvert<Expr>(params[1])
             val falseExpr = env.expectConvert<Expr>(params[2])

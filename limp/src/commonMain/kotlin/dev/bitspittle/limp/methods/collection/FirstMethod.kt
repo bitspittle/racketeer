@@ -15,7 +15,7 @@ class FirstMethod : Method("first", 2) {
     override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
         val list = env.expectConvert<List<Any>>(params[0])
         val predicate = env.scoped {
-            env.addConverter(PlaceholderConverter(Expr.Stub(true), toClass = Expr::class))
+            env.addConverter(PlaceholderConverter(Expr.Stub(true)))
             env.expectConvert<Expr>(params[1])
         }
 
