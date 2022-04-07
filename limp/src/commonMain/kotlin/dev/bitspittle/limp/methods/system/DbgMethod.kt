@@ -11,12 +11,9 @@ class DbgMethod(private val log: (String) -> Unit) : Method("dbg", 1) {
     override suspend fun invoke(env: Environment, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
         val message = options["msg"]?.let { env.expectConvert<String>(it) }
         log(buildString {
-            append("[DBG] ")
-            if (!message.isNullOrBlank()) {
-                append(message)
-                append(": ")
-            }
-            append(params[0])
+            append(message.takeUnless { it.isNullOrBlank() } ?: "Debug")
+            append(": ")
+            append("${params[0]} # ${params[0]::class.simpleName}")
         })
 
         return params[0]
