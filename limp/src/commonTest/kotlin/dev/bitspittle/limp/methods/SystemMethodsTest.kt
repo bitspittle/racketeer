@@ -147,6 +147,21 @@ class SystemMethodsTest {
     }
 
     @Test
+    fun testRunMethod() = runTest {
+        val env = Environment()
+        env.addMethod(RunMethod())
+        env.addMethod(SetMethod())
+        env.addMethod(AddMethod())
+
+        val evaluator = Evaluator()
+        assertThat(evaluator.evaluate(env, "run '(set '\$x 10) '(set '\$y 20) '(+ \$x \$y)")).isEqualTo(30)
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "\$x") // Variables are unscoped after run
+        }
+        assertThat(evaluator.evaluate(env, "run")).isEqualTo(Unit)
+    }
+
+    @Test
     fun testDbgMethod() = runTest {
         val env = Environment()
         val service = TestLangService()
