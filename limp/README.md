@@ -15,6 +15,18 @@ Limp is designed to be very simple, with a limited number of expression types:
 
 You can also use the `#` symbol to indicate a comment that runs to the end of the line.
 
+### Differences from Lisp
+
+_This is not a complete list but a glance at some larger deviations._
+
+- Designed for Kotlin Multiplatform
+- Optional parameters for methods
+- Method naming convention taken from Ruby ("dangerous" methods end with a `!`, query methods end with a `?`)
+- Comments use the `#` symbol
+- Only supported primitives types are _String_ and _Int_
+  - More advanced types can be registered via Kotlin on the backend
+- No currying support. Methods either take in a fixed number of parameters or they consume the rest of the block
+
 ### Polish Notation
 
 For parsing simplicity, Limp uses polish (also called *prefix*) notation. That is, addition looks like `(+ 1 2)` instead
