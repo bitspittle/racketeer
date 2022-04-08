@@ -7,6 +7,7 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.collection.*
+import dev.bitspittle.limp.methods.compare.EqualsMethod
 import dev.bitspittle.limp.methods.math.MulMethod
 import dev.bitspittle.limp.methods.system.SetMethod
 import dev.bitspittle.racketeer.model.card.Card
@@ -15,6 +16,7 @@ import dev.bitspittle.racketeer.scripting.TestGameService
 import dev.bitspittle.racketeer.scripting.addVariablesInto
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.card.*
+import dev.bitspittle.racketeer.scripting.methods.pile.CopyToMethod
 import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.Test
@@ -77,13 +79,14 @@ class CardMethodsTest {
 
         val evaluator = Evaluator()
 
-        val card = CardTemplate("test-card", "", listOf(), cost = 2, vp = 5).instantiate()
+        val card = CardTemplate("test-card", "", listOf("type-a", "type-b"), cost = 2, vp = 5).instantiate()
         env.storeValue("card", card)
 
         assertThat(evaluator.evaluate(env, "card-get card 'cost")).isEqualTo(2)
         assertThat(evaluator.evaluate(env, "card-get card 'vp")).isEqualTo(5)
         assertThat(evaluator.evaluate(env, "card-get card 'name")).isEqualTo("test-card")
         assertThat(evaluator.evaluate(env, "card-get card 'id")).isInstanceOf<Uuid>()
+        assertThat(evaluator.evaluate(env, "card-get card 'types") as List<String>).containsExactly("type-a", "type-b").inOrder()
 
         assertThrows<EvaluationException> {
             evaluator.evaluate(env, "card-get card 'invalid-label")
@@ -174,5 +177,49 @@ class CardMethodsTest {
         evaluator.evaluate(env, "upgrade! \$cards 'cash")
         assertThat(evaluator.evaluate(env, "count \$cards '(has-upgrade? \$it 'cash)")).isEqualTo(2)
         assertThat(evaluator.evaluate(env, "count \$cards '(has-upgrade? \$it 'influence)")).isEqualTo(0)
+    }
+
+    @Test
+    fun testHasTypeMethod() = runTest {
+        val env = Environment()
+        val service = TestGameService()
+
+        val gameState = service.gameState
+        env.addMethod(HasTypeMethod(service.gameData.cardTypes))
+        env.addMethod(SingleMethod())
+        env.addMethod(EqualsMethod())
+        env.addMethod(CardGetMethod())
+        env.addMethod(ListGetMethod())
+        env.addMethod(CopyToMethod { gameState })
+        env.addMethod(SetMethod())
+        env.addConverter(PileToCardsConverter())
+
+        val evaluator = Evaluator()
+        gameState.addVariablesInto(env)
+        evaluator.evaluate(env, "copy-to! \$hand single \$all-cards '(= card-get \$it 'name \"Roving Gambler\")")
+        evaluator.evaluate(env, "set '\$card list-get \$hand 0")
+        val card = evaluator.evaluate(env, "\$card") as Card
+        assertThat(card.template.types).containsExactly("thief", "spy").inOrder()
+
+        // From TestGameService:
+        // cardTypes:
+        //      - Action
+        //      - Treasure
+        //      - Thief
+        //      - Spy
+        //      - Legend
+        assertThat(evaluator.evaluate(env, "has-type? \$card 'thief") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "has-type? \$card 'spy") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "has-type? \$card 'action") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "has-type? \$card 'treasure") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "has-type? \$card 'legend") as Boolean).isFalse()
+
+        assertThat(evaluator.evaluate(env, "card-get \$card 'types") as List<String>)
+            .containsExactly("thief", "spy")
+            .inOrder()
+
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "has-type? \$card 'invalid-type")
+        }
     }
 }

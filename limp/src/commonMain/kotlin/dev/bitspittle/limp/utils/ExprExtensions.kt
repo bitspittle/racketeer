@@ -3,10 +3,14 @@ package dev.bitspittle.limp.utils
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.types.Expr
 
+private fun String.toIdentifierName(): String {
+    return this.lowercase().replace('_', '-')
+}
+
 private fun <E: Enum<E>> Array<E>.toIdentifierNames(): Sequence<Pair<E, String>> {
     return this
         .asSequence()
-        .map { enum -> enum to enum.name.lowercase().replace('_', '-') }
+        .map { enum -> enum to enum.name.toIdentifierName() }
 }
 
 /**
@@ -35,3 +39,13 @@ fun <E: Enum<E>> Expr.Identifier.toEnumOrNull(values: Array<E>): E? {
 
 fun <E: Enum<E>> Expr.Identifier.toEnum(values: Array<E>): E = toEnumOrNull(values)
     ?: throw EvaluationException(ctx, "Identifier name expected to match one of: ${values.toIdentifierNames().map { it.second }.joinToString()}")
+
+fun Expr.Identifier.toValueOrNull(values: Iterable<String>): String? {
+    return values
+        .asSequence()
+        .filter { it.toIdentifierName() == this.name }
+        .firstOrNull()
+}
+
+fun Expr.Identifier.toValue(values: Iterable<String>): String = toValueOrNull(values)
+    ?: throw EvaluationException(ctx, "Identifier name expected to match one of: ${values.joinToString { it.toIdentifierName() }}")
