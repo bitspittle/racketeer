@@ -34,8 +34,8 @@ class SystemMethodsTest {
 
         evaluator.evaluate(env, "set 'int1 12")
         evaluator.evaluate(env, "set 'int2 34")
-        assertThat(env.loadValue("int1")!!).isEqualTo(12)
-        assertThat(env.loadValue("int2")!!).isEqualTo(34)
+        assertThat(env.expectValue("int1")).isEqualTo(12)
+        assertThat(env.expectValue("int2")).isEqualTo(34)
         assertThat(env.loadValue("str")).isNull()
 
         assertThat(evaluator.evaluate(env, "= int1 12")).isEqualTo(true)
@@ -43,7 +43,7 @@ class SystemMethodsTest {
         assertThat(evaluator.evaluate(env, "+ int1 int2")).isEqualTo(46)
 
         evaluator.evaluate(env, "set 'str \"Dummy text\"")
-        assertThat(env.loadValue("str")!!).isEqualTo("Dummy text")
+        assertThat(env.expectValue("str")).isEqualTo("Dummy text")
 
         assertThat(evaluator.evaluate(env, "= str \"Dummy text\"")).isEqualTo(true)
         assertThat(evaluator.evaluate(env, "= str \"Smart text\"")).isEqualTo(false)
@@ -88,7 +88,7 @@ class SystemMethodsTest {
             assertThat(env.getMethod("clamp")).isNull()
 
             evaluator.evaluate(env, "def 'clamp 'val 'low 'hi '(min (max low val) hi)")
-            env.getMethod("clamp")!!.let { result ->
+            env.expectMethod("clamp").let { result ->
                 assertThat(result.name).isEqualTo("clamp")
                 assertThat(result.numArgs).isEqualTo(3)
                 assertThat(result.consumeRest).isEqualTo(false)
