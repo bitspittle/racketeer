@@ -1,7 +1,6 @@
 package dev.bitspittle.racketeer.model.game
 
 import com.benasher44.uuid.Uuid
-import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.racketeer.model.card.CardRunner
 import dev.bitspittle.racketeer.model.card.*
@@ -231,7 +230,7 @@ class GameState internal constructor(
 
         // Playing this card might install an effect, but that shouldn't take effect until the next card is played
         val streetEffectsCopy = streetEffects.toList()
-        cardRunner.withActionQueue {
+        cardRunner.withCardQueue {
             enqueue(card)
             start()
             streetEffectsCopy.forEach { streetEffect -> streetEffect.invoke(card) }

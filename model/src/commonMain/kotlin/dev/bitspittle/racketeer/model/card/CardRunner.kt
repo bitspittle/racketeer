@@ -6,8 +6,8 @@ abstract class CardRunner {
 
     protected abstract fun createCardQueue(): CardQueue
 
-    suspend fun withActionQueue(block: suspend CardQueue.() -> Unit) {
-        require(cardQueue == null) { "Attempt to start running new actions while previous actions haven't finished yet. Use ActionQueue.enqueue instead."}
+    suspend fun withCardQueue(block: suspend CardQueue.() -> Unit) {
+        require(cardQueue == null) { "Attempt to start running new actions while previous actions haven't finished yet. Use CardQueue.enqueue instead."}
         cardQueue = createCardQueue()
         try {
             cardQueue!!.block()

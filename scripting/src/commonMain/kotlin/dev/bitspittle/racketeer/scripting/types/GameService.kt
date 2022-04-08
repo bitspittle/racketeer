@@ -14,5 +14,5 @@ interface GameService {
 
     fun log(message: String)
 
-    fun expectCardQueue() = cardQueue ?: throw IllegalStateException("ActionQueue should exist while running cards")
+    fun expectCardQueue() = cardQueue ?: throw IllegalStateException("CardQueue should exist while running cards")
 }
