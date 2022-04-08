@@ -3,17 +3,15 @@ package dev.bitspittle.racketeer.model.game
 import com.benasher44.uuid.Uuid
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.ListStrategy
-import dev.bitspittle.racketeer.model.action.ActionRunner
+import dev.bitspittle.racketeer.model.card.CardRunner
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.shop.MutableShop
 import dev.bitspittle.racketeer.model.shop.Shop
-import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random
 
 class GameState internal constructor(
     private val random: Random,
     val allCards: List<CardTemplate>,
-    private val compiledActions: Map<CardTemplate, List<Expr>>,
     numTurns: Int,
     turn: Int,
     totalCashEarned: Int,
@@ -34,7 +32,6 @@ class GameState internal constructor(
     constructor(data: GameData, random: Random = Random.Default) : this(
         random = random,
         allCards = data.cards,
-        compiledActions = data.cards.associateWith { card -> card.actions.map { Expr.parse(it) } },
         numTurns = data.numTurns,
         turn = 0,
         totalCashEarned = 0,
@@ -226,7 +223,7 @@ class GameState internal constructor(
         }
     }
 
-    suspend fun play(actionRunner: ActionRunner, handIndex: Int) {
+    suspend fun play(cardRunner: CardRunner, handIndex: Int) {
         require(handIndex in hand.cards.indices) { "Attempt to play card with an invalid hand index $handIndex, when hand is size ${hand.cards.size}"}
         val card = hand.cards[handIndex]
 
@@ -234,8 +231,8 @@ class GameState internal constructor(
 
         // Playing this card might install an effect, but that shouldn't take effect until the next card is played
         val streetEffectsCopy = streetEffects.toList()
-        actionRunner.withActionQueue {
-            enqueue(compiledActions.getValue(card.template))
+        cardRunner.withActionQueue {
+            enqueue(card)
             start()
             streetEffectsCopy.forEach { streetEffect -> streetEffect.invoke(card) }
         }
@@ -262,7 +259,6 @@ class GameState internal constructor(
         return GameState(
             random,
             allCards,
-            compiledActions,
             numTurns,
             turn,
             totalCashEarned,

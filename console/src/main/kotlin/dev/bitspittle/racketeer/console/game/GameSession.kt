@@ -15,12 +15,13 @@ import dev.bitspittle.limp.types.LangService
 import dev.bitspittle.limp.utils.installDefaults
 import dev.bitspittle.racketeer.console.view.ViewStackImpl
 import dev.bitspittle.racketeer.console.view.views.PreDrawView
-import dev.bitspittle.racketeer.model.action.ActionRunner
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.text.Describer
-import dev.bitspittle.racketeer.scripting.installGameLogic
+import dev.bitspittle.racketeer.scripting.utils.installGameLogic
+import dev.bitspittle.racketeer.scripting.types.CardRunnerImpl
 import dev.bitspittle.racketeer.scripting.types.GameService
+import dev.bitspittle.racketeer.scripting.utils.compileActions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -74,19 +75,21 @@ class GameSession(
         }
 
         val viewStack = ViewStackImpl()
+        // Compile early to suss out any syntax errors
+        val compiledActions = gameData.cards.associateWith { it.compileActions() }
         val ctx = GameContext(
             gameData,
             Describer(gameData),
             GameState(gameData),
             env,
-            ActionRunner(env),
+            CardRunnerImpl(env) { card -> compiledActions.getValue(card.template) },
             viewStack,
             app,
         )
         env.installGameLogic(object : GameService {
             override val gameData = ctx.data
             override val gameState get() = ctx.state
-            override val actionQueue get() = ctx.actionRunner.actionQueue
+            override val cardQueue get() = ctx.cardRunner.cardQueue
 
             override fun log(message: String) {
                 app.log(message)

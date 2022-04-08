@@ -1,11 +1,8 @@
 package dev.bitspittle.racketeer.scripting
 
-import dev.bitspittle.racketeer.model.action.ActionQueue
-import dev.bitspittle.racketeer.model.action.ActionRunner
+import dev.bitspittle.racketeer.model.card.CardQueue
 import dev.bitspittle.racketeer.model.game.GameData
-import dev.bitspittle.racketeer.model.game.GameIcons
 import dev.bitspittle.racketeer.model.game.GameState
-import dev.bitspittle.racketeer.model.tier.Tier
 import dev.bitspittle.racketeer.scripting.types.GameService
 import kotlin.random.Random
 
@@ -127,13 +124,16 @@ private val FAKE_GAME_DATA_TEXT = """
         actions: - fx-add! '(game-set! 'cash '(+ ${'$'}it 1))
 """.trimIndent()
 
-private fun createFakeGameData() = GameData.decodeFromString(FAKE_GAME_DATA_TEXT)
+fun createFakeGameData() = GameData.decodeFromString(FAKE_GAME_DATA_TEXT)
 
 // Create a random with a fixed seed so tests run consistently
-class TestGameService(val random: Random = Random(0), getActionQueue: () -> ActionQueue? = { null }) : GameService {
-    override val gameData = createFakeGameData()
+class TestGameService(
+    val random: Random = Random(0),
+    override val gameData: GameData = createFakeGameData(),
+    private val getCardQueue: () -> CardQueue? = { null }
+) : GameService {
     override val gameState = GameState(gameData, random)
-    override val actionQueue = getActionQueue()
+    override val cardQueue get() = getCardQueue()
     private val _logs = mutableListOf<String>()
     val logs: List<String> = _logs
     override fun log(message: String) {

@@ -1,16 +1,11 @@
 package dev.bitspittle.racketeer.console.command.commands
 
-import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.view.views.PlayCardsView
-import dev.bitspittle.racketeer.scripting.addVariableTo
-import dev.bitspittle.racketeer.scripting.addVariablesInto
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import dev.bitspittle.racketeer.scripting.utils.addVariableTo
+import dev.bitspittle.racketeer.scripting.utils.addVariablesInto
 
 class PlayCardCommand(ctx: GameContext, private val handIndex: Int) : Command(ctx) {
     private val card = ctx.state.hand.cards[handIndex]
@@ -27,7 +22,7 @@ class PlayCardCommand(ctx: GameContext, private val handIndex: Int) : Command(ct
             ctx.state.addVariablesInto(this)
             card.addVariableTo(this)
             try {
-                ctx.state.play(ctx.actionRunner, handIndex)
+                ctx.state.play(ctx.cardRunner, handIndex)
                 ctx.viewStack.replaceView(PlayCardsView(ctx))
             } catch (ex: EvaluationException) {
                 ctx.app.log(ex.message!!)

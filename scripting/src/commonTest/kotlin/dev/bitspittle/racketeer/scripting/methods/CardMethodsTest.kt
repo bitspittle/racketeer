@@ -9,15 +9,18 @@ import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.collection.*
 import dev.bitspittle.limp.methods.compare.EqualsMethod
 import dev.bitspittle.limp.methods.math.MulMethod
+import dev.bitspittle.limp.methods.system.DbgMethod
+import dev.bitspittle.limp.methods.system.RunMethod
 import dev.bitspittle.limp.methods.system.SetMethod
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.scripting.TestGameService
-import dev.bitspittle.racketeer.scripting.addVariablesInto
+import dev.bitspittle.racketeer.scripting.utils.addVariablesInto
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.card.*
 import dev.bitspittle.racketeer.scripting.methods.game.GameRemoveMethod
 import dev.bitspittle.racketeer.scripting.methods.pile.CopyToMethod
+import dev.bitspittle.racketeer.scripting.types.CardQueueImpl
 import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.Test
@@ -222,5 +225,45 @@ class CardMethodsTest {
         assertThrows<EvaluationException> {
             evaluator.evaluate(env, "card-has-type? \$card 'invalid-type")
         }
+    }
+
+    @Test
+    fun testTriggerMethod() = runTest {
+        val env = Environment()
+
+        val cardQueue = CardQueueImpl(env)
+        val service = TestGameService { cardQueue }
+
+        env.addMethod(CardTriggerMethod(service::expectCardQueue))
+        env.addMethod(DbgMethod(service::log))
+        env.addMethod(RunMethod())
+        env.addMethod(CardGetMethod())
+
+        // card-trigger! enqueues a card to be played later, so all actions in the current card finish first
+        val card1 = CardTemplate(
+            "Card #1",
+            "",
+            listOf(),
+            actions = listOf("card-trigger! \$card2", "dbg card-get \$this 'name")
+        ).instantiate()
+        val card2 = CardTemplate(
+            "Card #2",
+            "",
+            listOf(),
+            actions = listOf("card-trigger! \$card3", "dbg card-get \$this 'name")
+        ).instantiate()
+        val card3 = CardTemplate("Card #3", "", listOf(), actions = listOf("dbg card-get \$this 'name")).instantiate()
+        env.storeValue("\$card1", card1)
+        env.storeValue("\$card2", card2)
+        env.storeValue("\$card3", card3)
+
+        assertThat(service.logs).isEmpty()
+        cardQueue.enqueue(card1)
+        cardQueue.start()
+        assertThat(service.logs).containsExactly(
+            "Debug: Card #1 # String",
+            "Debug: Card #2 # String",
+            "Debug: Card #3 # String"
+        ).inOrder()
     }
 }

@@ -7,7 +7,7 @@ import dev.bitspittle.limp.methods.collection.FirstMethod
 import dev.bitspittle.limp.methods.collection.TakeMethod
 import dev.bitspittle.limp.types.Placeholder
 import dev.bitspittle.racketeer.scripting.TestGameService
-import dev.bitspittle.racketeer.scripting.addVariablesInto
+import dev.bitspittle.racketeer.scripting.utils.addVariablesInto
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.pile.CopyToMethod
 import dev.bitspittle.racketeer.scripting.methods.pile.MoveToMethod

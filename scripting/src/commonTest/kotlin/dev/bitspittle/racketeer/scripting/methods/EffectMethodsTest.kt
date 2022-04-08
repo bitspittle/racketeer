@@ -7,25 +7,23 @@ import dev.bitspittle.limp.methods.collection.SingleMethod
 import dev.bitspittle.limp.methods.compare.EqualsMethod
 import dev.bitspittle.limp.methods.math.AddMethod
 import dev.bitspittle.limp.methods.system.SetMethod
-import dev.bitspittle.racketeer.model.action.ActionRunner
-import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.scripting.TestGameService
-import dev.bitspittle.racketeer.scripting.addVariablesInto
+import dev.bitspittle.racketeer.scripting.utils.addVariablesInto
 import dev.bitspittle.racketeer.scripting.methods.card.CardGetMethod
 import dev.bitspittle.racketeer.scripting.methods.card.CardSetMethod
 import dev.bitspittle.racketeer.scripting.methods.effect.FxAddMethod
 import dev.bitspittle.racketeer.scripting.methods.game.GameSetMethod
 import dev.bitspittle.racketeer.scripting.methods.pile.CopyToMethod
+import dev.bitspittle.racketeer.scripting.types.CardRunnerImpl
 import kotlinx.coroutines.test.runTest
-import kotlin.random.Random
 import kotlin.test.Test
 
 class EffectMethodsTest {
     @Test
     fun testFxAddMethod() = runTest {
         val env = Environment()
-        val actionRunner = ActionRunner(env)
-        val service = TestGameService(getActionQueue = { actionRunner.actionQueue })
+        val cardRunner = CardRunnerImpl(env, )
+        val service = TestGameService(getCardQueue = { cardRunner.cardQueue })
         val gameState = service.gameState
         env.addMethod(FxAddMethod { gameState })
         env.addMethod(GameSetMethod { gameState })
@@ -71,7 +69,7 @@ class EffectMethodsTest {
 
         // First, play the card with an effect. It should install an effect that happens on the NEXT CARD but not
         // itself (adding cash)
-        gameState.play(actionRunner, 0); --expectedHandSize
+        gameState.play(cardRunner, 0); --expectedHandSize
         assertThat(gameState.hand.cards.size).isEqualTo(expectedHandSize)
         assertThat(gameState.cash).isEqualTo(0) // Cash effect just installed but won't start until the next card
         assertThat(gameState.influence).isEqualTo(3) // Already installed effect affects game
@@ -79,7 +77,7 @@ class EffectMethodsTest {
         assertThat(card2.vp).isEqualTo(0)
         assertThat(card3.vp).isEqualTo(0)
 
-        gameState.play(actionRunner, 0); --expectedHandSize
+        gameState.play(cardRunner, 0); --expectedHandSize
         assertThat(gameState.hand.cards.size).isEqualTo(expectedHandSize)
         assertThat(gameState.cash).isEqualTo(1) // Cash effect starts taking effect
         assertThat(gameState.influence).isEqualTo(6)
@@ -87,7 +85,7 @@ class EffectMethodsTest {
         assertThat(card2.vp).isEqualTo(2) // Card just played affected
         assertThat(card3.vp).isEqualTo(0)
 
-        gameState.play(actionRunner, 0); --expectedHandSize
+        gameState.play(cardRunner, 0); --expectedHandSize
         assertThat(gameState.hand.cards.size).isEqualTo(expectedHandSize)
         assertThat(gameState.cash).isEqualTo(2)
         assertThat(gameState.influence).isEqualTo(9)

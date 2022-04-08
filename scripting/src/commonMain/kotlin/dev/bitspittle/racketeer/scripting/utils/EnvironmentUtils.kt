@@ -1,4 +1,4 @@
-package dev.bitspittle.racketeer.scripting
+package dev.bitspittle.racketeer.scripting.utils
 
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.racketeer.model.card.Card
@@ -19,7 +19,7 @@ import dev.bitspittle.racketeer.scripting.types.GameService
  */
 fun Environment.installGameLogic(service: GameService) {
     // System
-    addMethod(StopMethod(service::actionQueue))
+    addMethod(StopMethod(service::expectCardQueue))
     addMethod(CancelMethod())
 
     // Game
@@ -34,6 +34,7 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(CardUpgradeMethod())
     addMethod(CardHasUpgradeMethod())
     addMethod(CardHasTypeMethod(service.gameData.cardTypes))
+    addMethod(CardTriggerMethod(service::expectCardQueue))
 
     // Pile
     addConverter(MutablePileToCardsConverter())
