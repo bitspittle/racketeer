@@ -81,6 +81,7 @@ class GameSession(
             app,
         )
         env.installGameLogic(object : GameService {
+            override val gameData = ctx.data
             override val gameState get() = ctx.state
 
             override fun log(message: String) {
