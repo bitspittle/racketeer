@@ -49,6 +49,8 @@ ratingScores:
 
 globalActions:
   - def 'game-add! '$property '$amount '(game-set! $property '(+ $it $amount))
+  - def 'if-true '$cond '$expr '(if $cond '$expr _)
+  - def 'if-false '$cond '$expr '(if $cond _ '$expr)
 
 cards:
   # TIER 1
