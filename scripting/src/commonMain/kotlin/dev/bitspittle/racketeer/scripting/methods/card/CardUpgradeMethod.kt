@@ -5,10 +5,12 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.converters.ItemToSingletonListConverter
 import dev.bitspittle.limp.listTypeOf
+import dev.bitspittle.limp.types.Expr
+import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.card.UpgradeType
 
-class RemoveMethod(private val getGameState: () -> GameState) : Method("remove!", 1) {
+class CardUpgradeMethod : Method("card-upgrade!", 2) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
@@ -16,12 +18,16 @@ class RemoveMethod(private val getGameState: () -> GameState) : Method("remove!"
         options: Map<String, Any>,
         rest: List<Any>
     ): Any {
+
         val cards = env.scoped {
             env.addConverter(ItemToSingletonListConverter(Card::class))
             env.expectConvert<List<Card>>(params[0], listTypeOf())
         }
 
-        getGameState().remove(cards)
+        val identifier = env.expectConvert<Expr.Identifier>(params[1])
+        val upgradeType = identifier.toEnum(UpgradeType.values())
+
+        cards.forEach { card -> card.upgrades.add(upgradeType) }
 
         return Unit
     }

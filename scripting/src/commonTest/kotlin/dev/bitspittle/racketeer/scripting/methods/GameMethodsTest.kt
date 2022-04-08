@@ -7,9 +7,9 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.math.PowMethod
 import dev.bitspittle.racketeer.scripting.TestGameService
-import dev.bitspittle.racketeer.scripting.methods.game.*
-import dev.bitspittle.racketeer.scripting.types.CancelPlayException
-import dev.bitspittle.racketeer.scripting.types.FinishPlayException
+import dev.bitspittle.racketeer.scripting.methods.game.GameDrawMethod
+import dev.bitspittle.racketeer.scripting.methods.game.GameGetMethod
+import dev.bitspittle.racketeer.scripting.methods.game.GameSetMethod
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -73,14 +73,14 @@ class GameMethodsTest {
         val service = TestGameService()
         val gameState = service.gameState
         gameState.numTurns = Int.MAX_VALUE // Don't want to worry about running out; using endTurn to reset discard
-        env.addMethod(DrawMethod { gameState })
+        env.addMethod(GameDrawMethod { gameState })
 
         val evaluator = Evaluator()
 
         assertThat(gameState.deck.cards).hasSize(8)
         assertThat(gameState.hand.cards).hasSize(0)
         assertThat(gameState.discard.cards).hasSize(0)
-        evaluator.evaluate(env, "draw! 3")
+        evaluator.evaluate(env, "game-draw! 3")
 
         assertThat(gameState.deck.cards).hasSize(5)
         assertThat(gameState.hand.cards).hasSize(3)
@@ -92,12 +92,12 @@ class GameMethodsTest {
         assertThat(gameState.discard.cards).hasSize(3)
 
         // Emptying the deck shuffles doesn't trigger a discard refill
-        evaluator.evaluate(env, "draw! 5")
+        evaluator.evaluate(env, "game-draw! 5")
         assertThat(gameState.deck.cards).hasSize(0)
         assertThat(gameState.hand.cards).hasSize(5)
         assertThat(gameState.discard.cards).hasSize(3)
 
-        evaluator.evaluate(env, "draw! 1") // Refill triggered
+        evaluator.evaluate(env, "game-draw! 1") // Refill triggered
         assertThat(gameState.deck.cards).hasSize(2)
         assertThat(gameState.hand.cards).hasSize(6)
         assertThat(gameState.discard.cards).hasSize(0)
@@ -108,7 +108,7 @@ class GameMethodsTest {
         assertThat(gameState.discard.cards).hasSize(6)
 
         // Overdrawing will refill it from the discard pile automatically
-        evaluator.evaluate(env, "draw! 6")
+        evaluator.evaluate(env, "game-draw! 6")
         assertThat(gameState.deck.cards).hasSize(2)
         assertThat(gameState.hand.cards).hasSize(6)
         assertThat(gameState.discard.cards).hasSize(0)
@@ -119,7 +119,7 @@ class GameMethodsTest {
         assertThat(gameState.discard.cards).hasSize(6)
 
         // Draw count gets clamped to what you actually have
-        evaluator.evaluate(env, "draw! 999")
+        evaluator.evaluate(env, "game-draw! 999")
         assertThat(gameState.deck.cards).hasSize(0)
         assertThat(gameState.hand.cards).hasSize(8)
         assertThat(gameState.discard.cards).hasSize(0)
@@ -131,28 +131,7 @@ class GameMethodsTest {
 
         // Negative draw counts are not allowed
         assertThrows<EvaluationException> {
-            evaluator.evaluate(env, "draw! -1")
-        }
-    }
-
-    @Test
-    fun testPlayExceptionMethods() = runTest {
-        val env = Environment()
-        env.addMethod(StopMethod())
-        env.addMethod(CancelMethod())
-
-        val evaluator = Evaluator()
-
-        assertThrows<EvaluationException> {
-            evaluator.evaluate(env, "stop!")
-        }.also { ex ->
-            assertThat(ex.cause is FinishPlayException)
-        }
-
-        assertThrows<EvaluationException> {
-            evaluator.evaluate(env, "cancel!")
-        }.also { ex ->
-            assertThat(ex.cause is CancelPlayException)
+            evaluator.evaluate(env, "game-draw! -1")
         }
     }
 }

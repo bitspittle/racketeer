@@ -9,31 +9,38 @@ import dev.bitspittle.racketeer.scripting.methods.card.*
 import dev.bitspittle.racketeer.scripting.methods.game.*
 import dev.bitspittle.racketeer.scripting.methods.pile.CopyToMethod
 import dev.bitspittle.racketeer.scripting.methods.pile.MoveToMethod
+import dev.bitspittle.racketeer.scripting.methods.system.CancelMethod
+import dev.bitspittle.racketeer.scripting.methods.system.StopMethod
 import dev.bitspittle.racketeer.scripting.types.GameService
 
 /**
  * Add a bunch of game-specific methods and other values here.
  */
 fun Environment.installGameLogic(service: GameService) {
-    addConverter(MutablePileToCardsConverter())
-    addConverter(PileToCardsConverter())
-
-    addMethod(GameGetMethod(service::gameState))
-    addMethod(GameSetMethod(service::gameState))
-    addMethod(DrawMethod(service::gameState))
+    // System
     addMethod(StopMethod())
     addMethod(CancelMethod())
 
+    // Game
+    addMethod(GameGetMethod(service::gameState))
+    addMethod(GameSetMethod(service::gameState))
+    addMethod(GameDrawMethod(service::gameState))
+    addMethod(GameRemoveMethod(service::gameState))
+
+    // Card
     addMethod(CardGetMethod())
     addMethod(CardSetMethod())
-    addMethod(RemoveMethod(service::gameState))
-    addMethod(UpgradeMethod())
-    addMethod(HasUpgradeMethod())
-    addMethod(HasTypeMethod(service.gameData.cardTypes))
+    addMethod(CardUpgradeMethod())
+    addMethod(CardHasUpgradeMethod())
+    addMethod(CardHasTypeMethod(service.gameData.cardTypes))
 
+    // Pile
+    addConverter(MutablePileToCardsConverter())
+    addConverter(PileToCardsConverter())
     addMethod(CopyToMethod(service::gameState))
     addMethod(MoveToMethod(service::gameState))
 
+    // Shop
     (0..4).forEach { i -> storeValue("\$tier${i + 1}", i) }
 }
 

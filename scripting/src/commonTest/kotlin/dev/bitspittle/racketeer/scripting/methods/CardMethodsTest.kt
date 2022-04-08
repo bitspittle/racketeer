@@ -16,6 +16,7 @@ import dev.bitspittle.racketeer.scripting.TestGameService
 import dev.bitspittle.racketeer.scripting.addVariablesInto
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.card.*
+import dev.bitspittle.racketeer.scripting.methods.game.GameRemoveMethod
 import dev.bitspittle.racketeer.scripting.methods.pile.CopyToMethod
 import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
@@ -99,7 +100,7 @@ class CardMethodsTest {
         val service = TestGameService(Random(123))
 
         val gameState = service.gameState
-        env.addMethod(RemoveMethod { gameState })
+        env.addMethod(GameRemoveMethod { gameState })
         env.addMethod(SizeMethod())
         env.addMethod(TakeMethod(service.random))
         env.addMethod(ListGetMethod())
@@ -114,7 +115,7 @@ class CardMethodsTest {
 
         env.scoped {
             gameState.addVariablesInto(this)
-            evaluator.evaluate(env, "remove! take \$owned 2")
+            evaluator.evaluate(env, "game-remove! take \$owned 2")
         }
 
         val ownedCountRemoveMultipleCards = env.scoped {
@@ -126,7 +127,7 @@ class CardMethodsTest {
 
         env.scoped {
             gameState.addVariablesInto(this)
-            evaluator.evaluate(env, "remove! list-get \$owned 0")
+            evaluator.evaluate(env, "game-remove! list-get \$owned 0")
         }
 
         val ownedCountRemoveSingleCard = env.scoped {
@@ -143,8 +144,8 @@ class CardMethodsTest {
         val service = TestGameService()
 
         val gameState = service.gameState
-        env.addMethod(UpgradeMethod())
-        env.addMethod(HasUpgradeMethod())
+        env.addMethod(CardUpgradeMethod())
+        env.addMethod(CardHasUpgradeMethod())
         env.addMethod(SetMethod())
         env.addMethod(ListGetMethod())
         env.addMethod(DropMethod(service.random))
@@ -156,27 +157,27 @@ class CardMethodsTest {
         gameState.addVariablesInto(env)
         evaluator.evaluate(env, "set '\$card list-get \$deck 0")
         evaluator.evaluate(env, "set '\$cards take (drop \$deck 1) 2")
-        assertThat(evaluator.evaluate(env, "has-upgrade? \$card 'cash") as Boolean).isFalse()
-        assertThat(evaluator.evaluate(env, "has-upgrade? \$card 'influence") as Boolean).isFalse()
-        assertThat(evaluator.evaluate(env, "has-upgrade? \$card 'luck") as Boolean).isFalse()
-        assertThat(evaluator.evaluate(env, "has-upgrade? \$card 'patience") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'cash") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'influence") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'luck") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'patience") as Boolean).isFalse()
 
         assertThrows<EvaluationException> {
-            evaluator.evaluate(env, "has-upgrade? \$card 'invalid-property")
+            evaluator.evaluate(env, "card-has-upgrade? \$card 'invalid-property")
         }
 
-        evaluator.evaluate(env, "upgrade! \$card 'influence")
-        evaluator.evaluate(env, "upgrade! \$card 'patience")
-        assertThat(evaluator.evaluate(env, "has-upgrade? \$card 'cash") as Boolean).isFalse()
-        assertThat(evaluator.evaluate(env, "has-upgrade? \$card 'influence") as Boolean).isTrue()
-        assertThat(evaluator.evaluate(env, "has-upgrade? \$card 'luck") as Boolean).isFalse()
-        assertThat(evaluator.evaluate(env, "has-upgrade? \$card 'patience") as Boolean).isTrue()
+        evaluator.evaluate(env, "card-upgrade! \$card 'influence")
+        evaluator.evaluate(env, "card-upgrade! \$card 'patience")
+        assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'cash") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'influence") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'luck") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'patience") as Boolean).isTrue()
 
-        assertThat(evaluator.evaluate(env, "count \$cards '(has-upgrade? \$it 'cash)")).isEqualTo(0)
-        assertThat(evaluator.evaluate(env, "count \$cards '(has-upgrade? \$it 'influence)")).isEqualTo(0)
-        evaluator.evaluate(env, "upgrade! \$cards 'cash")
-        assertThat(evaluator.evaluate(env, "count \$cards '(has-upgrade? \$it 'cash)")).isEqualTo(2)
-        assertThat(evaluator.evaluate(env, "count \$cards '(has-upgrade? \$it 'influence)")).isEqualTo(0)
+        assertThat(evaluator.evaluate(env, "count \$cards '(card-has-upgrade? \$it 'cash)")).isEqualTo(0)
+        assertThat(evaluator.evaluate(env, "count \$cards '(card-has-upgrade? \$it 'influence)")).isEqualTo(0)
+        evaluator.evaluate(env, "card-upgrade! \$cards 'cash")
+        assertThat(evaluator.evaluate(env, "count \$cards '(card-has-upgrade? \$it 'cash)")).isEqualTo(2)
+        assertThat(evaluator.evaluate(env, "count \$cards '(card-has-upgrade? \$it 'influence)")).isEqualTo(0)
     }
 
     @Test
@@ -185,7 +186,7 @@ class CardMethodsTest {
         val service = TestGameService()
 
         val gameState = service.gameState
-        env.addMethod(HasTypeMethod(service.gameData.cardTypes))
+        env.addMethod(CardHasTypeMethod(service.gameData.cardTypes))
         env.addMethod(SingleMethod())
         env.addMethod(EqualsMethod())
         env.addMethod(CardGetMethod())
@@ -208,18 +209,18 @@ class CardMethodsTest {
         //      - Thief
         //      - Spy
         //      - Legend
-        assertThat(evaluator.evaluate(env, "has-type? \$card 'thief") as Boolean).isTrue()
-        assertThat(evaluator.evaluate(env, "has-type? \$card 'spy") as Boolean).isTrue()
-        assertThat(evaluator.evaluate(env, "has-type? \$card 'action") as Boolean).isFalse()
-        assertThat(evaluator.evaluate(env, "has-type? \$card 'treasure") as Boolean).isFalse()
-        assertThat(evaluator.evaluate(env, "has-type? \$card 'legend") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "card-has-type? \$card 'thief") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "card-has-type? \$card 'spy") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "card-has-type? \$card 'action") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "card-has-type? \$card 'treasure") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "card-has-type? \$card 'legend") as Boolean).isFalse()
 
         assertThat(evaluator.evaluate(env, "card-get \$card 'types") as List<String>)
             .containsExactly("thief", "spy")
             .inOrder()
 
         assertThrows<EvaluationException> {
-            evaluator.evaluate(env, "has-type? \$card 'invalid-type")
+            evaluator.evaluate(env, "card-has-type? \$card 'invalid-type")
         }
     }
 }
