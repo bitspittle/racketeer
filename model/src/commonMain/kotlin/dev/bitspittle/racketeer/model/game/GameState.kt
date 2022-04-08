@@ -202,8 +202,7 @@ class GameState internal constructor(
         }
 
         if (remainingCount > 0) {
-            move(_discard, _deck)
-            _deck.cards.shuffle()
+            move(_discard, _deck, ListStrategy.RANDOM)
         }
 
         _deck.cards.take(remainingCount).let { cards ->
