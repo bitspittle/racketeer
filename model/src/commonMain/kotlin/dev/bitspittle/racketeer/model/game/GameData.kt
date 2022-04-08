@@ -76,7 +76,7 @@ data class GameData(
                     }
 
                     if (!inMultilineString) {
-                        if (line.endsWith(": |")) {
+                        if (line.trimEnd().endsWith(" |")) {
                             append(line.substringBeforeLast("|"))
                             openMultilineString(line)
                         } else {
