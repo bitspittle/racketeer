@@ -9,7 +9,7 @@ class BrowseShopCommand(ctx: GameContext) : Command(ctx) {
 
     override val description = "Look over the cards in the shop, or take other relevant actions."
 
-    override fun invoke(): Boolean {
+    override suspend fun invoke(): Boolean {
         ctx.viewStack.pushView(BrowseShopView(ctx))
         return true
     }

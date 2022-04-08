@@ -9,7 +9,7 @@ class BrowseDeckCommand(ctx: GameContext) : Command(ctx) {
 
     override val description = "Look over the cards in your deck."
 
-    override fun invoke(): Boolean {
+    override suspend fun invoke(): Boolean {
         return if (ctx.state.deck.cards.isNotEmpty()) {
             ctx.viewStack.pushView(BrowseDeckView(ctx))
             true

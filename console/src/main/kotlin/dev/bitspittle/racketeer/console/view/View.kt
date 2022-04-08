@@ -21,7 +21,7 @@ abstract class View(protected val ctx: GameContext) {
     protected open val allowQuit = true
     protected open val allowGoBack = true
 
-    fun handleKey(key: Key): Boolean {
+    suspend fun handleKey(key: Key): Boolean {
         return when (key) {
             Keys.ESC -> {
                 if (allowGoBack) {

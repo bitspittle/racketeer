@@ -21,6 +21,9 @@ import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.installGameLogic
 import dev.bitspittle.racketeer.scripting.types.GameService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlin.random.Random
 
@@ -43,10 +46,10 @@ class GameSession(
         }.run()
 
         val latestLogs = mutableListOf<String>()
-        var shouldQuit = false
+        var handleQuit: () -> Unit = {}
         val app = object : App {
             override fun quit() {
-                shouldQuit = true
+                handleQuit()
             }
 
             override fun log(message: String) {
@@ -101,13 +104,12 @@ class GameSession(
                 latestLogs.clear()
             }
         }.runUntilSignal {
+            handleQuit = { signal() }
             onKeyPressed {
-                if (viewStack.currentView.handleKey(key)) {
-                    rerender()
-                }
-
-                if (shouldQuit) {
-                    signal()
+                CoroutineScope(Dispatchers.IO).launch {
+                    if (viewStack.currentView.handleKey(key)) {
+                        rerender()
+                    }
                 }
             }
         }

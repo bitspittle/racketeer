@@ -8,7 +8,7 @@ import dev.bitspittle.racketeer.model.game.GameState
 class NewGameCommand(ctx: GameContext) : Command(ctx) {
     override val title = "New Game"
 
-    override fun invoke(): Boolean {
+    override suspend fun invoke(): Boolean {
         check(!ctx.viewStack.canGoBack)
         ctx.state = GameState(ctx.data)
         ctx.viewStack.replaceView(PreDrawView(ctx))

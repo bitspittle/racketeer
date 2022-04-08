@@ -19,21 +19,19 @@ class PlayCardCommand(ctx: GameContext, private val handIndex: Int) : Command(ct
 
     override val description = ctx.describer.describe(card)
 
-    override fun invoke(): Boolean {
+    override suspend fun invoke(): Boolean {
         val prevState = ctx.state
         ctx.state = prevState.copy()
 
-        CoroutineScope(Dispatchers.IO).launch {
-            ctx.env.scoped {
-                ctx.state.addVariablesInto(this)
-                card.addVariableTo(this)
-                try {
-                    ctx.state.play(ctx.actionRunner, handIndex)
-                    ctx.viewStack.replaceView(PlayCardsView(ctx))
-                } catch (ex: EvaluationException) {
-                    ctx.app.log(ex.message!!)
-                    ctx.state = prevState
-                }
+        ctx.env.scoped {
+            ctx.state.addVariablesInto(this)
+            card.addVariableTo(this)
+            try {
+                ctx.state.play(ctx.actionRunner, handIndex)
+                ctx.viewStack.replaceView(PlayCardsView(ctx))
+            } catch (ex: EvaluationException) {
+                ctx.app.log(ex.message!!)
+                ctx.state = prevState
             }
         }
 

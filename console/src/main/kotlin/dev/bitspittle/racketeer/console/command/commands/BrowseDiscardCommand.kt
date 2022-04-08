@@ -10,7 +10,7 @@ class BrowseDiscardCommand(ctx: GameContext) : Command(ctx) {
 
     override val description = "Look over the cards in the discard pile."
 
-    override fun invoke(): Boolean {
+    override suspend fun invoke(): Boolean {
         return if (ctx.state.discard.cards.isNotEmpty()) {
             ctx.viewStack.pushView(BrowseDiscardView(ctx))
             true
