@@ -42,12 +42,14 @@ class SortMethod : Method("sort!", 1) {
                     val i = binarySearch.mid
                     val currItem = sorted[i]
                     val compare = env.expectConvert<Int>(
-                        eval.extend(
-                            mapOf(
-                                "\$a" to toInsert,
-                                "\$b" to currItem,
-                            )
-                        ).evaluate(env, comparator)
+                        env.scoped { // Don't let values defined during the lambda escape
+                            eval.extend(
+                                mapOf(
+                                    "\$a" to toInsert,
+                                    "\$b" to currItem,
+                                )
+                            ).evaluate(env, comparator)
+                        }
                     )
                     if (compare == 0) {
                         sorted.add(binarySearch.mid, toInsert)

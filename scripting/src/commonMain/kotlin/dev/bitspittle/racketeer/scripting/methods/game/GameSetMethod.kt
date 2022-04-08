@@ -26,8 +26,10 @@ class GameSetMethod(private val getGameState: () -> GameState) : Method("game-se
             GameProperty.INFLUENCE -> gameState.influence
         }
 
-        val evaluator = eval.extend(mapOf("\$it" to currValue))
-        val newValue = env.expectConvert<Int>(evaluator.evaluate(env, setExpr))
+        val newValue = env.scoped { // Don't let values defined during the lambda escape
+            val evaluator = eval.extend(mapOf("\$it" to currValue))
+            env.expectConvert<Int>(evaluator.evaluate(env, setExpr))
+        }
         when (property) {
             GameProperty.CASH -> gameState.cash = newValue
             GameProperty.VP -> gameState.vp = newValue

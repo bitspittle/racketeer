@@ -12,7 +12,9 @@ class JoinToStringMethod : Method("join-to-string", 1) {
         val format = options["format"]?.let { env.expectConvert<Expr>(it)}
         return (format?.let { format ->
             list.map { item ->
-                env.expectConvert(eval.extend(mapOf("\$it" to item)).evaluate(env, format))
+                env.scoped { // Don't let values defined during the lambda escape
+                    env.expectConvert(eval.extend(mapOf("\$it" to item)).evaluate(env, format))
+                }
             }
         } ?: list).joinToString(separator)
     }

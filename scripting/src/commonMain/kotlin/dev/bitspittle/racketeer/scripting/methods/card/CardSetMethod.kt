@@ -35,8 +35,10 @@ class CardSetMethod : Method("card-set!", 3) {
                 )
             }
 
-            val evaluator = eval.extend(mapOf("\$it" to currValue))
-            val newValue = env.expectConvert<Int>(evaluator.evaluate(env, setExpr))
+            val newValue = env.scoped { // Don't let values defined during the lambda escape
+                val evaluator = eval.extend(mapOf("\$it" to currValue))
+                env.expectConvert<Int>(evaluator.evaluate(env, setExpr))
+            }
             when (property) {
                 CardProperty.VP -> card.vp = newValue
                 else -> error("Unhandled card-set case: ${property.name}")

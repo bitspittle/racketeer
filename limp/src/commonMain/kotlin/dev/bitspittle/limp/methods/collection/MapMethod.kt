@@ -20,7 +20,9 @@ class MapMethod : Method("map", 2) {
         val transform = env.expectConvert<Expr>(params[1])
 
         return list.map { item ->
-            env.expectConvert<Any>(eval.extend(mapOf("\$it" to item)).evaluate(env, transform))
+            env.scoped { // Don't let values defined during the lambda escape
+                env.expectConvert<Any>(eval.extend(mapOf("\$it" to item)).evaluate(env, transform))
+            }
         }
     }
 }

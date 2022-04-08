@@ -26,7 +26,9 @@ class FirstMethod : Method("first", 2) {
         }
 
         return list.first { item ->
-            env.expectConvert(eval.extend(mapOf("\$it" to item)).evaluate(env, predicate))
+            env.scoped { // Don't let values defined during the lambda escape
+                env.expectConvert(eval.extend(mapOf("\$it" to item)).evaluate(env, predicate))
+            }
         }
     }
 }

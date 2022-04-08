@@ -20,7 +20,9 @@ class FilterMethod : Method("filter", 2) {
         val predicate = env.expectConvert<Expr>(params[1])
 
         return list.filter { item ->
-            env.expectConvert(eval.extend(mapOf("\$it" to item)).evaluate(env, predicate))
+            env.scoped { // Don't let values defined during the lambda escape
+                env.expectConvert(eval.extend(mapOf("\$it" to item)).evaluate(env, predicate))
+            }
         }
     }
 }

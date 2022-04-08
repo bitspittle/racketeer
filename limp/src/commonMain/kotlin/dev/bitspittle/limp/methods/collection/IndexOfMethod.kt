@@ -19,7 +19,9 @@ class IndexOfMethod : Method("index-of", 2) {
         val predicate = env.tryConvert<Expr>(params[1])
         return if (predicate != null) {
             list.indexOfFirst { item ->
-                env.expectConvert(eval.extend(mapOf("\$it" to item)).evaluate(env, predicate))
+                env.scoped { // Don't let values defined during the lambda escape
+                    env.expectConvert(eval.extend(mapOf("\$it" to item)).evaluate(env, predicate))
+                }
             }
         } else {
             list.indexOf(params[1])
