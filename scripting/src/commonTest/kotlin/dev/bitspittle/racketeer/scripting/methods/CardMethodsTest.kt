@@ -200,7 +200,7 @@ class CardMethodsTest {
 
         val evaluator = Evaluator()
         gameState.addVariablesInto(env)
-        evaluator.evaluate(env, "copy-to! \$hand single \$all-cards '(= card-get \$it 'name \"Roving Gambler\")")
+        evaluator.evaluate(env, "copy-to! \$hand single \$all-cards '(= card-get \$it 'name \"Embezzler\")")
         evaluator.evaluate(env, "set '\$card list-get \$hand 0")
         val card = evaluator.evaluate(env, "\$card") as Card
         assertThat(card.template.types).containsExactly("thief", "spy").inOrder()
