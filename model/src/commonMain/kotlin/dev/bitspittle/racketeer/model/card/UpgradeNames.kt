@@ -9,3 +9,10 @@ data class UpgradeNames(
     val luck: String,
     val patience: String,
 )
+
+enum class UpgradeType {
+    CASH,
+    INFLUENCE,
+    LUCK,
+    PATIENCE,
+}

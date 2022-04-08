@@ -6,21 +6,20 @@ import com.varabyte.truthish.assertThrows
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.exceptions.EvaluationException
-import dev.bitspittle.limp.methods.collection.ListGetMethod
-import dev.bitspittle.limp.methods.collection.ListMethod
-import dev.bitspittle.limp.methods.collection.SizeMethod
-import dev.bitspittle.limp.methods.collection.TakeMethod
+import dev.bitspittle.limp.methods.collection.*
 import dev.bitspittle.limp.methods.math.MulMethod
+import dev.bitspittle.limp.methods.system.SetMethod
+import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.scripting.TestGameService
 import dev.bitspittle.racketeer.scripting.addVariablesInto
-import dev.bitspittle.racketeer.scripting.methods.card.CardGetMethod
-import dev.bitspittle.racketeer.scripting.methods.card.CardSetMethod
-import dev.bitspittle.racketeer.scripting.methods.card.RemoveMethod
+import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
+import dev.bitspittle.racketeer.scripting.methods.card.*
 import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.Test
 
+@Suppress("UNCHECKED_CAST")
 class CardMethodsTest {
     @Test
     fun testCardSetMethod() = runTest {
@@ -133,5 +132,47 @@ class CardMethodsTest {
         }
 
         assertThat(ownedCountRemoveMultipleCards - 1).isEqualTo(ownedCountRemoveSingleCard)
+    }
+
+    @Test
+    fun testUpgradeMethods() = runTest {
+        val env = Environment()
+        val service = TestGameService()
+
+        val gameState = service.gameState
+        env.addMethod(UpgradeMethod())
+        env.addMethod(HasUpgradeMethod())
+        env.addMethod(SetMethod())
+        env.addMethod(ListGetMethod())
+        env.addMethod(DropMethod(service.random))
+        env.addMethod(TakeMethod(service.random))
+        env.addMethod(CountMethod())
+        env.addConverter(PileToCardsConverter())
+
+        val evaluator = Evaluator()
+        gameState.addVariablesInto(env)
+        evaluator.evaluate(env, "set '\$card list-get \$deck 0")
+        evaluator.evaluate(env, "set '\$cards take (drop \$deck 1) 2")
+        assertThat(evaluator.evaluate(env, "has-upgrade? \$card 'cash") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "has-upgrade? \$card 'influence") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "has-upgrade? \$card 'luck") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "has-upgrade? \$card 'patience") as Boolean).isFalse()
+
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "has-upgrade? \$card 'invalid-property")
+        }
+
+        evaluator.evaluate(env, "upgrade! \$card 'influence")
+        evaluator.evaluate(env, "upgrade! \$card 'patience")
+        assertThat(evaluator.evaluate(env, "has-upgrade? \$card 'cash") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "has-upgrade? \$card 'influence") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "has-upgrade? \$card 'luck") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "has-upgrade? \$card 'patience") as Boolean).isTrue()
+
+        assertThat(evaluator.evaluate(env, "count \$cards '(has-upgrade? \$it 'cash)")).isEqualTo(0)
+        assertThat(evaluator.evaluate(env, "count \$cards '(has-upgrade? \$it 'influence)")).isEqualTo(0)
+        evaluator.evaluate(env, "upgrade! \$cards 'cash")
+        assertThat(evaluator.evaluate(env, "count \$cards '(has-upgrade? \$it 'cash)")).isEqualTo(2)
+        assertThat(evaluator.evaluate(env, "count \$cards '(has-upgrade? \$it 'influence)")).isEqualTo(0)
     }
 }

@@ -123,6 +123,32 @@ class CollectionMethodsTest {
     }
 
     @Test
+    fun testDropMethod() = runTest {
+        val env = Environment()
+        env.addMethod(DropMethod(Random(123))) // Fixed seed so that we get the same shuffle everytime for this test
+
+        val evaluator = Evaluator()
+
+        env.storeValue("ints", listOf(1, 2, 3, 4, 5))
+        env.storeValue("strs", listOf("Aa", "Bb", "Cc", "Dd"))
+
+        assertThat(evaluator.evaluate(env, "drop ints 2") as List<Int>).containsExactly(3, 4, 5).inOrder()
+        assertThat(evaluator.evaluate(env, "drop ints 8") as List<Int>).isEmpty()
+        assertThat(evaluator.evaluate(env, "drop ints 0") as List<Int>).containsExactly(1, 2, 3, 4, 5).inOrder()
+
+        assertThat(evaluator.evaluate(env, "drop --from 'back ints 2") as List<Int>).containsExactly(1, 2, 3).inOrder()
+        assertThat(evaluator.evaluate(env, "drop --from 'random ints 3") as List<Int>).containsExactly(2, 5).inOrder()
+
+        assertThat(evaluator.evaluate(env, "drop strs 2") as List<String>).containsExactly("Cc", "Dd").inOrder()
+        assertThat(evaluator.evaluate(env, "drop --from 'back strs 2") as List<String>).containsExactly("Aa", "Bb").inOrder()
+
+        assertThrows<EvaluationException> {
+            // Negative numbers are not allowed
+            evaluator.evaluate(env, "drop ints -5")
+        }
+    }
+
+    @Test
     fun testFilterMethod() = runTest {
         val env = Environment()
         env.addMethod(FilterMethod())

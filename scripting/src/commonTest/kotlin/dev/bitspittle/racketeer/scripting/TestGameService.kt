@@ -127,7 +127,8 @@ private val FAKE_GAME_DATA_TEXT = """
 
 private fun createFakeGameData() = GameData.decodeFromString(FAKE_GAME_DATA_TEXT)
 
-class TestGameService(val random: Random = Random.Default) : GameService {
+// Create a random with a fixed seed so tests run consistently
+class TestGameService(val random: Random = Random(0)) : GameService {
     val gameData = createFakeGameData()
     override val gameState = GameState(gameData, random)
     private val _logs = mutableListOf<String>()
