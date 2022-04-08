@@ -6,6 +6,7 @@ import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.converters.MutablePileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.card.*
+import dev.bitspittle.racketeer.scripting.methods.effect.FxAddMethod
 import dev.bitspittle.racketeer.scripting.methods.game.*
 import dev.bitspittle.racketeer.scripting.methods.pile.CopyToMethod
 import dev.bitspittle.racketeer.scripting.methods.pile.MoveToMethod
@@ -18,7 +19,7 @@ import dev.bitspittle.racketeer.scripting.types.GameService
  */
 fun Environment.installGameLogic(service: GameService) {
     // System
-    addMethod(StopMethod())
+    addMethod(StopMethod(service::actionQueue))
     addMethod(CancelMethod())
 
     // Game
@@ -39,6 +40,9 @@ fun Environment.installGameLogic(service: GameService) {
     addConverter(PileToCardsConverter())
     addMethod(CopyToMethod(service::gameState))
     addMethod(MoveToMethod(service::gameState))
+
+    // Effects
+    addMethod(FxAddMethod(service::gameState))
 
     // Shop
     (0..4).forEach { i -> storeValue("\$tier${i + 1}", i) }

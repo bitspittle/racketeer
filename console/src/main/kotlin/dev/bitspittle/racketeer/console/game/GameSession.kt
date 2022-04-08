@@ -11,11 +11,11 @@ import com.varabyte.kotterx.decorations.BorderCharacters
 import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
-import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.LangService
 import dev.bitspittle.limp.utils.installDefaults
 import dev.bitspittle.racketeer.console.view.ViewStackImpl
 import dev.bitspittle.racketeer.console.view.views.PreDrawView
+import dev.bitspittle.racketeer.model.action.ActionRunner
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.text.Describer
@@ -76,13 +76,14 @@ class GameSession(
             Describer(gameData),
             GameState(gameData),
             env,
-            compiledActions = gameData.cards.associateWith { card -> card.actions.map { Expr.parse(it) } },
+            ActionRunner(env),
             viewStack,
             app,
         )
         env.installGameLogic(object : GameService {
             override val gameData = ctx.data
             override val gameState get() = ctx.state
+            override val actionQueue get() = ctx.actionRunner.actionQueue
 
             override fun log(message: String) {
                 app.log(message)

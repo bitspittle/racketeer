@@ -7,6 +7,9 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.view.views.PlayCardsView
 import dev.bitspittle.racketeer.scripting.addVariableTo
 import dev.bitspittle.racketeer.scripting.addVariablesInto
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class PlayCardCommand(ctx: GameContext, private val handIndex: Int) : Command(ctx) {
@@ -20,27 +23,18 @@ class PlayCardCommand(ctx: GameContext, private val handIndex: Int) : Command(ct
         val prevState = ctx.state
         ctx.state = prevState.copy()
 
-        try {
-            ctx.state.move(card, ctx.state.street)
-
-            val evaluator = Evaluator()
-            // TODO: MAKE INVOKE A SUSPEND FUN PROBABLY? THIS SHOULD NOT BE RUN BLOCKING
+        CoroutineScope(Dispatchers.IO).launch {
             ctx.env.scoped {
                 ctx.state.addVariablesInto(this)
                 card.addVariableTo(this)
-
-                runBlocking {
-                    ctx.compiledActions.getValue(card.template).forEach { expr ->
-                        evaluator.evaluate(ctx.env, expr)
-                    }
+                try {
+                    ctx.state.play(ctx.actionRunner, handIndex)
+                    ctx.viewStack.replaceView(PlayCardsView(ctx))
+                } catch (ex: EvaluationException) {
+                    ctx.app.log(ex.message!!)
+                    ctx.state = prevState
                 }
             }
-
-            ctx.viewStack.replaceView(PlayCardsView(ctx))
-        }
-        catch (ex: EvaluationException) {
-            ctx.app.log(ex.message!!)
-            ctx.state = prevState
         }
 
         return true

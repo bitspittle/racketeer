@@ -1,14 +1,19 @@
 package dev.bitspittle.racketeer.model.game
 
 import com.benasher44.uuid.Uuid
+import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.ListStrategy
+import dev.bitspittle.racketeer.model.action.ActionRunner
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.shop.MutableShop
 import dev.bitspittle.racketeer.model.shop.Shop
+import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random
 
 class GameState internal constructor(
+    private val random: Random,
     val allCards: List<CardTemplate>,
+    private val compiledActions: Map<CardTemplate, List<Expr>>,
     numTurns: Int,
     turn: Int,
     totalCashEarned: Int,
@@ -24,10 +29,12 @@ class GameState internal constructor(
     street: MutablePile,
     discard: MutablePile,
     jail: MutablePile,
-    private val random: Random,
+    streetEffects: MutableList<suspend (Card) -> Unit>,
 ) {
     constructor(data: GameData, random: Random = Random.Default) : this(
+        random = random,
         allCards = data.cards,
+        compiledActions = data.cards.associateWith { card -> card.actions.map { Expr.parse(it) } },
         numTurns = data.numTurns,
         turn = 0,
         totalCashEarned = 0,
@@ -53,7 +60,7 @@ class GameState internal constructor(
         street = MutablePile(),
         discard = MutablePile(),
         jail = MutablePile(),
-        random = random
+        streetEffects = mutableListOf()
     )
 
     /**
@@ -130,6 +137,11 @@ class GameState internal constructor(
     var shopTier = shopTier
         private set
 
+    /**
+     * A list of 0 more effects that will be applied to each card that is played in the street this turn.
+     */
+    private val streetEffects = streetEffects
+
     private val _shop = shop
 
     private val _deck = deck
@@ -187,10 +199,13 @@ class GameState internal constructor(
         cards.toList().forEach(::remove)
     }
 
+    fun installStreetEffect(effect: suspend (Card) -> Unit) {
+        streetEffects.add(effect)
+    }
+
     private fun remove(card: Card) {
         cardPiles.remove(card.id)?.also { pileFrom -> pileFrom.cards.removeAll { it.id == card.id }}
     }
-
 
     fun draw(count: Int = handSize) {
         var remainingCount = count.coerceAtMost(deck.cards.size + discard.cards.size)
@@ -211,15 +226,32 @@ class GameState internal constructor(
         }
     }
 
+    suspend fun play(actionRunner: ActionRunner, handIndex: Int) {
+        require(handIndex in hand.cards.indices) { "Attempt to play card with an invalid hand index $handIndex, when hand is size ${hand.cards.size}"}
+        val card = hand.cards[handIndex]
+
+        move(card, street)
+
+        // Playing this card might install an effect, but that shouldn't take effect until the next card is played
+        val streetEffectsCopy = streetEffects.toList()
+        actionRunner.withActionQueue {
+            enqueue(compiledActions.getValue(card.template))
+            start()
+            streetEffectsCopy.forEach { streetEffect -> streetEffect.invoke(card) }
+        }
+    }
+
     fun endTurn(): Boolean {
         // Always remove cash, even if there are no more turns. This way, the final reporting page summarizing your
         // won't show weird leftover cash.
         totalCashEarned += cash
         cash = 0
+
         if (turn >= numTurns - 1) return false
 
         turn++
 
+        streetEffects.clear()
         move(_street, _discard)
         move(_hand, _discard)
 
@@ -228,7 +260,9 @@ class GameState internal constructor(
 
     fun copy(): GameState {
         return GameState(
+            random,
             allCards,
+            compiledActions,
             numTurns,
             turn,
             totalCashEarned,
@@ -244,7 +278,7 @@ class GameState internal constructor(
             _street.copy(),
             _discard.copy(),
             _jail.copy(),
-            random
+            streetEffects.toMutableList()
         )
     }
 }
