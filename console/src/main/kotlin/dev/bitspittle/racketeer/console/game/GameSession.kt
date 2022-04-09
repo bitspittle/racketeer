@@ -16,6 +16,7 @@ import dev.bitspittle.limp.types.LangService
 import dev.bitspittle.limp.utils.installDefaults
 import dev.bitspittle.racketeer.console.view.ViewStackImpl
 import dev.bitspittle.racketeer.console.view.views.ChooseItemsView
+import dev.bitspittle.racketeer.console.view.views.PickItemView
 import dev.bitspittle.racketeer.console.view.views.PreDrawView
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
@@ -27,6 +28,8 @@ import dev.bitspittle.racketeer.scripting.types.CardRunnerImpl
 import dev.bitspittle.racketeer.scripting.types.GameService
 import dev.bitspittle.racketeer.scripting.utils.compileActions
 import kotlinx.coroutines.*
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random
@@ -99,7 +102,13 @@ class GameSession(
                 get() = object : ChooseHandler {
                     override suspend fun query(prompt: String?, list: List<Any>, range: IntRange): List<Any> {
                         return suspendCoroutine { choices ->
-                            viewStack.pushView(ChooseItemsView(ctx, prompt, list, range, choices))
+                            viewStack.pushView(
+                                if (range.first == range.last && range.first == 1) {
+                                    PickItemView(ctx, prompt, list, choices)
+                                } else {
+                                    ChooseItemsView(ctx, prompt, list, range, choices)
+                                }
+                            )
                             handleRerender()
                         }
                     }
@@ -118,12 +127,12 @@ class GameSession(
                 yellow {
                     textLine(latestLogs.joinToString("\n\n"))
                 }
-                latestLogs.clear()
             }
         }.runUntilSignal {
             handleQuit = { signal() }
             handleRerender = { rerender() }
             onKeyPressed {
+                latestLogs.clear()
                 CoroutineScope(Dispatchers.IO).launch {
                     if (viewStack.currentView.handleKey(key)) {
                         rerender()

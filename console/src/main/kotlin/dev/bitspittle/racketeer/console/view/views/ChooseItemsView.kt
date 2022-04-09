@@ -34,13 +34,12 @@ class ChooseItemsView(
                 }
 
              override suspend fun invoke(): Boolean {
-                 return if (hasUserSelectedEnoughChoices()) {
+                 if (hasUserSelectedEnoughChoices()) {
                      choices.resume(items.filterIndexed { index, _    -> selectItemCommands[index].selected })
                      ctx.viewStack.popView()
-                     true
-                 } else {
-                     false
                  }
+
+                 return false // Refresh will be handled by the parent screen
              }
          }
 

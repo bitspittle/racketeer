@@ -3,6 +3,7 @@ package dev.bitspittle.limp.methods.collection
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
+import dev.bitspittle.limp.converters.PlaceholderConverter
 import dev.bitspittle.limp.types.Expr
 
 /**
@@ -19,7 +20,10 @@ class SingleMethod : Method("single", 2) {
         rest: List<Any>
     ): Any {
         val list = env.expectConvert<List<Any>>(params[0])
-        val predicate = env.expectConvert<Expr>(params[1])
+        val predicate = env.scoped {
+            env.addConverter(PlaceholderConverter(Expr.Stub(true)))
+            env.expectConvert<Expr>(params[1])
+        }
 
         return list.single { item ->
             env.scoped { // Don't let values defined during the lambda escape
