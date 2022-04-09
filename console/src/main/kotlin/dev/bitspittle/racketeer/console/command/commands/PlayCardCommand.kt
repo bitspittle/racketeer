@@ -21,7 +21,6 @@ class PlayCardCommand(ctx: GameContext, private val handIndex: Int) : Command(ct
 
         ctx.env.scoped {
             ctx.state.addVariablesInto(this)
-            card.addVariableTo(this)
             try {
                 ctx.state.play(ctx.cardRunner, handIndex)
                 // Cause a "refresh" with an update on what cards are in your hand
