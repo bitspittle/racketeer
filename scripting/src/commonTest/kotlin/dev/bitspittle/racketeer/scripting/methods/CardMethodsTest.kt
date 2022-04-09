@@ -18,7 +18,7 @@ import dev.bitspittle.racketeer.scripting.TestGameService
 import dev.bitspittle.racketeer.scripting.utils.addVariablesInto
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.card.*
-import dev.bitspittle.racketeer.scripting.methods.game.GameRemoveMethod
+import dev.bitspittle.racketeer.scripting.methods.card.CardRemoveMethod
 import dev.bitspittle.racketeer.scripting.methods.pile.PileCopyToMethod
 import dev.bitspittle.racketeer.scripting.types.CardQueueImpl
 import kotlinx.coroutines.test.runTest
@@ -103,7 +103,7 @@ class CardMethodsTest {
         val service = TestGameService(Random(123))
 
         val gameState = service.gameState
-        env.addMethod(GameRemoveMethod { gameState })
+        env.addMethod(CardRemoveMethod { gameState })
         env.addMethod(SizeMethod())
         env.addMethod(TakeMethod(service.random))
         env.addMethod(ListGetMethod())
@@ -118,7 +118,7 @@ class CardMethodsTest {
 
         env.scoped {
             gameState.addVariablesInto(this)
-            evaluator.evaluate(env, "game-remove! take \$owned 2")
+            evaluator.evaluate(env, "card-remove! take \$owned 2")
         }
 
         val ownedCountRemoveMultipleCards = env.scoped {
@@ -130,7 +130,7 @@ class CardMethodsTest {
 
         env.scoped {
             gameState.addVariablesInto(this)
-            evaluator.evaluate(env, "game-remove! list-get \$owned 0")
+            evaluator.evaluate(env, "card-remove! list-get \$owned 0")
         }
 
         val ownedCountRemoveSingleCard = env.scoped {

@@ -1,4 +1,4 @@
-package dev.bitspittle.racketeer.scripting.methods.game
+package dev.bitspittle.racketeer.scripting.methods.card
 
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
@@ -8,7 +8,7 @@ import dev.bitspittle.limp.listTypeOf
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.game.GameState
 
-class GameRemoveMethod(private val getGameState: () -> GameState) : Method("game-remove!", 1) {
+class CardRemoveMethod(private val getGameState: () -> GameState) : Method("card-remove!", 1) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,

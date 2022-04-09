@@ -8,7 +8,7 @@ import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.UpgradeType
 
-class CardHasUpgradeMethod() : Method("card-has-upgrade?", 2) {
+class CardHasUpgradeMethod : Method("card-has-upgrade?", 2) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,

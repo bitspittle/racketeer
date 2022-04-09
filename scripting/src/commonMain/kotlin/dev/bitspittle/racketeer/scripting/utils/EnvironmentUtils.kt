@@ -30,7 +30,6 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(GameGetMethod(service::gameState))
     addMethod(GameSetMethod(service::gameState))
     addMethod(GameDrawMethod(service::gameState))
-    addMethod(GameRemoveMethod(service::gameState))
 
     // Card
     addMethod(CardGetMethod())
@@ -38,6 +37,7 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(CardUpgradeMethod())
     addMethod(CardHasUpgradeMethod())
     addMethod(CardHasTypeMethod(service.gameData.cardTypes))
+    addMethod(CardRemoveMethod(service::gameState))
     addMethod(CardTriggerMethod(service::expectCardQueue))
 
     // Pile
