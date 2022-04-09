@@ -51,6 +51,9 @@ globalActions:
   - def 'game-add! '$property '$amount '(game-set! $property '(+ $it $amount))
   - def 'if-true '$cond '$expr '(if $cond '$expr _)
   - def 'if-false '$cond '$expr '(if $cond _ '$expr)
+  - def 'stop-if! '$cond '(if $cond '(stop!) _)
+  - def 'cancel-if! '$cond '(if $cond '(cancel!) _)
+  - def 'ask? '$prompt '(dbg = (choose --prompt $prompt (list "Yes" "No") 1) "Yes")
 
 cards:
   # TIER 1
@@ -63,7 +66,6 @@ cards:
       Gain $.
     actions:
       - game-add! 'cash 1
-      - move-to! $hand choose $deck .. 0 2
 
   - name: Rumormonger
     types: [spy]
