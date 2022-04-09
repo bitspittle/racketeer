@@ -12,6 +12,7 @@ fun main() = runBlocking {
     env.addMethod(object : Method("quit", 0) {
         override suspend fun invoke(
             env: Environment,
+            eval: Evaluator,
             params: List<Any>,
             options: Map<String, Any>,
             rest: List<Any>

@@ -11,22 +11,24 @@ import com.varabyte.kotterx.decorations.BorderCharacters
 import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
+import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.types.LangService
 import dev.bitspittle.limp.utils.installDefaults
 import dev.bitspittle.racketeer.console.view.ViewStackImpl
+import dev.bitspittle.racketeer.console.view.views.ChooseItemsView
 import dev.bitspittle.racketeer.console.view.views.PreDrawView
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
+import dev.bitspittle.racketeer.scripting.types.CancelPlayException
 import dev.bitspittle.racketeer.scripting.utils.installGameLogic
 import dev.bitspittle.racketeer.scripting.types.CardRunnerImpl
 import dev.bitspittle.racketeer.scripting.types.GameService
 import dev.bitspittle.racketeer.scripting.utils.compileActions
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random
 
 class GameSession(
@@ -87,15 +89,21 @@ class GameSession(
             viewStack,
             app,
         )
+
+        var handleRerender: () -> Unit = {}
         env.installGameLogic(object : GameService {
             override val gameData = ctx.data
             override val gameState get() = ctx.state
             override val cardQueue get() = ctx.cardRunner.cardQueue
-            override val chooseHandler = object : ChooseHandler {
-                override suspend fun query(prompt: String?, list: List<Any>, range: IntRange): List<Any> {
-                    TODO("Not yet implemented")
+            override val chooseHandler
+                get() = object : ChooseHandler {
+                    override suspend fun query(prompt: String?, list: List<Any>, range: IntRange): List<Any> {
+                        return suspendCoroutine { choices ->
+                            viewStack.pushView(ChooseItemsView(ctx, prompt, list, range, choices))
+                            handleRerender()
+                        }
+                    }
                 }
-            }
 
             override fun log(message: String) {
                 app.log(message)
@@ -114,6 +122,7 @@ class GameSession(
             }
         }.runUntilSignal {
             handleQuit = { signal() }
+            handleRerender = { rerender() }
             onKeyPressed {
                 CoroutineScope(Dispatchers.IO).launch {
                     if (viewStack.currentView.handleKey(key)) {

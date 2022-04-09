@@ -16,7 +16,9 @@ abstract class View(protected val ctx: GameContext) {
     private val commandsSection by lazy { CommandsSection(commands) }
 
     protected open val subtitle: String? = null
+    protected open val heading: String? = null
     protected abstract val commands: List<Command>
+    protected val currCommand get() = commandsSection.currCommand
 
     protected open val allowQuit = true
     protected open val allowGoBack = true
@@ -25,11 +27,13 @@ abstract class View(protected val ctx: GameContext) {
         return when (key) {
             Keys.ESC -> {
                 if (allowGoBack) {
-                    ctx.viewStack.popView(); true
+                    onGoingBack()
+                    ctx.viewStack.popView()
+                    true
                 } else false
             }
             Keys.ENTER -> {
-                commandsSection.currCommand.invoke(); true
+                currCommand.invoke(); true
             }
             Keys.Q -> {
                 if (allowQuit) ctx.viewStack.pushView(ConfirmQuitView(ctx)); true
@@ -39,7 +43,7 @@ abstract class View(protected val ctx: GameContext) {
         }
     }
 
-    protected open fun handleAdditionalKeys(key: Key): Boolean = false
+    protected open suspend fun handleAdditionalKeys(key: Key): Boolean = false
 
     fun renderInto(scope: RenderScope) {
         scope.apply {
@@ -97,7 +101,13 @@ abstract class View(protected val ctx: GameContext) {
             underline { textLine(subtitle) }
             textLine()
         }
+        heading?.let { heading ->
+            textLine(heading)
+            textLine()
+        }
     }
 
     protected open fun RenderScope.renderContent() = Unit
+
+    protected open fun onGoingBack() = Unit
 }

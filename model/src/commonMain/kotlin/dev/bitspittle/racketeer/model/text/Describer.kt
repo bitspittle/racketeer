@@ -9,6 +9,24 @@ class Describer(private val data: GameData) {
     fun describeInfluence(influence: Int) = "${data.icons.influence} $influence"
     fun describeLuck(luck: Int) = "${data.icons.luck} $luck"
     fun describeVictoryPoints(vp: Int) = "${data.icons.vp} $vp"
+    fun describeRange(range: IntRange): String {
+        return when {
+            range.first == range.last -> range.first.toString()
+            range.first <= 0 -> {
+                when (range.last) {
+                    Int.MAX_VALUE -> "any number of"
+                    else -> "at most ${range.last}"
+                }
+            }
+            else -> {
+                check(range.first > 0)
+                when (range.last) {
+                    Int.MAX_VALUE -> "at least ${range.first}"
+                    else -> "between ${range.first} and ${range.last}"
+                }
+            }
+        }
+    }
 
     private fun StringBuilder.describeCardBody(template: CardTemplate) {
         appendLine() // Finish title

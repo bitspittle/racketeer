@@ -45,6 +45,8 @@ class ChooseMethod(private val chooseHandler: ChooseHandler) : Method("choose", 
         val response = chooseHandler.query(prompt, list, range)
         if (response.size !in range) throw IllegalStateException("PLEASE REPORT THIS BUG! Internal code returned a list of size ${response.size} despite being told it must return one within ${range.first} to ${range.last} items.")
 
-        return response
+        // Make a copy in case the external code tries to give us back the same list, because we can't guarantee that
+        // the passed in one won't change under us later
+        return response.takeIf { it !== list } ?: response.toList()
     }
 }

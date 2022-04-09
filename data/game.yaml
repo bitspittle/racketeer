@@ -63,6 +63,7 @@ cards:
       Gain $.
     actions:
       - game-add! 'cash 1
+      - move-to! $hand choose $deck .. 0 2
 
   - name: Rumormonger
     types: [spy]
