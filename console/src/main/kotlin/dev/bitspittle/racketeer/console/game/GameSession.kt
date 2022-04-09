@@ -18,6 +18,7 @@ import dev.bitspittle.racketeer.console.view.views.PreDrawView
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.text.Describer
+import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.utils.installGameLogic
 import dev.bitspittle.racketeer.scripting.types.CardRunnerImpl
 import dev.bitspittle.racketeer.scripting.types.GameService
@@ -90,6 +91,11 @@ class GameSession(
             override val gameData = ctx.data
             override val gameState get() = ctx.state
             override val cardQueue get() = ctx.cardRunner.cardQueue
+            override val chooseHandler = object : ChooseHandler {
+                override suspend fun query(prompt: String?, list: List<Any>, range: IntRange): List<Any> {
+                    TODO("Not yet implemented")
+                }
+            }
 
             override fun log(message: String) {
                 app.log(message)

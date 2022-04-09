@@ -37,8 +37,15 @@ class EffectMethodsTest {
 
         val evaluator = Evaluator()
 
-        assertThat(evaluator.evaluate(env, "fx-add! '(card-set! \$card 'vp '(+ \$it 2))"))
-        assertThat(evaluator.evaluate(env, "fx-add! '(game-set! 'influence '(+ \$it 3))"))
+        assertThat(evaluator.evaluate(env, "fx-add! '(+ 123 456)")) // Do nothing, really, but verify that effect descriptions default to the expression
+        assertThat(evaluator.evaluate(env, "fx-add! --desc \"Add 2*\" '(card-set! \$card 'vp '(+ \$it 2))"))
+        assertThat(evaluator.evaluate(env, "fx-add! --desc \"Add 3&\"'(game-set! 'influence '(+ \$it 3))"))
+
+        assertThat(gameState.streetEffects).containsExactly(
+            "(+ 123 456)",
+            "Add 2*",
+            "Add 3&",
+        ).inOrder()
 
         gameState.draw()
         var expectedHandSize = gameState.handSize
@@ -69,7 +76,9 @@ class EffectMethodsTest {
 
         // First, play the card with an effect. It should install an effect that happens on the NEXT CARD but not
         // itself (adding cash)
+        assertThat(gameState.streetEffects).hasSize(3)
         gameState.play(cardRunner, 0); --expectedHandSize
+        assertThat(gameState.streetEffects).hasSize(4)
         assertThat(gameState.hand.cards.size).isEqualTo(expectedHandSize)
         assertThat(gameState.cash).isEqualTo(0) // Cash effect just installed but won't start until the next card
         assertThat(gameState.influence).isEqualTo(3) // Already installed effect affects game

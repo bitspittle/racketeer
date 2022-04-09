@@ -26,7 +26,7 @@ class GameState internal constructor(
     street: MutablePile,
     discard: MutablePile,
     jail: MutablePile,
-    streetEffects: MutableList<suspend (Card) -> Unit>,
+    streetEffects: MutableList<Effect>,
 ) {
     constructor(data: GameData, random: Random = Random.Default) : this(
         random = random,
@@ -136,7 +136,8 @@ class GameState internal constructor(
     /**
      * A list of 0 more effects that will be applied to each card that is played in the street this turn.
      */
-    private val streetEffects = streetEffects
+    private val _streetEffects = streetEffects
+    val streetEffects get() = _streetEffects.map { it.desc }
 
     private val _shop = shop
 
@@ -195,8 +196,8 @@ class GameState internal constructor(
         cards.toList().forEach(::remove)
     }
 
-    fun installStreetEffect(effect: suspend (Card) -> Unit) {
-        streetEffects.add(effect)
+    fun installStreetEffect(desc: String, effect: suspend (Card) -> Unit) {
+        _streetEffects.add(Effect(desc, effect))
     }
 
     private fun remove(card: Card) {
@@ -229,7 +230,7 @@ class GameState internal constructor(
         move(card, street)
 
         // Playing this card might install an effect, but that shouldn't take effect until the next card is played
-        val streetEffectsCopy = streetEffects.toList()
+        val streetEffectsCopy = _streetEffects.toList()
         cardRunner.withCardQueue {
             enqueue(card)
             start()
@@ -247,7 +248,7 @@ class GameState internal constructor(
 
         turn++
 
-        streetEffects.clear()
+        _streetEffects.clear()
         move(_street, _discard)
         move(_hand, _discard)
 
@@ -273,7 +274,7 @@ class GameState internal constructor(
             _street.copy(),
             _discard.copy(),
             _jail.copy(),
-            streetEffects.toMutableList()
+            _streetEffects.toMutableList()
         )
     }
 }
