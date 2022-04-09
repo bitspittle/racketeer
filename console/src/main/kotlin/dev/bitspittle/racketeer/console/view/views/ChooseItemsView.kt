@@ -19,7 +19,7 @@ class ChooseItemsView(
     private val range: IntRange,
     private val choices: Continuation<List<Any>>
 ) : View(ctx) {
-    override val heading = (prompt ?: "Choose ${ctx.describer.describeRange(range)} item(s)") + ":"
+    override val heading = (prompt ?: "Choose ${ctx.describer.describeRange(range)} item(s):")
 
     private val selectItemCommands = items.map { item -> SelectItemCommand(ctx, item) }
 
@@ -28,7 +28,7 @@ class ChooseItemsView(
             override val title: String = "Confirm"
             override val description: String
                 get() = if (hasUserSelectedEnoughChoices()) {
-                    "Press ENTER to confirm the above choices."
+                    "Press ENTER to confirm the above choice(s)."
                 } else {
                     "You must choose ${ctx.describer.describeRange(range)} item(s) before you can confirm."
                 }
