@@ -90,7 +90,7 @@ cards:
     flavor: Gain &. Jail a card in your hand.
     actions:
       - game-add! 'influence 1
-      - move-to! $jail (choose $hand 1)
+      - pile-move-to! $jail (choose $hand 1)
 
   - name: Fool's Gold
     types: [treasure]
@@ -98,7 +98,7 @@ cards:
     flavor: Gain 3$. Jail this card.
     actions:
       - game-add! 'cash 3
-      - move-to! $jail $this
+      - pile-move-to! $jail $this
 
   - name: Croupier
     types: [thief]
@@ -113,9 +113,9 @@ cards:
     cost: 2
     flavor: Discard your hand, then draw that many cards.
     actions:
-      - set $to-draw (count $hand)
-      - move-to! $jail $hand
-      - draw! $to-draw
+      - set $to-draw (size $hand)
+      - pile-move-to! $jail $hand
+      - game-draw! $to-draw
 
   - name: Cheese It!
     tier: 1
@@ -123,7 +123,7 @@ cards:
     cost: 2
     flavor: Jail your hand.
     actions:
-      - move-to! $jail $hand
+      - pile-move-to! $jail $hand
 
   - name: Lady Thistledown
     tier: 1
@@ -131,7 +131,7 @@ cards:
     cost: 3
     flavor: Give a Spy in your hand +1&.
     actions:
-      - upgrade! (choose (filter $hand '(in card-get 'types 'spy)) 1) 'influence
+      - card-upgrade! (choose (filter $hand '(card-has-type? 'spy)) 1) 'influence
 
   - name: Roving Gambler
     tier: 1

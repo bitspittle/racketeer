@@ -16,7 +16,7 @@ import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.scripting.converters.CardTemplateToCardConverter
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 
-class CopyToMethod(private val getGameState: () -> GameState) : Method("copy-to!", 2) {
+class PileCopyToMethod(private val getGameState: () -> GameState) : Method("pile-copy-to!", 2) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,

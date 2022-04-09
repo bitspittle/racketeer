@@ -19,7 +19,7 @@ import dev.bitspittle.racketeer.scripting.utils.addVariablesInto
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.card.*
 import dev.bitspittle.racketeer.scripting.methods.game.GameRemoveMethod
-import dev.bitspittle.racketeer.scripting.methods.pile.CopyToMethod
+import dev.bitspittle.racketeer.scripting.methods.pile.PileCopyToMethod
 import dev.bitspittle.racketeer.scripting.types.CardQueueImpl
 import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
@@ -194,13 +194,13 @@ class CardMethodsTest {
         env.addMethod(EqualsMethod())
         env.addMethod(CardGetMethod())
         env.addMethod(ListGetMethod())
-        env.addMethod(CopyToMethod { gameState })
+        env.addMethod(PileCopyToMethod { gameState })
         env.addMethod(SetMethod())
         env.addConverter(PileToCardsConverter())
 
         val evaluator = Evaluator()
         gameState.addVariablesInto(env)
-        evaluator.evaluate(env, "copy-to! \$hand single \$all-cards '(= card-get \$it 'name \"Embezzler\")")
+        evaluator.evaluate(env, "pile-copy-to! \$hand single \$all-cards '(= card-get \$it 'name \"Embezzler\")")
         evaluator.evaluate(env, "set '\$card list-get \$hand 0")
         val card = evaluator.evaluate(env, "\$card") as Card
         assertThat(card.template.types).containsExactly("thief", "spy").inOrder()

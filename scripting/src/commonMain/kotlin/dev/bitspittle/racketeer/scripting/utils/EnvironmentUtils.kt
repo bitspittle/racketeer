@@ -9,8 +9,8 @@ import dev.bitspittle.racketeer.scripting.methods.card.*
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseMethod
 import dev.bitspittle.racketeer.scripting.methods.effect.FxAddMethod
 import dev.bitspittle.racketeer.scripting.methods.game.*
-import dev.bitspittle.racketeer.scripting.methods.pile.CopyToMethod
-import dev.bitspittle.racketeer.scripting.methods.pile.MoveToMethod
+import dev.bitspittle.racketeer.scripting.methods.pile.PileCopyToMethod
+import dev.bitspittle.racketeer.scripting.methods.pile.PileMoveToMethod
 import dev.bitspittle.racketeer.scripting.methods.system.CancelMethod
 import dev.bitspittle.racketeer.scripting.methods.system.StopMethod
 import dev.bitspittle.racketeer.scripting.types.GameService
@@ -43,8 +43,8 @@ fun Environment.installGameLogic(service: GameService) {
     // Pile
     addConverter(MutablePileToCardsConverter())
     addConverter(PileToCardsConverter())
-    addMethod(CopyToMethod(service::gameState))
-    addMethod(MoveToMethod(service::gameState))
+    addMethod(PileCopyToMethod(service::gameState))
+    addMethod(PileMoveToMethod(service::gameState))
 
     // Effects
     addMethod(FxAddMethod(service::gameState))

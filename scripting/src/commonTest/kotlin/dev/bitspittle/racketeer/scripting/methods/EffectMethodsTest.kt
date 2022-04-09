@@ -13,7 +13,7 @@ import dev.bitspittle.racketeer.scripting.methods.card.CardGetMethod
 import dev.bitspittle.racketeer.scripting.methods.card.CardSetMethod
 import dev.bitspittle.racketeer.scripting.methods.effect.FxAddMethod
 import dev.bitspittle.racketeer.scripting.methods.game.GameSetMethod
-import dev.bitspittle.racketeer.scripting.methods.pile.CopyToMethod
+import dev.bitspittle.racketeer.scripting.methods.pile.PileCopyToMethod
 import dev.bitspittle.racketeer.scripting.types.CardRunnerImpl
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -27,7 +27,7 @@ class EffectMethodsTest {
         val gameState = service.gameState
         env.addMethod(FxAddMethod { gameState })
         env.addMethod(GameSetMethod { gameState })
-        env.addMethod(CopyToMethod { gameState })
+        env.addMethod(PileCopyToMethod { gameState })
         env.addMethod(AddMethod())
         env.addMethod(EqualsMethod())
         env.addMethod(SetMethod())
@@ -54,7 +54,7 @@ class EffectMethodsTest {
         env.scoped {
             gameState.addVariablesInto(this)
             // Create a card which has a "install effect which adds one cash to the game per card played
-            evaluator.evaluate(env, "copy-to! --pos 'front \$hand single \$all-cards '(= card-get \$it 'name \"Embezzler\")")
+            evaluator.evaluate(env, "pile-copy-to! --pos 'front \$hand single \$all-cards '(= card-get \$it 'name \"Embezzler\")")
             ++expectedHandSize
         }
         assertThat(gameState.hand.cards.size).isEqualTo(expectedHandSize)

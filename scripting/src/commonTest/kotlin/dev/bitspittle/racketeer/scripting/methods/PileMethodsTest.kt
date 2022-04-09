@@ -9,8 +9,8 @@ import dev.bitspittle.limp.types.Placeholder
 import dev.bitspittle.racketeer.scripting.TestGameService
 import dev.bitspittle.racketeer.scripting.utils.addVariablesInto
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
-import dev.bitspittle.racketeer.scripting.methods.pile.CopyToMethod
-import dev.bitspittle.racketeer.scripting.methods.pile.MoveToMethod
+import dev.bitspittle.racketeer.scripting.methods.pile.PileCopyToMethod
+import dev.bitspittle.racketeer.scripting.methods.pile.PileMoveToMethod
 import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.Test
@@ -21,7 +21,7 @@ class PileMethodsTest {
         val env = Environment()
         val service = TestGameService(Random(2)) // Seed chosen so deck and hand cards are interesting
         val gameState = service.gameState
-        env.addMethod(CopyToMethod { gameState })
+        env.addMethod(PileCopyToMethod { gameState })
         env.addMethod(TakeMethod(service.random))
         env.addMethod(FirstMethod())
         env.addConverter(PileToCardsConverter())
@@ -52,7 +52,7 @@ class PileMethodsTest {
 
         // Copy-to from the deck, testing copying a list of cards
         run {
-            evaluator.evaluate(env, "copy-to! \$discard take \$deck 2")
+            evaluator.evaluate(env, "pile-copy-to! \$discard take \$deck 2")
 
             assertThat(gameState.discard.cards).hasSize(2)
             assertThat(gameState.deck.cards).hasSize(deckSize) // Deck pile not affected
@@ -70,7 +70,7 @@ class PileMethodsTest {
             val handSize = gameState.hand.cards.size
             assertThat(gameState.hand.cards[0].template.name).isEqualTo("Pickpocket")
 
-            evaluator.evaluate(env, "copy-to! --pos 'front \$discard first \$hand _")
+            evaluator.evaluate(env, "pile-copy-to! --pos 'front \$discard first \$hand _")
 
             assertThat(gameState.discard.cards).hasSize(3)
             assertThat(gameState.hand.cards).hasSize(handSize) // Hand not affected
@@ -80,10 +80,10 @@ class PileMethodsTest {
 
         // Copy-to from card templates
         run {
-            evaluator.evaluate(env, "copy-to! \$discard \$card-template")
+            evaluator.evaluate(env, "pile-copy-to! \$discard \$card-template")
             assertThat(gameState.discard.cards).hasSize(4)
 
-            evaluator.evaluate(env, "copy-to! --pos 'random \$discard \$card-templates")
+            evaluator.evaluate(env, "pile-copy-to! --pos 'random \$discard \$card-templates")
             assertThat(gameState.discard.cards).hasSize(6)
         }
 
@@ -97,7 +97,7 @@ class PileMethodsTest {
         val env = Environment()
         val service = TestGameService(Random(2)) // Seed chosen so deck and hand cards are interesting
         val gameState = service.gameState
-        env.addMethod(MoveToMethod { gameState })
+        env.addMethod(PileMoveToMethod { gameState })
         env.addMethod(TakeMethod(service.random))
         env.addMethod(FirstMethod())
         env.addConverter(PileToCardsConverter())
@@ -118,7 +118,7 @@ class PileMethodsTest {
         val evaluator = Evaluator()
 
         // move a list of cards to a pile
-        evaluator.evaluate(env, "move-to! \$discard take \$deck 2")
+        evaluator.evaluate(env, "pile-move-to! \$discard take \$deck 2")
 
         assertThat(gameState.discard.cards).hasSize(2)
         assertThat(gameState.deck.cards).hasSize(deckSize - 2) // Deck size affected
@@ -128,12 +128,12 @@ class PileMethodsTest {
             .inOrder()
 
         // move a pile entirely to another
-        evaluator.evaluate(env, "move-to! \$hand \$discard")
+        evaluator.evaluate(env, "pile-move-to! \$hand \$discard")
         assertThat(gameState.discard.cards).hasSize(0)
         assertThat(gameState.hand.cards).hasSize(handSize + 2) // Deck size affected
 
         // move a single card
-        evaluator.evaluate(env, "move-to! \$discard first \$hand _")
+        evaluator.evaluate(env, "pile-move-to! \$discard first \$hand _")
         assertThat(gameState.discard.cards).hasSize(1)
     }
 }

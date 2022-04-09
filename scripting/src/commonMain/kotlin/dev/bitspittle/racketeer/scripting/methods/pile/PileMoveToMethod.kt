@@ -13,7 +13,7 @@ import dev.bitspittle.racketeer.model.card.Pile
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 
-class MoveToMethod(private val getGameState: () -> GameState) : Method("move-to!", 2) {
+class PileMoveToMethod(private val getGameState: () -> GameState) : Method("pile-move-to!", 2) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
