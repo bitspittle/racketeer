@@ -3,6 +3,7 @@ package dev.bitspittle.racketeer.scripting
 import dev.bitspittle.racketeer.model.card.CardQueue
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.types.GameService
 import kotlin.random.Random
 
@@ -130,6 +131,11 @@ fun createFakeGameData() = GameData.decodeFromString(FAKE_GAME_DATA_TEXT)
 class TestGameService(
     val random: Random = Random(0),
     override val gameData: GameData = createFakeGameData(),
+    override val chooseHandler: ChooseHandler = object : ChooseHandler {
+        override suspend fun query(prompt: String?, list: List<Any>, range: IntRange): List<Any> {
+            return listOf()
+        }
+    },
     private val getCardQueue: () -> CardQueue? = { null }
 ) : GameService {
     override val gameState = GameState(gameData, random)

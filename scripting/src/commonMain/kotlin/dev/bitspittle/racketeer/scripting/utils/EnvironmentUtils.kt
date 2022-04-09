@@ -6,6 +6,7 @@ import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.converters.MutablePileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.card.*
+import dev.bitspittle.racketeer.scripting.methods.collection.ChooseMethod
 import dev.bitspittle.racketeer.scripting.methods.effect.FxAddMethod
 import dev.bitspittle.racketeer.scripting.methods.game.*
 import dev.bitspittle.racketeer.scripting.methods.pile.CopyToMethod
@@ -21,6 +22,9 @@ fun Environment.installGameLogic(service: GameService) {
     // System
     addMethod(StopMethod(service::expectCardQueue))
     addMethod(CancelMethod())
+
+    // Collection
+    addMethod(ChooseMethod(service.chooseHandler))
 
     // Game
     addMethod(GameGetMethod(service::gameState))
