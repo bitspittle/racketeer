@@ -52,11 +52,15 @@ class Describer(private val data: GameData) {
     fun describe(template: CardTemplate, concise: Boolean = false): String {
         return buildString {
             append(template.name)
-            if (template.cost > 0) {
-                append(" ${describeCash(template.cost)}")
+            if (concise) {
+                // Only show costs when browsing in the shop
+                if (template.cost > 0) {
+                    append(" ${describeCash(template.cost)}")
+                }
             }
 
             if (!concise) {
+                append(" [Tier ${template.tier + 1}]")
                 describeCardBody(template)
             }
         }

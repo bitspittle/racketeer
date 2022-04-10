@@ -4,6 +4,7 @@ import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.card.UpgradeNames
 import dev.bitspittle.racketeer.model.tier.Tier
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import net.mamoe.yamlkt.Yaml
 
 private val String.indentLength: Int
@@ -143,4 +144,7 @@ data class GameData(
             }
         }
     }
+
+    @Transient
+    val maxTier = tiers.lastIndex
 }

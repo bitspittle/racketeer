@@ -8,6 +8,8 @@ import kotlin.random.Random
 interface Shop {
     val tier: Int
     val stock: List<Card?>
+    fun upgrade(): Boolean
+    fun restock(restockAll: Boolean = true, additionalFilter: (CardTemplate) -> Boolean = { true }): Boolean
 }
 
 class MutableShop private constructor(
@@ -31,7 +33,7 @@ class MutableShop private constructor(
     override var tier: Int = tier
         private set
 
-    fun restock(restockAll: Boolean = true, additionalFilter: (CardTemplate) -> Boolean = { true }): Boolean {
+    override fun restock(restockAll: Boolean, additionalFilter: (CardTemplate) -> Boolean): Boolean {
         if (!restockAll && stock.size == shopSizes[tier]) return false // Shop is full; incremental restock fails
 
         val possibleNewStock =
@@ -45,7 +47,9 @@ class MutableShop private constructor(
         var numCardsToStock = shopSizes[tier] - stock.size
 
         // This should never happen, but fail fast in case game data is bad!
-        require(possibleNewStock.values.sumOf { it.size } >= numCardsToStock)
+        require(possibleNewStock.values.sumOf { it.size } >= numCardsToStock) {
+            "There are not enough cards defined to restock the shop at tier ${tier + 1}."
+        }
 
         // Don't include frequency distribution entries for tiers we don't yet support
         val frequencyBuckets = FrequencyBuckets(frequencyDistribution.take(tier + 1))
@@ -71,7 +75,7 @@ class MutableShop private constructor(
         }
     }
 
-    fun upgrade(): Boolean {
+    override fun upgrade(): Boolean {
         if (tier >= shopSizes.size - 1) return false
 
         ++tier

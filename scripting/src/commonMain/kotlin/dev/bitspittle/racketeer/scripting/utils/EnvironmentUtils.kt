@@ -61,7 +61,7 @@ fun Environment.installGameLogic(service: GameService) {
  */
 fun GameState.addVariablesInto(env: Environment) {
     env.storeValue("\$all-cards", allCards)
-    env.storeValue("\$shop-tier", shopTier)
+    env.storeValue("\$shop-tier", shop.tier)
 
     env.storeValue("\$deck", deck)
     env.storeValue("\$hand", hand)

@@ -19,7 +19,6 @@ class GameState internal constructor(
     luck: Int,
     vp: Int,
     handSize: Int,
-    shopTier: Int,
     shop: MutableShop,
     deck: MutablePile,
     hand: MutablePile,
@@ -36,10 +35,9 @@ class GameState internal constructor(
         totalCashEarned = 0,
         cash = 0,
         influence = 0,
-        luck = 0,
+        luck = data.initialLuck,
         vp = 0,
         handSize = data.initialHandSize,
-        shopTier = 0,
         shop = MutableShop(random, data.cards, data.shopSizes, data.tiers.map { it.frequency }),
         deck = MutablePile(data.initialDeck
             .flatMap {  entry ->
@@ -126,12 +124,6 @@ class GameState internal constructor(
         set(value) {
             field = value.coerceAtLeast(1)
         }
-
-    /**
-     * The 0-indexed tier value of the shop (i.e. how many times it has been upgraded)
-     */
-    var shopTier = shopTier
-        private set
 
     /**
      * A list of 0 more effects that will be applied to each card that is played in the street this turn.
@@ -268,7 +260,6 @@ class GameState internal constructor(
             luck,
             vp,
             handSize,
-            shopTier,
             _shop.copy(),
             _deck.copy(),
             _hand.copy(),
