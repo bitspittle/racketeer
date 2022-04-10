@@ -45,6 +45,12 @@ private val FAKE_GAME_DATA_TEXT = """
         frequency: 2
       - name: Legendary
         frequency: 1
+    shopSizes:
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
     shopPrices:
       - 5
       - 10

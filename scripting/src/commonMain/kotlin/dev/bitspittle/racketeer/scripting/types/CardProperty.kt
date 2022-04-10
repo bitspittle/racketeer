@@ -4,6 +4,7 @@ enum class CardProperty {
     COST,
     ID,
     NAME,
-    VP,
     TYPES,
+    TIER,
+    VP,
 }

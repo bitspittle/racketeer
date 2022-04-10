@@ -9,7 +9,7 @@ interface Shop {
     val tier: Int
     val stock: List<Card?>
     fun upgrade(): Boolean
-    fun restock(restockAll: Boolean = true, additionalFilter: (CardTemplate) -> Boolean = { true }): Boolean
+    suspend fun restock(restockAll: Boolean = true, additionalFilter: suspend (CardTemplate) -> Boolean = { true }): Boolean
 }
 
 class MutableShop private constructor(
@@ -27,18 +27,14 @@ class MutableShop private constructor(
         0,
         mutableListOf()
     ) {
-        restock(true)
+        restockBlocking(true)
     }
 
     override var tier: Int = tier
         private set
 
-    override fun restock(restockAll: Boolean, additionalFilter: (CardTemplate) -> Boolean): Boolean {
+    private fun handleRestock(restockAll: Boolean, possibleNewStock: MutableMap<Int, MutableList<CardTemplate>>): Boolean {
         if (!restockAll && stock.size == shopSizes[tier]) return false // Shop is full; incremental restock fails
-
-        val possibleNewStock =
-            allCards.filter { it.cost > 0 && it.tier <= this.tier && additionalFilter(it) }
-                .groupByTo(mutableMapOf()) { it.tier }
 
         if (restockAll) {
             stock.clear()
@@ -65,6 +61,20 @@ class MutableShop private constructor(
         return true
     }
 
+    private inline fun filterAllCards(additionalFilter: (CardTemplate) -> Boolean): MutableMap<Int, MutableList<CardTemplate>> {
+        return allCards
+            .filter { it.cost > 0 && it.tier <= this.tier && additionalFilter(it) }
+            .groupByTo(mutableMapOf()) { it.tier }
+    }
+
+    private fun restockBlocking(restockAll: Boolean, additionalFilter: (CardTemplate) -> Boolean = { true }): Boolean {
+        return handleRestock(restockAll, filterAllCards(additionalFilter))
+    }
+
+    override suspend fun restock(restockAll: Boolean, additionalFilter: suspend (CardTemplate) -> Boolean): Boolean {
+        return handleRestock(restockAll, filterAllCards { additionalFilter(it) })
+    }
+
     fun remove(cardId: Uuid) {
         for (i in stock.indices) {
             stock[i]?.run {
@@ -80,7 +90,7 @@ class MutableShop private constructor(
 
         ++tier
         // New slot should ALWAYS contain a card from the new tier
-        restock(restockAll = false) { card -> card.tier == tier }
+        restockBlocking(restockAll = false) { card -> card.tier == tier }
         return true
     }
 

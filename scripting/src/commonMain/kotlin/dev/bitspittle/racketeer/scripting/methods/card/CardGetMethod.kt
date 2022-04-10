@@ -29,8 +29,9 @@ class CardGetMethod : Method("card-get", 2) {
             CardProperty.COST -> card.template.cost
             CardProperty.NAME -> card.template.name
             CardProperty.ID -> card.id
-            CardProperty.VP -> card.vp
+            CardProperty.TIER -> card.template.tier
             CardProperty.TYPES -> card.template.types
+            CardProperty.VP -> card.vp
         }
     }
 }

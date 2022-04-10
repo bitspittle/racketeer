@@ -29,7 +29,7 @@ class CardSetMethod : Method("card-set!", 3) {
         cards.forEach { card ->
             val currValue = when (property) {
                 CardProperty.VP -> card.vp
-                CardProperty.TYPES, CardProperty.NAME, CardProperty.ID, CardProperty.COST -> throw EvaluationException(
+                CardProperty.TIER, CardProperty.TYPES, CardProperty.NAME, CardProperty.ID, CardProperty.COST -> throw EvaluationException(
                     identifier.ctx,
                     "Cannot set this card's property as it is read-only."
                 )
