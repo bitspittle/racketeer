@@ -44,9 +44,7 @@ class PileMethodsTest {
         assertThat(gameState.deck.cards).isNotEmpty()
         val deckSize = gameState.deck.cards.size
 
-        assertThat(gameState.deck.cards.take(2).map { it.template.name })
-            .containsExactly("Rumormonger", "Pickpocket")
-            .inOrder()
+        val cardsToCopy = gameState.deck.cards.take(2)
 
         val evaluator = Evaluator()
 
@@ -58,9 +56,7 @@ class PileMethodsTest {
             assertThat(gameState.deck.cards).hasSize(deckSize) // Deck pile not affected
 
             // The cards are cloned, but they are new copies with different IDs
-            assertThat(gameState.discard.cards.map { it.template.name })
-                .containsExactly("Rumormonger", "Pickpocket")
-                .inOrder()
+            assertThat(gameState.discard.cards.map { it.template.name }).containsExactly(cardsToCopy.map { it.template.name }).inOrder()
             assertThat(gameState.deck.cards[0].id).isNotEqualTo(gameState.discard.cards[0].id)
         }
 
@@ -86,16 +82,12 @@ class PileMethodsTest {
             evaluator.evaluate(env, "pile-copy-to! --pos 'random \$discard \$card-templates")
             assertThat(gameState.discard.cards).hasSize(6)
         }
-
-        assertThat(gameState.discard.cards.map { it.template.name })
-            .containsExactly("Fool's Gold", "Pickpocket", "Rumormonger", "Pickpocket", "Squealer", "Croupier")
-            .inOrder()
     }
 
     @Test
     fun testMoveToMethod() = runTest {
         val env = Environment()
-        val service = TestGameService(Random(2)) // Seed chosen so deck and hand cards are interesting
+        val service = TestGameService()
         val gameState = service.gameState
         env.addMethod(PileMoveToMethod { gameState })
         env.addMethod(TakeMethod(service.random))
@@ -111,9 +103,7 @@ class PileMethodsTest {
         val deckSize = gameState.deck.cards.size
         val handSize = gameState.hand.cards.size
 
-        assertThat(gameState.deck.cards.take(2).map { it.template.name })
-            .containsExactly("Rumormonger", "Pickpocket")
-            .inOrder()
+        val cardsToMove = gameState.deck.cards.take(2)
 
         val evaluator = Evaluator()
 
@@ -123,8 +113,7 @@ class PileMethodsTest {
         assertThat(gameState.discard.cards).hasSize(2)
         assertThat(gameState.deck.cards).hasSize(deckSize - 2) // Deck size affected
 
-        assertThat(gameState.discard.cards.map { it.template.name })
-            .containsExactly("Rumormonger", "Pickpocket")
+        assertThat(gameState.discard.cards.map { it.template.name }).containsExactly(cardsToMove.map { it.template.name })
             .inOrder()
 
         // move a pile entirely to another
