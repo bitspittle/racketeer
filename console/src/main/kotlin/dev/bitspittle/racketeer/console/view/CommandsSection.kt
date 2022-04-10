@@ -7,11 +7,14 @@ import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
 
-class CommandsSection(private val commands: List<Command>) {
-    private var currIndex = 0
-        set(value) {
+class CommandsSection(private val commands: List<Command>, currIndex: Int = 0) {
+    var currIndex = 0
+        private set(value) {
             field = value.coerceIn(commands.indices)
         }
+    init {
+        this.currIndex = currIndex
+    }
 
     val currCommand: Command get() = commands[currIndex]
 

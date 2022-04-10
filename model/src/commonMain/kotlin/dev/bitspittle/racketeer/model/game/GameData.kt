@@ -24,6 +24,7 @@ data class GameData(
     val cardTypes: List<String>,
     val upgradeNames: UpgradeNames,
     val tiers: List<Tier>,
+    val shopSizes: List<Int>,
     val shopPrices: List<Int>,
     val ratingScores: List<Int>,
     val cards: List<CardTemplate>,
@@ -113,6 +114,13 @@ data class GameData(
 
     init {
         require(shopPrices.size == tiers.size - 1) { "There should be exactly one less entry for shop prices than tiers" }
+        require(shopSizes.size == tiers.size) { "There should be exactly the same number of shop sizes as tiers" }
+        shopSizes.forEachIndexed { i, size ->
+            if (i > 0) {
+                require(size >= shopSizes[i]) { "Subsequence shop sizes should never shrink"}
+            }
+
+        }
         require(ratingScores.size == Rating.values().size - 1) {
             "Too many scores defined for rating values: ${
                 Rating.values().joinToString { it.name }

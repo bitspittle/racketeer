@@ -40,7 +40,7 @@ class GameState internal constructor(
         vp = 0,
         handSize = data.initialHandSize,
         shopTier = 0,
-        shop = MutableShop(),
+        shop = MutableShop(random, data.cards, data.shopSizes, data.tiers.map { it.frequency }),
         deck = MutablePile(data.initialDeck
             .flatMap {  entry ->
                 val cardName = entry.substringBeforeLast(' ')
@@ -202,6 +202,7 @@ class GameState internal constructor(
 
     private fun remove(card: Card) {
         cardPiles.remove(card.id)?.also { pileFrom -> pileFrom.cards.removeAll { it.id == card.id }}
+        _shop.remove(card.id)
     }
 
     fun draw(count: Int = handSize) {

@@ -4,7 +4,7 @@ icons:
   influence: "&" # "🤝"
   luck: "%" # "🎲"
   vp: "*" # "⭐"
-numTurns: 3 # 12
+numTurns: 12
 initialHandSize: 4
 initialLuck: 5
 initialDeck:
@@ -35,6 +35,12 @@ tiers:
     frequency: 2
   - name: Legendary
     frequency: 1
+shopSizes:
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
 shopPrices:
   - 5
   - 10
