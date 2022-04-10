@@ -34,9 +34,8 @@ class MutableShop private constructor(
     fun restock(restockAll: Boolean = true, additionalFilter: (CardTemplate) -> Boolean = { true }): Boolean {
         if (!restockAll && stock.size == shopSizes[tier]) return false // Shop is full; incremental restock fails
 
-        val prevStock = stock.asSequence().filterNotNull().map { it.template }.toSet()
         val possibleNewStock =
-            allCards.filter { it.cost > 0 && it.tier <= this.tier && !prevStock.contains(it) && additionalFilter(it) }
+            allCards.filter { it.cost > 0 && it.tier <= this.tier && additionalFilter(it) }
                 .groupByTo(mutableMapOf()) { it.tier }
 
         if (restockAll) {
