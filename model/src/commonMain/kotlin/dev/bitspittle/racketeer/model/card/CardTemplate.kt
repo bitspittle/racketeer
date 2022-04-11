@@ -17,8 +17,10 @@ data class CardTemplate(
     val vp: Int = 0,
     val cost: Int = 0,
     val actions: List<String> = listOf(),
-) {
+): Comparable<CardTemplate> {
     val isPriceless get() = cost == 0
 
     fun instantiate() = Card(this)
+
+    override fun compareTo(other: CardTemplate): Int = this.name.compareTo(other.name)
 }
