@@ -2,7 +2,6 @@ package dev.bitspittle.racketeer.console.view.views
 
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
-import dev.bitspittle.racketeer.console.command.commands.EmptyPileCommand
 import dev.bitspittle.racketeer.console.command.commands.ViewCardGroupCommand
 import dev.bitspittle.racketeer.console.view.View
 

@@ -18,6 +18,8 @@ class GameOverView(ctx: GameContext) : View(ctx) {
         listOf(
             NewGameCommand(ctx),
             object : Command(ctx) {
+                override val type = Type.Danger
+
                 override val title = "Exit"
                 override suspend fun invoke(): Boolean {
                     ctx.app.quit()

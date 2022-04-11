@@ -6,6 +6,8 @@ import dev.bitspittle.racketeer.console.view.views.GameOverView
 import dev.bitspittle.racketeer.console.view.views.PreDrawView
 
 class EndTurnCommand(ctx: GameContext) : Command(ctx) {
+    override val type = Type.ModifyAlt
+
     override val title = "End turn"
 
     override val description =

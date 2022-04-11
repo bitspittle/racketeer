@@ -7,6 +7,7 @@ import dev.bitspittle.racketeer.console.view.View
 class ConfirmQuitView(ctx: GameContext) : View(ctx) {
     override val commands: List<Command> = listOf(
         object : Command(ctx) {
+            override val type = Type.Danger
             override val title = "Confirm"
 
             override val description = "Press ENTER if you're sure you want to quit. Otherwise, go back!"

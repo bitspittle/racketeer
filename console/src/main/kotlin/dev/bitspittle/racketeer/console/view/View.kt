@@ -33,7 +33,11 @@ abstract class View(protected val ctx: GameContext) {
                 } else false
             }
             Keys.ENTER -> {
-                currCommand.invoke(); true
+                if (currCommand.type != Command.Type.Disabled) {
+                    currCommand.invoke()
+                } else {
+                    false
+                }
             }
             Keys.Q -> {
                 if (allowQuit) ctx.viewStack.pushView(ConfirmQuitView(ctx)); true

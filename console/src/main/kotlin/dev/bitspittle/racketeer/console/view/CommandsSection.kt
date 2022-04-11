@@ -42,7 +42,7 @@ class CommandsSection(private val commands: List<Command>, currIndex: Int = 0) {
                 else {
                     text("  ")
                 }
-                textLine(command.title)
+                command.renderTitleInto(this)
             }
             textLine()
         }

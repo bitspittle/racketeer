@@ -6,6 +6,8 @@ import dev.bitspittle.racketeer.console.view.views.PreDrawView
 import dev.bitspittle.racketeer.model.game.GameState
 
 class NewGameCommand(ctx: GameContext) : Command(ctx) {
+    override val type = Type.ModifyAlt
+
     override val title = "New Game"
 
     override suspend fun invoke(): Boolean {
