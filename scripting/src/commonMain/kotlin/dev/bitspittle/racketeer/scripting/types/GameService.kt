@@ -14,10 +14,8 @@ interface GameService {
     val gameData: GameData
     val describer: Describer
     val gameState: GameState
-    val cardQueue: CardQueue?
+    val cardQueue: CardQueue
     val chooseHandler: ChooseHandler
 
     val logger: Logger
-
-    fun expectCardQueue() = cardQueue ?: throw IllegalStateException("CardQueue should exist while running cards")
 }

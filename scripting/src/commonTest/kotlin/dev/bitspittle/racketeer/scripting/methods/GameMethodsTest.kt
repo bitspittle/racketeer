@@ -6,6 +6,7 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.math.PowMethod
+import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.scripting.TestGameService
 import dev.bitspittle.racketeer.scripting.methods.game.GameDrawMethod
 import dev.bitspittle.racketeer.scripting.methods.game.GameGetMethod
@@ -32,10 +33,6 @@ class GameMethodsTest {
         evaluator.evaluate(env, "game-set! 'influence '(^ \$it 3)")
         assertThat(service.gameState.influence).isEqualTo(8)
 
-        assertThat(service.gameState.vp).isEqualTo(0)
-        evaluator.evaluate(env, "game-set! 'vp 5")
-        assertThat(service.gameState.vp).isEqualTo(5)
-
         assertThat(service.gameState.handSize).isEqualTo(4)
         evaluator.evaluate(env, "game-set! 'hand-size 6")
         assertThat(service.gameState.handSize).isEqualTo(6)
@@ -46,6 +43,11 @@ class GameMethodsTest {
         assertThat(service.gameState.cash).isEqualTo(0)
 
         assertThrows<EvaluationException> {
+            // Game VP is read-only
+            evaluator.evaluate(env, "game-set! 'vp 5")
+        }
+
+        assertThrows<EvaluationException> {
             evaluator.evaluate(env, "game-set! 'invalid-label 2")
         }
     }
@@ -54,13 +56,15 @@ class GameMethodsTest {
     fun testGameGetMethod() = runTest {
         val env = Environment()
         val service = TestGameService()
+        val gameState = service.gameState
         env.addMethod(GameGetMethod(service::gameState))
 
         val evaluator = Evaluator()
 
-        service.gameState.cash = 1
-        service.gameState.influence = 2
-        service.gameState.vp = 3
+        gameState.cash = 1
+        gameState.influence = 2
+        // As a side-effect, sets the gamestate's VP to 3
+        gameState.move(CardTemplate("Free VP", "", listOf(), tier = 0, vp = 3).instantiate(), gameState.hand)
 
         assertThat(evaluator.evaluate(env, "game-get 'cash")).isEqualTo(1)
         assertThat(evaluator.evaluate(env, "game-get 'influence")).isEqualTo(2)

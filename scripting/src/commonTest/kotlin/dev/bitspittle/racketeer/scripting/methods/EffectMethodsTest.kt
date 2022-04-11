@@ -8,13 +8,12 @@ import dev.bitspittle.limp.methods.compare.EqualsMethod
 import dev.bitspittle.limp.methods.math.AddMethod
 import dev.bitspittle.limp.methods.system.SetMethod
 import dev.bitspittle.racketeer.scripting.TestGameService
-import dev.bitspittle.racketeer.scripting.utils.addVariablesInto
 import dev.bitspittle.racketeer.scripting.methods.card.CardGetMethod
 import dev.bitspittle.racketeer.scripting.methods.card.CardSetMethod
 import dev.bitspittle.racketeer.scripting.methods.effect.FxAddMethod
 import dev.bitspittle.racketeer.scripting.methods.game.GameSetMethod
 import dev.bitspittle.racketeer.scripting.methods.pile.PileCopyToMethod
-import dev.bitspittle.racketeer.scripting.types.CardRunnerImpl
+import dev.bitspittle.racketeer.scripting.types.CardQueueImpl
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -22,8 +21,7 @@ class EffectMethodsTest {
     @Test
     fun testFxAddMethod() = runTest {
         val env = Environment()
-        val cardRunner = CardRunnerImpl(env, )
-        val service = TestGameService(getCardQueue = { cardRunner.cardQueue })
+        val service = TestGameService(cardQueue = CardQueueImpl(env))
         val gameState = service.gameState
         env.addMethod(FxAddMethod { gameState })
         env.addMethod(GameSetMethod { gameState })
@@ -52,8 +50,9 @@ class EffectMethodsTest {
         assertThat(gameState.hand.cards.size).isEqualTo(expectedHandSize)
 
         env.scoped {
-            gameState.addVariablesInto(this)
-            // Create a card which has a "install effect which adds one cash to the game per card played
+            env.storeValue("\$hand", gameState.hand)
+            env.storeValue("\$all-cards", service.gameData.cards)
+            // Create a card which has an install effect which adds one cash to the game per card played
             evaluator.evaluate(env, "pile-copy-to! --pos 'front \$hand single \$all-cards '(= card-get \$it 'name \"Embezzler\")")
             ++expectedHandSize
         }
@@ -77,7 +76,7 @@ class EffectMethodsTest {
         // First, play the card with an effect. It should install an effect that happens on the NEXT CARD but not
         // itself (adding cash)
         assertThat(gameState.streetEffects).hasSize(3)
-        gameState.play(cardRunner, 0); --expectedHandSize
+        gameState.play(0); --expectedHandSize
         assertThat(gameState.streetEffects).hasSize(4)
         assertThat(gameState.hand.cards.size).isEqualTo(expectedHandSize)
         assertThat(gameState.cash).isEqualTo(0) // Cash effect just installed but won't start until the next card
@@ -86,7 +85,7 @@ class EffectMethodsTest {
         assertThat(card2.vp).isEqualTo(0)
         assertThat(card3.vp).isEqualTo(0)
 
-        gameState.play(cardRunner, 0); --expectedHandSize
+        gameState.play(0); --expectedHandSize
         assertThat(gameState.hand.cards.size).isEqualTo(expectedHandSize)
         assertThat(gameState.cash).isEqualTo(1) // Cash effect starts taking effect
         assertThat(gameState.influence).isEqualTo(6)
@@ -94,7 +93,7 @@ class EffectMethodsTest {
         assertThat(card2.vp).isEqualTo(2) // Card just played affected
         assertThat(card3.vp).isEqualTo(0)
 
-        gameState.play(cardRunner, 0); --expectedHandSize
+        gameState.play(0); --expectedHandSize
         assertThat(gameState.hand.cards.size).isEqualTo(expectedHandSize)
         assertThat(gameState.cash).isEqualTo(2)
         assertThat(gameState.influence).isEqualTo(9)

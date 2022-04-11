@@ -12,7 +12,7 @@ class NewGameCommand(ctx: GameContext) : Command(ctx) {
 
     override suspend fun invoke(): Boolean {
         check(!ctx.viewStack.canGoBack)
-        ctx.state = GameState(ctx.data)
+        ctx.state = GameState(ctx.data, ctx.cardQueue)
         ctx.viewStack.replaceView(PreDrawView(ctx))
         return true
     }

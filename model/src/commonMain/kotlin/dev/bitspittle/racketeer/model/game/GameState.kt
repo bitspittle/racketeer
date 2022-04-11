@@ -2,7 +2,6 @@ package dev.bitspittle.racketeer.model.game
 
 import com.benasher44.uuid.Uuid
 import dev.bitspittle.limp.types.ListStrategy
-import dev.bitspittle.racketeer.model.card.CardRunner
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.shop.MutableShop
 import dev.bitspittle.racketeer.model.shop.Shop
@@ -11,6 +10,7 @@ import kotlin.random.Random
 class GameState internal constructor(
     private val random: Random,
     val allCards: List<CardTemplate>,
+    private val cardQueue: CardQueue,
     numTurns: Int,
     turn: Int,
     totalCashEarned: Int,
@@ -27,9 +27,10 @@ class GameState internal constructor(
     jail: MutablePile,
     streetEffects: MutableList<Effect>,
 ) {
-    constructor(data: GameData, random: Random = Random.Default) : this(
+    constructor(data: GameData, cardQueue: CardQueue, random: Random = Random.Default) : this(
         random = random,
         allCards = data.cards,
+        cardQueue = cardQueue,
         numTurns = data.numTurns,
         turn = 0,
         totalCashEarned = 0,
@@ -55,7 +56,10 @@ class GameState internal constructor(
         discard = MutablePile(),
         jail = MutablePile(),
         streetEffects = mutableListOf()
-    )
+    ) {
+        require(deck.cards.all { it.template.initActions.isEmpty() }) { "Initial actions on starting cards are not supported" }
+//        require(deck.cards.all { it.template.passiveActions.isEmpty() }) { "Passive actions on starting cards are not supported" }
+    }
 
     /**
      * How many turns are in a game.
@@ -113,9 +117,7 @@ class GameState internal constructor(
      * Luck can be used to re-roll the shop.
      */
     var vp = vp
-        set(value) {
-            field = value.coerceAtLeast(0)
-        }
+        private set
 
     /**
      * How many cards get drawn at the beginning of the turn.
@@ -147,6 +149,8 @@ class GameState internal constructor(
     val discard: Pile = _discard
     val jail: Pile = _jail
 
+    fun getOwnedCards() = listOf(deck, hand, street, discard).flatMap { it.cards }
+
     private val cardPiles = mutableMapOf<Uuid, MutablePile>()
     init {
         listOf(_deck, _street, _hand, _discard, _jail).forEach { pile ->
@@ -154,11 +158,12 @@ class GameState internal constructor(
         }
     }
 
-    fun move(card: Card, pileTo: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
-        move(listOf(card), pileTo, listStrategy)
+    private fun moveNow(card: Card, toPile: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
+        moveNow(listOf(card), toPile, listStrategy)
     }
 
-    fun move(cards: List<Card>, toPile: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
+    // Call move without triggering card initialization, which means it doesn't need to be suspend
+    private fun moveNow(cards: List<Card>, toPile: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
         val pileTo = toPile as MutablePile
         // Make a copy of the list of cards, as modifying the files below may inadvertently change the list as well,
         // due to some internal, aggressive casting between piles and mutable piles
@@ -170,6 +175,32 @@ class GameState internal constructor(
         pileTo.cards.insert(cards, listStrategy, random)
     }
 
+    // Needs to be suspend because it might trigger init actions
+    suspend fun move(card: Card, pileTo: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
+        move(listOf(card), pileTo, listStrategy)
+    }
+
+    private suspend fun updateVictoryPoints() {
+        val owned = getOwnedCards()
+        owned.forEach { cardQueue.enqueuePassiveActions(it) }
+        cardQueue.runEnqueuedActions(this@GameState)
+
+        vp = owned.sumOf { card -> card.vpTotal }
+    }
+
+    // Needs to be suspend because it might trigger init actions
+    suspend fun move(cards: List<Card>, toPile: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
+        val cardsToInit = cards
+            .filter { card -> card.template.initActions.isNotEmpty() && !cardPiles.contains(card.id) }
+        moveNow(cards, toPile, listStrategy)
+
+        cardsToInit.forEach { cardQueue.enqueueInitActions(it) }
+        cardQueue.runEnqueuedActions(this)
+        updateVictoryPoints()
+    }
+
+    // Guaranteed owned card to owned card - it's not necessary to worry about running init actions (so no need to be
+    // suspend)
     fun move(pileFrom: Pile, pileTo: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
         val pileFrom = pileFrom as MutablePile
         val pileTo = pileTo as MutablePile
@@ -203,7 +234,7 @@ class GameState internal constructor(
 
         _deck.cards.take(remainingCount).let { cards ->
             remainingCount -= cards.size
-            move(cards, _hand)
+            moveNow(cards, _hand)
         }
 
         if (remainingCount > 0) {
@@ -212,23 +243,22 @@ class GameState internal constructor(
 
         _deck.cards.take(remainingCount).let { cards ->
             check(cards.size == remainingCount) // Should be guaranteed by our coerce line at the top
-            move(cards, _hand)
+            moveNow(cards, _hand)
         }
     }
 
-    suspend fun play(cardRunner: CardRunner, handIndex: Int) {
+    suspend fun play(handIndex: Int) {
         require(handIndex in hand.cards.indices) { "Attempt to play card with an invalid hand index $handIndex, when hand is size ${hand.cards.size}"}
         val card = hand.cards[handIndex]
 
-        move(card, street)
+        moveNow(card, street)
 
         // Playing this card might install an effect, but that shouldn't take effect until the next card is played
         val streetEffectsCopy = _streetEffects.toList()
-        cardRunner.withCardQueue {
-            enqueuePlayActions(card)
-            start()
-            streetEffectsCopy.forEach { streetEffect -> streetEffect.invoke(card) }
-        }
+        cardQueue.enqueuePlayActions(card)
+        cardQueue.runEnqueuedActions(this)
+        streetEffectsCopy.forEach { streetEffect -> streetEffect.invoke(card) }
+        updateVictoryPoints()
     }
 
     fun endTurn(): Boolean {
@@ -243,7 +273,7 @@ class GameState internal constructor(
 
         _streetEffects.clear()
         move(_street, _discard)
-        move(_hand.cards.filter { !it.isPatient() }, _discard)
+        moveNow(_hand.cards.filter { !it.isPatient() }, _discard)
         shop.restockNow()
 
         return true
@@ -253,6 +283,7 @@ class GameState internal constructor(
         return GameState(
             random,
             allCards,
+            cardQueue,
             numTurns,
             turn,
             totalCashEarned,

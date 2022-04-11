@@ -4,6 +4,7 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.converters.ValueToExprConverter
+import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.racketeer.model.game.GameState
@@ -22,10 +23,13 @@ class GameSetMethod(private val getGameState: () -> GameState) : Method("game-se
         val gameState = getGameState()
         val currValue = when (property) {
             GameProperty.CASH -> gameState.cash
-            GameProperty.VP -> gameState.vp
             GameProperty.INFLUENCE -> gameState.influence
             GameProperty.LUCK -> gameState.luck
             GameProperty.HAND_SIZE -> gameState.handSize
+            GameProperty.VP -> throw EvaluationException(
+                identifier.ctx,
+                "Cannot set this game's property as it is read-only."
+            )
         }
 
         val newValue = env.scoped { // Don't let values defined during the lambda escape
@@ -34,10 +38,10 @@ class GameSetMethod(private val getGameState: () -> GameState) : Method("game-se
         }
         when (property) {
             GameProperty.CASH -> gameState.cash = newValue
-            GameProperty.VP -> gameState.vp = newValue
             GameProperty.INFLUENCE -> gameState.influence = newValue
             GameProperty.LUCK -> gameState.luck = newValue
             GameProperty.HAND_SIZE -> gameState.handSize = newValue
+            else -> error("Unhandled game-set case: ${property.name}")
         }
 
         return Unit

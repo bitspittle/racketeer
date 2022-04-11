@@ -1,6 +1,7 @@
 package dev.bitspittle.racketeer.scripting
 
 import dev.bitspittle.limp.types.Logger
+import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardQueue
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
@@ -142,21 +143,37 @@ private val FAKE_GAME_DATA_TEXT = """
 
 fun createFakeGameData() = GameData.decodeFromString(FAKE_GAME_DATA_TEXT)
 
+class StubCardQueue : CardQueue {
+    override fun enqueueInitActions(card: Card) {
+    }
+
+    override fun enqueuePlayActions(card: Card) {
+    }
+
+    override fun enqueuePassiveActions(card: Card) {
+    }
+
+    override fun clear() {
+    }
+
+    override suspend fun runEnqueuedActions(gameState: GameState) {
+    }
+}
+
 // Create a random with a fixed seed so tests run consistently
 class TestGameService(
     val random: Random = Random(0),
     override val gameData: GameData = createFakeGameData(),
-
+    override val cardQueue: CardQueue = StubCardQueue(),
     override val chooseHandler: ChooseHandler = object : ChooseHandler {
         override suspend fun query(prompt: String?, list: List<Any>, range: IntRange): List<Any> {
             return listOf()
         }
     },
-    private val getCardQueue: () -> CardQueue? = { null }
 ) : GameService {
+
     override val describer: Describer = Describer(gameData)
-    override val gameState = GameState(gameData, random)
-    override val cardQueue get() = getCardQueue()
+    override val gameState = GameState(gameData, cardQueue, random)
     private val _logs = mutableListOf<String>()
     val logs: List<String> = _logs
 

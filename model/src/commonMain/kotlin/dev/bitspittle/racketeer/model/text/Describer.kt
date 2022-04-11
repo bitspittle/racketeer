@@ -1,8 +1,6 @@
 package dev.bitspittle.racketeer.model.text
 
-import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.card.CardTemplate
-import dev.bitspittle.racketeer.model.card.UpgradeType
+import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.game.GameData
 
 class Describer(private val data: GameData) {
@@ -57,12 +55,35 @@ class Describer(private val data: GameData) {
             }
         }
 
+        if (template.initActions.isNotEmpty()) {
+            appendLine() // Finish previous section
+            appendLine() // Newline
+            appendLine("When card first enters play:")
+            template.initActions.forEachIndexed { i, action ->
+                append("~ $action")
+                if (i < template.initActions.lastIndex) {
+                    appendLine()
+                }
+            }
+        }
         if (template.playActions.isNotEmpty()) {
             appendLine() // Finish previous section
             appendLine() // Newline
+            appendLine("When card is played:")
             template.playActions.forEachIndexed { i, action ->
                 append("~ $action")
                 if (i < template.playActions.lastIndex) {
+                    appendLine()
+                }
+            }
+        }
+        template.allPassiveActions.takeIf { it.isNotEmpty() }?.let { allPassiveActions ->
+            appendLine() // Finish previous section
+            appendLine() // Newline
+            appendLine("Passive actions:")
+            allPassiveActions.forEachIndexed { i, action ->
+                append("~ $action")
+                if (i < allPassiveActions.lastIndex) {
                     appendLine()
                 }
             }
@@ -110,8 +131,8 @@ class Describer(private val data: GameData) {
                 }
             }
 
-            if (card.vp > 0) {
-                append(" ${describeVictoryPoints(card.vp)}")
+            if (card.vpTotal > 0) {
+                append(" ${describeVictoryPoints(card.vpTotal)}")
             }
 
             if (!concise) {

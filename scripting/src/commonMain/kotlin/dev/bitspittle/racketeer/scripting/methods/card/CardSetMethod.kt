@@ -29,9 +29,9 @@ class CardSetMethod : Method("card-set!", 3) {
         cards.forEach { card ->
             val currValue = when (property) {
                 CardProperty.VP -> card.vp
-                CardProperty.TIER, CardProperty.TYPES, CardProperty.NAME, CardProperty.ID, CardProperty.COST -> throw EvaluationException(
-                    identifier.ctx,
-                    "Cannot set this card's property as it is read-only."
+                CardProperty.VP_PASSIVE -> card.vpPassive
+                CardProperty.COST, CardProperty.TIER, CardProperty.TYPES, CardProperty.NAME, CardProperty.ID  -> throw EvaluationException(
+                    identifier.ctx, "Cannot set this card's property as it is read-only."
                 )
             }
 
@@ -41,6 +41,7 @@ class CardSetMethod : Method("card-set!", 3) {
             }
             when (property) {
                 CardProperty.VP -> card.vp = newValue
+                CardProperty.VP_PASSIVE -> card.vpPassive = newValue
                 else -> error("Unhandled card-set case: ${property.name}")
             }
         }

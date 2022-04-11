@@ -1,6 +1,8 @@
 package dev.bitspittle.racketeer.scripting.utils
 
 import dev.bitspittle.limp.Environment
+import dev.bitspittle.limp.Evaluator
+import dev.bitspittle.limp.Method
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
@@ -22,7 +24,7 @@ import dev.bitspittle.racketeer.scripting.types.GameService
  */
 fun Environment.installGameLogic(service: GameService) {
     // System
-    addMethod(StopMethod(service::expectCardQueue))
+    addMethod(StopMethod(service.cardQueue))
     addMethod(CancelMethod())
 
     // Collection
@@ -40,7 +42,7 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(CardHasUpgradeMethod())
     addMethod(CardHasTypeMethod(service.gameData.cardTypes))
     addMethod(CardRemoveMethod(service::gameState))
-    addMethod(CardTriggerMethod(service::expectCardQueue))
+    addMethod(CardTriggerMethod(service.cardQueue))
 
     // Pile
     addConverter(MutablePileToCardsConverter())
@@ -57,35 +59,4 @@ fun Environment.installGameLogic(service: GameService) {
 
     // Text
     addMethod(IconConvertMethod(service.describer))
-}
-
-/**
- * Add all variables related to the current game state into the environment.
- *
- * You probably want to do this within an [Environment.scoped] block, to avoid ever accidentally referring to stale game
- * state from previous turns.
- */
-fun GameState.addVariablesInto(env: Environment) {
-    env.storeValue("\$all-cards", allCards)
-    env.storeValue("\$shop-tier", shop.tier)
-
-    env.storeValue("\$deck", deck)
-    env.storeValue("\$hand", hand)
-    env.storeValue("\$street", street)
-    env.storeValue("\$discard", discard)
-    env.storeValue("\$jail", jail)
-
-    env.storeValue("\$shop", shop.stock.filterNotNull())
-
-    env.storeValue("\$owned", listOf(deck, hand, street, discard).flatMap { it.cards })
-}
-
-/**
- * Store the current card in the environment.
- *
- * You probably want to do this within an [Environment.scoped] block, tied to the lifetime of the current card being
- * played.
- */
-fun Card.addVariableTo(env: Environment) {
-    env.storeValue("\$this", this)
 }

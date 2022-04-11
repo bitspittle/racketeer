@@ -7,7 +7,6 @@ import dev.bitspittle.limp.methods.collection.FirstMethod
 import dev.bitspittle.limp.methods.collection.TakeMethod
 import dev.bitspittle.limp.types.Placeholder
 import dev.bitspittle.racketeer.scripting.TestGameService
-import dev.bitspittle.racketeer.scripting.utils.addVariablesInto
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.pile.PileCopyToMethod
 import dev.bitspittle.racketeer.scripting.methods.pile.PileMoveToMethod
@@ -38,7 +37,9 @@ class PileMethodsTest {
         })
 
         gameState.draw(4)
-        gameState.addVariablesInto(env)
+        env.storeValue("\$discard", gameState.discard)
+        env.storeValue("\$deck", gameState.deck)
+        env.storeValue("\$hand", gameState.hand)
 
         assertThat(gameState.discard.cards).isEmpty()
         assertThat(gameState.deck.cards).isNotEmpty()
@@ -96,7 +97,9 @@ class PileMethodsTest {
         env.storeValue("_", Placeholder)
 
         gameState.draw(4)
-        gameState.addVariablesInto(env)
+        env.storeValue("\$discard", gameState.discard)
+        env.storeValue("\$deck", gameState.deck)
+        env.storeValue("\$hand", gameState.hand)
 
         assertThat(gameState.discard.cards).isEmpty()
         assertThat(gameState.deck.cards).isNotEmpty()

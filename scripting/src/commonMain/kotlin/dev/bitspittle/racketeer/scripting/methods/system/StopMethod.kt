@@ -5,7 +5,7 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 import dev.bitspittle.racketeer.model.card.CardQueue
 
-class StopMethod(private val getCardQueue: () -> CardQueue) : Method("stop!", 0) {
+class StopMethod(private val cardQueue: CardQueue) : Method("stop!", 0) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
@@ -13,7 +13,7 @@ class StopMethod(private val getCardQueue: () -> CardQueue) : Method("stop!", 0)
         options: Map<String, Any>,
         rest: List<Any>
     ): Any {
-        getCardQueue().clear()
+        cardQueue.clear()
 
         return Unit
     }

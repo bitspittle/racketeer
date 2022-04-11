@@ -15,10 +15,8 @@ import dev.bitspittle.limp.methods.system.SetMethod
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.scripting.TestGameService
-import dev.bitspittle.racketeer.scripting.utils.addVariablesInto
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.card.*
-import dev.bitspittle.racketeer.scripting.methods.card.CardRemoveMethod
 import dev.bitspittle.racketeer.scripting.methods.pile.PileCopyToMethod
 import dev.bitspittle.racketeer.scripting.types.CardQueueImpl
 import kotlinx.coroutines.test.runTest
@@ -100,7 +98,7 @@ class CardMethodsTest {
     @Test
     fun testRemoveMethod() = runTest {
         val env = Environment()
-        val service = TestGameService(Random(123))
+        val service = TestGameService(Random(123), )
 
         val gameState = service.gameState
         env.addMethod(CardRemoveMethod { gameState })
@@ -112,29 +110,29 @@ class CardMethodsTest {
         val evaluator = Evaluator()
 
         val ownedCount = env.scoped {
-            gameState.addVariablesInto(this)
+            env.storeValue("\$owned", gameState.getOwnedCards())
             evaluator.evaluate(env, "size \$owned") as Int
         }
 
         env.scoped {
-            gameState.addVariablesInto(this)
+            env.storeValue("\$owned", gameState.getOwnedCards())
             evaluator.evaluate(env, "card-remove! take \$owned 2")
         }
 
         val ownedCountRemoveMultipleCards = env.scoped {
-            gameState.addVariablesInto(this)
+            env.storeValue("\$owned", gameState.getOwnedCards())
             evaluator.evaluate(env, "size \$owned") as Int
         }
 
         assertThat(ownedCount - 2).isEqualTo(ownedCountRemoveMultipleCards)
 
         env.scoped {
-            gameState.addVariablesInto(this)
+            env.storeValue("\$owned", gameState.getOwnedCards())
             evaluator.evaluate(env, "card-remove! list-get \$owned 0")
         }
 
         val ownedCountRemoveSingleCard = env.scoped {
-            gameState.addVariablesInto(this)
+            env.storeValue("\$owned", gameState.getOwnedCards())
             evaluator.evaluate(env, "size \$owned") as Int
         }
 
@@ -157,7 +155,8 @@ class CardMethodsTest {
         env.addConverter(PileToCardsConverter())
 
         val evaluator = Evaluator()
-        gameState.addVariablesInto(env)
+        env.storeValue("\$deck", gameState.deck)
+
         evaluator.evaluate(env, "set '\$card list-get \$deck 0")
         evaluator.evaluate(env, "set '\$cards take (drop \$deck 1) 2")
         assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'cash") as Boolean).isFalse()
@@ -199,7 +198,9 @@ class CardMethodsTest {
         env.addConverter(PileToCardsConverter())
 
         val evaluator = Evaluator()
-        gameState.addVariablesInto(env)
+        env.storeValue("\$all-cards", service.gameData.cards)
+        env.storeValue("\$hand", gameState.hand)
+
         evaluator.evaluate(env, "pile-copy-to! \$hand single \$all-cards '(= card-get \$it 'name \"Embezzler\")")
         evaluator.evaluate(env, "set '\$card list-get \$hand 0")
         val card = evaluator.evaluate(env, "\$card") as Card
@@ -231,10 +232,9 @@ class CardMethodsTest {
     fun testTriggerMethod() = runTest {
         val env = Environment()
 
-        val cardQueue = CardQueueImpl(env)
-        val service = TestGameService { cardQueue }
+        val service = TestGameService(cardQueue = CardQueueImpl(env))
 
-        env.addMethod(CardTriggerMethod(service::expectCardQueue))
+        env.addMethod(CardTriggerMethod(service.cardQueue))
         env.addMethod(DbgMethod(service.logger))
         env.addMethod(RunMethod())
         env.addMethod(CardGetMethod())
@@ -261,8 +261,10 @@ class CardMethodsTest {
         env.storeValue("\$card3", card3)
 
         assertThat(service.logs).isEmpty()
-        cardQueue.enqueuePlayActions(card1)
-        cardQueue.start()
+        service.cardQueue.apply {
+            enqueuePlayActions(card1)
+            runEnqueuedActions(service.gameState)
+        }
         assertThat(service.logs).containsExactly(
             "Debug: Card #1 # String",
             "Debug: Card #2 # String",

@@ -23,7 +23,7 @@ import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
-import dev.bitspittle.racketeer.scripting.types.CardRunnerImpl
+import dev.bitspittle.racketeer.scripting.types.CardQueueImpl
 import dev.bitspittle.racketeer.scripting.types.GameService
 import dev.bitspittle.racketeer.scripting.utils.installGameLogic
 import kotlinx.coroutines.*
@@ -82,12 +82,13 @@ class GameSession(
         val viewStack = ViewStackImpl()
         // Compile early to suss out any syntax errors
         gameData.cards.flatMap { it.playActions }.forEach { Expr.parse(it) }
+        val cardQueue = CardQueueImpl(env)
         val ctx = GameContext(
             gameData,
             Describer(gameData),
-            GameState(gameData),
+            GameState(gameData, cardQueue),
             env,
-            CardRunnerImpl(env),
+            cardQueue,
             viewStack,
             app,
         )
@@ -97,7 +98,7 @@ class GameSession(
             override val gameData = ctx.data
             override val describer = ctx.describer
             override val gameState get() = ctx.state
-            override val cardQueue get() = ctx.cardRunner.cardQueue
+            override val cardQueue get() = ctx.cardQueue
             override val chooseHandler
                 get() = object : ChooseHandler {
                     override suspend fun query(prompt: String?, list: List<Any>, range: IntRange): List<Any> {

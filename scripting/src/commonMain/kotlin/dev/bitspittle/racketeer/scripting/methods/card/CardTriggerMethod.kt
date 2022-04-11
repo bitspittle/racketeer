@@ -9,7 +9,7 @@ import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.scripting.converters.CardTemplateToCardConverter
 
-class CardTriggerMethod(private val getCardQueue: () -> CardQueue) : Method("card-trigger!", 1) {
+class CardTriggerMethod(private val cardQueue: CardQueue) : Method("card-trigger!", 1) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
@@ -22,7 +22,7 @@ class CardTriggerMethod(private val getCardQueue: () -> CardQueue) : Method("car
             env.expectConvert<Card>(params[0])
         }
 
-        getCardQueue().enqueuePlayActions(card)
+        cardQueue.enqueuePlayActions(card)
 
         return Unit
     }
