@@ -18,6 +18,6 @@ class BrowseDeckView(ctx: GameContext) : View(ctx) {
             .toSortedMap()
             .map { entry ->
                 val group = entry.value
-                ViewCardGroupCommand(ctx, group.first(), group.size)
+                ViewCardGroupCommand(ctx, group)
             }
 }

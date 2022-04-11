@@ -9,6 +9,10 @@ import dev.bitspittle.racketeer.console.command.Command
 import kotlin.math.min
 
 class CommandsSection(private val commands: List<Command>, currIndex: Int = 0) {
+    init {
+        require(commands.isNotEmpty())
+    }
+
     private var pageStart = 0
     private val pageEnd get() = pageStart + Constants.PAGE_SIZE
     private var currIndex = 0
