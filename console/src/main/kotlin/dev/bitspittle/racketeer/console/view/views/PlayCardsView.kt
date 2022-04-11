@@ -13,6 +13,7 @@ class PlayCardsView(ctx: GameContext) : View(ctx) {
             BrowseShopCommand(ctx),
             BrowseDeckCommand(ctx),
             BrowseDiscardCommand(ctx),
+            BrowseJailCommand(ctx),
             EndTurnCommand(ctx),
         )
 
