@@ -63,7 +63,7 @@ globalActions:
   - def 'if-false '$cond '$expr '(if $cond _ '$expr)
   - def 'stop-if! '$cond '(if $cond '(stop!) _)
   - def 'cancel-if! '$cond '(if $cond '(cancel!) _)
-  - def 'ask? '$prompt '(dbg = (single (choose --prompt $prompt (list "Yes" "No") 1) _) "Yes")
+  - def 'ask? '$prompt '(= (single (choose --prompt icon-convert $prompt (list "Yes" "No") 1) _) "Yes")
 
 cards:
   # TIER 1

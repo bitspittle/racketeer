@@ -6,6 +6,12 @@ import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.game.GameData
 
 class Describer(private val data: GameData) {
+    fun convertIcons(text: String): String {
+        return text.replace("$", data.icons.cash)
+            .replace("&", data.icons.influence)
+            .replace("%", data.icons.luck)
+            .replace("*", data.icons.vp)
+    }
     fun describeCash(cash: Int) = "${data.icons.cash} $cash"
     fun describeInfluence(influence: Int) = "${data.icons.influence} $influence"
     fun describeLuck(luck: Int) = "${data.icons.luck} $luck"
@@ -32,12 +38,7 @@ class Describer(private val data: GameData) {
     private fun StringBuilder.describeCardBody(template: CardTemplate, upgrades: Set<UpgradeType> = emptySet()) {
         appendLine() // Finish title
         appendLine() // Newline
-        append(
-            template.flavor.replace("$", data.icons.cash)
-                .replace("&", data.icons.influence)
-                .replace("%", data.icons.luck)
-                .replace("*", data.icons.vp)
-        )
+        append(convertIcons(template.flavor))
 
         if (upgrades.isNotEmpty()) {
             appendLine() // Finish previous section

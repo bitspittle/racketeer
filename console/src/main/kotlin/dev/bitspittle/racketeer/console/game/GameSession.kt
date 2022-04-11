@@ -11,7 +11,6 @@ import com.varabyte.kotterx.decorations.BorderCharacters
 import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
-import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.types.LangService
 import dev.bitspittle.limp.utils.installDefaults
 import dev.bitspittle.racketeer.console.view.ViewStackImpl
@@ -22,15 +21,11 @@ import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
-import dev.bitspittle.racketeer.scripting.types.CancelPlayException
-import dev.bitspittle.racketeer.scripting.utils.installGameLogic
 import dev.bitspittle.racketeer.scripting.types.CardRunnerImpl
 import dev.bitspittle.racketeer.scripting.types.GameService
 import dev.bitspittle.racketeer.scripting.utils.compileActions
+import dev.bitspittle.racketeer.scripting.utils.installGameLogic
 import kotlinx.coroutines.*
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentMap
-import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random
 
@@ -96,6 +91,7 @@ class GameSession(
         var handleRerender: () -> Unit = {}
         env.installGameLogic(object : GameService {
             override val gameData = ctx.data
+            override val describer = ctx.describer
             override val gameState get() = ctx.state
             override val cardQueue get() = ctx.cardRunner.cardQueue
             override val chooseHandler
