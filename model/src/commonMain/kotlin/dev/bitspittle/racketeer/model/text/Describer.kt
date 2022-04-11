@@ -57,12 +57,12 @@ class Describer(private val data: GameData) {
             }
         }
 
-        if (template.actions.isNotEmpty()) {
+        if (template.playActions.isNotEmpty()) {
             appendLine() // Finish previous section
             appendLine() // Newline
-            template.actions.forEachIndexed { i, action ->
+            template.playActions.forEachIndexed { i, action ->
                 append("~ $action")
-                if (i < template.actions.lastIndex) {
+                if (i < template.playActions.lastIndex) {
                     appendLine()
                 }
             }

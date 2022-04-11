@@ -29,10 +29,10 @@ class SystemMethodsTest {
         val evaluator = Evaluator()
 
         cardQueue = CardQueueImpl(env).apply {
-            enqueue(CardTemplate("Log #1", "", listOf(), tier = 0, actions = listOf("dbg 1")).instantiate())
-            enqueue(CardTemplate("Log #2", "", listOf(), tier = 0, actions = listOf("dbg 2")).instantiate())
-            enqueue(CardTemplate("Stop", "", listOf(), tier = 0, actions = listOf("stop!")).instantiate())
-            enqueue(CardTemplate("Log #3", "", listOf(), tier = 0, actions = listOf("dbg 3")).instantiate())
+            enqueuePlayActions(CardTemplate("Log #1", "", listOf(), tier = 0, playActions = listOf("dbg 1")).instantiate())
+            enqueuePlayActions(CardTemplate("Log #2", "", listOf(), tier = 0, playActions = listOf("dbg 2")).instantiate())
+            enqueuePlayActions(CardTemplate("Stop", "", listOf(), tier = 0, playActions = listOf("stop!")).instantiate())
+            enqueuePlayActions(CardTemplate("Log #3", "", listOf(), tier = 0, playActions = listOf("dbg 3")).instantiate())
         }
 
         assertThat(gameService.logs).isEmpty()

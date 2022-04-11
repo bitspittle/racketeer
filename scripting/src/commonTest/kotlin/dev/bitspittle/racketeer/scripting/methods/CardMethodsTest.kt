@@ -245,23 +245,23 @@ class CardMethodsTest {
             "",
             listOf(),
             tier = 0,
-            actions = listOf("card-trigger! \$card2", "dbg card-get \$this 'name")
+            playActions = listOf("card-trigger! \$card2", "dbg card-get \$this 'name")
         ).instantiate()
         val card2 = CardTemplate(
             "Card #2",
             "",
             listOf(),
             tier = 0,
-            actions = listOf("card-trigger! \$card3", "dbg card-get \$this 'name")
+            playActions = listOf("card-trigger! \$card3", "dbg card-get \$this 'name")
         ).instantiate()
         val card3 =
-            CardTemplate("Card #3", "", listOf(), tier = 0, actions = listOf("dbg card-get \$this 'name")).instantiate()
+            CardTemplate("Card #3", "", listOf(), tier = 0, playActions = listOf("dbg card-get \$this 'name")).instantiate()
         env.storeValue("\$card1", card1)
         env.storeValue("\$card2", card2)
         env.storeValue("\$card3", card3)
 
         assertThat(service.logs).isEmpty()
-        cardQueue.enqueue(card1)
+        cardQueue.enqueuePlayActions(card1)
         cardQueue.start()
         assertThat(service.logs).containsExactly(
             "Debug: Card #1 # String",

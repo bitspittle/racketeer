@@ -11,6 +11,7 @@ import com.varabyte.kotterx.decorations.BorderCharacters
 import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
+import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.LangService
 import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.limp.utils.installDefaults
@@ -24,7 +25,6 @@ import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.types.CardRunnerImpl
 import dev.bitspittle.racketeer.scripting.types.GameService
-import dev.bitspittle.racketeer.scripting.utils.compileActions
 import dev.bitspittle.racketeer.scripting.utils.installGameLogic
 import kotlinx.coroutines.*
 import kotlin.coroutines.suspendCoroutine
@@ -81,13 +81,13 @@ class GameSession(
 
         val viewStack = ViewStackImpl()
         // Compile early to suss out any syntax errors
-        val compiledActions = gameData.cards.associateWith { it.compileActions() }
+        gameData.cards.flatMap { it.playActions }.forEach { Expr.parse(it) }
         val ctx = GameContext(
             gameData,
             Describer(gameData),
             GameState(gameData),
             env,
-            CardRunnerImpl(env) { card -> compiledActions.getValue(card.template) },
+            CardRunnerImpl(env),
             viewStack,
             app,
         )

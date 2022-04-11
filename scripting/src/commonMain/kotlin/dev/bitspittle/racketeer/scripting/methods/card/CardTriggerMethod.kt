@@ -22,7 +22,7 @@ class CardTriggerMethod(private val getCardQueue: () -> CardQueue) : Method("car
             env.expectConvert<Card>(params[0])
         }
 
-        getCardQueue().enqueue(card)
+        getCardQueue().enqueuePlayActions(card)
 
         return Unit
     }

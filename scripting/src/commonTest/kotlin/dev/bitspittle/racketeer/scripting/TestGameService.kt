@@ -73,41 +73,41 @@ private val FAKE_GAME_DATA_TEXT = """
         tier: 0
         types: [thief]
         flavor: ""
-        actions: []
+        playActions: []
 
       - name: Rumormonger
         tier: 0
         types: [spy]
         flavor: ""
-        actions: []
+        playActions: []
 
       - name: Con Artist
         tier: 0
         types: [thief, spy]
         cost: 2
         flavor: ""
-        actions: []
+        playActions: []
 
       - name: Squealer
         tier: 0
         types: [spy]
         cost: 2
         flavor: ""
-        actions: []
+        playActions: []
 
       - name: Fool's Gold
         tier: 0
         types: [treasure]
         cost: 2
         flavor: ""
-        actions: []
+        playActions: []
 
       - name: Croupier
         tier: 0
         types: [thief]
         cost: 3
         flavor: ""
-        actions: []
+        playActions: []
 
       # TIER 2 (i.e. 1 when 0-indexed)
 
@@ -116,28 +116,28 @@ private val FAKE_GAME_DATA_TEXT = """
         types: [action]
         cost: 2
         flavor: ""
-        actions: []
+        playActions: []
 
       - name: Cheese It!
         tier: 1
         types: [action]
         cost: 2
         flavor: ""
-        actions: []
+        playActions: []
 
       - name: Lady Thistledown
         tier: 1
         types: [spy, legend]
         cost: 3
         flavor: ""
-        actions: []
+        playActions: []
 
       - name: Embezzler
         tier: 1
         types: [thief, spy]
         cost: 4
         flavor: ""
-        actions: - fx-add! '(game-set! 'cash '(+ ${'$'}it 1))
+        playActions: - fx-add! '(game-set! 'cash '(+ ${'$'}it 1))
 """.trimIndent()
 
 fun createFakeGameData() = GameData.decodeFromString(FAKE_GAME_DATA_TEXT)

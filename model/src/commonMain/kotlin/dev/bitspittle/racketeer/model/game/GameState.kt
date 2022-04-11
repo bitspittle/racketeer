@@ -225,7 +225,7 @@ class GameState internal constructor(
         // Playing this card might install an effect, but that shouldn't take effect until the next card is played
         val streetEffectsCopy = _streetEffects.toList()
         cardRunner.withCardQueue {
-            enqueue(card)
+            enqueuePlayActions(card)
             start()
             streetEffectsCopy.forEach { streetEffect -> streetEffect.invoke(card) }
         }

@@ -6,14 +6,31 @@ import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardQueue
 import dev.bitspittle.racketeer.scripting.utils.addVariableTo
-import dev.bitspittle.racketeer.scripting.utils.compileActions
 
-class CardQueueImpl(private val env: Environment, private val produceExprs: (Card) -> List<Expr> = { card -> card.compileActions() }) : CardQueue {
+class CardQueueImpl(private val env: Environment) : CardQueue {
     private val cardsToRun = mutableMapOf<Card, MutableList<Expr>>()
     private var isRunning = false
 
-    override fun enqueue(card: Card) {
-        cardsToRun.putAll(produceExprs(card).groupByTo(mutableMapOf()) { card })
+    private val compiledActions: MutableMap<String, Expr> = mutableMapOf()
+
+    private fun enqueueScopedExprs(card: Card, exprs: List<Expr>) {
+        cardsToRun[card] = exprs.toMutableList()
+    }
+
+    private fun enqueueScopedActions(card: Card, actions: List<String>) {
+        enqueueScopedExprs(card, actions.map { action -> compiledActions.getOrPut(action) { Expr.parse(action) } })
+    }
+
+    override fun enqueueInitActions(card: Card) {
+        TODO("Not yet implemented")
+    }
+
+    override fun enqueuePlayActions(card: Card) {
+        enqueueScopedActions(card, card.template.playActions)
+    }
+
+    override fun enqueuePassiveActions(card: Card) {
+        TODO("Not yet implemented")
     }
 
     override fun clear() = cardsToRun.clear()

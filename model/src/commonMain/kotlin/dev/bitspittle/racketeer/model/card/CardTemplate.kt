@@ -16,7 +16,7 @@ data class CardTemplate(
     val level: Int = 0,
     val vp: Int = 0,
     val cost: Int = 0,
-    val actions: List<String> = listOf(),
+    val playActions: List<String> = listOf(),
 ): Comparable<CardTemplate> {
     val isPriceless get() = cost == 0
 

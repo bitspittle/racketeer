@@ -75,7 +75,7 @@ cards:
       A scrubby urchin who pilfers coins out of the pockets of unsuspecting pedestrians.
 
       Gain $.
-    actions:
+    playActions:
       - game-add! 'cash 1
 
   - name: Rumormonger
@@ -85,7 +85,7 @@ cards:
       A charismatic youth who whispers misinformation into the ears of gossiping busybodies.
       
       Gain &.
-    actions:
+    playActions:
       - game-add! 'influence 1
 
   - name: Con Artist
@@ -93,7 +93,7 @@ cards:
     types: [thief, spy]
     cost: 2
     flavor: Gain $. Gain &.
-    actions:
+    playActions:
       - game-add! 'cash 1
       - game-add! 'influence 1
 
@@ -102,7 +102,7 @@ cards:
     types: [spy]
     cost: 2
     flavor: Gain &. Jail a card in your hand.
-    actions:
+    playActions:
       - game-add! 'influence 1
       - pile-move-to! $jail (choose $hand 1)
 
@@ -111,7 +111,7 @@ cards:
     types: [treasure]
     cost: 2
     flavor: Gain 3$. Jail this card.
-    actions:
+    playActions:
       - game-add! 'cash 3
       - pile-move-to! $jail $this
 
@@ -128,7 +128,7 @@ cards:
     types: [action]
     cost: 2
     flavor: Discard your hand, then draw that many cards.
-    actions:
+    playActions:
       - set $to-draw (size $hand)
       - pile-move-to! $jail $hand
       - game-draw! $to-draw
@@ -138,7 +138,7 @@ cards:
     types: [action]
     cost: 2
     flavor: Jail your hand.
-    actions:
+    playActions:
       - pile-move-to! $jail $hand
 
   - name: Lady Thistledown
@@ -146,7 +146,7 @@ cards:
     types: [spy, legend]
     cost: 3
     flavor: Give a Spy in your hand +1&.
-    actions:
+    playActions:
       - card-upgrade! (choose (filter $hand '(card-has-type? 'spy)) 1) 'influence
 
   - name: Roving Gambler
@@ -154,7 +154,7 @@ cards:
     types: [thief, spy]
     cost: 3
     flavor: Gain $. Gain &. Gain %.
-    actions:
+    playActions:
       - game-add! 'cash 1
       - game-add! 'influence 1
       - game-add! 'luck 1
