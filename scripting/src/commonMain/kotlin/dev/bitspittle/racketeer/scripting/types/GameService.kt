@@ -1,5 +1,6 @@
 package dev.bitspittle.racketeer.scripting.types
 
+import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.racketeer.model.card.CardQueue
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
@@ -16,7 +17,7 @@ interface GameService {
     val cardQueue: CardQueue?
     val chooseHandler: ChooseHandler
 
-    fun log(message: String)
+    val logger: Logger
 
     fun expectCardQueue() = cardQueue ?: throw IllegalStateException("CardQueue should exist while running cards")
 }

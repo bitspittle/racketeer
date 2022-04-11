@@ -8,6 +8,7 @@ import dev.bitspittle.limp.methods.collection.ListMethod
 import dev.bitspittle.limp.methods.collection.TakeMethod
 import dev.bitspittle.limp.methods.system.DefMethod
 import dev.bitspittle.limp.methods.system.SetMethod
+import dev.bitspittle.limp.types.ConsoleLogger
 import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.Test
@@ -18,7 +19,7 @@ class ConvertersTest {
         val env = Environment()
         env.addConverter(ItemToSingletonListConverter(Int::class))
         env.addMethod(DefMethod())
-        env.addMethod(SetMethod())
+        env.addMethod(SetMethod(ConsoleLogger()))
         env.addMethod(ListMethod())
         env.addMethod(ListGetMethod())
         env.addMethod(TakeMethod(Random.Default)) // Random doesn't matter -- we don't call `take --from 'random`

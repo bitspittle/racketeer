@@ -12,6 +12,7 @@ import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.types.LangService
+import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.limp.utils.installDefaults
 import dev.bitspittle.racketeer.console.view.ViewStackImpl
 import dev.bitspittle.racketeer.console.view.views.ChooseItemsView
@@ -60,11 +61,14 @@ class GameSession(
         }
 
         val env = Environment()
-        env.installDefaults(object : LangService {
-            override val random = Random.Default
+        val logger = object : Logger {
             override fun log(message: String) {
                 app.log(message)
             }
+        }
+        env.installDefaults(object : LangService {
+            override val random = Random.Default
+            override val logger = logger
         })
         Evaluator().let { evaluator ->
             // Safe to call runBlocking at this point because limp defaults all promise not to suspend
@@ -110,9 +114,8 @@ class GameSession(
                     }
                 }
 
-            override fun log(message: String) {
-                app.log(message)
-            }
+            override val logger = logger
+
         })
 
         viewStack.pushView(PreDrawView(ctx))

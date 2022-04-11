@@ -1,5 +1,6 @@
 package dev.bitspittle.racketeer.scripting
 
+import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.racketeer.model.card.CardQueue
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
@@ -158,7 +159,10 @@ class TestGameService(
     override val cardQueue get() = getCardQueue()
     private val _logs = mutableListOf<String>()
     val logs: List<String> = _logs
-    override fun log(message: String) {
-        _logs.add(message)
+
+    override val logger = object : Logger {
+        override fun log(message: String) {
+            _logs.add(message)
+        }
     }
 }

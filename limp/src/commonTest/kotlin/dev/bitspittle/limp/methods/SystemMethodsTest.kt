@@ -12,6 +12,7 @@ import dev.bitspittle.limp.methods.compare.EqualsMethod
 import dev.bitspittle.limp.methods.compare.NotEqualsMethod
 import dev.bitspittle.limp.methods.math.*
 import dev.bitspittle.limp.methods.system.*
+import dev.bitspittle.limp.types.ConsoleLogger
 import dev.bitspittle.limp.types.Placeholder
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -21,8 +22,9 @@ class SystemMethodsTest {
     @Test
     fun testSetVariables() = runTest {
         val env = Environment()
-        env.addMethod(SetMethod())
-        env.addMethod(SetAlwaysMethod())
+        val service = TestLangService()
+        env.addMethod(SetMethod(service.logger))
+        env.addMethod(SetAlwaysMethod(service.logger))
         env.addMethod(AddMethod())
         env.addMethod(EqualsMethod())
         env.addMethod(NotEqualsMethod())
@@ -31,45 +33,49 @@ class SystemMethodsTest {
         val evaluator = Evaluator()
 
         env.pushScope()
-        assertThat(env.loadValue("int1")).isNull()
-        assertThat(env.loadValue("int2")).isNull()
-        assertThat(env.loadValue("str")).isNull()
+        assertThat(env.loadValue("\$int1")).isNull()
+        assertThat(env.loadValue("\$int2")).isNull()
+        assertThat(env.loadValue("\$str")).isNull()
 
-        evaluator.evaluate(env, "set 'int1 12")
-        evaluator.evaluate(env, "set 'int2 34")
-        assertThat(env.expectValue("int1")).isEqualTo(12)
-        assertThat(env.expectValue("int2")).isEqualTo(34)
-        assertThat(env.loadValue("str")).isNull()
+        evaluator.evaluate(env, "set '\$int1 12")
+        evaluator.evaluate(env, "set '\$int2 34")
+        assertThat(env.expectValue("\$int1")).isEqualTo(12)
+        assertThat(env.expectValue("\$int2")).isEqualTo(34)
+        assertThat(env.loadValue("\$str")).isNull()
 
-        assertThat(evaluator.evaluate(env, "= int1 12")).isEqualTo(true)
-        assertThat(evaluator.evaluate(env, "!= int2 int1")).isEqualTo(true)
-        assertThat(evaluator.evaluate(env, "+ int1 int2")).isEqualTo(46)
+        assertThat(evaluator.evaluate(env, "= \$int1 12")).isEqualTo(true)
+        assertThat(evaluator.evaluate(env, "!= \$int2 \$int1")).isEqualTo(true)
+        assertThat(evaluator.evaluate(env, "+ \$int1 \$int2")).isEqualTo(46)
 
-        evaluator.evaluate(env, "set 'str \"Dummy text\"")
-        assertThat(env.expectValue("str")).isEqualTo("Dummy text")
+        evaluator.evaluate(env, "set '\$str \"Dummy text\"")
+        assertThat(env.expectValue("\$str")).isEqualTo("Dummy text")
 
-        assertThat(evaluator.evaluate(env, "= str \"Dummy text\"")).isEqualTo(true)
-        assertThat(evaluator.evaluate(env, "= str \"Smart text\"")).isEqualTo(false)
+        assertThat(evaluator.evaluate(env, "= \$str \"Dummy text\"")).isEqualTo(true)
+        assertThat(evaluator.evaluate(env, "= \$str \"Smart text\"")).isEqualTo(false)
 
         env.popScope()
-        assertThat(env.loadValue("int1")).isNull()
-        assertThat(env.loadValue("int2")).isNull()
-        assertThat(env.loadValue("str")).isNull()
+        assertThat(env.loadValue("\$int1")).isNull()
+        assertThat(env.loadValue("\$int2")).isNull()
+        assertThat(env.loadValue("\$str")).isNull()
 
         assertThrows<EvaluationException> {
             evaluator.evaluate(env, "set '(invalid variable name) 12")
         }
 
         // By default, overwriting is not allowed! But you can specify an option
-        evaluator.evaluate(env, "set 'set-multiple-times 123")
+        evaluator.evaluate(env, "set '\$set-multiple-times 123")
         assertThrows<EvaluationException> {
-            evaluator.evaluate(env, "set 'set-multiple-times 456")
+            evaluator.evaluate(env, "set '\$set-multiple-times 456")
         }
-        assertThat(env.loadValue("set-multiple-times")).isEqualTo(123)
-        evaluator.evaluate(env, "set --overwrite _ 'set-multiple-times 456")
-        assertThat(env.loadValue("set-multiple-times")).isEqualTo(456)
-        evaluator.evaluate(env, "set! 'set-multiple-times 789")
-        assertThat(env.loadValue("set-multiple-times")).isEqualTo(789)
+        assertThat(env.loadValue("\$set-multiple-times")).isEqualTo(123)
+        evaluator.evaluate(env, "set --overwrite _ '\$set-multiple-times 456")
+        assertThat(env.loadValue("\$set-multiple-times")).isEqualTo(456)
+        evaluator.evaluate(env, "set! '\$set-multiple-times 789")
+        assertThat(env.loadValue("\$set-multiple-times")).isEqualTo(789)
+
+        assertThat(service.logs.isEmpty())
+        assertThat(evaluator.evaluate(env, "set 'no-leading-dollar 123"))
+        assertThat(service.logs.count { it.startsWith("Warning:") }).isEqualTo(1)
     }
 
     @Test
@@ -165,7 +171,7 @@ class SystemMethodsTest {
 
             env.addMethod(ListMethod())
             env.addMethod(ListGetMethod())
-            env.addMethod(SetMethod())
+            env.addMethod(SetMethod(ConsoleLogger()))
 
             evaluator.evaluate(env, "set '\$these-are-some-ints (list 1 2 3 4 5)")
             assertThat(evaluator.evaluate(env, "lget \$ints 1")).isEqualTo(2)
@@ -205,7 +211,7 @@ class SystemMethodsTest {
     fun testRunMethod() = runTest {
         val env = Environment()
         env.addMethod(RunMethod())
-        env.addMethod(SetMethod())
+        env.addMethod(SetMethod(ConsoleLogger()))
         env.addMethod(AddMethod())
 
         val evaluator = Evaluator()
@@ -220,7 +226,7 @@ class SystemMethodsTest {
     fun testDbgMethod() = runTest {
         val env = Environment()
         val service = TestLangService()
-        env.addMethod(DbgMethod(service::log))
+        env.addMethod(DbgMethod(service.logger))
         env.addMethod(AddMethod())
 
         assertThat(service.logs.isEmpty())

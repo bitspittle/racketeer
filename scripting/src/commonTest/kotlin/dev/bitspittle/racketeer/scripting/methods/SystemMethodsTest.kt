@@ -23,7 +23,7 @@ class SystemMethodsTest {
         var cardQueue: CardQueue? = null
         val gameService = TestGameService { cardQueue }
         env.addMethod(StopMethod(gameService::expectCardQueue))
-        env.addMethod(DbgMethod(gameService::log))
+        env.addMethod(DbgMethod(gameService.logger))
         env.addMethod(CancelMethod())
 
         val evaluator = Evaluator()

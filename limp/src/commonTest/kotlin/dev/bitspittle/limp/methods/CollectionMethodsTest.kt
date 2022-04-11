@@ -15,6 +15,7 @@ import dev.bitspittle.limp.methods.convert.ToStringMethod
 import dev.bitspittle.limp.methods.math.PowMethod
 import dev.bitspittle.limp.methods.math.RemainderMethod
 import dev.bitspittle.limp.methods.system.SetMethod
+import dev.bitspittle.limp.types.ConsoleLogger
 import dev.bitspittle.limp.types.Placeholder
 import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
@@ -26,7 +27,7 @@ class CollectionMethodsTest {
     fun testInMethod() = runTest {
         val env = Environment()
         env.addMethod(InMethod())
-        env.addMethod(SetMethod())
+        env.addMethod(SetMethod(ConsoleLogger()))
         env.addMethod(GreaterThanMethod())
         env.addMethod(LessThanMethod())
         env.addMethod(ListMethod())
@@ -59,7 +60,7 @@ class CollectionMethodsTest {
     fun testIndexOfMethod() = runTest {
         val env = Environment()
         env.addMethod(IndexOfMethod())
-        env.addMethod(SetMethod())
+        env.addMethod(SetMethod(ConsoleLogger()))
         env.addMethod(GreaterThanMethod())
         env.addMethod(LessThanMethod())
         env.addMethod(ListMethod())
@@ -81,7 +82,7 @@ class CollectionMethodsTest {
     fun testEmptyMethod() = runTest {
         val env = Environment()
         env.addMethod(EmptyMethod())
-        env.addMethod(SetMethod())
+        env.addMethod(SetMethod(ConsoleLogger()))
         env.addMethod(ListMethod())
 
         val evaluator = Evaluator()

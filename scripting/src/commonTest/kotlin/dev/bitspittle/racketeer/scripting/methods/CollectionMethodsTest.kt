@@ -8,6 +8,7 @@ import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.collection.ListMethod
 import dev.bitspittle.limp.methods.range.IntRangeMethod
 import dev.bitspittle.limp.methods.system.SetMethod
+import dev.bitspittle.limp.types.ConsoleLogger
 import dev.bitspittle.limp.types.Placeholder
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseMethod
@@ -28,7 +29,7 @@ class CollectionMethodsTest {
             }
         }
         env.addMethod(ChooseMethod(chooseHandler))
-        env.addMethod(SetMethod())
+        env.addMethod(SetMethod(ConsoleLogger()))
         env.addMethod(ListMethod())
         env.addMethod(IntRangeMethod())
         env.storeValue("_", Placeholder)

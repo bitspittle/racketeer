@@ -30,7 +30,7 @@ class EffectMethodsTest {
         env.addMethod(PileCopyToMethod { gameState })
         env.addMethod(AddMethod())
         env.addMethod(EqualsMethod())
-        env.addMethod(SetMethod())
+        env.addMethod(SetMethod(service.logger))
         env.addMethod(CardSetMethod())
         env.addMethod(CardGetMethod())
         env.addMethod(SingleMethod())

@@ -149,7 +149,7 @@ class CardMethodsTest {
         val gameState = service.gameState
         env.addMethod(CardUpgradeMethod())
         env.addMethod(CardHasUpgradeMethod())
-        env.addMethod(SetMethod())
+        env.addMethod(SetMethod(service.logger))
         env.addMethod(ListGetMethod())
         env.addMethod(DropMethod(service.random))
         env.addMethod(TakeMethod(service.random))
@@ -195,7 +195,7 @@ class CardMethodsTest {
         env.addMethod(CardGetMethod())
         env.addMethod(ListGetMethod())
         env.addMethod(PileCopyToMethod { gameState })
-        env.addMethod(SetMethod())
+        env.addMethod(SetMethod(service.logger))
         env.addConverter(PileToCardsConverter())
 
         val evaluator = Evaluator()
@@ -235,7 +235,7 @@ class CardMethodsTest {
         val service = TestGameService { cardQueue }
 
         env.addMethod(CardTriggerMethod(service::expectCardQueue))
-        env.addMethod(DbgMethod(service::log))
+        env.addMethod(DbgMethod(service.logger))
         env.addMethod(RunMethod())
         env.addMethod(CardGetMethod())
 

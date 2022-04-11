@@ -6,11 +6,13 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.converters.PlaceholderConverter
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.types.Expr
+import dev.bitspittle.limp.types.Logger
+import dev.bitspittle.limp.types.warn
 
 /**
  * Store a value with some variable name label.
  */
-class SetMethod : Method("set", 2) {
+class SetMethod(private val logger: Logger) : Method("set", 2) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
@@ -25,6 +27,10 @@ class SetMethod : Method("set", 2) {
             env.addConverter(PlaceholderConverter(true))
             options["overwrite"]?.let { env.expectConvert(it) }
         } ?: false
+
+        if (!nameIdentifier.name.startsWith("$")) {
+            logger.warn("Variable names are expected to start with a '$', but got \"${nameIdentifier.name}\".")
+        }
 
         env.storeValue(nameIdentifier.name, params[1], allowOverwrite)
 

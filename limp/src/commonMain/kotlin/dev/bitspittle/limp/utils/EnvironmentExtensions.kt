@@ -32,14 +32,14 @@ import dev.bitspittle.limp.types.Placeholder
 fun Environment.installDefaults(service: LangService = DefaultLangService()) {
     // System
     storeValue("_", Placeholder)
-    addMethod(SetMethod())
+    addMethod(SetMethod(service.logger))
     addMethod(DefMethod())
-    addMethod(SetAlwaysMethod())
+    addMethod(SetAlwaysMethod(service.logger))
     addMethod(DefAlwaysMethod())
     addMethod(AliasMethod())
     addMethod(AliasAlwaysMethod())
     addMethod(RunMethod())
-    addMethod(DbgMethod(service::log))
+    addMethod(DbgMethod(service.logger))
 
     // Math
     addMethod(AbsMethod())
