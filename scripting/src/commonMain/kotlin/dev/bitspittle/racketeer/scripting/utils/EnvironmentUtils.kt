@@ -73,7 +73,7 @@ fun GameState.addVariablesInto(env: Environment) {
 
     env.storeValue("\$shop", shop.stock.filterNotNull())
 
-    env.storeValue("\$owned", listOf(deck, hand, street, discard, jail).flatMap { it.cards })
+    env.storeValue("\$owned", listOf(deck, hand, street, discard).flatMap { it.cards })
 }
 
 /**
