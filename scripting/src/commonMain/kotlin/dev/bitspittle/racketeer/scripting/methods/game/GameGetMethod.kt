@@ -25,6 +25,7 @@ class GameGetMethod(private val getGameState: () -> GameState) : Method("game-ge
             GameProperty.CASH -> gameState.cash
             GameProperty.VP -> gameState.vp
             GameProperty.INFLUENCE -> gameState.influence
+            GameProperty.LUCK -> gameState.luck
         }
     }
 }

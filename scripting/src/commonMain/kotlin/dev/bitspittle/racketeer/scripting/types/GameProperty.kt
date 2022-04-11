@@ -4,4 +4,5 @@ enum class GameProperty {
     CASH,
     VP,
     INFLUENCE,
+    LUCK,
 }
