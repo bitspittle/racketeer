@@ -28,4 +28,4 @@ class Card private constructor(val template: CardTemplate, val id: Uuid, vp: Int
     }
 }
 
-fun Card.isPatient() = this.upgrades.contains(UpgradeType.PATIENCE)
+fun Card.isPatient() = this.upgrades.contains(UpgradeType.UNDERCOVER)

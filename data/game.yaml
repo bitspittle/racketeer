@@ -3,7 +3,7 @@ icons:
   cash: "$" # "💰"
   influence: "&" # "🤝"
   luck: "%" # "🎲"
-  patience: "_" # "🥸"
+  undercover: "_" # "🥸"
   vp: "*" # "⭐"
 numTurns: 12
 initialHandSize: 4
@@ -23,7 +23,7 @@ upgradeNames:
   cash: Dextrous
   influence: Artful
   luck: Lucky
-  patience: Patient
+  undercover: Undercover
 
 tiers:
   - name: Common

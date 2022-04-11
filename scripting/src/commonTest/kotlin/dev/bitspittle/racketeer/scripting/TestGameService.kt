@@ -3,6 +3,7 @@ package dev.bitspittle.racketeer.scripting
 import dev.bitspittle.racketeer.model.card.CardQueue
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.types.GameService
 import kotlin.random.Random
@@ -13,7 +14,7 @@ private val FAKE_GAME_DATA_TEXT = """
       cash: "${'$'}"
       influence: "&"
       luck: "%"
-      patience: "_"
+      undercover: "_"
       vp: "*"
     numTurns: 3
     initialHandSize: 4
@@ -33,7 +34,7 @@ private val FAKE_GAME_DATA_TEXT = """
       cash: Dextrous
       influence: Artful
       luck: Lucky
-      patience: Patient
+      undercover: Undercover
 
     tiers:
       - name: Common
@@ -138,6 +139,7 @@ fun createFakeGameData() = GameData.decodeFromString(FAKE_GAME_DATA_TEXT)
 class TestGameService(
     val random: Random = Random(0),
     override val gameData: GameData = createFakeGameData(),
+
     override val chooseHandler: ChooseHandler = object : ChooseHandler {
         override suspend fun query(prompt: String?, list: List<Any>, range: IntRange): List<Any> {
             return listOf()
@@ -145,6 +147,7 @@ class TestGameService(
     },
     private val getCardQueue: () -> CardQueue? = { null }
 ) : GameService {
+    override val describer: Describer = Describer(gameData)
     override val gameState = GameState(gameData, random)
     override val cardQueue get() = getCardQueue()
     private val _logs = mutableListOf<String>()

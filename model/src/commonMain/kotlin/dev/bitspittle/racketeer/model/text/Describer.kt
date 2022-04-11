@@ -51,8 +51,8 @@ class Describer(private val data: GameData) {
             if (upgrades.contains(UpgradeType.LUCK)) {
                 append("${data.upgradeNames.luck}: +1${data.icons.luck}")
             }
-            if (upgrades.contains(UpgradeType.PATIENCE)) {
-                append("${data.upgradeNames.patience}: If still in hand, this isn't discard at end of turn")
+            if (upgrades.contains(UpgradeType.UNDERCOVER)) {
+                append("${data.upgradeNames.undercover}: If still in hand, this isn't discard at end of turn")
             }
         }
 
@@ -97,8 +97,8 @@ class Describer(private val data: GameData) {
                 if (card.upgrades.contains(UpgradeType.LUCK)) {
                     append("${data.upgradeNames.luck} ")
                 }
-                if (card.upgrades.contains(UpgradeType.PATIENCE)) {
-                    append("${data.upgradeNames.patience} ")
+                if (card.upgrades.contains(UpgradeType.UNDERCOVER)) {
+                    append("${data.upgradeNames.undercover} ")
                 }
             }
             append(card.template.name)
