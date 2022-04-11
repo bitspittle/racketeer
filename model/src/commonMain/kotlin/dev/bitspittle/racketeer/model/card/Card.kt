@@ -20,3 +20,5 @@ class Card private constructor(val template: CardTemplate, val id: Uuid, vp: Int
 
     fun copy(id: Uuid = this.id, vp: Int = this.vp, upgrades: Set<UpgradeType> = this.upgrades) = Card(template, id, vp, upgrades.toMutableSet())
 }
+
+fun Card.isPatient() = this.upgrades.contains(UpgradeType.PATIENCE)

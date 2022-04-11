@@ -7,5 +7,6 @@ data class GameIcons(
     val cash: String,
     val influence: String,
     val luck: String,
+    val patience: String,
     val vp: String,
 )

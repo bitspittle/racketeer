@@ -3,6 +3,7 @@ icons:
   cash: "$" # "💰"
   influence: "&" # "🤝"
   luck: "%" # "🎲"
+  patience: "_" # "🥸"
   vp: "*" # "⭐"
 numTurns: 12
 initialHandSize: 4

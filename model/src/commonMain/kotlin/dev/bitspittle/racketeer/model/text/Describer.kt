@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.model.text
 
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
+import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.game.GameData
 
 class Describer(private val data: GameData) {
@@ -28,7 +29,7 @@ class Describer(private val data: GameData) {
         }
     }
 
-    private fun StringBuilder.describeCardBody(template: CardTemplate) {
+    private fun StringBuilder.describeCardBody(template: CardTemplate, upgrades: Set<UpgradeType> = emptySet()) {
         appendLine() // Finish title
         appendLine() // Newline
         append(
@@ -37,8 +38,26 @@ class Describer(private val data: GameData) {
                 .replace("%", data.icons.luck)
                 .replace("*", data.icons.vp)
         )
+
+        if (upgrades.isNotEmpty()) {
+            appendLine() // Finish previous section
+            appendLine() // Newline
+            if (upgrades.contains(UpgradeType.CASH)) {
+                append("${data.upgradeNames.cash}: +1${data.icons.cash}")
+            }
+            if (upgrades.contains(UpgradeType.INFLUENCE)) {
+                append("${data.upgradeNames.influence}: +1${data.icons.influence}")
+            }
+            if (upgrades.contains(UpgradeType.LUCK)) {
+                append("${data.upgradeNames.luck}: +1${data.icons.luck}")
+            }
+            if (upgrades.contains(UpgradeType.PATIENCE)) {
+                append("${data.upgradeNames.patience}: If still in hand, this isn't discard at end of turn")
+            }
+        }
+
         if (template.actions.isNotEmpty()) {
-            appendLine() // Finish desc
+            appendLine() // Finish previous section
             appendLine() // Newline
             template.actions.forEachIndexed { i, action ->
                 append("~ $action")
@@ -68,6 +87,20 @@ class Describer(private val data: GameData) {
 
     fun describe(card: Card, count: Int? = null, concise: Boolean = false): String {
         return buildString {
+            if (!concise) {
+                if (card.upgrades.contains(UpgradeType.CASH)) {
+                    append("${data.upgradeNames.cash} ")
+                }
+                if (card.upgrades.contains(UpgradeType.INFLUENCE)) {
+                    append("${data.upgradeNames.influence} ")
+                }
+                if (card.upgrades.contains(UpgradeType.LUCK)) {
+                    append("${data.upgradeNames.luck} ")
+                }
+                if (card.upgrades.contains(UpgradeType.PATIENCE)) {
+                    append("${data.upgradeNames.patience} ")
+                }
+            }
             append(card.template.name)
 
             if (concise) {
@@ -81,7 +114,7 @@ class Describer(private val data: GameData) {
             }
 
             if (!concise) {
-                describeCardBody(card.template)
+                describeCardBody(card.template, card.upgrades)
             }
         }
     }

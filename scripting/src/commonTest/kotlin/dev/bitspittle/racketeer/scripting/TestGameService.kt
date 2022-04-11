@@ -13,6 +13,7 @@ private val FAKE_GAME_DATA_TEXT = """
       cash: "${'$'}"
       influence: "&"
       luck: "%"
+      patience: "_"
       vp: "*"
     numTurns: 3
     initialHandSize: 4

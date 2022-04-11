@@ -243,7 +243,7 @@ class GameState internal constructor(
 
         _streetEffects.clear()
         move(_street, _discard)
-        move(_hand, _discard)
+        move(_hand.cards.filter { !it.isPatient() }, _discard)
 
         return true
     }
