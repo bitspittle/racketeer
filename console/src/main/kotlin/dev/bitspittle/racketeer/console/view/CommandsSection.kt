@@ -6,11 +6,19 @@ import com.varabyte.kotter.foundation.text.text
 import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
+import kotlin.math.min
 
 class CommandsSection(private val commands: List<Command>, currIndex: Int = 0) {
-    var currIndex = 0
+    private var pageStart = 0
+    private val pageEnd get() = pageStart + Constants.PAGE_SIZE
+    private var currIndex = 0
         private set(value) {
             field = value.coerceIn(commands.indices)
+            if (field < pageStart) {
+                pageStart = field
+            } else if (field >= pageEnd) {
+                pageStart += field - pageEnd + 1
+            }
         }
     init {
         this.currIndex = currIndex
@@ -35,15 +43,24 @@ class CommandsSection(private val commands: List<Command>, currIndex: Int = 0) {
 
     fun renderInto(scope: RenderScope) {
         scope.apply {
-            commands.forEachIndexed { i, command ->
-                if (i == currIndex) {
-                    text("> ")
-                }
-                else {
-                    text("  ")
-                }
-                command.renderTitleInto(this)
+            if (pageStart > 0) {
+                textLine("... $pageStart earlier item(s) ...")
             }
+            commands.forEachIndexed { i, command ->
+                if (i in pageStart until pageEnd) {
+                    if (i == currIndex) {
+                        text("> ")
+                    } else {
+                        text("  ")
+                    }
+                    command.renderTitleInto(this)
+                }
+            }
+
+            if (pageEnd < commands.size) {
+                textLine("... ${commands.size - pageEnd} more item(s) ...")
+            }
+
             textLine()
         }
     }
