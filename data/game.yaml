@@ -69,6 +69,7 @@ cards:
   # TIER 1
 
   - name: Pickpocket
+    tier: 0
     types: [thief]
     flavor: |
       A scrubby urchin who pilfers coins out of the pockets of unsuspecting pedestrians.
@@ -78,6 +79,7 @@ cards:
       - game-add! 'cash 1
 
   - name: Rumormonger
+    tier: 0
     types: [spy]
     flavor: |
       A charismatic youth who whispers misinformation into the ears of gossiping busybodies.
@@ -87,6 +89,7 @@ cards:
       - game-add! 'influence 1
 
   - name: Con Artist
+    tier: 0
     types: [thief, spy]
     cost: 2
     flavor: Gain $. Gain &.
@@ -95,6 +98,7 @@ cards:
       - game-add! 'influence 1
 
   - name: Squealer
+    tier: 0
     types: [spy]
     cost: 2
     flavor: Gain &. Jail a card in your hand.
@@ -103,6 +107,7 @@ cards:
       - pile-move-to! $jail (choose $hand 1)
 
   - name: Fool's Gold
+    tier: 0
     types: [treasure]
     cost: 2
     flavor: Gain 3$. Jail this card.
@@ -111,6 +116,7 @@ cards:
       - pile-move-to! $jail $this
 
   - name: Croupier
+    tier: 0
     types: [thief]
     cost: 3
     flavor: Gain $. Gain %.

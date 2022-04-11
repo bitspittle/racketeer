@@ -34,8 +34,8 @@ class CardMethodsTest {
         env.addMethod(MulMethod())
         env.addMethod(ListMethod())
 
-        val card = CardTemplate("test-card", "", listOf()).instantiate()
-        val card2 = CardTemplate("test-card2", "", listOf()).instantiate()
+        val card = CardTemplate("test-card", "", listOf(), tier = 0).instantiate()
+        val card2 = CardTemplate("test-card2", "", listOf(), tier = 0).instantiate()
         env.storeValue("card", card)
         env.storeValue("card2", card2)
 
@@ -83,7 +83,7 @@ class CardMethodsTest {
 
         val evaluator = Evaluator()
 
-        val card = CardTemplate("test-card", "", listOf("type-a", "type-b"), cost = 2, vp = 5).instantiate()
+        val card = CardTemplate("test-card", "", listOf("type-a", "type-b"), tier = 0, cost = 2, vp = 5).instantiate()
         env.storeValue("card", card)
 
         assertThat(evaluator.evaluate(env, "card-get card 'cost")).isEqualTo(2)
@@ -244,15 +244,18 @@ class CardMethodsTest {
             "Card #1",
             "",
             listOf(),
+            tier = 0,
             actions = listOf("card-trigger! \$card2", "dbg card-get \$this 'name")
         ).instantiate()
         val card2 = CardTemplate(
             "Card #2",
             "",
             listOf(),
+            tier = 0,
             actions = listOf("card-trigger! \$card3", "dbg card-get \$this 'name")
         ).instantiate()
-        val card3 = CardTemplate("Card #3", "", listOf(), actions = listOf("dbg card-get \$this 'name")).instantiate()
+        val card3 =
+            CardTemplate("Card #3", "", listOf(), tier = 0, actions = listOf("dbg card-get \$this 'name")).instantiate()
         env.storeValue("\$card1", card1)
         env.storeValue("\$card2", card2)
         env.storeValue("\$card3", card3)

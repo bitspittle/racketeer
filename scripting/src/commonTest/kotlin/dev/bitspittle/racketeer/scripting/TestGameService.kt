@@ -69,34 +69,40 @@ private val FAKE_GAME_DATA_TEXT = """
       # TIER 1
 
       - name: Pickpocket
+        tier: 0
         types: [thief]
         flavor: ""
         actions: []
 
       - name: Rumormonger
+        tier: 0
         types: [spy]
         flavor: ""
         actions: []
 
       - name: Con Artist
+        tier: 0
         types: [thief, spy]
         cost: 2
         flavor: ""
         actions: []
 
       - name: Squealer
+        tier: 0
         types: [spy]
         cost: 2
         flavor: ""
         actions: []
 
       - name: Fool's Gold
+        tier: 0
         types: [treasure]
         cost: 2
         flavor: ""
         actions: []
 
       - name: Croupier
+        tier: 0
         types: [thief]
         cost: 3
         flavor: ""
