@@ -23,7 +23,7 @@ class ChooseItemsView(
 
     private val selectItemCommands = items.map { item -> SelectItemCommand(ctx, item) }
 
-    override val commands: List<Command> =
+    override fun createCommands(): List<Command> =
          selectItemCommands + object : Command(ctx) {
             override val title: String = "Confirm"
             override val description: String
@@ -36,7 +36,7 @@ class ChooseItemsView(
              override suspend fun invoke(): Boolean {
                  if (hasUserSelectedEnoughChoices()) {
                      choices.resume(items.filterIndexed { index, _    -> selectItemCommands[index].selected })
-                     ctx.viewStack.popView()
+                     goBack()
                  }
 
                  return false // Refresh will be handled by the parent screen
@@ -53,7 +53,7 @@ class ChooseItemsView(
         }
     }
 
-    override fun onGoingBack() {
+    override fun onEscRequested() {
         choices.resumeWithException(CancelPlayException("User canceled the play by rejecting a required choice."))
     }
 }

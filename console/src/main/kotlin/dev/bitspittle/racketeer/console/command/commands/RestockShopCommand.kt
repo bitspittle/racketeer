@@ -13,7 +13,7 @@ class RestockShopCommand(ctx: GameContext) : Command(ctx) {
     override suspend fun invoke(): Boolean {
         return if (ctx.state.shop.restock()) {
             ctx.state.luck -= 1
-            ctx.viewStack.replaceView(BrowseShopView(ctx))
+            ctx.viewStack.currentView.refreshCommands()
             true
         } else {
             false

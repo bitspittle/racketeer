@@ -11,7 +11,7 @@ import dev.bitspittle.racketeer.console.view.View
 class BrowseShopView(ctx: GameContext) : View(ctx) {
     override val subtitle = "Shop"
 
-    override val commands: List<Command> = ctx.state.shop.stock.map { card ->
+    override fun createCommands(): List<Command> = ctx.state.shop.stock.map { card ->
         if (card != null) BuyCardCommand(ctx, card) else SoldOutCardCommand(ctx)
     } + listOf(RestockShopCommand(ctx)) + if (ctx.state.shop.tier < ctx.data.maxTier) listOf(ExpandShopCommand(ctx)) else listOf()
 }

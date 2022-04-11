@@ -23,8 +23,7 @@ class PlayCardCommand(ctx: GameContext, private val handIndex: Int) : Command(ct
             ctx.state.addVariablesInto(this)
             try {
                 ctx.state.play(ctx.cardRunner, handIndex)
-                // Cause a "refresh" with an update on what cards are in your hand
-                ctx.viewStack.replaceView(PlayCardsView(ctx))
+                ctx.viewStack.currentView.refreshCommands()
             } catch (ex: EvaluationException) {
                 ctx.state = prevState
                 if (ex.cause !is CancelPlayException) {

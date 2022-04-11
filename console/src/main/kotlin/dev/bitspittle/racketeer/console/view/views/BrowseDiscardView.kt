@@ -12,6 +12,6 @@ class BrowseDiscardView(ctx: GameContext) : View(ctx) {
 
     override val subtitle = "Discard"
 
-    override val commands: List<Command> =
+    override fun createCommands(): List<Command> =
         ctx.state.discard.cards.map { card -> ViewCardCommand(ctx, card) }
 }

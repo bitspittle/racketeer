@@ -5,7 +5,7 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.view.View
 
 class ConfirmQuitView(ctx: GameContext) : View(ctx) {
-    override val commands: List<Command> = listOf(
+    override fun createCommands(): List<Command> = listOf(
         object : Command(ctx) {
             override val type = Type.Danger
             override val title = "Confirm"

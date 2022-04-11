@@ -15,7 +15,7 @@ class BuyCardCommand(ctx: GameContext, private val card: Card) : Command(ctx) {
     override suspend fun invoke(): Boolean {
         ctx.state.cash -= card.template.cost
         ctx.state.move(card, ctx.state.discard)
-        ctx.viewStack.replaceView(BrowseShopView(ctx))
+        ctx.viewStack.currentView.refreshCommands()
         return true
     }
 }

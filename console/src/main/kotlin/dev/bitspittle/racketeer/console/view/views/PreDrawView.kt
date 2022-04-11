@@ -9,7 +9,7 @@ import dev.bitspittle.racketeer.console.command.commands.DrawCardsCommand
 import dev.bitspittle.racketeer.console.view.View
 
 class PreDrawView(ctx: GameContext) : View(ctx) {
-    override val commands: List<Command> = listOf(
+    override fun createCommands(): List<Command> = listOf(
         DrawCardsCommand(ctx),
         BrowseShopCommand(ctx),
         BrowseDeckCommand(ctx),

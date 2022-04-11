@@ -12,7 +12,7 @@ class BrowseDeckView(ctx: GameContext) : View(ctx) {
 
     override val subtitle = "Deck"
 
-    override val commands: List<Command> =
+    override fun createCommands(): List<Command> =
         ctx.state.deck.cards
             .groupBy { it.template.name }
             .toSortedMap()

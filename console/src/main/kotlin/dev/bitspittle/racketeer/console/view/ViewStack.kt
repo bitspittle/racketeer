@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.console.view
 
 interface ViewStack {
     val canGoBack: Boolean
+    val currentView: View
 
     fun pushView(view: View)
     fun popView(): Boolean
@@ -12,10 +13,8 @@ class ViewStackImpl : ViewStack {
     private val _views = mutableListOf<View>()
     val views: List<View> = _views
 
-    val currentView get() = views.last()
-
-
     override val canGoBack get() = _views.size > 1
+    override val currentView get() = views.last()
 
     override fun pushView(view: View) {
         _views.add(view)

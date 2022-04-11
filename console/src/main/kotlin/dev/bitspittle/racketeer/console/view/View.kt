@@ -2,33 +2,46 @@ package dev.bitspittle.racketeer.console.view
 
 import com.varabyte.kotter.foundation.input.Key
 import com.varabyte.kotter.foundation.input.Keys
-import com.varabyte.kotter.foundation.text.bold
-import com.varabyte.kotter.foundation.text.textLine
-import com.varabyte.kotter.foundation.text.underline
+import com.varabyte.kotter.foundation.text.*
 import com.varabyte.kotter.runtime.render.RenderScope
 import com.varabyte.kotterx.decorations.BorderCharacters
 import com.varabyte.kotterx.decorations.bordered
-import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
+import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.views.ConfirmQuitView
 
 abstract class View(protected val ctx: GameContext) {
-    private val commandsSection by lazy { CommandsSection(commands) }
+    protected abstract fun createCommands(): List<Command>
+    private var _commandsSection: CommandsSection? = null
+        get() {
+            _commandsSection = field ?: CommandsSection(createCommands())
+            return field!!
+        }
+    private val commandsSection get() = _commandsSection!!
 
     protected open val subtitle: String? = null
     protected open val heading: String? = null
-    protected abstract val commands: List<Command>
     protected val currCommand get() = commandsSection.currCommand
 
     protected open val allowQuit = true
     protected open val allowGoBack = true
 
+    fun refreshCommands() {
+        _commandsSection = null
+    }
+
+    protected fun goBack() {
+        ctx.viewStack.popView()
+        // Refresh commands in case the screen we were in caused a change
+        ctx.viewStack.currentView.refreshCommands()
+    }
+
     suspend fun handleKey(key: Key): Boolean {
         return when (key) {
             Keys.ESC -> {
                 if (allowGoBack) {
-                    onGoingBack()
-                    ctx.viewStack.popView()
+                    onEscRequested()
+                    goBack()
                     true
                 } else false
             }
@@ -90,7 +103,7 @@ abstract class View(protected val ctx: GameContext) {
             }
 
             if (allowQuit) {
-                textLine("Press Q to quit.")
+                text("Press "); yellow { text("Q") }; textLine(" to quit.")
             }
         }
     }
@@ -113,5 +126,5 @@ abstract class View(protected val ctx: GameContext) {
 
     protected open fun RenderScope.renderContent() = Unit
 
-    protected open fun onGoingBack() = Unit
+    protected open fun onEscRequested() = Unit
 }

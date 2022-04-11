@@ -19,7 +19,7 @@ class ExpandShopCommand(ctx: GameContext) : Command(ctx) {
     override suspend fun invoke(): Boolean {
         return if (ctx.state.shop.upgrade()) {
             ctx.state.influence -= influenceCost
-            ctx.viewStack.replaceView(BrowseShopView(ctx))
+            ctx.viewStack.currentView.refreshCommands()
             true
         } else {
             false

@@ -14,25 +14,25 @@ import kotlin.coroutines.resumeWithException
 class PickItemView(
     ctx: GameContext,
     prompt: String?,
-    items: List<Any>,
+    private val items: List<Any>,
     private val choices: Continuation<List<Any>>
 ) : View(ctx) {
     override val heading = (prompt ?: "Choose 1 item:")
 
-    override val commands: List<Command> = items.map { item ->
+    override fun createCommands(): List<Command> = items.map { item ->
         object : Command(ctx) {
             override val title = describeForTitle(item)
             override val description = describeForDescription(item)
 
             override suspend fun invoke(): Boolean {
                 choices.resume(listOf(item))
-                ctx.viewStack.popView()
+                goBack()
                 return false // Refresh will be handled by the parent screen
             }
         }
     }
 
-    override fun onGoingBack() {
+    override fun onEscRequested() {
         choices.resumeWithException(CancelPlayException("User canceled the play by rejecting a required choice."))
     }
 }
