@@ -36,6 +36,8 @@ fun Environment.installDefaults(service: LangService = DefaultLangService()) {
     addMethod(DefMethod())
     addMethod(SetAlwaysMethod())
     addMethod(DefAlwaysMethod())
+    addMethod(AliasMethod())
+    addMethod(AliasAlwaysMethod())
     addMethod(RunMethod())
     addMethod(DbgMethod(service::log))
 

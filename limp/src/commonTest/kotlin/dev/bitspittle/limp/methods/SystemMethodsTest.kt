@@ -6,6 +6,8 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.TestLangService
 import dev.bitspittle.limp.exceptions.EvaluationException
+import dev.bitspittle.limp.methods.collection.ListGetMethod
+import dev.bitspittle.limp.methods.collection.ListMethod
 import dev.bitspittle.limp.methods.compare.EqualsMethod
 import dev.bitspittle.limp.methods.compare.NotEqualsMethod
 import dev.bitspittle.limp.methods.math.*
@@ -14,6 +16,7 @@ import dev.bitspittle.limp.types.Placeholder
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
+@Suppress("UNCHECKED_CAST")
 class SystemMethodsTest {
     @Test
     fun testSetVariables() = runTest {
@@ -144,6 +147,58 @@ class SystemMethodsTest {
         // def! can overwrite, too
         evaluator.evaluate(env, "def! 'onetwothree '123")
         assertThat(evaluator.evaluate(env, "onetwothree")).isEqualTo(123)
+    }
+
+    @Test
+    fun testAddAliases() = runTest {
+        val env = Environment()
+        env.addMethod(AliasMethod())
+        env.addMethod(AliasAlwaysMethod())
+        env.storeValue("_", Placeholder)
+
+        val evaluator = Evaluator()
+
+        // You can define aliases before the methods / variables exist
+        env.scoped {
+            evaluator.evaluate(env, "alias 'lget 'list-get")
+            evaluator.evaluate(env, "alias '\$ints '\$these-are-some-ints")
+
+            env.addMethod(ListMethod())
+            env.addMethod(ListGetMethod())
+            env.addMethod(SetMethod())
+
+            evaluator.evaluate(env, "set '\$these-are-some-ints (list 1 2 3 4 5)")
+            assertThat(evaluator.evaluate(env, "lget \$ints 1")).isEqualTo(2)
+        }
+
+        env.addMethod(ListMethod())
+        assertThrows<EvaluationException> {
+            // lget alias scope was dropped
+            evaluator.evaluate(env, "lget (list 1 2 3 4 5) 0")
+        }
+
+        // Two aliases to the same name are OK but...
+        evaluator.evaluate(env, "alias 'lget1 'list-get")
+        evaluator.evaluate(env, "alias 'lget2 'list-get")
+
+        assertThrows<EvaluationException> {
+            // Re-using an existing alias is not allowed
+            evaluator.evaluate(env, "alias 'lget2 'list")
+        }
+
+        // ... unless you overwrite it
+        evaluator.evaluate(env, "alias --overwrite _ 'lget2 'list")
+        // alias! works too
+        evaluator.evaluate(env, "alias! 'lget2 'list")
+
+        // Aliases will always lose in precedence to existing methods and variables
+        evaluator.evaluate(env, "alias! 'list 'dummy")
+        assertThat(evaluator.evaluate(env, "list 1 2 3 4 5") as List<Int>).containsExactly(1, 2, 3, 4, 5).inOrder()
+
+        assertThrows<EvaluationException> {
+            // Invalid type
+            assertThat(evaluator.evaluate(env, "alias 123 456"))
+        }
     }
 
     @Test
