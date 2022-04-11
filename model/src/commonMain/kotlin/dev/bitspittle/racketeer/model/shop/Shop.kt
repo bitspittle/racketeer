@@ -9,6 +9,7 @@ interface Shop {
     val tier: Int
     val stock: List<Card?>
     fun upgrade(): Boolean
+    fun restockNow(restockAll: Boolean = true, additionalFilter: (CardTemplate) -> Boolean = { true }): Boolean
     suspend fun restock(restockAll: Boolean = true, additionalFilter: suspend (CardTemplate) -> Boolean = { true }): Boolean
 }
 
@@ -27,7 +28,7 @@ class MutableShop private constructor(
         0,
         mutableListOf()
     ) {
-        restockBlocking(true)
+        restockNow()
     }
 
     override var tier: Int = tier
@@ -67,7 +68,7 @@ class MutableShop private constructor(
             .groupByTo(mutableMapOf()) { it.tier }
     }
 
-    private fun restockBlocking(restockAll: Boolean, additionalFilter: (CardTemplate) -> Boolean = { true }): Boolean {
+    override fun restockNow(restockAll: Boolean, additionalFilter: (CardTemplate) -> Boolean): Boolean {
         return handleRestock(restockAll, filterAllCards(additionalFilter))
     }
 
@@ -90,7 +91,7 @@ class MutableShop private constructor(
 
         ++tier
         // New slot should ALWAYS contain a card from the new tier
-        restockBlocking(restockAll = false) { card -> card.tier == tier }
+        restockNow(restockAll = false) { card -> card.tier == tier }
         return true
     }
 
