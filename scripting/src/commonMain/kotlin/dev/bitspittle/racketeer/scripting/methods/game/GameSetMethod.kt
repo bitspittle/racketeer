@@ -25,6 +25,7 @@ class GameSetMethod(private val getGameState: () -> GameState) : Method("game-se
             GameProperty.VP -> gameState.vp
             GameProperty.INFLUENCE -> gameState.influence
             GameProperty.LUCK -> gameState.luck
+            GameProperty.HAND_SIZE -> gameState.handSize
         }
 
         val newValue = env.scoped { // Don't let values defined during the lambda escape
@@ -36,6 +37,7 @@ class GameSetMethod(private val getGameState: () -> GameState) : Method("game-se
             GameProperty.VP -> gameState.vp = newValue
             GameProperty.INFLUENCE -> gameState.influence = newValue
             GameProperty.LUCK -> gameState.luck = newValue
+            GameProperty.HAND_SIZE -> gameState.handSize = newValue
         }
 
         return Unit

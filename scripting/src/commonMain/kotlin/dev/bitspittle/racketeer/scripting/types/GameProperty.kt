@@ -5,4 +5,5 @@ enum class GameProperty {
     VP,
     INFLUENCE,
     LUCK,
+    HAND_SIZE,
 }

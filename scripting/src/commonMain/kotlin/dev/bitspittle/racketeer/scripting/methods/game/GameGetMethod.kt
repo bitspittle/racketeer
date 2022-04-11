@@ -26,6 +26,7 @@ class GameGetMethod(private val getGameState: () -> GameState) : Method("game-ge
             GameProperty.VP -> gameState.vp
             GameProperty.INFLUENCE -> gameState.influence
             GameProperty.LUCK -> gameState.luck
+            GameProperty.HAND_SIZE -> gameState.handSize
         }
     }
 }

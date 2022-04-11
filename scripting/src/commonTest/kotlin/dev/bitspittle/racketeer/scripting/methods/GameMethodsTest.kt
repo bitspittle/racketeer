@@ -36,6 +36,10 @@ class GameMethodsTest {
         evaluator.evaluate(env, "game-set! 'vp 5")
         assertThat(service.gameState.vp).isEqualTo(5)
 
+        assertThat(service.gameState.handSize).isEqualTo(4)
+        evaluator.evaluate(env, "game-set! 'hand-size 6")
+        assertThat(service.gameState.handSize).isEqualTo(6)
+
         // Negative numbers are clamped
         assertThat(service.gameState.cash).isEqualTo(3)
         evaluator.evaluate(env, "game-set! 'cash -5")
@@ -61,6 +65,7 @@ class GameMethodsTest {
         assertThat(evaluator.evaluate(env, "game-get 'cash")).isEqualTo(1)
         assertThat(evaluator.evaluate(env, "game-get 'influence")).isEqualTo(2)
         assertThat(evaluator.evaluate(env, "game-get 'vp")).isEqualTo(3)
+        assertThat(evaluator.evaluate(env, "game-get 'hand-size")).isEqualTo(4)
 
         assertThrows<EvaluationException> {
             evaluator.evaluate(env, "game-get 'invalid-label 2")
