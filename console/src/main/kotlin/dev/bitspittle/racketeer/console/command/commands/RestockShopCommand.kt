@@ -4,9 +4,10 @@ import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.view.views.BrowseShopView
 
-class RestockShopCommand(ctx: GameContext) : Command(ctx) {
+class RestockShopCommand(ctx: GameContext, padding: Int) : Command(ctx) {
     override val type = if (ctx.state.luck >= 1) Type.Modify else Type.Disabled
-    override val title = "Restock shop ${ctx.describer.describeLuck(1)}"
+
+    override val title = "${"Restock shop".padEnd(padding)} ${ctx.describer.describeLuck(1)}"
 
     override val description = "Refill the shop with random cards."
 
