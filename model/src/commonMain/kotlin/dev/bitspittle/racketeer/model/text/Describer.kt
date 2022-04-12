@@ -10,10 +10,10 @@ class Describer(private val data: GameData) {
             .replace("%", data.icons.luck)
             .replace("*", data.icons.vp)
     }
-    fun describeCash(cash: Int) = "${data.icons.cash} $cash"
-    fun describeInfluence(influence: Int) = "${data.icons.influence} $influence"
-    fun describeLuck(luck: Int) = "${data.icons.luck} $luck"
-    fun describeVictoryPoints(vp: Int) = "${data.icons.vp} $vp"
+    fun describeCash(cash: Int) = "${data.icons.cash}$cash"
+    fun describeInfluence(influence: Int) = "${data.icons.influence}$influence"
+    fun describeLuck(luck: Int) = "${data.icons.luck}$luck"
+    fun describeVictoryPoints(vp: Int) = "${data.icons.vp}$vp"
     fun describeRange(range: IntRange): String {
         return when {
             range.first == range.last -> range.first.toString()
