@@ -13,6 +13,7 @@ class GameState internal constructor(
     private val cardQueue: CardQueue,
     numTurns: Int,
     turn: Int,
+    private val baseCash: Int,
     totalCashEarned: Int,
     cash: Int,
     influence: Int,
@@ -33,9 +34,10 @@ class GameState internal constructor(
         cardQueue = cardQueue,
         numTurns = data.numTurns,
         turn = 0,
+        baseCash = data.initialCash,
         totalCashEarned = 0,
-        cash = 0,
-        influence = 0,
+        cash = data.initialCash,
+        influence = data.initialInfluence,
         luck = data.initialLuck,
         vp = 0,
         handSize = data.initialHandSize,
@@ -281,6 +283,7 @@ class GameState internal constructor(
         if (turn >= numTurns - 1) return false
 
         turn++
+        cash = baseCash
 
         _streetEffects.clear()
         move(_street, _discard)
@@ -297,6 +300,7 @@ class GameState internal constructor(
             cardQueue,
             numTurns,
             turn,
+            baseCash,
             totalCashEarned,
             cash,
             influence,

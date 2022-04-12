@@ -7,6 +7,8 @@ icons:
   vp: "⭐"
 numTurns: 15
 initialHandSize: 5
+initialCash: 0
+initialInfluence: 0
 initialLuck: 0
 initialDeck:
   - Pickpocket 5

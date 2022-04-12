@@ -20,6 +20,8 @@ private val FAKE_GAME_DATA_TEXT = """
       vp: "*"
     numTurns: 3
     initialHandSize: 4
+    initialCash: 0
+    initialInfluence: 0
     initialLuck: 5
     initialDeck:
       - Pickpocket 5
