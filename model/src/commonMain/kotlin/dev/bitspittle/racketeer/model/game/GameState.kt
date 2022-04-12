@@ -169,6 +169,7 @@ class GameState internal constructor(
     }
 
     // Call move without triggering card initialization, which means it doesn't need to be suspend
+    @Suppress("NAME_SHADOWING")
     private fun moveNow(cards: List<Card>, toPile: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
         val pileTo = toPile as MutablePile
         // Make a copy of the list of cards, as modifying the files below may inadvertently change the list as well,
@@ -207,6 +208,7 @@ class GameState internal constructor(
 
     // Guaranteed owned card to owned card - it's not necessary to worry about running init actions (so no need to be
     // suspend)
+    @Suppress("NAME_SHADOWING")
     fun move(pileFrom: Pile, pileTo: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
         val pileFrom = pileFrom as MutablePile
         val pileTo = pileTo as MutablePile
