@@ -13,11 +13,8 @@ class ViewCardGroupCommand(ctx: GameContext, private val cards: List<Card>) : Co
         require(cards.isNotEmpty())
     }
 
-    private val representativeCard = cards.first().template.instantiate()
-    private val count = cards.size
-
-    override val title = ctx.describer.describe(representativeCard, count, concise = true)
-    override val description = ctx.describer.describe(representativeCard)
+    override val title = ctx.describer.describe(cards, concise = true)
+    override val description = ctx.describer.describe(cards)
 
     override suspend fun invoke(): Boolean {
         // Sort the cards before viewing so we don't give away card order in this pile

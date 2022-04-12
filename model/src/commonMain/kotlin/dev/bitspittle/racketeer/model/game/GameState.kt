@@ -62,6 +62,9 @@ class GameState internal constructor(
         // refactor the code to not set up the deck until AFTER the scripting system is up and running.
         require(deck.cards.all { it.template.initActions.isEmpty() }) { "Initial actions on starting cards are not supported" }
         require(deck.cards.all { it.template.passiveActions.isEmpty() }) { "Passive actions on starting cards are not supported" }
+
+        // Will probably be 0 anyway but just in case
+        vp = deck.cards.sumOf { it.vpTotal }
     }
 
     /**

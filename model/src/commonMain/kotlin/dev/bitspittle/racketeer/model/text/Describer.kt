@@ -1,5 +1,6 @@
 package dev.bitspittle.racketeer.model.text
 
+import com.benasher44.uuid.uuid4
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.game.GameData
 
@@ -33,7 +34,7 @@ class Describer(private val data: GameData) {
         }
     }
 
-    private fun StringBuilder.describeCardBody(template: CardTemplate, upgrades: Set<UpgradeType> = emptySet()) {
+    private fun StringBuilder.appendCardBody(template: CardTemplate, upgrades: Set<UpgradeType> = emptySet()) {
         appendLine() // Finish title
         appendLine() // Newline
         append(convertIcons(template.flavor))
@@ -102,41 +103,57 @@ class Describer(private val data: GameData) {
 
             if (!concise) {
                 append(" [Tier ${template.tier + 1}]")
-                describeCardBody(template)
+                appendCardBody(template)
             }
         }
     }
 
-    fun describe(card: Card, count: Int? = null, concise: Boolean = false): String {
-        return buildString {
-            if (!concise) {
-                if (card.upgrades.contains(UpgradeType.CASH)) {
-                    append("${data.upgradeNames.cash} ")
-                }
-                if (card.upgrades.contains(UpgradeType.INFLUENCE)) {
-                    append("${data.upgradeNames.influence} ")
-                }
-                if (card.upgrades.contains(UpgradeType.LUCK)) {
-                    append("${data.upgradeNames.luck} ")
-                }
-                if (card.upgrades.contains(UpgradeType.UNDERCOVER)) {
-                    append("${data.upgradeNames.undercover} ")
-                }
+    private fun StringBuilder.appendCardName(card: Card, concise: Boolean) {
+        if (!concise) {
+            if (card.upgrades.contains(UpgradeType.CASH)) {
+                append("${data.upgradeNames.cash} ")
             }
-            append(card.template.name)
+            if (card.upgrades.contains(UpgradeType.INFLUENCE)) {
+                append("${data.upgradeNames.influence} ")
+            }
+            if (card.upgrades.contains(UpgradeType.LUCK)) {
+                append("${data.upgradeNames.luck} ")
+            }
+            if (card.upgrades.contains(UpgradeType.UNDERCOVER)) {
+                append("${data.upgradeNames.undercover} ")
+            }
+        }
+        append(card.template.name)
+    }
 
+    fun describe(cards: List<Card>, concise: Boolean = false): String {
+        require(cards.isNotEmpty())
+        val representativeCard = cards.first().copy(uuid4(), vpBase = 0, vpBonus = 0, upgrades = emptySet())
+        return buildString {
+            appendCardName(representativeCard, concise)
             if (concise) {
-                if (count != null) {
-                    append(" x$count")
+                append(" x${cards.size}")
+                val vpSum = cards.sumOf { it.vpTotal }
+                if (vpSum > 0) {
+                    append(" ${describeVictoryPoints(vpSum)}")
                 }
             }
+            if (!concise) {
+                appendCardBody(representativeCard.template)
+            }
+        }
+    }
+
+    fun describe(card: Card, concise: Boolean = false): String {
+        return buildString {
+            appendCardName(card, concise)
 
             if (card.vpTotal > 0) {
                 append(" ${describeVictoryPoints(card.vpTotal)}")
             }
 
             if (!concise) {
-                describeCardBody(card.template, card.upgrades)
+                appendCardBody(card.template, card.upgrades)
             }
         }
     }
