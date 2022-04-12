@@ -9,7 +9,7 @@ class ExpandShopCommand(ctx: GameContext) : Command(ctx) {
         require(ctx.state.shop.tier < ctx.data.maxTier) { "Shop already at max tier - Expand Shop should be hidden" }
     }
 
-    private val influenceCost = ctx.data.shopPrices[ctx.state.shop.tier + 1]
+    private val influenceCost = ctx.data.shopPrices[ctx.state.shop.tier]
     override val type = if (ctx.state.influence >= influenceCost) Type.ModifyAlt else Type.Disabled
 
     override val title = "Expand shop ${ctx.describer.describeInfluence(influenceCost)}"
