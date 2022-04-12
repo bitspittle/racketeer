@@ -57,8 +57,11 @@ class GameState internal constructor(
         jail = MutablePile(),
         streetEffects = mutableListOf()
     ) {
+        // Since we create the game state before the scripting system, it's best not to have initialization / passive
+        // logic in cards that are installed from the beginning. If it becomes important to support this later, we can
+        // refactor the code to not set up the deck until AFTER the scripting system is up and running.
         require(deck.cards.all { it.template.initActions.isEmpty() }) { "Initial actions on starting cards are not supported" }
-//        require(deck.cards.all { it.template.passiveActions.isEmpty() }) { "Passive actions on starting cards are not supported" }
+        require(deck.cards.all { it.template.passiveActions.isEmpty() }) { "Passive actions on starting cards are not supported" }
     }
 
     /**
