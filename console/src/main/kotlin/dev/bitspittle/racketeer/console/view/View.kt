@@ -118,7 +118,11 @@ abstract class View(protected val ctx: GameContext) {
         val state = ctx.state
         textLine("${ctx.describer.describeCash(state.cash)} ${ctx.describer.describeInfluence(state.influence)} ${ctx.describer.describeLuck(state.luck)} ${ctx.describer.describeVictoryPoints(state.vp)} ")
         textLine()
-        bold { textLine("Turn ${state.turn + 1} out of ${state.numTurns}") }
+        scopedState {
+            val numRemainingTurns = state.numTurns - state.turn
+            if (numRemainingTurns == 1) red() else if (numRemainingTurns <= 4) yellow()
+            bold { textLine("Turn ${state.turn + 1} out of ${state.numTurns} ($numRemainingTurns)") }
+        }
         textLine()
         subtitle?.let { subtitle ->
             underline { textLine(subtitle) }
