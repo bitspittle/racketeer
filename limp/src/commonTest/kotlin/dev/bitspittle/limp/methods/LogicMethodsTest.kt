@@ -37,10 +37,10 @@ class LogicMethodsTest {
 
         val evaluator = Evaluator()
 
-        assertThat(evaluator.evaluate(env, "&& true true") as Boolean).isTrue()
-        assertThat(evaluator.evaluate(env, "&& true false") as Boolean).isFalse()
-        assertThat(evaluator.evaluate(env, "&& false true") as Boolean).isFalse()
-        assertThat(evaluator.evaluate(env, "&& false false") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "and true true") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "and true false") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "and false true") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "and false false") as Boolean).isFalse()
     }
 
     @Test
@@ -52,10 +52,10 @@ class LogicMethodsTest {
 
         val evaluator = Evaluator()
 
-        assertThat(evaluator.evaluate(env, "|| true true") as Boolean).isTrue()
-        assertThat(evaluator.evaluate(env, "|| true false") as Boolean).isTrue()
-        assertThat(evaluator.evaluate(env, "|| false true") as Boolean).isTrue()
-        assertThat(evaluator.evaluate(env, "|| false false") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "or true true") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "or true false") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "or false true") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "or false false") as Boolean).isFalse()
     }
 
     @Test
