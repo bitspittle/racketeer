@@ -263,6 +263,9 @@ class GameState internal constructor(
         val streetEffectsCopy = _streetEffects.toList()
         cardQueue.enqueuePlayActions(card)
         cardQueue.runEnqueuedActions(this)
+        if (card.isDexterous()) cash++
+        if (card.isArtful()) influence++
+        if (card.isLucky()) luck++
         streetEffectsCopy.forEach { streetEffect -> streetEffect.invoke(card) }
         updateVictoryPoints()
     }
