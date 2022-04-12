@@ -94,6 +94,75 @@ class CollectionMethodsTest {
     }
 
     @Test
+    fun testAnyMethod() = runTest {
+        val env = Environment()
+        env.addMethod(AnyMethod())
+        env.addMethod(SetMethod(ConsoleLogger()))
+        env.addMethod(GreaterThanMethod())
+        env.addMethod(ListMethod())
+        env.storeValue("true", true)
+
+        val evaluator = Evaluator()
+        evaluator.evaluate(env, "set '\$ints (list 1 2 3 4 5)")
+        evaluator.evaluate(env, "set '\$empty (list)")
+
+        assertThat(evaluator.evaluate(env, "any? \$ints '(> \$it 3)") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "any? \$ints '(> \$it 8)") as Boolean).isFalse()
+        // Any must have at least one match
+        assertThat(evaluator.evaluate(env, "any? \$empty 'true") as Boolean).isFalse()
+
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "any? \$ints 3") // Second argument must be an expression
+        }
+    }
+
+    @Test
+    fun testAllMethod() = runTest {
+        val env = Environment()
+        env.addMethod(AllMethod())
+        env.addMethod(SetMethod(ConsoleLogger()))
+        env.addMethod(GreaterThanMethod())
+        env.addMethod(ListMethod())
+        env.storeValue("true", true)
+
+        val evaluator = Evaluator()
+        evaluator.evaluate(env, "set '\$ints (list 1 2 3 4 5)")
+        evaluator.evaluate(env, "set '\$empty (list)")
+
+        assertThat(evaluator.evaluate(env, "all? \$ints '(> \$it 0)") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "all? \$ints '(> \$it 3)") as Boolean).isFalse()
+        // Always true for empty lists
+        assertThat(evaluator.evaluate(env, "all? \$empty 'false") as Boolean).isTrue()
+
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "all? \$ints 3") // Second argument must be an expression
+        }
+    }
+
+    @Test
+    fun testNoneMethod() = runTest {
+        val env = Environment()
+        env.addMethod(NoneMethod())
+        env.addMethod(SetMethod(ConsoleLogger()))
+        env.addMethod(GreaterThanMethod())
+        env.addMethod(ListMethod())
+        env.storeValue("true", true)
+
+        val evaluator = Evaluator()
+        evaluator.evaluate(env, "set '\$ints (list 1 2 3 4 5)")
+        evaluator.evaluate(env, "set '\$empty (list)")
+
+        assertThat(evaluator.evaluate(env, "none? \$ints '(> \$it 5)") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "none? \$ints '(> \$it 3)") as Boolean).isFalse()
+        // Always true for empty lists
+        assertThat(evaluator.evaluate(env, "none? \$empty 'true") as Boolean).isTrue()
+
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "none? \$ints 3") // Second argument must be an expression
+        }
+    }
+
+    @Test
     fun testTakeMethod() = runTest {
         val env = Environment() // Fixed seed so that we get the same shuffle everytime for this test
         env.addMethod(TakeMethod(Random(123)))
