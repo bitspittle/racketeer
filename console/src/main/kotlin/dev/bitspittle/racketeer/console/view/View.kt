@@ -47,7 +47,13 @@ abstract class View(protected val ctx: GameContext) {
             }
             Keys.ENTER -> {
                 if (currCommand.type != Command.Type.Disabled) {
-                    currCommand.invoke()
+                    try {
+                        currCommand.invoke()
+                    }
+                    catch (ex: Exception) {
+                        ctx.app.log(ex.message ?: "Code threw exception without a message: ${ex::class.simpleName}")
+                    }
+                    true
                 } else {
                     false
                 }

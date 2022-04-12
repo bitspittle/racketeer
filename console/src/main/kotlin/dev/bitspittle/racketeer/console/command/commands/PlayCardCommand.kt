@@ -24,7 +24,7 @@ class PlayCardCommand(ctx: GameContext, private val handIndex: Int) : Command(ct
             } catch (ex: EvaluationException) {
                 ctx.state = prevState
                 if (ex.cause !is CancelPlayException) {
-                    ctx.app.log(ex.message!!)
+                    throw ex
                 }
             }
         }
