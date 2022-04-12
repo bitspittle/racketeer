@@ -91,9 +91,9 @@ class Describer(private val data: GameData) {
         }
     }
 
-    fun describe(template: CardTemplate, concise: Boolean = false): String {
+    fun describe(template: CardTemplate, padName: Int = 0, concise: Boolean = false): String {
         return buildString {
-            append(template.name)
+            appendCardName(template.name, emptySet(), padName, concise)
             if (concise) {
                 // Only show costs when browsing in the shop
                 if (template.cost > 0) {
@@ -107,30 +107,55 @@ class Describer(private val data: GameData) {
             }
         }
     }
+    private fun StringBuilder.appendCardName(name: String, upgrades: Set<UpgradeType>, pad: Int, concise: Boolean) {
+        val nameStart = this.length
 
-    private fun StringBuilder.appendCardName(card: Card, concise: Boolean) {
         if (!concise) {
-            if (card.upgrades.contains(UpgradeType.CASH)) {
+            if (upgrades.contains(UpgradeType.CASH)) {
                 append("${data.upgradeNames.cash} ")
             }
-            if (card.upgrades.contains(UpgradeType.INFLUENCE)) {
+            if (upgrades.contains(UpgradeType.INFLUENCE)) {
                 append("${data.upgradeNames.influence} ")
             }
-            if (card.upgrades.contains(UpgradeType.LUCK)) {
+            if (upgrades.contains(UpgradeType.LUCK)) {
                 append("${data.upgradeNames.luck} ")
             }
-            if (card.upgrades.contains(UpgradeType.UNDERCOVER)) {
+            if (upgrades.contains(UpgradeType.UNDERCOVER)) {
                 append("${data.upgradeNames.undercover} ")
             }
         }
-        append(card.template.name)
+        else {
+            if (upgrades.contains(UpgradeType.CASH)) {
+                append(data.icons.cash)
+            }
+            if (upgrades.contains(UpgradeType.INFLUENCE)) {
+                append(data.icons.influence)
+            }
+            if (upgrades.contains(UpgradeType.LUCK)) {
+                append(data.icons.luck)
+            }
+            if (upgrades.contains(UpgradeType.UNDERCOVER)) {
+                append(data.icons.undercover)
+            }
+            if (upgrades.isNotEmpty()) {
+                append(' ')
+            }
+        }
+        append(name)
+        val nameEnd = this.length
+        repeat((pad - (nameEnd - nameStart)).coerceAtLeast(0)) { append(' ') }
+    }
+
+
+    private fun StringBuilder.appendCardName(card: Card, pad: Int, concise: Boolean) {
+        appendCardName(card.template.name, card.upgrades, pad, concise)
     }
 
     fun describe(cards: List<Card>, concise: Boolean = false): String {
         require(cards.isNotEmpty())
         val representativeCard = cards.first().copy(uuid4(), vpBase = 0, vpBonus = 0, upgrades = emptySet())
         return buildString {
-            appendCardName(representativeCard, concise)
+            appendCardName(representativeCard, pad = 0, concise)
             if (concise) {
                 append(" x${cards.size}")
                 val vpSum = cards.sumOf { it.vpTotal }
@@ -144,9 +169,9 @@ class Describer(private val data: GameData) {
         }
     }
 
-    fun describe(card: Card, concise: Boolean = false): String {
+    fun describe(card: Card, namePad: Int = 0, concise: Boolean = false): String {
         return buildString {
-            appendCardName(card, concise)
+            appendCardName(card, namePad, concise)
 
             if (card.vpTotal > 0) {
                 append(" ${describeVictoryPoints(card.vpTotal)}")
