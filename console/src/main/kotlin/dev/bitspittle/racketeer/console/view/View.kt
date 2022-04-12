@@ -121,7 +121,7 @@ abstract class View(protected val ctx: GameContext) {
         scopedState {
             val numRemainingTurns = state.numTurns - state.turn
             if (numRemainingTurns == 1) red() else if (numRemainingTurns <= 4) yellow()
-            bold { textLine("Turn ${state.turn + 1} out of ${state.numTurns} ($numRemainingTurns)") }
+            bold { textLine("Turn ${state.turn + 1} out of ${state.numTurns}") }
         }
         textLine()
         subtitle?.let { subtitle ->
