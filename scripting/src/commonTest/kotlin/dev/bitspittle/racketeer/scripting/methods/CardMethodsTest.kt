@@ -201,6 +201,9 @@ class CardMethodsTest {
         env.storeValue("\$all-cards", service.gameData.cards)
         env.storeValue("\$hand", gameState.hand)
 
+        // Can check types from cards even if they're not instantiated yet
+        assertThat(evaluator.evaluate(env, "card-has-type? list-get \$all-cards 0 'thief") as Boolean).isTrue()
+
         evaluator.evaluate(env, "pile-copy-to! \$hand single \$all-cards '(= card-get \$it 'name \"Embezzler\")")
         evaluator.evaluate(env, "set '\$card list-get \$hand 0")
         val card = evaluator.evaluate(env, "\$card") as Card

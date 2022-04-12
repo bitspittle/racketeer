@@ -1,6 +1,5 @@
 package dev.bitspittle.racketeer.scripting.methods.pile
 
-import com.benasher44.uuid.uuid4
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.ListTypeChecker
@@ -10,11 +9,11 @@ import dev.bitspittle.limp.converters.TransformListConverter
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.limp.utils.toEnum
-import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.card.Pile
 import dev.bitspittle.racketeer.model.game.GameState
-import dev.bitspittle.racketeer.scripting.converters.CardTemplateToCardConverter
-import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
+import dev.bitspittle.racketeer.scripting.converters.CardToCardTemplateConverter
+import dev.bitspittle.racketeer.scripting.converters.PileToCardTemplatesConverter
 
 class PileCopyToMethod(private val getGameState: () -> GameState) : Method("pile-copy-to!", 2) {
     override suspend fun invoke(
@@ -26,13 +25,13 @@ class PileCopyToMethod(private val getGameState: () -> GameState) : Method("pile
     ): Any {
         val toPile = env.expectConvert<Pile>(params[0])
         val cards = env.scoped {
-            env.addConverter(CardTemplateToCardConverter() + ItemToSingletonListConverter(Card::class))
-            env.addConverter(TransformListConverter(CardTemplateToCardConverter()))
-            env.addConverter(ItemToSingletonListConverter(Card::class))
-            env.addConverter(PileToCardsConverter())
+            env.addConverter(CardToCardTemplateConverter() + ItemToSingletonListConverter(CardTemplate::class))
+            env.addConverter(TransformListConverter(CardToCardTemplateConverter()))
+            env.addConverter(ItemToSingletonListConverter(CardTemplate::class))
+            env.addConverter(PileToCardTemplatesConverter())
 
-            env.expectConvert(params[1], ListTypeChecker(Card::class))
-        }.map { it.copy(id = uuid4()) }
+            env.expectConvert(params[1], ListTypeChecker(CardTemplate::class))
+        }.map { it.instantiate() }
 
         val strategy = options["pos"]?.let {
             env.expectConvert<Expr.Identifier>(it).toEnum(ListStrategy.values())
