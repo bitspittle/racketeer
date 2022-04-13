@@ -1,5 +1,6 @@
 package dev.bitspittle.racketeer.console.view
 
+import Constants
 import com.varabyte.kotter.foundation.input.Key
 import com.varabyte.kotter.foundation.input.Keys
 import com.varabyte.kotter.foundation.text.text
@@ -11,6 +12,7 @@ import kotlin.math.min
 class CommandsSection(private val commands: List<Command>, currIndex: Int = 0) {
     init {
         require(commands.isNotEmpty())
+        check(Constants.PAGE_SIZE > 4) // Need room for up and down arrows plus remaining command counts
     }
 
     private var pageStart = 0
@@ -47,22 +49,25 @@ class CommandsSection(private val commands: List<Command>, currIndex: Int = 0) {
 
     fun renderInto(scope: RenderScope) {
         scope.apply {
-            if (pageStart > 0) {
-                textLine("... $pageStart earlier item(s) ...")
-            }
+            val numPreviousItems = pageStart
+            val numFollowingItems = commands.size - pageEnd
             commands.forEachIndexed { i, command ->
                 if (i in pageStart until pageEnd) {
-                    if (i == currIndex) {
-                        text("> ")
-                    } else {
-                        text("  ")
+                    if (numPreviousItems + numFollowingItems > 0) {
+                        when {
+                            i == pageStart && numPreviousItems > 0 -> text("▲  ")
+                            i == pageStart + 1 && numPreviousItems > 0 -> text(numPreviousItems.toString().padEnd(3))
+                            i == pageEnd - 2 && numFollowingItems > 0 -> text(numFollowingItems.toString().padEnd(3))
+                            i == pageEnd - 1 && numFollowingItems > 0 -> text("▼  ")
+                            else -> text("   ")
+                        }
+                    }
+                    when (i) {
+                        currIndex -> text("> ")
+                        else -> text("  ")
                     }
                     command.renderTitleInto(this)
                 }
-            }
-
-            if (pageEnd < commands.size) {
-                textLine("... ${commands.size - pageEnd} more item(s) ...")
             }
 
             textLine()
