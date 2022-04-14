@@ -9,8 +9,9 @@ import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.views.admin.AdminMenuView
-import dev.bitspittle.racketeer.console.view.views.system.ConfirmQuitView
 import dev.bitspittle.racketeer.console.view.views.system.OptionsMenuView
+
+private const val DESC_WRAP_WIDTH = 60
 
 abstract class View(protected val ctx: GameContext) {
     protected abstract fun createCommands(): List<Command>
@@ -106,7 +107,6 @@ abstract class View(protected val ctx: GameContext) {
 
             commandsSection.currCommand.description?.let { description ->
                 bordered(borderCharacters = BorderCharacters.CURVED, paddingLeftRight = 1) {
-                    val MAX_WIDTH = 60
                     val descParts = description.split(" ")
                     textLine(buildString {
                         var widthSoFar = 0
@@ -119,7 +119,7 @@ abstract class View(protected val ctx: GameContext) {
                                 widthSoFar += descParts[i].length
                             }
                             if (i < descParts.lastIndex) {
-                                if (widthSoFar == 0 || widthSoFar + descParts[i + 1].length < MAX_WIDTH) {
+                                if (widthSoFar == 0 || widthSoFar + descParts[i + 1].length < DESC_WRAP_WIDTH) {
                                     append(' ')
                                     widthSoFar++
                                 }
