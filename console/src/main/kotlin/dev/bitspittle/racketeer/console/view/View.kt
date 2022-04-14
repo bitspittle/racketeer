@@ -24,7 +24,6 @@ abstract class View(protected val ctx: GameContext) {
     protected val currCommand get() = commandsSection.currCommand
 
     protected open val allowQuit = true
-    protected open val allowGoBack = true
 
     fun refreshCommands() {
         _commandsSection = null
@@ -39,7 +38,7 @@ abstract class View(protected val ctx: GameContext) {
     suspend fun handleKey(key: Key): Boolean {
         return when (key) {
             Keys.ESC -> {
-                if (allowGoBack) {
+                if (ctx.viewStack.canGoBack) {
                     onEscRequested()
                     goBack()
                     true
@@ -104,7 +103,7 @@ abstract class View(protected val ctx: GameContext) {
                 textLine()
             }
 
-            if (ctx.viewStack.canGoBack && allowGoBack) {
+            if (ctx.viewStack.canGoBack) {
                 textLine("Press ESC to go back.")
             }
 
