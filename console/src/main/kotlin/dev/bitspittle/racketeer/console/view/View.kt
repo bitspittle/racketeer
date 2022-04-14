@@ -9,6 +9,7 @@ import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.views.admin.AdminMenuView
+import dev.bitspittle.racketeer.console.view.views.game.PlayCardsView
 import dev.bitspittle.racketeer.console.view.views.system.OptionsMenuView
 
 private const val DESC_WRAP_WIDTH = 60
@@ -79,7 +80,7 @@ abstract class View(protected val ctx: GameContext) {
                 } else false
             }
             Keys.TICK -> {
-                if (!isInOptionsMenu() && !isInAdminMenu()) {
+                if (isTurnInProgress() && !isInOptionsMenu() && !isInAdminMenu()) {
                     ctx.viewStack.pushView(AdminMenuView(ctx))
                     true
                 } else false
@@ -87,6 +88,10 @@ abstract class View(protected val ctx: GameContext) {
 
             else -> handleAdditionalKeys(key) || commandsSection.handleKey(key)
         }
+    }
+
+    private fun isTurnInProgress(): Boolean {
+        return (ctx.viewStack.contains { view -> view is PlayCardsView })
     }
 
     private fun isInOptionsMenu(): Boolean {
