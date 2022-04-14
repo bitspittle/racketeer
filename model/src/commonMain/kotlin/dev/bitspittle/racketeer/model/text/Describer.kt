@@ -36,6 +36,15 @@ class Describer(private val data: GameData) {
 
     private fun StringBuilder.appendCardBody(template: CardTemplate, upgrades: Set<UpgradeType> = emptySet()) {
         appendLine() // Finish title
+
+        // Show types -- and use the data.cardTypes list instead of the card.types list as they are capitalized
+        // correctly AND in the desired order.
+        appendLine(
+            data.cardTypes.mapNotNull { typeName ->
+                if (template.types.any { typeName.equals(it, ignoreCase = true) }) typeName else null
+            }.joinToString(prefix = "(", postfix = ")")
+        )
+
         appendLine() // Newline
         append(convertIcons(template.flavor))
 
