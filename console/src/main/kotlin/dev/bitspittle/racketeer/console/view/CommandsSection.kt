@@ -18,7 +18,7 @@ class CommandsSection(private val commands: List<Command>, currIndex: Int = 0) {
     private var pageStart = 0
     private val pageEnd get() = pageStart + Constants.PAGE_SIZE
     var currIndex = 0
-        private set(value) {
+        set(value) {
             field = value.coerceIn(commands.indices)
             if (field < pageStart) {
                 pageStart = field
@@ -26,6 +26,7 @@ class CommandsSection(private val commands: List<Command>, currIndex: Int = 0) {
                 pageStart += field - pageEnd + 1
             }
         }
+
     init {
         this.currIndex = currIndex
     }

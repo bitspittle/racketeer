@@ -15,6 +15,8 @@ abstract class Command(protected val ctx: GameContext) {
         Modify,
         /** A command which represents a bigger action that requires a bit of thought. Proceed with caution! */
         ModifyAlt,
+        /** A command which recommends caution, often leading to a dangerous or permanent effect on the next screen. */
+        Warning,
         /** A command which represents a dangerous, potentially game-destroying action. Are you sure??? */
         Danger,
     }
@@ -32,6 +34,7 @@ abstract class Command(protected val ctx: GameContext) {
                     Type.Modify -> { bold() }
                     Type.Disabled -> black(isBright = true)
                     Type.ModifyAlt -> cyan()
+                    Type.Warning -> yellow()
                     Type.Danger -> red()
                 }
                 textLine(title)

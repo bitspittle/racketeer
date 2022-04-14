@@ -8,6 +8,7 @@ import com.varabyte.kotterx.decorations.BorderCharacters
 import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.view.views.admin.AdminMenuView
 import dev.bitspittle.racketeer.console.view.views.system.ConfirmQuitView
 
 abstract class View(protected val ctx: GameContext) {
@@ -24,6 +25,9 @@ abstract class View(protected val ctx: GameContext) {
     protected open val title: String? = null
     protected open val heading: String? = null
     protected val currCommand get() = commandsSection.currCommand
+    protected var currIndex
+        get() = commandsSection.currIndex
+        set(value) { commandsSection.currIndex = value }
 
     protected open val allowQuit = true
 
@@ -70,6 +74,9 @@ abstract class View(protected val ctx: GameContext) {
             Keys.Q -> {
                 if (allowQuit) ctx.viewStack.pushView(ConfirmQuitView(ctx)); true
             }
+            Keys.TICK -> {
+                ctx.viewStack.pushView(AdminMenuView(ctx)); true
+            }
 
             else -> handleAdditionalKeys(key) || commandsSection.handleKey(key)
         }
@@ -113,6 +120,8 @@ abstract class View(protected val ctx: GameContext) {
                 textLine()
             }
 
+            renderFooter()
+
             if (ctx.viewStack.canGoBack) {
                 textLine("Press ESC to go back.")
             }
@@ -144,6 +153,7 @@ abstract class View(protected val ctx: GameContext) {
     }
 
     protected open fun RenderScope.renderContent() = Unit
+    protected open fun RenderScope.renderFooter() = Unit
 
     protected open fun onEscRequested() = Unit
 }

@@ -9,6 +9,12 @@ interface ViewStack {
     fun replaceView(view: View)
 }
 
+fun ViewStack.popAllViewsAndRefresh() {
+    @Suppress("ControlFlowWithEmptyBody") // popView's side effect is all we need
+    while (this.popView()) {}
+    currentView.refreshCommands()
+}
+
 class ViewStackImpl : ViewStack {
     private val _views = mutableListOf<View>()
     val views: List<View> = _views
