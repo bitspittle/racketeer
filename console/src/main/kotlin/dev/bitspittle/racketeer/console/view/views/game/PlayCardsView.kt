@@ -1,5 +1,6 @@
 package dev.bitspittle.racketeer.console.view.views.game
 
+import com.varabyte.kotter.foundation.text.black
 import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
@@ -28,15 +29,18 @@ class PlayCardsView(ctx: GameContext) : View(ctx) {
         )
 
     override fun RenderScope.renderContent() {
+        textLine("The Street:")
         if (ctx.state.street.cards.isNotEmpty()) {
-            textLine("The Street:")
             ctx.state.street.cards.forEach { card ->
                 textLine("- ${ctx.describer.describe(card, concise = true)}")
             }
             if (ctx.state.streetEffects.isNotEmpty()) {
                 textLine("... and ${ctx.state.streetEffects.size} effect(s)")
             }
-            textLine()
+        } else {
+            black(isBright = true) { textLine("(Empty)") }
         }
+
+        textLine()
     }
 }
