@@ -6,7 +6,7 @@ import dev.bitspittle.racketeer.console.command.commands.game.*
 import dev.bitspittle.racketeer.console.view.View
 
 class BrowseShopView(ctx: GameContext) : View(ctx) {
-    override val subtitle = "Shop"
+    override val title = "Shop"
 
     override fun createCommands(): List<Command> = run {
         val maxNameLen =

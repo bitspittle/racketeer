@@ -21,7 +21,7 @@ abstract class View(protected val ctx: GameContext) {
             return _commandsSection!!
         }
 
-    protected open val subtitle: String? = null
+    protected open val title: String? = null
     protected open val heading: String? = null
     protected val currCommand get() = commandsSection.currCommand
 
@@ -133,7 +133,7 @@ abstract class View(protected val ctx: GameContext) {
             bold { textLine("Turn ${state.turn + 1} out of ${state.numTurns}") }
         }
         textLine()
-        subtitle?.let { subtitle ->
+        title?.let { subtitle ->
             underline { textLine(subtitle) }
             textLine()
         }

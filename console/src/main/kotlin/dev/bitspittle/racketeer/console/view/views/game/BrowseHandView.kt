@@ -10,7 +10,7 @@ class BrowseHandView(ctx: GameContext) : View(ctx) {
         check(ctx.state.hand.cards.isNotEmpty())
     }
 
-    override val subtitle = "Hand"
+    override val title = "Hand"
 
     override fun createCommands(): List<Command> =
         ctx.state.hand.cards.map { card -> ViewCardCommand(ctx, card) }
