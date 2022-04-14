@@ -13,11 +13,13 @@ import dev.bitspittle.racketeer.console.view.views.ConfirmQuitView
 abstract class View(protected val ctx: GameContext) {
     protected abstract fun createCommands(): List<Command>
     private var _commandsSection: CommandsSection? = null
+    private val commandsSection: CommandsSection
         get() {
-            _commandsSection = field ?: CommandsSection(createCommands())
-            return field!!
+            if (_commandsSection == null) {
+                _commandsSection = CommandsSection(createCommands())
+            }
+            return _commandsSection!!
         }
-    private val commandsSection get() = _commandsSection!!
 
     protected open val subtitle: String? = null
     protected open val heading: String? = null
@@ -26,8 +28,16 @@ abstract class View(protected val ctx: GameContext) {
     protected open val allowQuit = true
 
     fun refreshCommands() {
-        _commandsSection = null
+        val newIndex = refreshCursorPosition(commandsSection.currIndex, commandsSection.currCommand)
+        _commandsSection = CommandsSection(createCommands(), newIndex)
     }
+
+    /**
+     * Give child views a chance to influence the new cursor position after [refreshCommands] is called.
+     *
+     * By default, the cursor stays in its old position.
+     */
+    protected open fun refreshCursorPosition(oldIndex: Int, oldCommand: Command): Int = oldIndex
 
     protected fun goBack() {
         ctx.viewStack.popView()
