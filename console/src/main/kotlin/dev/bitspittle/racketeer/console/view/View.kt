@@ -8,7 +8,7 @@ import com.varabyte.kotterx.decorations.BorderCharacters
 import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.view.views.ConfirmQuitView
+import dev.bitspittle.racketeer.console.view.views.system.ConfirmQuitView
 
 abstract class View(protected val ctx: GameContext) {
     protected abstract fun createCommands(): List<Command>
