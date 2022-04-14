@@ -7,6 +7,8 @@ interface ViewStack {
     fun pushView(view: View)
     fun popView(): Boolean
     fun replaceView(view: View)
+
+    fun contains(pred: (View) -> Boolean): Boolean
 }
 
 fun ViewStack.popAllViewsAndRefresh() {
@@ -39,5 +41,9 @@ class ViewStackImpl : ViewStack {
     override fun replaceView(view: View) {
         _views.removeLast()
         pushView(view)
+    }
+
+    override fun contains(pred: (View) -> Boolean): Boolean {
+        return _views.indexOfFirst(pred) >= 0
     }
 }

@@ -10,7 +10,7 @@ class BrowseJailView(ctx: GameContext) : View(ctx) {
         check(ctx.state.jail.cards.isNotEmpty())
     }
 
-    override val title = "Jail"
+    override val subtitle = "Jail"
 
     override fun createCommands(): List<Command> =
         ctx.state.jail.cards

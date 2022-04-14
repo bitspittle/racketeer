@@ -12,7 +12,7 @@ class BrowseStreetView(ctx: GameContext) : View(ctx) {
         check(ctx.state.street.cards.isNotEmpty())
     }
 
-    override val title = "The Street"
+    override val subtitle = "The Street"
 
     override fun createCommands(): List<Command> =
         ctx.state.street.cards.map { card -> ViewCardCommand(ctx, card) }

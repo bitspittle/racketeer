@@ -1,20 +1,20 @@
-package dev.bitspittle.racketeer.console.view.views.admin
+package dev.bitspittle.racketeer.console.view.views.system
 
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.View
 
-class AdminMenuView(ctx: GameContext) : View(ctx) {
-    override val title: String = "Admin"
+class OptionsMenuView(ctx: GameContext) : View(ctx) {
+    override val title: String = "Options"
 
     override fun createCommands(): List<Command> =
         listOf(
             object : Command(ctx) {
                 override val type = Type.Warning
-                override val title = "Create a card"
-                override val description: String = "Create any card in the game, putting it into your hand immediately."
+                override val title = "Quit"
+                override val description: String = "End this game. You will have a chance to confirm."
                 override suspend fun invoke(): Boolean {
-                    ctx.viewStack.pushView(AdminCreateCardView(ctx))
+                    ctx.viewStack.pushView(ConfirmQuitView(ctx))
                     return true
                 }
             }

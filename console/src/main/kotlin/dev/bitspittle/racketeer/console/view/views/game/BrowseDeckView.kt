@@ -10,7 +10,7 @@ class BrowseDeckView(ctx: GameContext) : View(ctx) {
         check(ctx.state.deck.cards.isNotEmpty())
     }
 
-    override val title = "Deck"
+    override val subtitle = "Deck"
 
     override fun createCommands(): List<Command> =
         ctx.state.deck.cards

@@ -18,7 +18,4 @@ class ConfirmQuitView(ctx: GameContext) : View(ctx) {
             }
         }
     )
-
-    // Don't allow people to enter this quit screen from within this quit screen
-    override val allowQuit: Boolean = false
 }

@@ -12,8 +12,6 @@ import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.game.Rating
 
 class GameOverView(ctx: GameContext) : View(ctx) {
-    override val allowQuit = false
-
     override fun createCommands(): List<Command> =
         listOf(
             NewGameCommand(ctx),

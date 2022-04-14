@@ -10,6 +10,7 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.views.admin.AdminMenuView
 import dev.bitspittle.racketeer.console.view.views.system.ConfirmQuitView
+import dev.bitspittle.racketeer.console.view.views.system.OptionsMenuView
 
 abstract class View(protected val ctx: GameContext) {
     protected abstract fun createCommands(): List<Command>
@@ -23,13 +24,12 @@ abstract class View(protected val ctx: GameContext) {
         }
 
     protected open val title: String? = null
+    protected open val subtitle: String? = null
     protected open val heading: String? = null
     protected val currCommand get() = commandsSection.currCommand
     protected var currIndex
         get() = commandsSection.currIndex
         set(value) { commandsSection.currIndex = value }
-
-    protected open val allowQuit = true
 
     fun refreshCommands() {
         val newIndex = refreshCursorPosition(commandsSection.currIndex, commandsSection.currCommand)
@@ -71,15 +71,29 @@ abstract class View(protected val ctx: GameContext) {
                     false
                 }
             }
-            Keys.Q -> {
-                if (allowQuit) ctx.viewStack.pushView(ConfirmQuitView(ctx)); true
+            Keys.TAB -> {
+                if (!isInOptionsMenu() && !isInAdminMenu()) {
+                    ctx.viewStack.pushView(OptionsMenuView(ctx))
+                    true
+                } else false
             }
             Keys.TICK -> {
-                ctx.viewStack.pushView(AdminMenuView(ctx)); true
+                if (!isInOptionsMenu() && !isInAdminMenu()) {
+                    ctx.viewStack.pushView(AdminMenuView(ctx))
+                    true
+                } else false
             }
 
             else -> handleAdditionalKeys(key) || commandsSection.handleKey(key)
         }
+    }
+
+    private fun isInOptionsMenu(): Boolean {
+        return (ctx.viewStack.contains { view -> view is OptionsMenuView })
+    }
+
+    private fun isInAdminMenu(): Boolean {
+        return (ctx.viewStack.contains { view -> view is AdminMenuView })
     }
 
     protected open suspend fun handleAdditionalKeys(key: Key): Boolean = false
@@ -123,11 +137,11 @@ abstract class View(protected val ctx: GameContext) {
             renderFooter()
 
             if (ctx.viewStack.canGoBack) {
-                textLine("Press ESC to go back.")
+                text("Press "); cyan { text("ESC") }; textLine(" to go back.")
             }
 
-            if (allowQuit) {
-                text("Press "); yellow { text("Q") }; textLine(" to quit.")
+            if (!isInOptionsMenu()) {
+                text("Press "); cyan { text("TAB") }; textLine(" to open options.")
             }
         }
     }
@@ -142,7 +156,11 @@ abstract class View(protected val ctx: GameContext) {
             bold { textLine("Turn ${state.turn + 1} out of ${state.numTurns}") }
         }
         textLine()
-        title?.let { subtitle ->
+        title?.let { title ->
+            bold { textLine(title.uppercase()) }
+            textLine()
+        }
+        subtitle?.let { subtitle ->
             underline { textLine(subtitle) }
             textLine()
         }
