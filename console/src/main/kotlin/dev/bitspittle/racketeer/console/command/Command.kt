@@ -24,9 +24,11 @@ abstract class Command(protected val ctx: GameContext) {
     open val type: Type = Type.Read
 
     abstract val title: String
+    /** Extra information to show to the right of the title, aligned with all other commands in this section */
+    open val meta: String = ""
     open val description: String? = null
 
-    fun renderTitleInto(scope: RenderScope) {
+    fun renderTitleInto(scope: RenderScope, padding: Int) {
         scope.apply {
             scopedState {
                 when (type) {
@@ -37,7 +39,8 @@ abstract class Command(protected val ctx: GameContext) {
                     Type.Warning -> yellow()
                     Type.Danger -> red()
                 }
-                textLine(title)
+                // padding + 1 for a space between the title and the meta data
+                text(title.padEnd(padding + 1)); textLine(meta)
             }
         }
     }

@@ -103,9 +103,9 @@ class Describer(private val data: GameData) {
         }
     }
 
-    fun describe(template: CardTemplate, padName: Int = 0, showCash: Boolean = false, concise: Boolean = false): String {
+    fun describe(template: CardTemplate, showCash: Boolean = false, concise: Boolean = false): String {
         return buildString {
-            appendCardName(template.name, emptySet(), padName, concise)
+            appendCardName(template.name, emptySet(), concise)
             if (showCash) {
                 append(" ${describeCash(template.cost)}")
             }
@@ -115,7 +115,7 @@ class Describer(private val data: GameData) {
             }
         }
     }
-    private fun StringBuilder.appendCardName(name: String, upgrades: Set<UpgradeType>, pad: Int, concise: Boolean) {
+    private fun StringBuilder.appendCardName(name: String, upgrades: Set<UpgradeType>, concise: Boolean) {
         val nameStart = this.length
 
         if (!concise) {
@@ -150,20 +150,17 @@ class Describer(private val data: GameData) {
             }
         }
         append(name)
-        val nameEnd = this.length
-        repeat((pad - (nameEnd - nameStart)).coerceAtLeast(0)) { append(' ') }
     }
 
-
-    private fun StringBuilder.appendCardName(card: Card, pad: Int, concise: Boolean) {
-        appendCardName(card.template.name, card.upgrades, pad, concise)
+    private fun StringBuilder.appendCardName(card: Card, concise: Boolean) {
+        appendCardName(card.template.name, card.upgrades, concise)
     }
 
     fun describe(cards: List<Card>, concise: Boolean = false): String {
         require(cards.isNotEmpty())
         val representativeCard = cards.first().copy(uuid4(), vpBase = 0, vpBonus = 0, upgrades = emptySet())
         return buildString {
-            appendCardName(representativeCard, pad = 0, concise)
+            appendCardName(representativeCard, concise)
             if (concise) {
                 append(" x${cards.size}")
                 val vpSum = cards.sumOf { it.vpTotal }
@@ -177,9 +174,9 @@ class Describer(private val data: GameData) {
         }
     }
 
-    fun describe(card: Card, namePad: Int = 0, concise: Boolean = false): String {
+    fun describe(card: Card, concise: Boolean = false): String {
         return buildString {
-            appendCardName(card, namePad, concise)
+            appendCardName(card, concise)
 
             if (card.vpTotal > 0) {
                 append(" ${describeVictoryPoints(card.vpTotal)}")

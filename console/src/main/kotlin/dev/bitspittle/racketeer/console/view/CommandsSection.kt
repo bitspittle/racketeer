@@ -52,6 +52,7 @@ class CommandsSection(private val commands: List<Command>, currIndex: Int = 0) {
         scope.apply {
             val numPreviousItems = pageStart
             val numFollowingItems = commands.size - pageEnd
+            val maxTitleLen = commands.maxOf { it.title.length }
             commands.forEachIndexed { i, command ->
                 if (i in pageStart until pageEnd) {
                     if (numPreviousItems + numFollowingItems > 0) {
@@ -67,7 +68,7 @@ class CommandsSection(private val commands: List<Command>, currIndex: Int = 0) {
                         currIndex -> text("> ")
                         else -> text("  ")
                     }
-                    command.renderTitleInto(this)
+                    command.renderTitleInto(this, padding = maxTitleLen)
                 }
             }
 
