@@ -20,12 +20,14 @@ class PlayCardCommand(ctx: GameContext, private val handIndex: Int) : Command(ct
         ctx.env.scoped {
             try {
                 ctx.state.play(handIndex)
-                ctx.viewStack.currentView.refreshCommands()
             } catch (ex: EvaluationException) {
                 ctx.state = prevState
                 if (ex.cause !is CancelPlayException) {
                     throw ex
                 }
+            }
+            finally {
+                ctx.viewStack.currentView.refreshCommands()
             }
         }
 
