@@ -11,11 +11,32 @@ interface ViewStack {
     fun contains(pred: (View) -> Boolean): Boolean
 }
 
-fun ViewStack.popAllViewsAndRefresh() {
+/** Keep popping screens until the passed in predicate is true (or we hit bottom) */
+fun ViewStack.popUntilAndRefresh(pred: (View) -> Boolean) {
     @Suppress("ControlFlowWithEmptyBody") // popView's side effect is all we need
-    while (this.popView()) {}
+    while (this.popView() && !pred(this.currentView)) {}
     currentView.refreshCommands()
 }
+
+/** Keep popping screens until we hit bottom. */
+fun ViewStack.popAllViewsAndRefresh() {
+    popUntilAndRefresh { false }
+}
+
+/** Keep popping screens until one AFTER we match the predicate, useful for going on past some root screen. */
+fun ViewStack.popPastAndRefresh(pred: (View) -> Boolean) {
+    var abortNext = false
+    popUntilAndRefresh { view ->
+        if (abortNext) {
+            true
+        } else {
+            abortNext = pred(view)
+            false
+        }
+    }
+}
+
+
 
 class ViewStackImpl : ViewStack {
     private val _views = mutableListOf<View>()

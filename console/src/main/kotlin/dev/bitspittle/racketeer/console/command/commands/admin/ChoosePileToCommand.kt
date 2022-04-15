@@ -2,8 +2,8 @@ package dev.bitspittle.racketeer.console.command.commands.admin
 
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.view.popAllViewsAndRefresh
-import dev.bitspittle.racketeer.console.view.views.admin.ChoosePileCardsView
+import dev.bitspittle.racketeer.console.view.popPastAndRefresh
+import dev.bitspittle.racketeer.console.view.views.admin.AdminMenuView
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.Pile
 
@@ -18,7 +18,7 @@ class ChoosePileToCommand(
 
     override suspend fun invoke(): Boolean {
         ctx.state.move(cards, pile)
-        ctx.viewStack.popAllViewsAndRefresh()
+        ctx.viewStack.popPastAndRefresh() { view -> view is AdminMenuView }
         return true
     }
 }

@@ -6,10 +6,8 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.SelectItemCommand
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.View
-import dev.bitspittle.racketeer.console.view.popAllViewsAndRefresh
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.Pile
-import kotlin.coroutines.resume
 
 class ChoosePileCardsView(ctx: GameContext, private val pile: Pile) : View(ctx) {
     override val heading = "Choose one or more cards to move."
