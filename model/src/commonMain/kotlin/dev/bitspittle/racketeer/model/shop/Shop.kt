@@ -57,16 +57,17 @@ class MutableShop private constructor(
             val tier = frequencyBuckets.pickRandomBucket(random)
             // Choices for a tier might be unavailable even if we wanted to randomly pick it, due to the passed in
             // filter. At that point, just give up and keep trying until we get a tier that works
-            val tierChoices = possibleNewStock[tier]?.takeIf { cards -> cards.isNotEmpty() } ?: continue
+            val choicesForThisTier = possibleNewStock[tier]?.takeIf { cards -> cards.isNotEmpty() } ?: continue
 
+            // Same thing we said above -- except applied to card rarity
             var chosenCard: CardTemplate? = null
             while (chosenCard == null) {
                 val rarity = rarityBuckets.pickRandomBucket(random)
-                chosenCard = tierChoices.asSequence().filter { it.rarity == rarity }.shuffled(random).firstOrNull()
+                chosenCard = choicesForThisTier.filter { it.rarity == rarity }.takeIf { it.isNotEmpty() }?.random(random)
             }
 
             stock.add(chosenCard.instantiate())
-            tierChoices.remove(chosenCard)
+            choicesForThisTier.remove(chosenCard)
             numCardsToStock--
         }
 
