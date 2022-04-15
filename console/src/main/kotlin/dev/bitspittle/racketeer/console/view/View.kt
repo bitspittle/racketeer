@@ -77,10 +77,7 @@ abstract class View(protected val ctx: GameContext) {
                 }
             }
             Keys.TICK -> {
-                if (
-                    (ctx.viewStack.contains { view -> view is PlayCardsView }) &&
-                    !(ctx.viewStack.contains { view -> view is AdminMenuView })
-                ) {
+                if (!(ctx.viewStack.contains { view -> view is AdminMenuView })) {
                     ctx.viewStack.pushView(AdminMenuView(ctx))
                     true
                 } else false
