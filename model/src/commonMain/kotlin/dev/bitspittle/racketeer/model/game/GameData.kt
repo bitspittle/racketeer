@@ -1,8 +1,8 @@
 package dev.bitspittle.racketeer.model.game
 
 import dev.bitspittle.racketeer.model.card.CardTemplate
+import dev.bitspittle.racketeer.model.card.Rarity
 import dev.bitspittle.racketeer.model.card.UpgradeNames
-import dev.bitspittle.racketeer.model.tier.Tier
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import net.mamoe.yamlkt.Yaml
@@ -26,7 +26,8 @@ data class GameData(
     val initialDeck: List<String>,
     val cardTypes: List<String>,
     val upgradeNames: UpgradeNames,
-    val tiers: List<Tier>,
+    val rarities: List<Rarity>,
+    val tierFrequencies: List<Int>,
     val shopSizes: List<Int>,
     val shopPrices: List<Int>,
     val ratingScores: List<Int>,
@@ -116,8 +117,8 @@ data class GameData(
     }
 
     init {
-        require(shopPrices.size == tiers.size - 1) { "There should be exactly one less entry for shop prices than tiers" }
-        require(shopSizes.size == tiers.size) { "There should be exactly the same number of shop sizes as tiers" }
+        require(shopPrices.size == tierFrequencies.size - 1) { "There should be exactly one less entry for shop prices than tiers" }
+        require(shopSizes.size == tierFrequencies.size) { "There should be exactly the same number of shop sizes as tiers" }
         shopSizes.forEachIndexed { i, size ->
             if (i > 0) {
                 require(size >= shopSizes[i]) { "Subsequence shop sizes should never shrink"}
@@ -137,6 +138,7 @@ data class GameData(
                     error("The card named \"${card.name}\" has an invalid type \"$type\" defined on it. Should be one of: $cardTypes")
                 }
             }
+            require(card.rarity in rarities.indices) { "Rarity value must be between 0 and ${rarities.lastIndex}"}
         }
         cards.groupBy { it.name }.let { namedCards ->
             namedCards.forEach { (name, cards) ->
@@ -148,5 +150,5 @@ data class GameData(
     }
 
     @Transient
-    val maxTier = tiers.lastIndex
+    val maxTier = tierFrequencies.lastIndex
 }

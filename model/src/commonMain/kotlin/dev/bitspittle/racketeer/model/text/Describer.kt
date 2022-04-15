@@ -35,6 +35,9 @@ class Describer(private val data: GameData) {
     }
 
     private fun StringBuilder.appendCardBody(template: CardTemplate, upgrades: Set<UpgradeType> = emptySet()) {
+
+        append(" [Tier ${template.tier + 1}]")
+        append(" [${data.rarities[template.rarity].name}]")
         appendLine() // Finish title
 
         // Show types -- and use the data.cardTypes list instead of the card.types list as they are capitalized
@@ -108,7 +111,6 @@ class Describer(private val data: GameData) {
             }
 
             if (!concise) {
-                append(" [Tier ${template.tier + 1}]")
                 appendCardBody(template)
             }
         }

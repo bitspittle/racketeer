@@ -29,6 +29,6 @@ class FrequencyBuckets(frequencyDistribution: List<Int>) {
     }
 
     fun pickRandomBucket(random: Random): Int {
-        return findBucket(1 + random.nextInt(1, frequencySums.last()))
+        return findBucket(1 + random.nextInt(0, frequencySums.last()))
     }
 }

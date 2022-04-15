@@ -17,14 +17,16 @@ class MutableShop private constructor(
     private val random: Random,
     private val allCards: List<CardTemplate>,
     private val shopSizes: List<Int>,
-    private val frequencyDistribution: List<Int>,
+    private val tierFrequencies: List<Int>,
+    private val rarityFrequencies: List<Int>,
     tier: Int,
     override val stock: MutableList<Card?>) : Shop {
-    constructor(random: Random, allCards: List<CardTemplate>, shopSizes: List<Int>, frequencyDistribution: List<Int>) : this(
+    constructor(random: Random, allCards: List<CardTemplate>, shopSizes: List<Int>, tierFrequencies: List<Int>, rarityFrequencies: List<Int>) : this(
         random,
         allCards,
         shopSizes,
-        frequencyDistribution,
+        tierFrequencies,
+        rarityFrequencies,
         0,
         mutableListOf()
     ) {
@@ -49,13 +51,22 @@ class MutableShop private constructor(
         }
 
         // Don't include frequency distribution entries for tiers we don't yet support
-        val frequencyBuckets = FrequencyBuckets(frequencyDistribution.take(tier + 1))
+        val frequencyBuckets = FrequencyBuckets(tierFrequencies.take(tier + 1))
+        val rarityBuckets = FrequencyBuckets(rarityFrequencies)
         while (numCardsToStock > 0) {
             val tier = frequencyBuckets.pickRandomBucket(random)
             // Choices for a tier might be unavailable even if we wanted to randomly pick it, due to the passed in
             // filter. At that point, just give up and keep trying until we get a tier that works
             val tierChoices = possibleNewStock[tier]?.takeIf { cards -> cards.isNotEmpty() } ?: continue
-            stock.add(tierChoices.removeAt(random.nextInt(tierChoices.size)).instantiate())
+
+            var chosenCard: CardTemplate? = null
+            while (chosenCard == null) {
+                val rarity = rarityBuckets.pickRandomBucket(random)
+                chosenCard = tierChoices.asSequence().filter { it.rarity == rarity }.shuffled(random).firstOrNull()
+            }
+
+            stock.add(chosenCard.instantiate())
+            tierChoices.remove(chosenCard)
             numCardsToStock--
         }
 
@@ -95,5 +106,5 @@ class MutableShop private constructor(
         return true
     }
 
-    fun copy() = MutableShop(random, allCards, shopSizes, frequencyDistribution, tier, stock.toMutableList())
+    fun copy() = MutableShop(random, allCards, shopSizes, tierFrequencies, rarityFrequencies, tier, stock.toMutableList())
 }

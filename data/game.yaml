@@ -29,17 +29,21 @@ upgradeNames:
   luck: Lucky
   undercover: Undercover
 
-tiers:
+rarities:
   - name: Common
     frequency: 5
   - name: Uncommon
-    frequency: 6
+    frequency: 3
   - name: Rare
-    frequency: 7
-  - name: Scarce
-    frequency: 8
-  - name: Legendary
-    frequency: 9
+    frequency: 1
+
+tierFrequencies:
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+
 shopSizes:
   - 3
   - 4
