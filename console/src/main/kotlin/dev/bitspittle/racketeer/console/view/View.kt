@@ -31,7 +31,9 @@ abstract class View(protected val ctx: GameContext) {
     protected val currCommand get() = commandsSection.currCommand
     protected var currIndex
         get() = commandsSection.currIndex
-        set(value) { commandsSection.currIndex = value }
+        set(value) {
+            commandsSection.currIndex = value
+        }
 
     fun refreshCommands() {
         val newIndex = refreshCursorPosition(commandsSection.currIndex, commandsSection.currCommand)
@@ -57,27 +59,22 @@ abstract class View(protected val ctx: GameContext) {
                 if (ctx.viewStack.canGoBack) {
                     onEscRequested()
                     goBack()
-                    true
-                } else false
+                } else {
+                    ctx.viewStack.pushView(OptionsMenuView(ctx))
+                }
+                true
             }
             Keys.ENTER -> {
                 if (currCommand.type != Command.Type.Disabled) {
                     try {
                         currCommand.invoke()
-                    }
-                    catch (ex: Exception) {
+                    } catch (ex: Exception) {
                         ctx.app.log(ex.message ?: "Code threw exception without a message: ${ex::class.simpleName}")
                     }
                     true
                 } else {
                     false
                 }
-            }
-            Keys.TAB -> {
-                if (canOpenOptions()) {
-                    ctx.viewStack.pushView(OptionsMenuView(ctx))
-                    true
-                } else false
             }
             Keys.TICK -> {
                 if (canOpenAdmin()) {
@@ -90,20 +87,8 @@ abstract class View(protected val ctx: GameContext) {
         }
     }
 
-    private fun canOpenOptions() = !isInOptionsMenu() && !isInAdminMenu()
-    private fun canOpenAdmin() = isTurnInProgress() && !isInOptionsMenu() && !isInAdminMenu()
-
-    private fun isTurnInProgress(): Boolean {
-        return (ctx.viewStack.contains { view -> view is PlayCardsView })
-    }
-
-    private fun isInOptionsMenu(): Boolean {
-        return (ctx.viewStack.contains { view -> view is OptionsMenuView })
-    }
-
-    private fun isInAdminMenu(): Boolean {
-        return (ctx.viewStack.contains { view -> view is AdminMenuView })
-    }
+    private fun canOpenOptions() = !ctx.viewStack.canGoBack
+    private fun canOpenAdmin() = (ctx.viewStack.contains { view -> view is PlayCardsView }) && !ctx.viewStack.canGoBack
 
     protected open suspend fun handleAdditionalKeys(key: Key): Boolean = false
 
@@ -122,16 +107,14 @@ abstract class View(protected val ctx: GameContext) {
                             append(descParts[i])
                             if (descParts[i].contains('\n')) {
                                 widthSoFar = descParts[i].substringAfterLast('\n').length
-                            }
-                            else {
+                            } else {
                                 widthSoFar += descParts[i].length
                             }
                             if (i < descParts.lastIndex) {
                                 if (widthSoFar == 0 || widthSoFar + descParts[i + 1].length < DESC_WRAP_WIDTH) {
                                     append(' ')
                                     widthSoFar++
-                                }
-                                else {
+                                } else {
                                     append('\n')
                                     widthSoFar = 0
                                 }
@@ -144,19 +127,19 @@ abstract class View(protected val ctx: GameContext) {
 
             renderFooter()
 
-            if (ctx.viewStack.canGoBack) {
-                text("Press "); cyan { text("ESC") }; textLine(" to go back.")
-            }
-
-            if (canOpenOptions()) {
-                text("Press "); cyan { text("TAB") }; textLine(" to open options.")
-            }
-        }
+            text("Press "); cyan { text("ESC") }
+            if (ctx.viewStack.canGoBack) textLine(" to go back.") else textLine(" to open options.") }
     }
 
     private fun RenderScope.renderHeader() {
         val state = ctx.state
-        textLine("${ctx.describer.describeCash(state.cash)} ${ctx.describer.describeInfluence(state.influence)} ${ctx.describer.describeLuck(state.luck)} ${ctx.describer.describeVictoryPoints(state.vp)} ")
+        textLine(
+            "${ctx.describer.describeCash(state.cash)} ${ctx.describer.describeInfluence(state.influence)} ${
+                ctx.describer.describeLuck(
+                    state.luck
+                )
+            } ${ctx.describer.describeVictoryPoints(state.vp)} "
+        )
         textLine()
         scopedState {
             val numRemainingTurns = state.numTurns - state.turn
