@@ -4,6 +4,8 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.View
 
+private const val RESOURCE_INCREMENTS = 5
+
 class AdminMenuView(ctx: GameContext) : View(ctx) {
     override val title: String = "Admin"
 
@@ -17,6 +19,30 @@ class AdminMenuView(ctx: GameContext) : View(ctx) {
                     ctx.viewStack.pushView(AdminCreateCardView(ctx))
                     return true
                 }
-            }
+            },
+            object : Command(ctx) {
+                override val type = Type.Warning
+                override val title = "Add ${ctx.describer.describeCash(RESOURCE_INCREMENTS)}"
+                override suspend fun invoke(): Boolean {
+                    ctx.state.cash += RESOURCE_INCREMENTS
+                    return true
+                }
+            },
+            object : Command(ctx) {
+                override val type = Type.Warning
+                override val title = "Add ${ctx.describer.describeInfluence(RESOURCE_INCREMENTS)}"
+                override suspend fun invoke(): Boolean {
+                    ctx.state.influence += RESOURCE_INCREMENTS
+                    return true
+                }
+            },
+            object : Command(ctx) {
+                override val type = Type.Warning
+                override val title = "Add ${ctx.describer.describeLuck(RESOURCE_INCREMENTS)}"
+                override suspend fun invoke(): Boolean {
+                    ctx.state.luck += RESOURCE_INCREMENTS
+                    return true
+                }
+            },
         )
 }
