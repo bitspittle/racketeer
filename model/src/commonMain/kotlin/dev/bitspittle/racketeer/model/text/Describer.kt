@@ -73,7 +73,7 @@ class Describer(private val data: GameData) {
             appendLine() // Newline
             appendLine("When card first enters play:")
             template.initActions.forEachIndexed { i, action ->
-                append("~ $action")
+                append("- $action")
                 if (i < template.initActions.lastIndex) {
                     appendLine()
                 }
@@ -84,7 +84,7 @@ class Describer(private val data: GameData) {
             appendLine() // Newline
             appendLine("When card is played:")
             template.playActions.forEachIndexed { i, action ->
-                append("~ $action")
+                append("- $action")
                 if (i < template.playActions.lastIndex) {
                     appendLine()
                 }
@@ -95,7 +95,7 @@ class Describer(private val data: GameData) {
             appendLine() // Newline
             appendLine("Passive actions:")
             allPassiveActions.forEachIndexed { i, action ->
-                append("~ $action")
+                append("- $action")
                 if (i < allPassiveActions.lastIndex) {
                     appendLine()
                 }
