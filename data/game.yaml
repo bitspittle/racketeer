@@ -63,11 +63,13 @@ globalActions:
   - def 'game-sub! '$property '$amount '(game-set! $property '(- $it $amount))
   - def 'card-add! '$card '$property '$amount '(card-set! $card $property '(+ $it $amount))
   - def 'card-sub! '$card '$property '$amount '(card-set! $card $property '(- $it $amount))
-  - def 'if-true '$cond '$expr '(if $cond '$expr _)
-  - def 'if-false '$cond '$expr '(if $cond _ '$expr)
+  - def 'if-true '$cond '$expr '(if $cond $expr _)
+  - def 'if-false '$cond '$expr '(if $cond _ $expr)
   - def 'stop-if! '$cond '(if $cond '(stop!) _)
   - def 'cancel-if! '$cond '(if $cond '(cancel!) _)
   - def 'ask? '$prompt '(= (single (choose --prompt icon-convert $prompt (list "Yes" "No") 1) _) "Yes")
+  - def 'card-has-any-of-types? '$card '$types '(any? (card-get $card 'types) '(in? $types $it))
+  - def 'card-has-all-types? '$card '$types '(all? (card-get $card 'types) '(in? $types $it))
 
 cards:
   # TIER 1
@@ -208,8 +210,9 @@ cards:
     cost: 3
     flavor: Give a Spy in your hand +1&.
     playActions:
-      - stop-if! ! any? $hand '(card-has-type? $it 'spy)
-      - card-upgrade! (choose --prompt "Choose a Spy to upgrade." (filter $hand '(card-has-type? $it 'spy)) 1) 'influence
+      - set '$spies filter $hand '(card-has-type? $it 'spy)
+      - stop-if! empty? $spies
+      - card-upgrade! (choose --prompt "Choose a Spy to upgrade." $spies 1) 'influence
 
   - name: Cat the Burglar
     tier: 1
@@ -217,10 +220,9 @@ cards:
     cost: 3
     flavor: Give a Thief in your hand +1$.
     playActions:
-      - stop-if! ! any? $hand '(card-has-type? $it 'thief)
-      - card-upgrade! (choose --prompt "Choose a Thief to upgrade." (filter $hand '(card-has-type? $it 'thief)) 1) 'cash
-
-
+      - set '$thieves filter $hand '(card-has-type? $it 'thief)
+      - stop-if! empty? $thieves
+      - card-upgrade! (choose --prompt "Choose a Thief to upgrade." $thieves 1) 'cash
 
   - name: Roving Gambler
     tier: 1
@@ -269,9 +271,9 @@ cards:
     flavor: "Choose one: Gain 2$ or Gain 2&."
     playActions:
       - set '$choices (list "Gain 2$" "Gain 2&")
-      - set '$chosen-index (index-of $choices choose $choices 1)
-      - if-true (= $chosen-index 0) game-add! 'cash 2
-      - if-true (= $chosen-index 1) game-add! 'influence 2
+      - set '$chosen-index (index-of $choices single choose $choices 1 _)
+      - if-true (= $chosen-index 0) '(game-add! 'cash 2)
+      - if-true (= $chosen-index 1) '(game-add! 'influence 2)
 
 
   - name: Wanted Poster
