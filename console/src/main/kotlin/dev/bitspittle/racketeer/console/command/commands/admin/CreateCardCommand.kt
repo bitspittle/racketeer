@@ -8,6 +8,7 @@ import dev.bitspittle.racketeer.console.view.views.admin.AdminMenuView
 import dev.bitspittle.racketeer.model.card.CardTemplate
 
 class CreateCardCommand(ctx: GameContext, private val card: CardTemplate) : Command(ctx) {
+    override val type = Type.Warning
     override val title = ctx.describer.describe(card, concise = true)
     override val description = ctx.describer.describe(card, showCash = true)
 

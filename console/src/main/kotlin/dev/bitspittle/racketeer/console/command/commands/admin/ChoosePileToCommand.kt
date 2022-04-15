@@ -13,7 +13,7 @@ class ChoosePileToCommand(
     private val cards: List<Card>,
     forceDisabled: Boolean = false
 ) : Command(ctx) {
-    override val type: Type = if (forceDisabled) Type.Disabled else Type.Read
+    override val type: Type = if (forceDisabled) Type.Disabled else Type.Warning
     override val title = "${pile.toTitle(ctx.state)} (${pile.cards.size})"
 
     override suspend fun invoke(): Boolean {
