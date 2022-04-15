@@ -69,6 +69,7 @@ class CardQueueImpl(private val env: Environment) : CardQueue {
         }
         finally {
             cardsToRun.clear()
+            actionsToRun.clear()
             isRunning = false
         }
     }
