@@ -1,5 +1,6 @@
 package dev.bitspittle.racketeer.scripting
 
+import dev.bitspittle.limp.types.DelegatingLogger
 import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardQueue
@@ -40,17 +41,20 @@ private val FAKE_GAME_DATA_TEXT = """
       luck: Lucky
       undercover: Undercover
 
-    tiers:
+    rarities:
       - name: Common
         frequency: 5
       - name: Uncommon
-        frequency: 4
-      - name: Rare
         frequency: 3
-      - name: Scarce
-        frequency: 2
-      - name: Legendary
+      - name: Rare
         frequency: 1
+
+    tierFrequencies:
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
     shopSizes:
       - 3
       - 4
@@ -179,7 +183,7 @@ class TestGameService(
     private val _logs = mutableListOf<String>()
     val logs: List<String> = _logs
 
-    override val logger = object : Logger {
+    override val logger = object : DelegatingLogger() {
         override fun log(message: String) {
             _logs.add(message)
         }
