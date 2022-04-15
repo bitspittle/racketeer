@@ -2,6 +2,10 @@ package dev.bitspittle.racketeer.console.view.views.admin
 
 import com.varabyte.kotter.foundation.input.Key
 import com.varabyte.kotter.foundation.input.Keys
+import com.varabyte.kotter.foundation.text.cyan
+import com.varabyte.kotter.foundation.text.text
+import com.varabyte.kotter.foundation.text.textLine
+import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.SelectItemCommand
 import dev.bitspittle.racketeer.console.game.GameContext
@@ -16,11 +20,23 @@ class ChoosePileCardsView(ctx: GameContext, private val pile: Pile) : View(ctx) 
     private fun hasUserSelectedEnoughChoices() = selectCardCommands.count { it.selected } > 0
 
     override suspend fun handleAdditionalKeys(key: Key): Boolean {
-        return if (key == Keys.SPACE) {
-            (currCommand as? SelectItemCommand)?.invoke()?.let { true } ?: false
-        } else {
-            false
+        return when (key) {
+            Keys.SPACE -> (currCommand as? SelectItemCommand)?.invoke()?.let { true } ?: false
+            Keys.A -> {
+                if (selectCardCommands.any { !it.selected }) {
+                    selectCardCommands.forEach { it.selected = true }
+                } else {
+                    selectCardCommands.forEach { it.selected = false }
+                }
+                true
+            }
+            else -> false
         }
+    }
+
+    override fun RenderScope.renderFooter() {
+        text("Press "); cyan { text("SPACE") }; textLine(" to toggle individual selections.")
+        text("Press "); cyan { text("A") }; textLine(" to toggle all selections.")
     }
 
     override fun createCommands(): List<Command> =
