@@ -2,6 +2,8 @@ package dev.bitspittle.racketeer.console.view.views.admin
 
 import com.varabyte.kotter.foundation.input.CharKey
 import com.varabyte.kotter.foundation.input.Key
+import com.varabyte.kotter.foundation.input.Keys
+import com.varabyte.kotter.foundation.text.black
 import com.varabyte.kotter.foundation.text.cyan
 import com.varabyte.kotter.foundation.text.text
 import com.varabyte.kotter.foundation.text.textLine
@@ -17,29 +19,43 @@ class AdminCreateCardView(ctx: GameContext) : View(ctx) {
     override fun createCommands(): List<Command> = sortedCards.map { CreateCardCommand(ctx, it) }
 
     override fun RenderScope.renderFooter() {
-        text("Press "); cyan { text("A-Z") }; textLine(" to jump to cards starting with that name.")
+        text("Press "); cyan { text("A-Z") }; textLine(" to jump to cards by name.")
     }
+
+    private var searchPrefix = ""
 
     override suspend fun handleAdditionalKeys(key: Key): Boolean {
         return if (key is CharKey) {
             key.code.takeIf { it in 'a'..'z' || it in 'A'..'Z' }?.let { searchLetter ->
-                val searchLetterUpper = searchLetter.uppercaseChar()
+                searchPrefix += searchLetter.lowercase()
                 // Return
                 // - the first card that matches the search letter (e.g. 'P' -> "P1" in ["P1", "P2", "P3"]) OR
                 // - the last card smaller than it (e.g. 'P' -> "O3" in ["O1", "O2", "O3"])
                 val foundCard =
                     sortedCards
                         .asSequence()
-                        .filter { card -> searchLetterUpper == card.name.first().uppercaseChar() }
+                        .filter { card -> card.name.startsWith(searchPrefix, ignoreCase = true) }
                         .firstOrNull()
                             ?: sortedCards.reversed()
                                 .asSequence()
-                                .filter { card -> searchLetterUpper > card.name.first().uppercaseChar() }
+                                .filter { card -> searchPrefix > card.name.lowercase() }
                                 .firstOrNull()
 
                 currIndex = foundCard?.let { sortedCards.indexOf(it) } ?: 0
             }
             true
-        } else false
+        } else {
+            when (key) {
+                Keys.BACKSPACE -> { searchPrefix = searchPrefix.dropLast(1); true }
+                else -> false
+            }
+        }
+    }
+
+    override fun RenderScope.renderContent() {
+        if (searchPrefix != "") {
+            black(isBright = true) { textLine("Search: " + searchPrefix.lowercase()) }
+            textLine()
+        }
     }
 }
