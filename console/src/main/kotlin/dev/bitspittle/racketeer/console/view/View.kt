@@ -77,7 +77,10 @@ abstract class View(protected val ctx: GameContext) {
                 }
             }
             Keys.TICK -> {
-                if (canOpenAdmin()) {
+                if (
+                    (ctx.viewStack.contains { view -> view is PlayCardsView }) &&
+                    !(ctx.viewStack.contains { view -> view is AdminMenuView })
+                ) {
                     ctx.viewStack.pushView(AdminMenuView(ctx))
                     true
                 } else false
@@ -86,9 +89,6 @@ abstract class View(protected val ctx: GameContext) {
             else -> handleAdditionalKeys(key) || commandsSection.handleKey(key)
         }
     }
-
-    private fun canOpenOptions() = !ctx.viewStack.canGoBack
-    private fun canOpenAdmin() = (ctx.viewStack.contains { view -> view is PlayCardsView }) && !ctx.viewStack.canGoBack
 
     protected open suspend fun handleAdditionalKeys(key: Key): Boolean = false
 
