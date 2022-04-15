@@ -22,6 +22,15 @@ class AdminMenuView(ctx: GameContext) : View(ctx) {
             },
             object : Command(ctx) {
                 override val type = Type.Warning
+                override val title = "Move cards"
+                override val description: String = "Move cards across piles."
+                override suspend fun invoke(): Boolean {
+                    ctx.viewStack.pushView(ChoosePileFromView(ctx))
+                    return true
+                }
+            },
+            object : Command(ctx) {
+                override val type = Type.Warning
                 override val title = "Add ${ctx.describer.describeCash(RESOURCE_INCREMENTS)}"
                 override suspend fun invoke(): Boolean {
                     ctx.state.cash += RESOURCE_INCREMENTS

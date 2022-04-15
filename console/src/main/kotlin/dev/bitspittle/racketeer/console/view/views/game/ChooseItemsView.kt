@@ -24,7 +24,8 @@ class ChooseItemsView(
 
     override fun createCommands(): List<Command> =
          selectItemCommands + object : Command(ctx) {
-            override val title: String = "Confirm"
+             override val type: Type get() = if (hasUserSelectedEnoughChoices()) Type.Read else Type.Disabled
+             override val title: String = "Confirm"
             override val description: String
                 get() = if (hasUserSelectedEnoughChoices()) {
                     "Press ENTER to confirm the above choice(s)."
@@ -33,12 +34,10 @@ class ChooseItemsView(
                 }
 
              override suspend fun invoke(): Boolean {
-                 if (hasUserSelectedEnoughChoices()) {
-                     choices.resume(items.filterIndexed { index, _    -> selectItemCommands[index].selected })
-                     goBack()
-                 }
+                 choices.resume(items.filterIndexed { index, _    -> selectItemCommands[index].selected })
+                 goBack()
 
-                 return false // Refresh will be handled by the parent screen
+                 return true
              }
          }
 
