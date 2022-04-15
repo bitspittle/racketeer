@@ -24,47 +24,35 @@ class ShopMethodsTest {
         env.addMethod(CardGetMethod())
         env.storeValue("_", Placeholder)
 
-        assertThat(shop.stock.map { it!!.template.name }).containsExactly("Squealer", "Con Artist", "Fool's Gold")
-            .inOrder()
+        val initialStock = shop.stock.filterNotNull()
+        assertThat(initialStock).hasSize(3)
 
         assertThat(shop.stock.map { it!!.template.tier }.all { it <= shop.tier }).isTrue()
 
         val evaluator = Evaluator()
         evaluator.evaluate(env, "shop-reroll! _")
 
-        assertThat(shop.stock.map { it!!.template.name }).containsExactly("Fool's Gold", "Squealer", "Con Artist")
-            .inOrder()
+        val rerolledStock = shop.stock.filterNotNull()
+        assertThat(rerolledStock).hasSize(3)
+        assertThat(rerolledStock.none { newStock -> initialStock.contains(newStock) }).isTrue()
 
         // Upgrade the shop for access to more cards and card slots
         shop.upgrade()
 
-        assertThat(shop.stock.map { it!!.template.name }).containsExactly(
-            "Fool's Gold",
-            "Squealer",
-            "Con Artist",
-            "Embezzler"
-        )
-            .inOrder()
+        val stockPostUpgrade = shop.stock.filterNotNull()
+        assertThat(stockPostUpgrade).hasSize(4)
+        assertThat(stockPostUpgrade.take(3)).containsExactly(rerolledStock)
 
         evaluator.evaluate(env, "shop-reroll! '(card-has-type? \$card 'spy)")
 
-        assertThat(shop.stock.map { it!!.template.name }).containsExactly(
-            "Lady Thistledown",
-            "Con Artist",
-            "Embezzler",
-            "Squealer"
-        )
-            .inOrder()
-        assertThat(shop.stock.map { it!!.template.types }.all { types -> types.contains("spy") }).isTrue()
+        val spiesOnly = shop.stock.filterNotNull()
+        assertThat(stockPostUpgrade).hasSize(4)
+        assertThat(spiesOnly.all { types -> types.template.types.contains("spy") }).isTrue()
 
         evaluator.evaluate(env, "shop-reroll! '(= (card-get \$card 'tier) 1)")
 
-        assertThat(shop.stock.map { it!!.template.name }).containsExactly(
-            "Embezzler",
-            "Ditch the Goods",
-            "Lady Thistledown",
-            "Cheese It!"
-        ).inOrder()
-        assertThat(shop.stock.map { it!!.template.tier }.all { it == 1 }).isTrue()
+        val tier1Only = shop.stock.filterNotNull()
+        assertThat(stockPostUpgrade).hasSize(4)
+        assertThat(tier1Only.all { types -> types.template.tier == 1}).isTrue()
     }
 }
