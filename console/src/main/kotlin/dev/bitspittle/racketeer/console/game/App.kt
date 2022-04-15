@@ -1,6 +1,8 @@
 package dev.bitspittle.racketeer.console.game
 
+import dev.bitspittle.limp.types.Logger
+
 interface App {
     fun quit()
-    fun log(message: String)
+    val logger: Logger
 }

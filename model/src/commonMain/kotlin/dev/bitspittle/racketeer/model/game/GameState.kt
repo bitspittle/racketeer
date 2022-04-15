@@ -5,6 +5,7 @@ import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.shop.MutableShop
 import dev.bitspittle.racketeer.model.shop.Shop
+import kotlin.math.max
 import kotlin.random.Random
 
 class GameState internal constructor(
@@ -122,7 +123,7 @@ class GameState internal constructor(
      */
     var handSize = handSize
         set(value) {
-            field = value.coerceAtLeast(1)
+            field = value.coerceAtLeast(max(1, field))
         }
 
     /**

@@ -69,7 +69,7 @@ abstract class View(protected val ctx: GameContext) {
                     try {
                         currCommand.invoke()
                     } catch (ex: Exception) {
-                        ctx.app.log(ex.message ?: "Code threw exception without a message: ${ex::class.simpleName}")
+                        ctx.app.logger.error(ex.message ?: "Code threw exception without a message: ${ex::class.simpleName}")
                     }
                     true
                 } else {

@@ -7,7 +7,6 @@ import dev.bitspittle.limp.converters.PlaceholderConverter
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.Logger
-import dev.bitspittle.limp.types.warn
 
 /**
  * Store a value with some variable name label.

@@ -18,7 +18,7 @@ class DbgMethod(private val logger: Logger) : Method("dbg", 1) {
         rest: List<Any>
     ): Any {
         val message = options["msg"]?.let { env.expectConvert<String>(it) }
-        logger.log(buildString {
+        logger.debug(buildString {
             append(message.takeUnless { it.isNullOrBlank() } ?: "Debug")
             append(": ")
             append("${params[0]} # ${params[0]::class.simpleName}")

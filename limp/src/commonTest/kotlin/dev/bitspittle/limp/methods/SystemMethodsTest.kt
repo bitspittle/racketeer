@@ -75,7 +75,7 @@ class SystemMethodsTest {
 
         assertThat(service.logs.isEmpty())
         assertThat(evaluator.evaluate(env, "set 'no-leading-dollar 123"))
-        assertThat(service.logs.count { it.startsWith("Warning:") }).isEqualTo(1)
+        assertThat(service.logs.count { it.startsWith("[W]") }).isEqualTo(1)
     }
 
     @Test
@@ -234,15 +234,15 @@ class SystemMethodsTest {
         val evaluator = Evaluator()
 
         evaluator.evaluate(env, "dbg 123")
-        assertThat(service.logs).containsExactly("Debug: 123 # Int")
+        assertThat(service.logs).containsExactly("[D] Debug: 123 # Int")
 
         service.clearLogs()
         evaluator.evaluate(env, "dbg --msg \"Debug value\" 456")
-        assertThat(service.logs).containsExactly("Debug value: 456 # Int")
+        assertThat(service.logs).containsExactly("[D] Debug value: 456 # Int")
 
         // You can chain debug statements
         service.clearLogs()
         evaluator.evaluate(env, "dbg + dbg 10 dbg 20")
-        assertThat(service.logs).containsExactly("Debug: 20 # Int", "Debug: 10 # Int", "Debug: 30 # Int")
+        assertThat(service.logs).containsExactly("[D] Debug: 20 # Int", "[D] Debug: 10 # Int", "[D] Debug: 30 # Int")
     }
 }

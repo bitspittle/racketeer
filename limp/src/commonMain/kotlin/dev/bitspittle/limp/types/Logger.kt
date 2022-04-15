@@ -1,13 +1,21 @@
 package dev.bitspittle.limp.types
 
 interface Logger {
-    fun log(message: String)
+    fun info(message: String)
+    fun warn(message: String)
+    fun error(message: String)
+    fun debug(message: String)
 }
 
-class ConsoleLogger : Logger {
-    override fun log(message: String) {
-        println(message)
-    }
+abstract class DelegatingLogger : Logger {
+    protected abstract fun log(message: String)
+
+    override fun info(message: String) = log("[I] $message")
+    override fun warn(message: String) = log("[W] $message")
+    override fun error(message: String) = log("[E] $message")
+    override fun debug(message: String) = log("[D] $message")
 }
 
-fun Logger.warn(message: String) = log("Warning: $message")
+class ConsoleLogger : DelegatingLogger() {
+    override fun log(message: String) = println(message)
+}

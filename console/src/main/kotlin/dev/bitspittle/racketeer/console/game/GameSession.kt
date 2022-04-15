@@ -3,10 +3,8 @@ package dev.bitspittle.racketeer.console.game
 import com.varabyte.kotter.foundation.input.onKeyPressed
 import com.varabyte.kotter.foundation.runUntilSignal
 import com.varabyte.kotter.foundation.session
-import com.varabyte.kotter.foundation.text.bold
-import com.varabyte.kotter.foundation.text.red
-import com.varabyte.kotter.foundation.text.textLine
-import com.varabyte.kotter.foundation.text.yellow
+import com.varabyte.kotter.foundation.text.*
+import com.varabyte.kotter.runtime.render.RenderScope
 import com.varabyte.kotterx.decorations.BorderCharacters
 import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.limp.Environment
@@ -48,27 +46,36 @@ class GameSession(
             textLine()
         }.run()
 
-        val latestLogs = mutableListOf<String>()
+        val logRenderers = mutableListOf<RenderScope.() -> Unit>()
         var handleQuit: () -> Unit = {}
         val app = object : App {
             override fun quit() {
                 handleQuit()
             }
 
-            override fun log(message: String) {
-                latestLogs.add(message)
+            override val logger = object : Logger {
+                override fun info(message: String) {
+                    logRenderers.add { green { textLine(message) } }
+                }
+
+                override fun warn(message: String) {
+                    logRenderers.add { yellow { textLine(message) } }
+                }
+
+                override fun error(message: String) {
+                    logRenderers.add { red { textLine(message) } }
+                }
+
+                override fun debug(message: String) {
+                    logRenderers.add { magenta { textLine(message) } }
+                }
             }
         }
 
         val env = Environment()
-        val logger = object : Logger {
-            override fun log(message: String) {
-                app.log(message)
-            }
-        }
         env.installDefaults(object : LangService {
             override val random = Random.Default
-            override val logger = logger
+            override val logger = app.logger
         })
         Evaluator().let { evaluator ->
             // Safe to call runBlocking at this point because limp defaults all promise not to suspend
@@ -115,24 +122,38 @@ class GameSession(
                     }
                 }
 
-            override val logger = logger
+            override val logger = object : Logger {
+                override fun info(message: String) {
+                    logRenderers.add { green { textLine(message) } }
+                }
+
+                override fun warn(message: String) {
+                    logRenderers.add { yellow { textLine(message) } }
+                }
+
+                override fun error(message: String) {
+                    logRenderers.add { red { textLine(message) } }
+                }
+
+                override fun debug(message: String) {
+                    logRenderers.add { magenta { textLine(message) } }
+                }
+            }
 
         })
 
         viewStack.pushView(PreDrawView(ctx))
         section {
             viewStack.currentView.renderInto(this)
-            if (latestLogs.isNotEmpty()) {
+            logRenderers.forEach {
                 textLine()
-                yellow {
-                    textLine(latestLogs.joinToString("\n\n"))
-                }
+                it.invoke(this)
             }
         }.runUntilSignal {
             handleQuit = { signal() }
             handleRerender = { rerender() }
             onKeyPressed {
-                latestLogs.clear()
+                logRenderers.clear()
                 CoroutineScope(Dispatchers.IO).launch {
                     if (viewStack.currentView.handleKey(key)) {
                         // Minor hack, this is the wrong way to do this but at the same time it's not horrible...
