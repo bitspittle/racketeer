@@ -20,8 +20,17 @@ class OptionsMenuView(ctx: GameContext) : View(ctx) {
             },
             object : Command(ctx) {
                 override val type = Type.Warning
+                override val title = "Restart a new game"
+                override val description: String = "End this game and start a new one. You will have a chance to confirm."
+                override suspend fun invoke(): Boolean {
+                    ctx.viewStack.pushView(ConfirmNewGameView(ctx))
+                    return true
+                }
+            },
+            object : Command(ctx) {
+                override val type = Type.Warning
                 override val title = "Quit"
-                override val description: String = "End this game. You will have a chance to confirm."
+                override val description: String = "End this game and quit the program. You will have a chance to confirm."
                 override suspend fun invoke(): Boolean {
                     ctx.viewStack.pushView(ConfirmQuitView(ctx))
                     return true

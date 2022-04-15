@@ -11,7 +11,7 @@ import dev.bitspittle.racketeer.console.command.commands.system.NewGameCommand
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.game.Rating
 
-class GameOverView(ctx: GameContext) : View(ctx) {
+class GameSummaryView(ctx: GameContext) : View(ctx) {
     override fun createCommands(): List<Command> =
         listOf(
             NewGameCommand(ctx),

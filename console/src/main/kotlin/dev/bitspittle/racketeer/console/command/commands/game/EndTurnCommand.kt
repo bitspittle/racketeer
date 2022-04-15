@@ -2,7 +2,7 @@ package dev.bitspittle.racketeer.console.command.commands.game
 
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
-import dev.bitspittle.racketeer.console.view.views.game.GameOverView
+import dev.bitspittle.racketeer.console.view.views.game.GameSummaryView
 import dev.bitspittle.racketeer.console.view.views.game.PreDrawView
 
 class EndTurnCommand(ctx: GameContext) : Command(ctx) {
@@ -17,7 +17,7 @@ class EndTurnCommand(ctx: GameContext) : Command(ctx) {
         if (ctx.state.endTurn()) {
             ctx.viewStack.replaceView(PreDrawView(ctx))
         } else {
-            ctx.viewStack.replaceView(GameOverView(ctx))
+            ctx.viewStack.replaceView(GameSummaryView(ctx))
         }
         return true
     }
