@@ -32,6 +32,8 @@ class AdminMenuView(ctx: GameContext) : View(ctx) {
             object : Command(ctx) {
                 override val type = Type.Warning
                 override val title = "Add ${ctx.describer.describeCash(RESOURCE_INCREMENTS)}"
+                override val description = "Increase game resources (cash)."
+
                 override suspend fun invoke(): Boolean {
                     ctx.state.cash += RESOURCE_INCREMENTS
                     return true
@@ -40,6 +42,7 @@ class AdminMenuView(ctx: GameContext) : View(ctx) {
             object : Command(ctx) {
                 override val type = Type.Warning
                 override val title = "Add ${ctx.describer.describeInfluence(RESOURCE_INCREMENTS)}"
+                override val description = "Increase game resources (influence)."
                 override suspend fun invoke(): Boolean {
                     ctx.state.influence += RESOURCE_INCREMENTS
                     return true
@@ -48,6 +51,7 @@ class AdminMenuView(ctx: GameContext) : View(ctx) {
             object : Command(ctx) {
                 override val type = Type.Warning
                 override val title = "Add ${ctx.describer.describeLuck(RESOURCE_INCREMENTS)}"
+                override val description = "Increase game resources (luck)."
                 override suspend fun invoke(): Boolean {
                     ctx.state.luck += RESOURCE_INCREMENTS
                     return true
