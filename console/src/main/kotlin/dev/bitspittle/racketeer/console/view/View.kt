@@ -74,13 +74,13 @@ abstract class View(protected val ctx: GameContext) {
                 }
             }
             Keys.TAB -> {
-                if (!isInOptionsMenu() && !isInAdminMenu()) {
+                if (canOpenOptions()) {
                     ctx.viewStack.pushView(OptionsMenuView(ctx))
                     true
                 } else false
             }
             Keys.TICK -> {
-                if (isTurnInProgress() && !isInOptionsMenu() && !isInAdminMenu()) {
+                if (canOpenAdmin()) {
                     ctx.viewStack.pushView(AdminMenuView(ctx))
                     true
                 } else false
@@ -89,6 +89,9 @@ abstract class View(protected val ctx: GameContext) {
             else -> handleAdditionalKeys(key) || commandsSection.handleKey(key)
         }
     }
+
+    private fun canOpenOptions() = !isInOptionsMenu() && !isInAdminMenu()
+    private fun canOpenAdmin() = isTurnInProgress() && !isInOptionsMenu() && !isInAdminMenu()
 
     private fun isTurnInProgress(): Boolean {
         return (ctx.viewStack.contains { view -> view is PlayCardsView })
@@ -145,7 +148,7 @@ abstract class View(protected val ctx: GameContext) {
                 text("Press "); cyan { text("ESC") }; textLine(" to go back.")
             }
 
-            if (!isInOptionsMenu()) {
+            if (canOpenOptions()) {
                 text("Press "); cyan { text("TAB") }; textLine(" to open options.")
             }
         }
