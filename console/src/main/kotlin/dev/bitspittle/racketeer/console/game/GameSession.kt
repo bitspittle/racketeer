@@ -141,7 +141,7 @@ class GameSession(
                         // two rerenders one right after the other, causing a stutter as screens are transitioning.
                         // The delay here allows screen changes to "settle" before rerendering (although this does
                         // end up with us running a redundant rerender, but whatever)
-                        delay(50)
+                        delay(16)
                         rerender()
                     }
                 }
