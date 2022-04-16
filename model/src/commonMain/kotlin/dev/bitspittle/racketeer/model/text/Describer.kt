@@ -35,8 +35,10 @@ class Describer(private val data: GameData) {
         }
     }
 
-    private fun StringBuilder.appendCardBody(template: CardTemplate, upgrades: Set<UpgradeType> = emptySet()) {
-
+    private fun StringBuilder.appendCardBody(template: CardTemplate, upgrades: Set<UpgradeType> = emptySet(), vp: Int = template.vp) {
+        if (vp > 0) {
+            append(" ${describeVictoryPoints(vp)}")
+        }
         append(" [Tier ${template.tier + 1}]")
         append(" [${data.rarities[template.rarity].name}]")
         appendLine() // Finish title
