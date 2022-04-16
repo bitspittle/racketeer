@@ -10,6 +10,7 @@ class AdminMenuView(ctx: GameContext) : View(ctx) {
     override fun createCommands(): List<Command> =
         listOf(
             object : Command(ctx) {
+                override val type = Type.Warning
                 override val title = "Create a card"
                 override val description: String = "Create any card in the game, putting it into your hand immediately."
                 override suspend fun invoke(): Boolean {
@@ -18,6 +19,7 @@ class AdminMenuView(ctx: GameContext) : View(ctx) {
                 }
             },
             object : Command(ctx) {
+                override val type = Type.Warning
                 override val title = "Move cards"
                 override val description: String = "Move cards across piles."
                 override suspend fun invoke(): Boolean {
@@ -26,6 +28,7 @@ class AdminMenuView(ctx: GameContext) : View(ctx) {
                 }
             },
             object : Command(ctx) {
+                override val type = Type.Warning
                 override val title = "Add game resources"
                 override val description = "Increase spendable game resources, e.g. cash, influence, and/or luck."
 
