@@ -86,7 +86,7 @@ class GameStateDiff(
                 val cardTitle = describer.describe(card, concise = true)
                 val pileFromDesc = describer.describe(gameStateBefore, gameStateBefore.pileFor(card)!!, title = false)
                 val pileToDesc = describer.describe(gameStateAfter, gameStateAfter.pileFor(card)!!, title = false)
-                reportLine("\"$cardTitle\" moved from $pileFromDesc to $pileToDesc.")
+                reportLine("$cardTitle moved from $pileFromDesc to $pileToDesc.")
             }
     }
 
@@ -98,14 +98,14 @@ class GameStateDiff(
             createdCards.values.sortedBy { it.template.name }.forEach { card ->
                 val cardTitle = describer.describe(card, concise = true)
                 val pileDesc = describer.describe(gameStateAfter, gameStateAfter.pileFor(card)!!, title = false)
-                reportLine("\"$cardTitle\" was created and placed into $pileDesc.")
+                reportLine("$cardTitle was created and placed into $pileDesc.")
             }
         }
 
         allCardsBefore.filter { (id, _) -> !allCardsAfter.contains(id) }.let { destroyedCards ->
             destroyedCards.values.sortedBy { it.template.name }.forEach { card ->
                 val cardTitle = describer.describe(card, concise = true)
-                reportLine("\"$cardTitle\" was removed from the game.")
+                reportLine("$cardTitle was removed from the game.")
             }
         }
     }
