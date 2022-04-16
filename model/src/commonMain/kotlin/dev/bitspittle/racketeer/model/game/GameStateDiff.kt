@@ -34,32 +34,39 @@ class GameStateDiff(
     private fun StringBuilder.reportResources() {
         (gameStateAfter.cash - gameStateBefore.cash).let { cashDiff ->
             when {
-                cashDiff > 0 -> reportLine("You earned ${describer.describeCash(cashDiff)}")
-                cashDiff < 0 -> reportLine("You spent ${describer.describeCash(-cashDiff)}")
+                cashDiff > 0 -> reportLine("You earned ${describer.describeCash(cashDiff)}.")
+                cashDiff < 0 -> {
+                    if (gameStateAfter.turn == gameStateBefore.turn) {
+                        reportLine("You spent ${describer.describeCash(-cashDiff)}.")
+                    } else {
+                        check(gameStateAfter.cash == 0)
+                        reportLine("You lost ${describer.describeCash(-cashDiff)} that wasn't spent by the end of your turn.")
+                    }
+                }
                 else -> Unit
             }
         }
 
         (gameStateAfter.influence - gameStateBefore.influence).let { influenceDiff ->
             when {
-                influenceDiff > 0 -> reportLine("You earned ${describer.describeInfluence(influenceDiff)}")
-                influenceDiff < 0 -> reportLine("You spent ${describer.describeInfluence(-influenceDiff)}")
+                influenceDiff > 0 -> reportLine("You earned ${describer.describeInfluence(influenceDiff)}.")
+                influenceDiff < 0 -> reportLine("You spent ${describer.describeInfluence(-influenceDiff)}.")
                 else -> Unit
             }
         }
 
         (gameStateAfter.luck - gameStateBefore.luck).let { luckDiff ->
             when {
-                luckDiff > 0 -> reportLine("You earned ${describer.describeLuck(luckDiff)}")
-                luckDiff < 0 -> reportLine("You spent ${describer.describeLuck(-luckDiff)}")
+                luckDiff > 0 -> reportLine("You earned ${describer.describeLuck(luckDiff)}.")
+                luckDiff < 0 -> reportLine("You spent ${describer.describeLuck(-luckDiff)}.")
                 else -> Unit
             }
         }
 
         (gameStateAfter.vp - gameStateBefore.vp).let { vpDiff ->
             when {
-                vpDiff > 0 -> reportLine("You gained ${describer.describeVictoryPoints(vpDiff)}")
-                vpDiff < 0 -> reportLine("You lost ${describer.describeVictoryPoints(-vpDiff)}")
+                vpDiff > 0 -> reportLine("You gained ${describer.describeVictoryPoints(vpDiff)}.")
+                vpDiff < 0 -> reportLine("You lost ${describer.describeVictoryPoints(-vpDiff)}.")
                 else -> Unit
             }
         }
