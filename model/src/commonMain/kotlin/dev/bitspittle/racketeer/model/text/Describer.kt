@@ -69,6 +69,7 @@ class Describer(private val data: GameData) {
             if (upgrades.contains(UpgradeType.UNDERCOVER)) {
                 append("${data.upgradeNames.undercover}: If still in hand, this isn't discard at end of turn")
             }
+            append('.')
         }
 
         if (template.initActions.isNotEmpty()) {
