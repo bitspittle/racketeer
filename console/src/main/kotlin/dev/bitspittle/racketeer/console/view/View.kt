@@ -97,26 +97,22 @@ abstract class View(protected val ctx: GameContext) {
 
             commandsSection.currCommand.description?.let { description ->
                 bordered(borderCharacters = BorderCharacters.CURVED, paddingLeftRight = 1) {
-                    val descParts = description.split(" ")
-                    textLine(buildString {
-                        var widthSoFar = 0
-                        for (i in descParts.indices) {
-                            append(descParts[i])
-                            if (descParts[i].contains('\n')) {
-                                widthSoFar = descParts[i].substringAfterLast('\n').length
+                    val lines = description.split("\n").toMutableList()
+                    text(buildString {
+                        while (lines.isNotEmpty()) {
+                            val line = lines.removeFirst()
+                            if (line.length >= DESC_WRAP_WIDTH) {
+                                val charIndexToBreakAt = line.take(DESC_WRAP_WIDTH).lastIndexOf(' ')
+                                val firstPart = line.substring(0, charIndexToBreakAt)
+                                val secondPart = line.substring(charIndexToBreakAt + 1)
+                                lines.add(0, secondPart) // Return second part for further processing
+                                appendLine(firstPart)
                             } else {
-                                widthSoFar += descParts[i].length
-                            }
-                            if (i < descParts.lastIndex) {
-                                if (widthSoFar == 0 || widthSoFar + descParts[i + 1].length < DESC_WRAP_WIDTH) {
-                                    append(' ')
-                                    widthSoFar++
-                                } else {
-                                    append('\n')
-                                    widthSoFar = 0
-                                }
+                                appendLine(line)
                             }
                         }
+                        check(this.last() == '\n')
+                        this.deleteAt(this.lastIndex)
                     })
                 }
                 textLine()
