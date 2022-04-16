@@ -14,7 +14,7 @@ class ConfirmEndTurnView(ctx: GameContext) : View(ctx) {
 
     override fun createCommands(): List<Command> = listOf(
         object : Command(ctx) {
-            override val type = Type.Read
+            override val type = Type.Warning
 
             override val title = "Confirm"
 
