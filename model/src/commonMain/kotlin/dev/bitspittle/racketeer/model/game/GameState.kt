@@ -148,7 +148,9 @@ class GameState internal constructor(
     val discard: Pile = _discard
     val jail: Pile = _jail
 
-    fun getOwnedCards() = listOf(deck, hand, street, discard).flatMap { it.cards }
+    private val _allPiles = listOf(deck, hand, street, discard, jail)
+    val allPiles: List<Pile> = _allPiles
+    fun getOwnedCards() = (allPiles - jail).flatMap { it.cards }
 
     private val cardPiles = mutableMapOf<Uuid, MutablePile>()
     init {
@@ -164,13 +166,13 @@ class GameState internal constructor(
     // Call move without triggering card initialization, which means it doesn't need to be suspend
     @Suppress("NAME_SHADOWING")
     private fun moveNow(cards: List<Card>, toPile: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
-        val pileTo = toPile as MutablePile
+        val pileTo = _allPiles.single { it.id == toPile.id }
         // Make a copy of the list of cards, as modifying the files below may inadvertently change the list as well,
         // due to some internal, aggressive casting between piles and mutable piles
         val cards = cards.toList()
         cards.forEach { card ->
             remove(card)
-            cardPiles[card.id] = toPile
+            cardPiles[card.id] = pileTo
         }
         pileTo.cards.insert(cards, listStrategy, random)
     }
@@ -205,8 +207,8 @@ class GameState internal constructor(
     // suspend)
     @Suppress("NAME_SHADOWING")
     fun move(pileFrom: Pile, pileTo: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
-        val pileFrom = pileFrom as MutablePile
-        val pileTo = pileTo as MutablePile
+        val pileFrom = _allPiles.single { it.id == pileFrom.id }
+        val pileTo = _allPiles.single { it.id == pileTo.id }
         if (pileFrom === pileTo) {
             throw GameException("Attempting to move a pile of cards into itself")
         }

@@ -3,6 +3,7 @@ package dev.bitspittle.racketeer.model.text
 import com.benasher44.uuid.uuid4
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.game.GameData
+import dev.bitspittle.racketeer.model.game.GameState
 
 class Describer(private val data: GameData) {
     fun convertIcons(text: String): String {
@@ -186,5 +187,28 @@ class Describer(private val data: GameData) {
                 appendCardBody(card.template, card.upgrades)
             }
         }
+    }
+
+    fun describe(state: GameState, pile: Pile, title: Boolean = true): String {
+        return if (title) {
+            when (pile) {
+                state.hand -> "Hand"
+                state.deck -> "Deck"
+                state.street -> "Street"
+                state.discard -> "Discard"
+                state.jail -> "Jail"
+                else -> error("Unknown pile")
+            } + " (${pile.cards.size})"
+        } else {
+            when (pile) {
+                state.hand -> "your hand"
+                state.deck -> "your deck"
+                state.street -> "the street"
+                state.discard -> "the discard pile"
+                state.jail -> "jail"
+                else -> error("Unknown pile")
+            }
+        }
+
     }
 }
