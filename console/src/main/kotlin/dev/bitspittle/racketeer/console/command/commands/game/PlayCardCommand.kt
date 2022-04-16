@@ -1,9 +1,8 @@
 package dev.bitspittle.racketeer.console.command.commands.game
 
-import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
-import dev.bitspittle.racketeer.scripting.types.CancelPlayException
+import dev.bitspittle.racketeer.console.utils.runStateChangingAction
 
 class PlayCardCommand(ctx: GameContext, private val handIndex: Int) : Command(ctx) {
     override val type = Type.Modify
@@ -14,21 +13,8 @@ class PlayCardCommand(ctx: GameContext, private val handIndex: Int) : Command(ct
     override val description = ctx.describer.describe(card)
 
     override suspend fun invoke(): Boolean {
-        val prevState = ctx.state
-        ctx.state = prevState.copy()
-
-        ctx.env.scoped {
-            try {
-                ctx.state.play(handIndex)
-            } catch (ex: EvaluationException) {
-                ctx.state = prevState
-                if (ex.cause !is CancelPlayException) {
-                    throw ex
-                }
-            }
-            finally {
-                ctx.viewStack.currentView.refreshCommands()
-            }
+        ctx.runStateChangingAction {
+            ctx.state.play(handIndex)
         }
 
         return true

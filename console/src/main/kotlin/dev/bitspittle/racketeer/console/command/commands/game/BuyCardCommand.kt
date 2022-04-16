@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.console.command.commands.game
 
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
+import dev.bitspittle.racketeer.console.utils.runStateChangingAction
 import dev.bitspittle.racketeer.model.card.Card
 
 class BuyCardCommand(ctx: GameContext, private val card: Card) : Command(ctx) {
@@ -12,9 +13,10 @@ class BuyCardCommand(ctx: GameContext, private val card: Card) : Command(ctx) {
     override val description = ctx.describer.describe(card.template)
 
     override suspend fun invoke(): Boolean {
-        ctx.state.cash -= card.template.cost
-        ctx.state.move(card, ctx.state.discard)
-        ctx.viewStack.currentView.refreshCommands()
+        ctx.runStateChangingAction {
+            ctx.state.cash -= card.template.cost
+            ctx.state.move(card, ctx.state.discard)
+        }
         return true
     }
 }

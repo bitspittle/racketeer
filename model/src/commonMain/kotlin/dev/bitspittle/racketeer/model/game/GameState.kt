@@ -175,6 +175,8 @@ class GameState internal constructor(
         pileTo.cards.insert(cards, listStrategy, random)
     }
 
+    fun pileFor(card: Card): Pile? = cardPiles[card.id]
+
     // Needs to be suspend because it might trigger init actions
     suspend fun move(card: Card, pileTo: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
         move(listOf(card), pileTo, listStrategy)
