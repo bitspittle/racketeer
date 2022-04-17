@@ -2,14 +2,16 @@ package dev.bitspittle.racketeer.console.view
 
 import com.varabyte.kotter.foundation.input.Key
 import com.varabyte.kotter.foundation.input.Keys
+import com.varabyte.kotter.foundation.input.OnInputChangedScope
+import com.varabyte.kotter.foundation.input.OnInputEnteredScope
 import com.varabyte.kotter.foundation.text.*
+import com.varabyte.kotter.runtime.MainRenderScope
 import com.varabyte.kotter.runtime.render.RenderScope
 import com.varabyte.kotterx.decorations.BorderCharacters
 import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.views.admin.AdminMenuView
-import dev.bitspittle.racketeer.console.view.views.game.PlayCardsView
 import dev.bitspittle.racketeer.console.view.views.system.OptionsMenuView
 
 private const val DESC_WRAP_WIDTH = 60
@@ -53,6 +55,14 @@ abstract class View(protected val ctx: GameContext) {
         ctx.viewStack.currentView.refreshCommands()
     }
 
+    private inline fun runUnsafeCode(block: () -> Unit) {
+        try {
+            block()
+        } catch (ex: Exception) {
+            ctx.app.logger.error(ex.message ?: "Code threw exception without a message: ${ex::class.simpleName}")
+        }
+    }
+
     suspend fun handleKey(key: Key): Boolean {
         return when (key) {
             Keys.ESC -> {
@@ -66,11 +76,7 @@ abstract class View(protected val ctx: GameContext) {
             }
             Keys.ENTER -> {
                 if (currCommand.type != Command.Type.Disabled) {
-                    try {
-                        currCommand.invoke()
-                    } catch (ex: Exception) {
-                        ctx.app.logger.error(ex.message ?: "Code threw exception without a message: ${ex::class.simpleName}")
-                    }
+                    runUnsafeCode { currCommand.invoke() }
                     true
                 } else {
                     false
@@ -87,13 +93,24 @@ abstract class View(protected val ctx: GameContext) {
         }
     }
 
+    suspend fun handleInputChanged(onInputChangedScope: OnInputChangedScope) = runUnsafeCode {
+        doHandleInputChanged(onInputChangedScope)
+    }
+    suspend fun handleInputEntered(onInputEnteredScope: OnInputEnteredScope) = runUnsafeCode {
+        doHandleInputEntered(onInputEnteredScope)
+    }
+    protected open suspend fun doHandleInputChanged(onInputChangedScope: OnInputChangedScope) = Unit
+    protected open suspend fun doHandleInputEntered(onInputEnteredScope: OnInputEnteredScope) = Unit
+
     protected open suspend fun handleAdditionalKeys(key: Key): Boolean = false
 
-    fun renderInto(scope: RenderScope) {
+    fun renderInto(scope: MainRenderScope) {
         scope.apply {
             renderHeader()
-            renderContent()
+
+            renderContentUpper()
             commandsSection.renderInto(this)
+            renderContentLower()
 
             commandsSection.currCommand.description?.let { description ->
                 bordered(borderCharacters = BorderCharacters.CURVED, paddingLeftRight = 1) {
@@ -154,7 +171,10 @@ abstract class View(protected val ctx: GameContext) {
         }
     }
 
-    protected open fun RenderScope.renderContent() = Unit
+    /** Content (with possible `input()`) rendered just above all commands */
+    protected open fun MainRenderScope.renderContentUpper() = Unit
+    /** Content (with possible `input()`) rendered just below all commands */
+    protected open fun MainRenderScope.renderContentLower() = Unit
     protected open fun RenderScope.renderFooter() = Unit
 
     protected open fun onEscRequested() = Unit

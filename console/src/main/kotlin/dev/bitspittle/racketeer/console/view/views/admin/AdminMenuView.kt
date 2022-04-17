@@ -37,5 +37,14 @@ class AdminMenuView(ctx: GameContext) : View(ctx) {
                     return true
                 }
             },
-        )
+            object : Command(ctx) {
+                override val type = Type.ModifyAlt
+                override val title = "Open scripting console"
+                override val description: String = "Run scripts live against the current game state."
+                override suspend fun invoke(): Boolean {
+                    ctx.viewStack.pushView(ScriptingView(ctx))
+                    return true
+                }
+            },
+            )
 }

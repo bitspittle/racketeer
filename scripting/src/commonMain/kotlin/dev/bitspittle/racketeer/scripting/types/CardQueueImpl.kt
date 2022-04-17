@@ -2,12 +2,13 @@ package dev.bitspittle.racketeer.scripting.types
 
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
-import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardQueue
 import dev.bitspittle.racketeer.model.card.allPassiveActions
 import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.scripting.utils.addVariableTo
+import dev.bitspittle.racketeer.scripting.utils.addVariablesInto
 
 class CardQueueImpl(private val env: Environment) : CardQueue {
     private val actionsToRun = mutableListOf<Expr>()
@@ -72,46 +73,5 @@ class CardQueueImpl(private val env: Environment) : CardQueue {
             actionsToRun.clear()
             isRunning = false
         }
-    }
-
-    /**
-     * Add all variables related to the current game state into the environment.
-     *
-     * You probably want to do this within an [Environment.scoped] block, to avoid ever accidentally referring to stale game
-     * state from previous turns.
-     */
-    fun GameState.addVariablesInto(env: Environment) {
-        env.storeValue("\$all-cards", allCards)
-        env.storeValue("\$shop-tier", shop.tier)
-
-        env.storeValue("\$deck", deck)
-        env.storeValue("\$hand", hand)
-        env.storeValue("\$street", street)
-        env.storeValue("\$discard", discard)
-        env.storeValue("\$jail", jail)
-
-        env.storeValue("\$shop", shop.stock.filterNotNull())
-
-        env.addMethod(object : Method("\$owned", 0) {
-            override suspend fun invoke(
-                env: Environment,
-                eval: Evaluator,
-                params: List<Any>,
-                options: Map<String, Any>,
-                rest: List<Any>
-            ): Any {
-                return getOwnedCards()
-            }
-        })
-    }
-
-    /**
-     * Store the current card in the environment.
-     *
-     * You probably want to do this within an [Environment.scoped] block, tied to the lifetime of the current card being
-     * played.
-     */
-    fun Card.addVariableTo(env: Environment) {
-        env.storeValue("\$this", this)
     }
 }

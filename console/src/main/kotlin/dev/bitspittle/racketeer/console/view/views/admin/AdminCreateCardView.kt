@@ -7,6 +7,7 @@ import com.varabyte.kotter.foundation.text.black
 import com.varabyte.kotter.foundation.text.cyan
 import com.varabyte.kotter.foundation.text.text
 import com.varabyte.kotter.foundation.text.textLine
+import com.varabyte.kotter.runtime.MainRenderScope
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.admin.CreateCardCommand
@@ -52,7 +53,7 @@ class AdminCreateCardView(ctx: GameContext) : View(ctx) {
         }
     }
 
-    override fun RenderScope.renderContent() {
+    override fun MainRenderScope.renderContentUpper() {
         if (searchPrefix != "") {
             black(isBright = true) { textLine("Search: " + searchPrefix.lowercase()) }
             textLine()

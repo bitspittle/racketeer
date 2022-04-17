@@ -192,21 +192,21 @@ class Describer(private val data: GameData) {
 
     fun describe(state: GameState, pile: Pile, title: Boolean = true): String {
         return if (title) {
-            when (pile) {
-                state.hand -> "Hand"
-                state.deck -> "Deck"
-                state.street -> "Street"
-                state.discard -> "Discard"
-                state.jail -> "Jail"
+            when (pile.id) {
+                state.hand.id -> "Hand"
+                state.deck.id -> "Deck"
+                state.street.id -> "Street"
+                state.discard.id -> "Discard"
+                state.jail.id -> "Jail"
                 else -> error("Unknown pile")
             } + " (${pile.cards.size})"
         } else {
-            when (pile) {
-                state.hand -> "your hand"
-                state.deck -> "your deck"
-                state.street -> "the street"
-                state.discard -> "the discard pile"
-                state.jail -> "jail"
+            when (pile.id) {
+                state.hand.id -> "your hand"
+                state.deck.id -> "your deck"
+                state.street.id -> "the street"
+                state.discard.id -> "the discard pile"
+                state.jail.id -> "jail"
                 else -> error("Unknown pile")
             }
         }

@@ -2,7 +2,7 @@ package dev.bitspittle.racketeer.console.view.views.game
 
 import com.varabyte.kotter.foundation.text.black
 import com.varabyte.kotter.foundation.text.textLine
-import com.varabyte.kotter.runtime.render.RenderScope
+import com.varabyte.kotter.runtime.MainRenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.*
 import dev.bitspittle.racketeer.console.game.GameContext
@@ -28,7 +28,7 @@ class PlayCardsView(ctx: GameContext) : View(ctx) {
             EndTurnCommand(ctx),
         )
 
-    override fun RenderScope.renderContent() {
+    override fun MainRenderScope.renderContentUpper() {
         textLine("The Street:")
         if (ctx.state.street.cards.isNotEmpty()) {
             ctx.state.street.cards.forEach { card ->

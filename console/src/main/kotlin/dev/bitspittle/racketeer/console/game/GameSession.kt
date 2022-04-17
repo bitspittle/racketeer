@@ -1,5 +1,7 @@
 package dev.bitspittle.racketeer.console.game
 
+import com.varabyte.kotter.foundation.input.onInputChanged
+import com.varabyte.kotter.foundation.input.onInputEntered
 import com.varabyte.kotter.foundation.input.onKeyPressed
 import com.varabyte.kotter.foundation.runUntilSignal
 import com.varabyte.kotter.foundation.session
@@ -152,19 +154,37 @@ class GameSession(
         }.runUntilSignal {
             handleQuit = { signal() }
             handleRerender = { rerender() }
+
+            suspend fun rerenderView() {
+                // Minor hack, this is the wrong way to do this but at the same time it's not horrible...
+                // Basically, we can launch multiple key handlers at the same time, and occasionally two of them
+                // are related (one starts another and then blocks waiting for it to finish), both kicking off
+                // two rerenders one right after the other, causing a stutter as screens are transitioning.
+                // The delay here allows screen changes to "settle" before rerendering (although this does
+                // end up with us running a redundant rerender, but whatever)
+                delay(16)
+                rerender()
+            }
+
             onKeyPressed {
                 logRenderers.clear()
                 CoroutineScope(Dispatchers.IO).launch {
                     if (viewStack.currentView.handleKey(key)) {
-                        // Minor hack, this is the wrong way to do this but at the same time it's not horrible...
-                        // Basically, we can launch multiple key handlers at the same time, and occasionally two of them
-                        // are related (one starts another and then blocks waiting for it to finish), both kicking off
-                        // two rerenders one right after the other, causing a stutter as screens are transitioning.
-                        // The delay here allows screen changes to "settle" before rerendering (although this does
-                        // end up with us running a redundant rerender, but whatever)
-                        delay(16)
-                        rerender()
+                        rerenderView()
                     }
+                }
+            }
+
+            onInputChanged {
+                runBlocking {
+                    viewStack.currentView.handleInputChanged(this@onInputChanged)
+                    rerenderView()
+                }
+            }
+            onInputEntered {
+                runBlocking {
+                    viewStack.currentView.handleInputEntered(this@onInputEntered)
+                    rerenderView()
                 }
             }
         }

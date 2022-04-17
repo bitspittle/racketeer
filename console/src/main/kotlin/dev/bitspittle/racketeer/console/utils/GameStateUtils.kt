@@ -3,6 +3,7 @@ package dev.bitspittle.racketeer.console.utils
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.model.game.GameStateDiff
+import dev.bitspittle.racketeer.model.game.reportTo
 import dev.bitspittle.racketeer.scripting.types.CancelPlayException
 
 /**
@@ -17,7 +18,7 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
     env.scoped {
         try {
             state = nextState
-            block().also { GameStateDiff(describer, prevState, nextState).reportTo(app.logger) }
+            block().also { GameStateDiff(prevState, nextState).reportTo(describer, app.logger) }
         } catch (ex: Exception) {
             state = prevState
             @Suppress("KotlinConstantConditions") // IntelliJ's warning is wrong here

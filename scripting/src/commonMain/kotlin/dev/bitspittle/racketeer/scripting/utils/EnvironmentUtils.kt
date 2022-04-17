@@ -60,3 +60,44 @@ fun Environment.installGameLogic(service: GameService) {
     // Text
     addMethod(IconConvertMethod(service.describer))
 }
+
+/**
+ * Add all variables related to the current game state into the environment.
+ *
+ * You probably want to do this within an [Environment.scoped] block, to avoid ever accidentally referring to stale game
+ * state from previous turns.
+ */
+fun GameState.addVariablesInto(env: Environment) {
+    env.storeValue("\$all-cards", allCards, allowOverwrite = true)
+    env.storeValue("\$shop-tier", shop.tier, allowOverwrite = true)
+
+    env.storeValue("\$deck", deck, allowOverwrite = true)
+    env.storeValue("\$hand", hand, allowOverwrite = true)
+    env.storeValue("\$street", street, allowOverwrite = true)
+    env.storeValue("\$discard", discard, allowOverwrite = true)
+    env.storeValue("\$jail", jail, allowOverwrite = true)
+
+    env.storeValue("\$shop", shop.stock.filterNotNull(), allowOverwrite = true)
+
+    env.addMethod(object : Method("\$owned", 0) {
+        override suspend fun invoke(
+            env: Environment,
+            eval: Evaluator,
+            params: List<Any>,
+            options: Map<String, Any>,
+            rest: List<Any>
+        ): Any {
+            return getOwnedCards()
+        }
+    }, allowOverwrite = true)
+}
+
+/**
+ * Store the current card in the environment.
+ *
+ * You probably want to do this within an [Environment.scoped] block, tied to the lifetime of the current card being
+ * played.
+ */
+fun Card.addVariableTo(env: Environment) {
+    env.storeValue("\$this", this)
+}
