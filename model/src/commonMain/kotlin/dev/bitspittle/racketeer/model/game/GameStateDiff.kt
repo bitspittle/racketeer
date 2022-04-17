@@ -72,6 +72,7 @@ class GameStateDiff(
         }
     }
 
+    @Suppress("NAME_SHADOWING")
     private fun StringBuilder.reportMovedCards(
         allCardsBefore: Map<Uuid, Card>,
         allCardsAfter: Map<Uuid, Card>
@@ -84,7 +85,7 @@ class GameStateDiff(
             .groupBy { card ->
                 gameStateBefore.pileFor(card)!! to gameStateAfter.pileFor(card)!!
             }
-            .filter { (transfer, cards) ->
+            .filter { (transfer, _) ->
                 transfer.first.id != transfer.second.id
             }
 

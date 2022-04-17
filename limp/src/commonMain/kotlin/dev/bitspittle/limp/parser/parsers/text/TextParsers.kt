@@ -63,6 +63,7 @@ class WordParser : Parser<String> {
 }
 
 class IntParser : Parser<Int> {
+    @Suppress("NAME_SHADOWING")
     override fun tryParse(ctx: ParserContext): ParseResult<Int>? {
         var ctx = ctx
         val isNegative = EatCharParser('-').tryParse(ctx)?.let { result ->

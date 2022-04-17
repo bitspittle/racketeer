@@ -120,8 +120,6 @@ class Describer(private val data: GameData) {
         }
     }
     private fun StringBuilder.appendCardName(name: String, upgrades: Set<UpgradeType>, concise: Boolean) {
-        val nameStart = this.length
-
         if (!concise) {
             if (upgrades.contains(UpgradeType.CASH)) {
                 append("${data.upgradeNames.cash} ")

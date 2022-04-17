@@ -10,6 +10,7 @@ class JoinToStringMethod : Method("join-to-string", 1) {
         val list = env.expectConvert<List<Any>>(params[0])
         val separator = options["separator"]?.let { env.expectConvert(it)} ?: ", "
         val format = options["format"]?.let { env.expectConvert<Expr>(it)}
+        @Suppress("NAME_SHADOWING")
         return (format?.let { format ->
             list.map { item ->
                 env.scoped { // Don't let values defined during the lambda escape

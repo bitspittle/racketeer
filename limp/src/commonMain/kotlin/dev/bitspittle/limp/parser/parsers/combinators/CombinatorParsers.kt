@@ -24,6 +24,7 @@ class EitherParser<T: Any>(private val parser1: Parser<T>, private val parser2: 
  * A special parser chain which doesn't care what is produced, just that all parsers matched.
  */
 class EatIfMatchAllParser(private vararg val parsers: Parser<*>) : Parser<Unit> {
+    @Suppress("NAME_SHADOWING")
     override fun tryParse(ctx: ParserContext): ParseResult<Unit>? {
         var ctx = ctx
         parsers.forEach { parser ->
@@ -62,6 +63,7 @@ class PredicateParser<T: Any>(private val parser: Parser<T>, private val predica
 fun <T: Any> Parser<T>.withPredicate(predicate: (T) -> Boolean) = PredicateParser(this, predicate)
 
 class RepeatedParser<T: Any>(private val parser: Parser<T>, private val countRange: IntRange) : Parser<List<T>> {
+    @Suppress("NAME_SHADOWING")
     override fun tryParse(ctx: ParserContext): ParseResult<List<T>>? {
         var ctx = ctx
         val collected = mutableListOf<T>()
