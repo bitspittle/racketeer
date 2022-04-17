@@ -243,7 +243,8 @@ class GameState internal constructor(
         }
 
         if (remainingCount > 0) {
-            move(_discard, _deck, ListStrategy.RANDOM)
+            // Shuffle the discard pile and move it to the back of the deck!
+            moveNow(_discard.cards.shuffled(random), _deck)
         }
 
         _deck.cards.take(remainingCount).let { cards ->
