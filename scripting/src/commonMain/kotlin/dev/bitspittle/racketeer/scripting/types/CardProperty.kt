@@ -8,4 +8,5 @@ enum class CardProperty {
     TYPES,
     VP,
     VP_PASSIVE,
+    VP_TOTAL,
 }

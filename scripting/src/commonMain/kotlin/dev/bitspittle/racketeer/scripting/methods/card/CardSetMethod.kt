@@ -30,7 +30,7 @@ class CardSetMethod : Method("card-set!", 3) {
             val currValue = when (property) {
                 CardProperty.VP -> card.vp
                 CardProperty.VP_PASSIVE -> card.vpPassive
-                CardProperty.COST, CardProperty.TIER, CardProperty.TYPES, CardProperty.NAME, CardProperty.ID  -> throw EvaluationException(
+                CardProperty.COST, CardProperty.TIER, CardProperty.TYPES, CardProperty.NAME, CardProperty.ID, CardProperty.VP_TOTAL  -> throw EvaluationException(
                     identifier.ctx, "Cannot set this card's property as it is read-only."
                 )
             }

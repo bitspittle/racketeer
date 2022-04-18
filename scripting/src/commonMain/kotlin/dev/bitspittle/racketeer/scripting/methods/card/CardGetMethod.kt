@@ -6,6 +6,7 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.card.vpTotal
 import dev.bitspittle.racketeer.scripting.converters.CardTemplateToCardConverter
 import dev.bitspittle.racketeer.scripting.types.CardProperty
 
@@ -32,6 +33,7 @@ class CardGetMethod : Method("card-get", 2) {
             CardProperty.TYPES -> card.template.types
             CardProperty.VP -> card.vp
             CardProperty.VP_PASSIVE -> card.vpPassive
+            CardProperty.VP_TOTAL -> card.vpTotal
         }
     }
 }
