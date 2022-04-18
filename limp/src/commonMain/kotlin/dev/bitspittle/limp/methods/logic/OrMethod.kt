@@ -4,7 +4,7 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 
-class OrMethod : Method("or", 2) {
+class OrMethod : Method("||", 2) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
