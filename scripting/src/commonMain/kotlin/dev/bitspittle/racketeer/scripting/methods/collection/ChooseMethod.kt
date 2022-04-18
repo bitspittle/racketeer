@@ -5,6 +5,7 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.converters.IntToIntRangeConverter
 import dev.bitspittle.limp.converters.PlaceholderConverter
+import dev.bitspittle.limp.types.Logger
 
 interface ChooseHandler {
     /**
@@ -20,7 +21,7 @@ interface ChooseHandler {
  *
  * This method is mostly a shell which delegates to a caller to fill out!
  */
-class ChooseMethod(private val chooseHandler: ChooseHandler) : Method("choose", 2) {
+class ChooseMethod(private val logger: Logger, private val chooseHandler: ChooseHandler) : Method("choose", 2) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
@@ -34,6 +35,11 @@ class ChooseMethod(private val chooseHandler: ChooseHandler) : Method("choose", 
             env.addConverter(PlaceholderConverter(1 .. Int.MAX_VALUE))
             env.addConverter(IntToIntRangeConverter())
             env.expectConvert<IntRange>(params[1])
+        }
+
+        if (range.first <= 0 && range.last <= 0) {
+            logger.warn("Requested choosing no items at all. Was this intentional? Did you forget to use a `..` operator?")
+            return listOf<Any>()
         }
 
         if (list.isEmpty() && range.first <= 0) {

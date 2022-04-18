@@ -28,7 +28,7 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(CancelMethod())
 
     // Collection
-    addMethod(ChooseMethod(service.chooseHandler))
+    addMethod(ChooseMethod(service.logger, service.chooseHandler))
 
     // Game
     addMethod(GameGetMethod(service::gameState))
