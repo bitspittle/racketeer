@@ -63,6 +63,16 @@ ratingScores:
   - 40 # S
 
 globalActions:
+  # yaml freaks out a bit about some characters (e.g. | or >, which it tries to interpret), so define non-symbol
+  # versions of everything in case that helps avoid those cases without needing to wrap things in quotes
+  - "def 'and? '$a '$b '(&& $a $b)"
+  - "def 'or? '$a '$b '(|| $a $b)"
+  - "def 'eq? '$a '$b '(= $a $b)"
+  - "def 'ne? '$a '$b '(!= $a $b)"
+  - "def 'lt? '$a '$b '(< $a $b)"
+  - "def 'lte? '$a '$b '(<= $a $b)"
+  - "def 'gt? '$a '$b '(> $a $b)"
+  - "def 'gte? '$a '$b '(>= $a $b)"
   - def 'game-add! '$property '$amount '(game-set! $property '(+ $it $amount))
   - def 'game-sub! '$property '$amount '(game-set! $property '(- $it $amount))
   - def 'card-add! '$card '$property '$amount '(card-set! $card $property '(+ $it $amount))
@@ -75,7 +85,8 @@ globalActions:
   - def 'card-has-any-of-types? '$card '$types '(any? (card-get $card 'types) '(in? $types $it))
   - def 'card-has-all-types? '$card '$types '(all? (card-get $card 'types) '(in? $types $it))
   - def 'card-upgrade-count '$card '(count (list (card-has-upgrade? $card 'cash) (card-has-upgrade? $card 'influence) (card-has-upgrade? $card 'luck) (card-has-upgrade? $card 'undercover)) '(= $it true))
-  - "def 'card-has-any-upgrade? '$card '(> (card-upgrade-count $card) 0)"
+  - def 'card-has-any-upgrade? '$card '(gt? (card-upgrade-count $card) 0)
+  - def 'card-named '$name '(single (filter $all-cards '(= card-get $it 'name $name)) _)
 
 cards:
   # TIER 1
@@ -570,15 +581,14 @@ cards:
       - game-add! 'luck 2
 
 
-#  - name: Jailbreak
-#    tier: 4
-#    rarity: 2
-#    types: [action]
-#    cost: 6
-#    flavor: Put any number of cards from Jail into your hand.
-#    playActions:
-#      - pile-move-to! $hand (choose --prompt "Choose cards to get out of jail." $jail 0 _)
-
+  - name: Jailbreak
+    tier: 4
+    rarity: 2
+    types: [action]
+    cost: 6
+    flavor: Put any number of cards from Jail into your hand.
+    playActions:
+      - pile-move-to! $hand (choose --prompt "Choose cards to get out of jail." $jail 0 _)
 
   - name: Corner the Market
     tier: 4
@@ -599,24 +609,23 @@ cards:
     playActions:
       - game-add! 'cash 5
 
-#  - Left Sapphire Earring
-#    tier: 4
-#    rarity: 1
-#    types: [treasure]
-#    cost: 7
-#    vp: 6
-#    flavor: When you get this, also get a Right Sapphire Earring.
-#    initActions: 
-#      - pile-copy-to! $discard (single (filter $all-cards '(= card-get $it 'name "Right Sapphire Earring")) _ )
+  - name: Left Sapphire Earring
+    tier: 4
+    rarity: 1
+    types: [treasure]
+    cost: 7
+    vp: 6
+    flavor: When you get this, also get a Right Sapphire Earring.
+    initActions:
+      - pile-copy-to! $discard card-named "Right Sapphire Earring"
 
-
-#  - Right Sapphire Earring
-#    tier: 99
-#    rarity: 1
-#    types: [treasure]
-#    cost: 7
-#    vp: 6
-#    flavor: It looks a lot like the left one.
+  - name: Right Sapphire Earring
+    tier: 4
+    rarity: 1
+    types: [treasure]
+    cost: 0
+    vp: 6
+    flavor: It looks a lot like the left one.
 
   - name: Diamond
     tier: 4
