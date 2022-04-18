@@ -15,7 +15,7 @@ class GameStateDiff(val before: GameState, val after: GameState) {
     }
 
     fun hasNoChanges(): Boolean {
-        return vp == 0
+        return cash == 0
                 && influence == 0
                 && luck == 0
                 && vp == 0
@@ -100,13 +100,13 @@ private class GameStateDiffReporter(
         }
 
         when {
-            diff.luck > 0 -> reportLine("You earned ${describer.describeInfluence(diff.luck)}.")
-            diff.luck < 0 -> reportLine("You spent ${describer.describeInfluence(-diff.luck)}.")
+            diff.luck > 0 -> reportLine("You earned ${describer.describeLuck(diff.luck)}.")
+            diff.luck < 0 -> reportLine("You spent ${describer.describeLuck(-diff.luck)}.")
         }
 
         when {
-            diff.vp > 0 -> reportLine("You gained ${describer.describeInfluence(diff.vp)}.")
-            diff.vp < 0 -> reportLine("You lost ${describer.describeInfluence(-diff.vp)}.")
+            diff.vp > 0 -> reportLine("You gained ${describer.describeLuck(diff.vp)}.")
+            diff.vp < 0 -> reportLine("You lost ${describer.describeLuck(-diff.vp)}.")
         }
     }
 
