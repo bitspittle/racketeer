@@ -184,7 +184,7 @@ class GameState internal constructor(
         move(listOf(card), pileTo, listStrategy)
     }
 
-    private suspend fun updateVictoryPoints() {
+    suspend fun updateVictoryPoints() {
         val owned = getOwnedCards()
         owned.forEach { cardQueue.enqueuePassiveActions(it) }
         cardQueue.runEnqueuedActions(this@GameState)

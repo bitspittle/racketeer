@@ -15,6 +15,7 @@ import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.card.Pile
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.GameStateDiff
+import dev.bitspittle.racketeer.model.game.reportTo
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.utils.addVariablesInto
 
@@ -24,7 +25,7 @@ private class ScriptingCommand(
     override val title: String,
     description: String,
     private val isDisabled: () -> Boolean = { false },
-    private val action: () -> Unit
+    private val action: suspend () -> Unit
 ) : Command(ctx) {
     override val type: Type get() = if (inEditingMode() || isDisabled()) Type.Disabled else Type.Warning
     private val _description = description
@@ -71,6 +72,7 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
             "Make a backup snapshot of the current game that you can restore to if you screw something up.",
             isDisabled = { latestDiff.hasNoChanges() },
         ) {
+            ctx.state.updateVictoryPoints()
             stateSnapshot = ctx.state.copy()
             latestDiff = GameStateDiff(ctx.state, stateSnapshot)
         },
@@ -81,6 +83,7 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
             "Return to the last snapshot that you took.",
             isDisabled = { latestDiff.hasNoChanges() },
         ) {
+            ctx.state.updateVictoryPoints()
             ctx.state = stateSnapshot.copy()
             latestDiff = GameStateDiff(ctx.state, stateSnapshot)
         },
@@ -114,6 +117,7 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
             ctx.state.addVariablesInto(ctx.env)
             val evaluator = Evaluator()
             val result = evaluator.evaluate(ctx.env, input)
+            ctx.state.updateVictoryPoints()
             latestDiff = GameStateDiff(stateSnapshot, ctx.state)
 
             previousActions.add(input)
@@ -169,6 +173,8 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
     override fun onEscRequested() {
         ctx.env.popScope() // Pop user scope
         ctx.env.popScope() // Pop scripting scope
+
+        latestDiff.reportTo(ctx.describer, ctx.app.logger)
     }
 }
 
