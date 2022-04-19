@@ -20,6 +20,7 @@ data class CardTemplate(
     val vp: Int = 0,
     val passiveVp: String? = null,
     val cost: Int = 0,
+    val upgrades: List<String> = listOf(),
     val initActions: List<String> = listOf(),
     val playActions: List<String> = listOf(),
     val passiveActions: List<String> = listOf(),

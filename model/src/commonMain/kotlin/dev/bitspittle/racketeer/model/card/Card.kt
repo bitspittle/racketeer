@@ -14,7 +14,11 @@ class Card private constructor(
     vpBonus: Int,
     counter: Int,
     val upgrades: MutableSet<UpgradeType>): Comparable<Card> {
-    internal constructor(template: CardTemplate) : this(template, uuid4(), template.vp, 0, 0, mutableSetOf())
+    internal constructor(template: CardTemplate) : this(template, uuid4(), template.vp, 0, 0,
+        template.upgrades.map { upgradeStr ->
+            UpgradeType.values().first { it.name.compareTo(upgradeStr, ignoreCase = true) == 0 }
+        }.toMutableSet()
+    )
 
     /**
      * Cards can earn victory points over the course of the game via upgrades and rewards from other cards.

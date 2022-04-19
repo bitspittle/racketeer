@@ -3,6 +3,7 @@ package dev.bitspittle.racketeer.model.game
 import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.card.Rarity
 import dev.bitspittle.racketeer.model.card.UpgradeNames
+import dev.bitspittle.racketeer.model.card.UpgradeType
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import net.mamoe.yamlkt.Yaml
@@ -134,11 +135,17 @@ data class GameData(
         cards.forEach { card ->
             require(card.types.isNotEmpty()) { "Card named \"${card.name}\" needs to have a type." }
             card.types.forEach { type ->
-                if (cardTypes.count { it.compareTo(type, ignoreCase = true) == 0 } == 0) {
-                    error("The card named \"${card.name}\" has an invalid type \"$type\" defined on it. Should be one of: $cardTypes")
+                if (cardTypes.none { it.compareTo(type, ignoreCase = true) == 0 }) {
+                    error("The card named \"${card.name}\" has an invalid type \"$type\" defined on it. Should be one of: ${cardTypes.map { it.lowercase() }.sorted()}")
                 }
             }
             require(card.rarity in rarities.indices) { "Rarity value must be between 0 and ${rarities.lastIndex}"}
+
+            card.upgrades.forEach { upgrade ->
+                if (UpgradeType.values().map { it.name }.none { it.compareTo(upgrade, ignoreCase = true) == 0 }) {
+                    error("The card named \"${card.name}\" has an invalid upgrade \"$upgrade\" defined on it. Should be one of: ${UpgradeType.values().map { it.name.lowercase() }.sorted()}")
+                }
+            }
         }
         cards.groupBy { it.name }.let { namedCards ->
             namedCards.forEach { (name, cards) ->

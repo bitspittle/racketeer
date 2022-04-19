@@ -94,16 +94,13 @@ private class GameStateDiffReporter(
 
     private fun StringBuilder.reportChangedCards() {
         diff.changedCards.forEach { (cardBefore, cardAfter) ->
-            (cardAfter.upgrades - cardBefore.upgrades).let { describer.describeUpgradesTitle(it) }
-                ?.let { upgradesText ->
-                    reportLine("${cardAfter.template.name} was upgraded, becoming: $upgradesText.")
-                }
+            (cardAfter.upgrades - cardBefore.upgrades).takeIf { it.isNotEmpty() }?.let { upgrades ->
+                reportLine("${cardAfter.template.name} was upgraded, adding: ${describer.describeUpgradesTitle(upgrades)}")
+            }
 
-            (cardBefore.upgrades - cardAfter.upgrades).let { describer.describeUpgradesTitle(it) }
-                ?.let { downgradesText ->
-                    reportLine("${cardAfter.template.name} was downgraded, losing: $downgradesText.")
-                }
-
+            (cardBefore.upgrades - cardAfter.upgrades).takeIf { it.isNotEmpty() }?.let { downgrades ->
+                reportLine("${cardAfter.template.name} was downgraded, removing: ${describer.describeUpgradesTitle(downgrades)}")
+            }
 
             (cardAfter.vpTotal - cardBefore.vpTotal).let { vpDiff ->
                 when {

@@ -21,7 +21,8 @@ class Describer(private val data: GameData) {
             UpgradeType.CASH -> if (icons) data.icons.cash else data.upgradeNames.cash
             UpgradeType.INFLUENCE -> if (icons) data.icons.influence else data.upgradeNames.influence
             UpgradeType.LUCK -> if (icons) data.icons.luck else data.upgradeNames.luck
-            else -> null // Ignore highlighting minor upgrades
+            UpgradeType.JAILBIRD -> if (icons) null else data.upgradeNames.jailbird
+            UpgradeType.UNDERCOVER -> if (icons) null else data.upgradeNames.undercover
         }
     }
     fun describeUpgradeBody(upgrade: UpgradeType): String {
