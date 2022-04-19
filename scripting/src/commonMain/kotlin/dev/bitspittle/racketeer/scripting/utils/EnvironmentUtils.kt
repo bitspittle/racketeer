@@ -13,6 +13,7 @@ import dev.bitspittle.racketeer.scripting.methods.effect.FxAddMethod
 import dev.bitspittle.racketeer.scripting.methods.game.*
 import dev.bitspittle.racketeer.scripting.methods.pile.PileCopyToMethod
 import dev.bitspittle.racketeer.scripting.methods.pile.PileMoveToMethod
+import dev.bitspittle.racketeer.scripting.methods.shop.ShopExcludeMethod
 import dev.bitspittle.racketeer.scripting.methods.shop.ShopRerollMethod
 import dev.bitspittle.racketeer.scripting.methods.system.CancelMethod
 import dev.bitspittle.racketeer.scripting.methods.system.StopMethod
@@ -55,6 +56,7 @@ fun Environment.installGameLogic(service: GameService) {
 
     // Shop
     addMethod(ShopRerollMethod(service.gameState::shop))
+    addMethod(ShopExcludeMethod(service.gameState::shop))
     (0..4).forEach { i -> storeValue("\$tier${i + 1}", i) }
 
     // Text

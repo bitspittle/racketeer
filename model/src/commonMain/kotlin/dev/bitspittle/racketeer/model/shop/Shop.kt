@@ -8,8 +8,9 @@ import kotlin.random.Random
 interface Shop {
     val tier: Int
     val stock: List<Card?>
-    fun upgrade(): Boolean
-    fun restockNow(restockAll: Boolean = true, additionalFilter: (CardTemplate) -> Boolean = { true }): Boolean
+    val exclusions: List<String>
+    fun addExclusion(exclusion: Exclusion)
+    suspend fun upgrade(): Boolean
     suspend fun restock(restockAll: Boolean = true, additionalFilter: suspend (CardTemplate) -> Boolean = { true }): Boolean
 }
 
@@ -20,7 +21,9 @@ class MutableShop private constructor(
     private val tierFrequencies: List<Int>,
     private val rarityFrequencies: List<Int>,
     tier: Int,
-    override val stock: MutableList<Card?>) : Shop {
+    override val stock: MutableList<Card?>,
+    private val _exclusions: MutableList<Exclusion>,
+) : Shop {
     constructor(random: Random, allCards: List<CardTemplate>, shopSizes: List<Int>, tierFrequencies: List<Int>, rarityFrequencies: List<Int>) : this(
         random,
         allCards,
@@ -28,13 +31,16 @@ class MutableShop private constructor(
         tierFrequencies,
         rarityFrequencies,
         0,
-        mutableListOf()
+        mutableListOf(),
+        mutableListOf(),
     ) {
-        restockNow()
+        handleRestock(restockAll = true, filterAllCards { true })
     }
 
     override var tier: Int = tier
         private set
+
+    override val exclusions get() = _exclusions.map { it.desc }
 
     private fun handleRestock(restockAll: Boolean, possibleNewStock: MutableMap<Int, MutableList<CardTemplate>>): Boolean {
         if (!restockAll && stock.size == shopSizes[tier]) return false // Shop is full; incremental restock fails
@@ -76,17 +82,17 @@ class MutableShop private constructor(
 
     private inline fun filterAllCards(additionalFilter: (CardTemplate) -> Boolean): MutableMap<Int, MutableList<CardTemplate>> {
         return allCards
-            .filter { it.cost > 0 && it.tier <= this.tier && additionalFilter(it) }
+            .filter { card -> card.cost > 0 && card.tier <= this.tier && additionalFilter(card) }
             .groupByTo(mutableMapOf()) { it.tier }
     }
 
-    override fun restockNow(restockAll: Boolean, additionalFilter: (CardTemplate) -> Boolean): Boolean {
-        return handleRestock(restockAll, filterAllCards(additionalFilter))
+    override suspend fun restock(restockAll: Boolean, additionalFilter: suspend (CardTemplate) -> Boolean): Boolean {
+        return handleRestock(
+            restockAll,
+            filterAllCards { card -> additionalFilter(card) && _exclusions.none { exclude -> exclude(card) } })
     }
 
-    override suspend fun restock(restockAll: Boolean, additionalFilter: suspend (CardTemplate) -> Boolean): Boolean {
-        return handleRestock(restockAll, filterAllCards { additionalFilter(it) })
-    }
+    override fun addExclusion(exclusion: Exclusion) { _exclusions.add(exclusion) }
 
     fun remove(cardId: Uuid) {
         for (i in stock.indices) {
@@ -98,14 +104,23 @@ class MutableShop private constructor(
         }
     }
 
-    override fun upgrade(): Boolean {
+    override suspend fun upgrade(): Boolean {
         if (tier >= shopSizes.size - 1) return false
 
         ++tier
         // New slot should ALWAYS contain a card from the new tier
-        restockNow(restockAll = false) { card -> card.tier == tier }
+        restock(restockAll = false) { card -> card.tier == tier }
         return true
     }
 
-    fun copy() = MutableShop(random, allCards, shopSizes, tierFrequencies, rarityFrequencies, tier, stock.toMutableList())
+    fun copy() = MutableShop(
+        random,
+        allCards,
+        shopSizes,
+        tierFrequencies,
+        rarityFrequencies,
+        tier,
+        stock.toMutableList(),
+        _exclusions.toMutableList()
+    )
 }

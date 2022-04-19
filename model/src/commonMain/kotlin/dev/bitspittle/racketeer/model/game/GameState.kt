@@ -270,7 +270,7 @@ class GameState internal constructor(
         updateVictoryPoints()
     }
 
-    fun endTurn(): Boolean {
+    suspend fun endTurn(): Boolean {
         if (turn >= numTurns - 1) return false
 
         turn++
@@ -279,7 +279,7 @@ class GameState internal constructor(
         _streetEffects.clear()
         move(_street, _discard)
         moveNow(_hand.cards.filter { !it.isPatient() }, _discard)
-        shop.restockNow()
+        shop.restock()
 
         return true
     }

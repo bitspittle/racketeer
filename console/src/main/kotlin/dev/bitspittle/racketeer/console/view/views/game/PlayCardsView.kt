@@ -31,11 +31,13 @@ class PlayCardsView(ctx: GameContext) : View(ctx) {
     override fun MainRenderScope.renderContentUpper() {
         textLine("The Street:")
         if (ctx.state.street.cards.isNotEmpty()) {
+            if (ctx.state.streetEffects.isNotEmpty()) {
+                ctx.state.streetEffects.forEach { effect ->
+                    textLine("+ $effect")
+                }
+            }
             ctx.state.street.cards.forEach { card ->
                 textLine("- ${ctx.describer.describe(card, concise = true)}")
-            }
-            if (ctx.state.streetEffects.isNotEmpty()) {
-                textLine("... and ${ctx.state.streetEffects.size} effect(s)")
             }
         } else {
             black(isBright = true) { textLine("(Empty)") }
