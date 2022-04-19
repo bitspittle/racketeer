@@ -72,6 +72,20 @@ class Environment {
         convertersStack.removeLast()
     }
 
+    fun getMethodNames(): Set<String> {
+        return methodsStack.reversed().asSequence()
+            .filterNotNull()
+            .flatMap { methods -> methods.keys.asSequence() }
+            .toSet()
+    }
+
+    fun getVariableNames(): Set<String> {
+        return variablesStack.reversed().asSequence()
+            .filterNotNull()
+            .flatMap { variables -> variables.keys.asSequence() }
+            .toSet()
+    }
+
     private fun findMethod(name: String): Method? {
         return methodsStack.reversed().asSequence()
             .filterNotNull()

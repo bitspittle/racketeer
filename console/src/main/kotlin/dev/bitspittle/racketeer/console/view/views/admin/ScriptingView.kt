@@ -8,6 +8,7 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.trie.MutableTextTree
+import dev.bitspittle.racketeer.console.trie.TextTreeCursor
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
@@ -52,8 +53,17 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
     private var stateSnapshot = ctx.state.copy()
     private var latestDiff = GameStateDiff(ctx.state, stateSnapshot)
 
-    private val symbolWordTree = MutableTextTree()
-    private val cardNameWordTree = MutableTextTree()
+    private val symbolTextTree = MutableTextTree()
+    init { refreshSymbolTextTree() }
+    private val stringTextTree = MutableTextTree().apply {
+        ctx.data.cards.forEach { card -> this.add(card.name) }
+    }
+    private var textCursor: TextTreeCursor? = null
+    private val inputCompleter = object : InputCompleter {
+        override fun complete(input: String): String? {
+            return textCursor?.let { it.curr?.drop(it.prefix.length) }
+        }
+    }
 
     override fun createCommands(): List<Command> = listOf(
         ScriptingCommand(
@@ -95,14 +105,21 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
         scopedState {
             if (!inEditingMode) black(isBright = true)
 
-            previousActions.forEach { action ->
-                textLine("- $action")
-            }
-            lastResultLog?.let { lastResultLog ->
-                if (inEditingMode) green { textLine(lastResultLog) }
+            if (previousActions.isNotEmpty()) {
+                previousActions.forEach { action ->
+                    textLine("- $action")
+                }
+                lastResultLog?.let { lastResultLog ->
+                    if (inEditingMode) green { textLine(lastResultLog) }
+                }
+                textLine()
             }
             text("- ")
-            input(isActive = inEditingMode); text(inputSuffix); textLine()
+            yellow {
+                input(completer = inputCompleter, isActive = inEditingMode)
+                text(inputSuffix)
+                textLine()
+            }
         }
         textLine()
     }
@@ -111,13 +128,18 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
         var openedParensCount = 0
         var inString = false
 
-        val remaining = input.toCharArray().reversed().toMutableList()
-        while (remaining.isNotEmpty()) {
-            when (remaining.removeLast()) {
-                '(' -> if (!inString) { ++openedParensCount }
-                ')' -> if (!inString) { --openedParensCount }
-                '"' -> inString = !inString
-                '\\' -> remaining.removeLastOrNull() // Eat next char, it's not for us to count
+        input.toCharArray().toMutableList().let { remaining ->
+            while (remaining.isNotEmpty()) {
+                when (remaining.removeFirst()) {
+                    '(' -> if (!inString) {
+                        ++openedParensCount
+                    }
+                    ')' -> if (!inString) {
+                        --openedParensCount
+                    }
+                    '"' -> inString = !inString
+                    '\\' -> remaining.removeFirstOrNull() // Eat next char, it's not for us to count
+                }
             }
         }
 
@@ -126,6 +148,33 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
                 append('"')
             }
             repeat(openedParensCount.coerceAtLeast(0)) { append(')')}
+        }
+
+        textCursor = null
+        input.takeLastWhile { !it.isWhitespace() }.let { lastWord ->
+            @Suppress("NAME_SHADOWING")
+            var lastWord = lastWord
+            while (textCursor == null && lastWord.isNotEmpty()) {
+                when (lastWord.first()) {
+                    '"' -> {
+                        val str = lastWord.drop(1)
+                        textCursor = stringTextTree.cursor(str)
+                    }
+                    '\'', '(' -> {
+                        lastWord = lastWord.drop(1)
+                    }
+                    else -> {
+                        textCursor = symbolTextTree.cursor(lastWord)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun refreshSymbolTextTree() {
+        symbolTextTree.clear()
+        (ctx.env.getMethodNames() + ctx.env.getVariableNames()).forEach { name ->
+            symbolTextTree.add(name)
         }
     }
 
@@ -148,6 +197,8 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
             ctx.env.storeValue("\$last", result, allowOverwrite = true)
             lastResultLog = "\$last = ${stringifier.toString(result)}"
         }
+        refreshSymbolTextTree()
+
         inputSuffix = ""
         clearInput()
     }
@@ -157,6 +208,12 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
             inEditingMode = !inEditingMode
             true
         } else {
+            if (inEditingMode) {
+                when (key) {
+                    Keys.UP -> textCursor?.prev()
+                    Keys.DOWN -> textCursor?.next()
+                }
+            }
             inEditingMode // Swallow all the keys if we're in editing mode; otherwise, let the system act as normal
         }
     }
@@ -174,6 +231,7 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
         ctx.env.pushScope() // Push scope with special scripting methods added to it
         defineSpecialMethods()
         ctx.env.pushScope() // Push new scope for user
+        ctx.state.addVariablesInto(ctx.env)
         // See: onEscRequested for teardown
     }
 
