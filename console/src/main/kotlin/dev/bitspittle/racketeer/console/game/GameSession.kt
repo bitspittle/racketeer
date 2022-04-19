@@ -110,13 +110,13 @@ class GameSession(
             override val cardQueue get() = ctx.cardQueue
             override val chooseHandler
                 get() = object : ChooseHandler {
-                    override suspend fun query(prompt: String?, list: List<Any>, range: IntRange): List<Any> {
+                    override suspend fun query(prompt: String?, list: List<Any>, range: IntRange, requireChoice: Boolean): List<Any>? {
                         return suspendCoroutine { choices ->
                             viewStack.pushView(
                                 if (range.first == range.last && range.first == 1) {
-                                    PickItemView(ctx, prompt, list, choices)
+                                    PickItemView(ctx, prompt, list, choices, requireChoice)
                                 } else {
-                                    ChooseItemsView(ctx, prompt, list, range, choices)
+                                    ChooseItemsView(ctx, prompt, list, range, choices, requireChoice)
                                 }
                             )
                             handleRerender()

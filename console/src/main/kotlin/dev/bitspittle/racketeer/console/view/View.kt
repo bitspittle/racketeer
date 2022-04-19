@@ -30,6 +30,8 @@ abstract class View(protected val ctx: GameContext) {
     protected open val title: String? = null
     protected open val subtitle: String? = null
     protected open val heading: String? = null
+    protected open val allowGoBack: Boolean = true
+
     protected val currCommand get() = commandsSection.currCommand
     protected var currIndex
         get() = commandsSection.currIndex
@@ -66,7 +68,7 @@ abstract class View(protected val ctx: GameContext) {
     suspend fun handleKey(key: Key): Boolean {
         return when (key) {
             Keys.ESC -> {
-                if (ctx.viewStack.canGoBack) {
+                if (ctx.viewStack.canGoBack && allowGoBack) {
                     onEscRequested()
                     goBack()
                 } else {
@@ -138,7 +140,8 @@ abstract class View(protected val ctx: GameContext) {
             renderFooter()
 
             text("Press "); cyan { text("ESC") }
-            if (ctx.viewStack.canGoBack) textLine(" to go back.") else textLine(" to open options.") }
+            if (ctx.viewStack.canGoBack && allowGoBack) textLine(" to go back.") else textLine(" to open options.")
+        }
     }
 
     private fun RenderScope.renderHeader() {

@@ -12,6 +12,7 @@ import dev.bitspittle.limp.types.ConsoleLogger
 import dev.bitspittle.limp.types.Placeholder
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseMethod
+import dev.bitspittle.racketeer.scripting.types.CancelPlayException
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -22,9 +23,14 @@ class CollectionMethodsTest {
     fun testChooseMethod() = runTest {
         val env = Environment()
 
-        lateinit var chooseResponse: (List<Any>) -> List<Any>
+        lateinit var chooseResponse: (List<Any>) -> List<Any>?
         val chooseHandler = object : ChooseHandler {
-            override suspend fun query(prompt: String?, list: List<Any>, range: IntRange): List<Any> {
+            override suspend fun query(
+                prompt: String?,
+                list: List<Any>,
+                range: IntRange,
+                requiredChoice: Boolean
+            ): List<Any>? {
                 return chooseResponse(list)
             }
         }
@@ -62,13 +68,20 @@ class CollectionMethodsTest {
         chooseResponse = { list -> list.drop(1).dropLast(1) }
         assertThat(evaluator.evaluate(env, "choose \$ints .. 3 _") as List<Int>).containsExactly(2, 3, 4).inOrder()
 
-        chooseResponse = { throw IllegalStateException("I don't like these choices") }
-
+        // Finally, test cancelling a choice (indicated by returning null
+        chooseResponse = { null }
         assertThrows<EvaluationException> {
-            assertThat(evaluator.evaluate(env, "choose \$ints _") as List<Int>).containsExactly(2, 3).inOrder()
+            evaluator.evaluate(env, "choose \$ints _")
         }.also { ex ->
-            assertThat(ex.cause is IllegalStateException)
+            // It's OK to cancel the play by default, but.... (see next block)
+            assertThat(ex.cause).isInstanceOf<CancelPlayException>()
         }
 
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "choose --required _ \$ints _")
+        }.also { ex ->
+            // It's NOT OK to cancel required choices
+            assertThat(ex.cause).isInstanceOf<IllegalStateException>()
+        }
     }
 }

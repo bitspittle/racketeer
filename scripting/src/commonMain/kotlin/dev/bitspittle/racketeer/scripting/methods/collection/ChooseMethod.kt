@@ -6,14 +6,16 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.converters.IntToIntRangeConverter
 import dev.bitspittle.limp.converters.PlaceholderConverter
 import dev.bitspittle.limp.types.Logger
+import dev.bitspittle.racketeer.scripting.types.CancelPlayException
 
 interface ChooseHandler {
     /**
      * Return a subset of the input [list] based on the requested [range].
      *
-     * If you need to abort this query, just throw an exception.
+     * If you need to abort this query, return null. It is an error to do this is [requiredChoice] is set to
+     * true.
      */
-    suspend fun query(prompt: String?, list: List<Any>, range: IntRange): List<Any>
+    suspend fun query(prompt: String?, list: List<Any>, range: IntRange, requiredChoice: Boolean): List<Any>?
 }
 
 /**
@@ -30,6 +32,11 @@ class ChooseMethod(private val logger: Logger, private val chooseHandler: Choose
         rest: List<Any>
     ): Any {
         val prompt = options["prompt"]?.let { env.expectConvert<String>(it) }
+        val requiredChoice = env.scoped {
+            env.addConverter(PlaceholderConverter(true))
+            options["required"]?.let { env.expectConvert(it) }
+        } ?: false
+
         val list = env.expectConvert<List<Any>>(params[0])
         val range = env.scoped {
             env.addConverter(PlaceholderConverter(1 .. Int.MAX_VALUE))
@@ -48,7 +55,14 @@ class ChooseMethod(private val logger: Logger, private val chooseHandler: Choose
 
         if (range.first > list.size) throw IllegalArgumentException("Requested choosing ${range.first} item(s) from a list that only has ${list.size} item(s) in it.")
 
-        val response = chooseHandler.query(prompt, list, range)
+        val response = chooseHandler.query(prompt, list, range, requiredChoice) ?: run {
+            if (requiredChoice) {
+                throw IllegalStateException("PLEASE REPORT THIS BUG! Internal code is not respecting the designers requirement that the user has to choose a value")
+            } else {
+                throw CancelPlayException("User canceled making a choice.")
+            }
+        }
+
         if (response.size !in range) throw IllegalStateException("PLEASE REPORT THIS BUG! Internal code returned a list of size ${response.size} despite being told it must return one within ${range.first} to ${range.last} items.")
 
         // Make a copy in case the external code tries to give us back the same list, because we can't guarantee that
