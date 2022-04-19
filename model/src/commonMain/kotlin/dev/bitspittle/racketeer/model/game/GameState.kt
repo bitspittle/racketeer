@@ -189,7 +189,7 @@ class GameState internal constructor(
         owned.forEach { cardQueue.enqueuePassiveActions(it) }
         cardQueue.runEnqueuedActions(this@GameState)
 
-        vp = owned.sumOf { card -> card.vpTotal }
+        vp = owned.sumOf { card -> card.vpTotal } + jail.cards.filter { card -> card.isJailbird() }.sumOf { card -> card.vpTotal }
     }
 
     // Needs to be suspend because it might trigger init actions
@@ -278,7 +278,7 @@ class GameState internal constructor(
 
         _streetEffects.clear()
         move(_street, _discard)
-        moveNow(_hand.cards.filter { !it.isPatient() }, _discard)
+        moveNow(_hand.cards.filter { !it.isUndercover() }, _discard)
         shop.restock()
 
         return true

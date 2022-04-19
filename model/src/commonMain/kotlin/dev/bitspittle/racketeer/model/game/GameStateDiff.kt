@@ -96,27 +96,27 @@ private class GameStateDiffReporter(
         diff.changedCards.forEach { (cardBefore, cardAfter) ->
             (cardAfter.upgrades - cardBefore.upgrades).let { upgrades ->
                 if (upgrades.isNotEmpty()) {
-                    reportLine("${cardAfter.template.name} was upgraded, becoming: ${describer.describeUpgrades(upgrades)}")
+                    reportLine("${cardAfter.template.name} was upgraded, becoming: ${describer.describeUpgrades(upgrades)}.")
                 }
             }
 
             (cardBefore.upgrades - cardAfter.upgrades).let { downgrades ->
                 if (downgrades.isNotEmpty()) {
-                    reportLine("${cardAfter.template.name} was downgraded, losing: ${describer.describeUpgrades(downgrades)}")
+                    reportLine("${cardAfter.template.name} was downgraded, losing: ${describer.describeUpgrades(downgrades)}.")
                 }
             }
 
             (cardAfter.vpTotal - cardBefore.vpTotal).let { vpDiff ->
                 when {
-                    vpDiff > 0 -> reportLine("${cardAfter.template.name} gained ${describer.describeVictoryPoints(vpDiff)}")
-                    vpDiff < 0 -> reportLine("${cardAfter.template.name} lost ${describer.describeVictoryPoints(-vpDiff)}")
+                    vpDiff > 0 -> reportLine("${cardAfter.template.name} gained ${describer.describeVictoryPoints(vpDiff)}.")
+                    vpDiff < 0 -> reportLine("${cardAfter.template.name} lost ${describer.describeVictoryPoints(-vpDiff)}.")
                 }
             }
 
             (cardAfter.counter - cardBefore.counter).let { counterDiff ->
                 when {
-                    counterDiff > 0 -> reportLine("${cardAfter.template.name} added ${describer.describeCounter(counterDiff)}")
-                    counterDiff < 0 -> reportLine("${cardAfter.template.name} removed ${describer.describeCounter(-counterDiff)}")
+                    counterDiff > 0 -> reportLine("${cardAfter.template.name} added $counterDiff counter(s).")
+                    counterDiff < 0 -> reportLine("${cardAfter.template.name} removed ${-counterDiff} counter(s).")
                 }
             }
         }

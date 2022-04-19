@@ -3,8 +3,6 @@ icons:
   cash: "💰"
   influence: "🤝"
   luck: "🎲"
-  undercover: "🥸"
-  counter: "🔘"
   vp: "🌟"
 numTurns: 20
 initialHandSize: 5
