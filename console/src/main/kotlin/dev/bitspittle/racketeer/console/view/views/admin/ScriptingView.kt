@@ -3,11 +3,8 @@ package dev.bitspittle.racketeer.console.view.views.admin
 import com.varabyte.kotter.foundation.input.*
 import com.varabyte.kotter.foundation.text.*
 import com.varabyte.kotter.runtime.MainRenderScope
-import com.varabyte.kotter.runtime.RunScope
 import com.varabyte.kotter.runtime.render.RenderScope
-import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
-import dev.bitspittle.limp.Method
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.View
@@ -101,17 +98,36 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
                 if (inEditingMode) green { textLine(lastResultLog) }
             }
             text("- ")
-            input(isActive = inEditingMode); textLine()
+            input(isActive = inEditingMode); text(inputSuffix); textLine()
         }
         textLine()
     }
 
     override suspend fun doHandleInputChanged(input: String) {
-        inputSuffix = input
+        var openedParensCount = 0
+        var inString = false
+
+        val remaining = input.toCharArray().reversed().toMutableList()
+        while (remaining.isNotEmpty()) {
+            when (remaining.removeLast()) {
+                '(' -> if (!inString) { ++openedParensCount }
+                ')' -> if (!inString) { --openedParensCount }
+                '"' -> inString = !inString
+                '\\' -> remaining.removeLastOrNull() // Eat next char, it's not for us to count
+            }
+        }
+
+        inputSuffix = buildString {
+            if (inString) {
+                append('"')
+            }
+            repeat(openedParensCount.coerceAtLeast(0)) { append(')')}
+        }
     }
 
     @Suppress("NAME_SHADOWING")
     override suspend fun doHandleInputEntered(input: String, clearInput: () -> Unit) {
+        val input = input + inputSuffix
         ctx.state.addVariablesInto(ctx.env)
         val evaluator = Evaluator()
         val result = evaluator.evaluate(ctx.env, input)
@@ -128,6 +144,7 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
             ctx.env.storeValue("\$last", result, allowOverwrite = true)
             lastResultLog = "\$last = ${stringifier.toString(result)}"
         }
+        inputSuffix = ""
         clearInput()
     }
 
