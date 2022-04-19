@@ -3,6 +3,7 @@ package dev.bitspittle.racketeer.console.view.views.admin
 import com.varabyte.kotter.foundation.input.*
 import com.varabyte.kotter.foundation.text.*
 import com.varabyte.kotter.runtime.MainRenderScope
+import com.varabyte.kotter.runtime.RunScope
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
@@ -46,7 +47,7 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
     private val stringifier = Stringifier(ctx.describer, ctx.state)
 
     private var inEditingMode = true
-    private var inputSoFar = ""
+    private var inputSuffix = ""
     private val previousActions = mutableListOf<String>()
     private var lastResultLog: String? = null
 
@@ -105,33 +106,29 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
         textLine()
     }
 
-    override suspend fun doHandleInputChanged(onInputChangedScope: OnInputChangedScope) {
-        onInputChangedScope.apply {
-            inputSoFar = input
-        }
+    override suspend fun doHandleInputChanged(input: String) {
+        inputSuffix = input
     }
 
     @Suppress("NAME_SHADOWING")
-    override suspend fun doHandleInputEntered(onInputEnteredScope: OnInputEnteredScope) {
-        onInputEnteredScope.apply {
-            ctx.state.addVariablesInto(ctx.env)
-            val evaluator = Evaluator()
-            val result = evaluator.evaluate(ctx.env, input)
-            ctx.state.updateVictoryPoints()
-            latestDiff = GameStateDiff(stateSnapshot, ctx.state)
+    override suspend fun doHandleInputEntered(input: String, clearInput: () -> Unit) {
+        ctx.state.addVariablesInto(ctx.env)
+        val evaluator = Evaluator()
+        val result = evaluator.evaluate(ctx.env, input)
+        ctx.state.updateVictoryPoints()
+        latestDiff = GameStateDiff(stateSnapshot, ctx.state)
 
-            previousActions.add(input)
-            while (previousActions.size > Constants.PAGE_SIZE) {
-                previousActions.removeFirst()
-            }
-
-            lastResultLog = null
-            result.takeIf { it != Unit }?.let { result ->
-                ctx.env.storeValue("\$last", result, allowOverwrite = true)
-                lastResultLog = "\$last = ${stringifier.toString(result)}"
-            }
-            clearInput()
+        previousActions.add(input)
+        while (previousActions.size > Constants.PAGE_SIZE) {
+            previousActions.removeFirst()
         }
+
+        lastResultLog = null
+        result.takeIf { it != Unit }?.let { result ->
+            ctx.env.storeValue("\$last", result, allowOverwrite = true)
+            lastResultLog = "\$last = ${stringifier.toString(result)}"
+        }
+        clearInput()
     }
 
     override suspend fun handleAdditionalKeys(key: Key): Boolean {
@@ -150,17 +147,6 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
     }
 
     private fun defineSpecialMethods() {
-        ctx.env.addMethod(object : Method("choose", 2) {
-            override suspend fun invoke(
-                env: Environment,
-                eval: Evaluator,
-                params: List<Any>,
-                options: Map<String, Any>,
-                rest: List<Any>
-            ): Any {
-                error("Due to technical limitations, you cannot use the \"choose\" method inside the scripting console.")
-            }
-        }, allowOverwrite = true)
     }
 
     private fun onEnteringView() {

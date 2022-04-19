@@ -6,6 +6,7 @@ import com.varabyte.kotter.foundation.input.OnInputChangedScope
 import com.varabyte.kotter.foundation.input.OnInputEnteredScope
 import com.varabyte.kotter.foundation.text.*
 import com.varabyte.kotter.runtime.MainRenderScope
+import com.varabyte.kotter.runtime.RunScope
 import com.varabyte.kotter.runtime.render.RenderScope
 import com.varabyte.kotterx.decorations.BorderCharacters
 import com.varabyte.kotterx.decorations.bordered
@@ -95,14 +96,14 @@ abstract class View(protected val ctx: GameContext) {
         }
     }
 
-    suspend fun handleInputChanged(onInputChangedScope: OnInputChangedScope) = runUnsafeCode {
-        doHandleInputChanged(onInputChangedScope)
+    suspend fun handleInputChanged(input: String) = runUnsafeCode {
+        doHandleInputChanged(input)
     }
-    suspend fun handleInputEntered(onInputEnteredScope: OnInputEnteredScope) = runUnsafeCode {
-        doHandleInputEntered(onInputEnteredScope)
+    suspend fun handleInputEntered(input: String, clearInput: () -> Unit) = runUnsafeCode {
+        doHandleInputEntered(input, clearInput)
     }
-    protected open suspend fun doHandleInputChanged(onInputChangedScope: OnInputChangedScope) = Unit
-    protected open suspend fun doHandleInputEntered(onInputEnteredScope: OnInputEnteredScope) = Unit
+    protected open suspend fun doHandleInputChanged(input: String) = Unit
+    protected open suspend fun doHandleInputEntered(input: String, clearInput: () -> Unit) = Unit
 
     protected open suspend fun handleAdditionalKeys(key: Key): Boolean = false
 

@@ -3,6 +3,7 @@ package dev.bitspittle.racketeer.console.game
 import com.varabyte.kotter.foundation.input.onInputChanged
 import com.varabyte.kotter.foundation.input.onInputEntered
 import com.varabyte.kotter.foundation.input.onKeyPressed
+import com.varabyte.kotter.foundation.input.setInput
 import com.varabyte.kotter.foundation.runUntilSignal
 import com.varabyte.kotter.foundation.session
 import com.varabyte.kotter.foundation.text.*
@@ -176,14 +177,14 @@ class GameSession(
             }
 
             onInputChanged {
-                runBlocking {
-                    viewStack.currentView.handleInputChanged(this@onInputChanged)
+                CoroutineScope(Dispatchers.IO).launch {
+                    viewStack.currentView.handleInputChanged(input)
                     rerenderView()
                 }
             }
             onInputEntered {
-                runBlocking {
-                    viewStack.currentView.handleInputEntered(this@onInputEntered)
+                CoroutineScope(Dispatchers.IO).launch {
+                    viewStack.currentView.handleInputEntered(input) { setInput("") }
                     rerenderView()
                 }
             }
