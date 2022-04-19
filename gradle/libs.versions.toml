@@ -1,5 +1,6 @@
 [versions]
 jetbrains-compose = "1.0.1"
+junit = "4.13.2"
 kobweb = "0.9.10"
 kotlin = "1.6.10"
 kotlinx-coroutines = "1.6.1"
@@ -9,6 +10,7 @@ uuid = "0.4.0"
 yamlkt = "0.10.2"
 
 [libraries]
+junit = { module = "junit:junit", version.ref = "junit" }
 kobweb-api = { module = "com.varabyte.kobweb:kobweb-api", version.ref = "kobweb" }
 kobweb-core = { module = "com.varabyte.kobweb:kobweb-core ", version.ref = "kobweb" }
 kobweb-silk-core = { module = "com.varabyte.kobweb:kobweb-silk", version.ref = "kobweb" }

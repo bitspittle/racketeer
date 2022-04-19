@@ -12,6 +12,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(project(":model"))
     implementation(project(":scripting"))
+    testImplementation(libs.junit)
+    testImplementation(libs.truthish.jvm)
 }
 
 application {

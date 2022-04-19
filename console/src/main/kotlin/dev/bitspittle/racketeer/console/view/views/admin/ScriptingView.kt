@@ -7,6 +7,7 @@ import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.trie.MutableTextTree
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
@@ -50,6 +51,9 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
 
     private var stateSnapshot = ctx.state.copy()
     private var latestDiff = GameStateDiff(ctx.state, stateSnapshot)
+
+    private val symbolWordTree = MutableTextTree()
+    private val cardNameWordTree = MutableTextTree()
 
     override fun createCommands(): List<Command> = listOf(
         ScriptingCommand(
