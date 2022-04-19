@@ -16,21 +16,35 @@ class Describer(private val data: GameData) {
     fun describeInfluence(influence: Int) = "${data.icons.influence}$influence"
     fun describeLuck(luck: Int) = "${data.icons.luck}$luck"
     fun describeVictoryPoints(vp: Int) = "${data.icons.vp}$vp"
-    fun describeUpgrade(upgrade: UpgradeType, concise: Boolean = true): String? {
+    fun describeUpgradeTitle(upgrade: UpgradeType, icons: Boolean = true): String? {
         return when (upgrade) {
-            UpgradeType.CASH -> if (concise) data.upgradeNames.cash else "${data.upgradeNames.cash}: +1${data.icons.cash}"
-            UpgradeType.INFLUENCE -> if (concise) data.upgradeNames.influence else "${data.upgradeNames.influence}: +1${data.icons.influence}"
-            UpgradeType.LUCK -> if (concise) data.upgradeNames.luck else "${data.upgradeNames.luck}: +1${data.icons.luck}"
-            UpgradeType.JAILBIRD -> if (concise) null else "${data.upgradeNames.jailbird}: Provides victory points even in jail."
-            UpgradeType.UNDERCOVER -> if (concise) null else "${data.upgradeNames.undercover}: If still in hand, this isn't discard at end of turn."
+            UpgradeType.CASH -> if (icons) data.icons.cash else data.upgradeNames.cash
+            UpgradeType.INFLUENCE -> if (icons) data.icons.influence else data.upgradeNames.influence
+            UpgradeType.LUCK -> if (icons) data.icons.luck else data.upgradeNames.luck
+            else -> null // Ignore highlighting minor upgrades
+        }
+    }
+    fun describeUpgradeBody(upgrade: UpgradeType): String {
+        return when (upgrade) {
+            UpgradeType.CASH -> "${data.upgradeNames.cash}: +1${data.icons.cash}"
+            UpgradeType.INFLUENCE -> "${data.upgradeNames.influence}: +1${data.icons.influence}"
+            UpgradeType.LUCK -> "${data.upgradeNames.luck}: +1${data.icons.luck}"
+            UpgradeType.JAILBIRD -> "${data.upgradeNames.jailbird}: Provides victory points even in jail."
+            UpgradeType.UNDERCOVER -> "${data.upgradeNames.undercover}: If still in hand, this isn't discard at end of turn."
         }
     }
 
-    fun describeUpgrades(upgrades: Set<UpgradeType>, concise: Boolean = true): String {
+    fun describeUpgradesTitle(upgrades: Set<UpgradeType>, icons: Boolean = false): String? {
         return UpgradeType.values()
             .filter { upgrade -> upgrades.contains(upgrade) }
-            .mapNotNull { upgrade -> describeUpgrade(upgrade, concise) }
-            .joinToString(if (concise) " " else "\n")
+            .mapNotNull { upgrade -> describeUpgradeTitle(upgrade, icons) }
+            .joinToString(if (icons) "" else " ").takeIf { it.isNotEmpty() }
+    }
+
+    fun describeUpgradesBody(upgrades: Set<UpgradeType>): String {
+        return UpgradeType.values()
+            .filter { upgrade -> upgrades.contains(upgrade) }
+            .joinToString("\n") { upgrade -> describeUpgradeBody(upgrade) }
     }
 
     fun describeRange(range: IntRange): String {
@@ -78,7 +92,7 @@ class Describer(private val data: GameData) {
         if (upgrades.isNotEmpty()) {
             appendLine() // Finish previous section
             appendLine() // Newline
-            append(describeUpgrades(upgrades, concise = false))
+            append(describeUpgradesBody(upgrades))
         }
 
         if (template.initActions.isNotEmpty()) {
@@ -129,30 +143,10 @@ class Describer(private val data: GameData) {
         }
     }
     private fun StringBuilder.appendCardName(name: String, upgrades: Set<UpgradeType>, concise: Boolean) {
-        if (!concise) {
-            if (upgrades.contains(UpgradeType.CASH)) {
-                append("${data.upgradeNames.cash} ")
-            }
-            if (upgrades.contains(UpgradeType.INFLUENCE)) {
-                append("${data.upgradeNames.influence} ")
-            }
-            if (upgrades.contains(UpgradeType.LUCK)) {
-                append("${data.upgradeNames.luck} ")
-            }
-        }
-        else {
-            if (upgrades.contains(UpgradeType.CASH)) {
-                append(data.icons.cash)
-            }
-            if (upgrades.contains(UpgradeType.INFLUENCE)) {
-                append(data.icons.influence)
-            }
-            if (upgrades.contains(UpgradeType.LUCK)) {
-                append(data.icons.luck)
-            }
-            if (upgrades.isNotEmpty()) {
-                append(' ')
-            }
+        val upgradesText = describeUpgradesTitle(upgrades, icons = concise)
+        if (upgradesText != null) {
+            append(upgradesText)
+            append(' ')
         }
         append(name)
     }
