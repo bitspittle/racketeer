@@ -31,11 +31,11 @@ upgradeNames:
 
 rarities:
   - name: Common
-    frequency: 5
+    frequency: 4
   - name: Uncommon
     frequency: 3
   - name: Rare
-    frequency: 1
+    frequency: 2
 
 tierFrequencies:
   - 5
@@ -87,6 +87,7 @@ globalActions:
   - def 'card-upgrade-count '$card '(count (list (card-has-upgrade? $card 'cash) (card-has-upgrade? $card 'influence) (card-has-upgrade? $card 'luck) (card-has-upgrade? $card 'undercover)) '(= $it true))
   - def 'card-has-any-upgrade? '$card '(gt? (card-upgrade-count $card) 0)
   - def 'card-named '$name '(single (filter $all-cards '(= card-get $it 'name $name)) _)
+
 
 cards:
   # TIER 1
@@ -324,6 +325,8 @@ cards:
     playActions:
       - game-draw! 2
 
+# TIER 3
+
   - name: Polished Gem
     tier: 2
     rarity: 1
@@ -418,19 +421,6 @@ cards:
       - game-add! 'cash 2
       - pile-move-to! $jail (choose --prompt "Choose up to two cards to jail." $deck .. 0 2)
 
-  - name: Pawnbroker
-    tier: 3
-    rarity: 2
-    types: [thief]
-    cost: 4
-    flavor: You may choose a card on the street to jail. Gain $ equal to its tier plus 2.
-    playActions:
-      - set '$maybe-card-to-jail (choose --prompt "Choose up to one card to jail." $street .. 0 1)
-      - stop-if! empty? $maybe-card-to-jail
-      - set '$card-to-jail single $maybe-card-to-jail _
-      - pile-move-to! $jail $card-to-jail
-      - game-add! 'cash + 2 card-get $card-to-jail 'tier
-
   - name: Guildmaster
     tier: 2
     rarity: 2
@@ -468,6 +458,22 @@ cards:
     playActions:
       - game-add! 'influence game-get 'influence
 
+# TIER 4
+
+  - name: Pawnbroker
+    tier: 3
+    rarity: 2
+    types: [thief]
+    cost: 4
+    flavor: You may choose a card on the street to jail. Gain $ equal to its tier plus 2.
+    playActions:
+      - game-add! 'cash 2
+      - set '$maybe-card-to-jail (choose --prompt "Choose up to one card to jail." $street .. 0 1)
+      - stop-if! empty? $maybe-card-to-jail
+      - set '$card-to-jail single $maybe-card-to-jail _
+      - pile-move-to! $jail $card-to-jail
+      - game-add! 'cash card-get $card-to-jail 'tier
+
   - name: Fence
     tier: 3
     rarity: 1
@@ -504,7 +510,7 @@ cards:
 
 
   - name: Gem Cutter
-    tier: 99
+    tier: 3
     rarity: 1
     types: [thief, trickster]
     cost: 5
@@ -516,8 +522,8 @@ cards:
      - set '$maybe-card-to-jail (choose --prompt "Choose up to one treasure to jail." $treasures-on-street .. 0 1)
      - stop-if! empty? $maybe-card-to-jail
      - set '$card-to-jail single $maybe-card-to-jail _
-     - pile-move-to! $jail $card-to-jail
      - card-add! $this 'vp (card-get $card-to-jail 'vp-total)
+     - pile-move-to! $jail $card-to-jail
 
   - name: Silver Cuffs
     tier: 3
@@ -539,19 +545,20 @@ cards:
       - set '$convert (ask? "Would you like to spend 4& to give this card 4*?")
       - stop-if! ! $convert
       - game-add! 'influence -4
-      - card-set! $this 'vp (+ 4 $it)
+      - card-set! $this 'vp '(+ 4 $it)
 
-  - name: Annie Doshan
-    tier: 4
-    rarity: 2
-    types: [thief, spy, trickster, legend]
+
+  - name: Three-Card Monte Dealer
+    tier: 3
+    rarity: 1
+    types: [trickster]
     cost: 6
-    flavor: For each upgraded card you own, gain $, &, and %.
+    flavor: Draw three cards, then discard one.
     playActions:
-      - set '$num-upgraded-cards count $owned '(card-has-any-upgrade? $it)
-      - game-add! 'cash $num-upgraded-cards
-      - game-add! 'influence $num-upgraded-cards
-      - game-add! 'luck $num-upgraded-cards
+      - game-draw! 3
+      - pile-move-to! $discard (choose --prompt "Choose a card to discard." $hand 1)
+
+# TIER 5
 
   - name: The Friends We Made Along The Way
     tier: 4
@@ -580,6 +587,17 @@ cards:
     playActions:
       - game-add! 'luck 2
 
+  - name: Annie Doshan
+    tier: 4
+    rarity: 2
+    types: [thief, spy, trickster, legend]
+    cost: 6
+    flavor: For each upgraded card you own, gain $, &, and %.
+    playActions:
+      - set '$num-upgraded-cards count $owned '(card-has-any-upgrade? $it)
+      - game-add! 'cash $num-upgraded-cards
+      - game-add! 'influence $num-upgraded-cards
+      - game-add! 'luck $num-upgraded-cards
 
   - name: Jailbreak
     tier: 4
@@ -588,7 +606,8 @@ cards:
     cost: 6
     flavor: Put any number of cards from Jail into your hand.
     playActions:
-      - pile-move-to! $hand (choose --prompt "Choose cards to get out of jail." $jail 0 _)
+      - pile-move-to! $hand (choose --prompt "Choose cards to get out of jail." $jail .. 0 _)
+
 
   - name: Corner the Market
     tier: 4
