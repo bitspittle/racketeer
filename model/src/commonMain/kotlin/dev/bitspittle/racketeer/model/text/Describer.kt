@@ -16,6 +16,22 @@ class Describer(private val data: GameData) {
     fun describeInfluence(influence: Int) = "${data.icons.influence}$influence"
     fun describeLuck(luck: Int) = "${data.icons.luck}$luck"
     fun describeVictoryPoints(vp: Int) = "${data.icons.vp}$vp"
+    fun describeCounter(counter: Int) = "${data.icons.counter}$counter"
+    fun describeUpgrade(upgrade: UpgradeType, concise: Boolean = true): String {
+        return when (upgrade) {
+            UpgradeType.CASH -> if (concise) data.upgradeNames.cash else "${data.upgradeNames.cash}: +1${data.icons.cash}"
+            UpgradeType.INFLUENCE -> if (concise) data.upgradeNames.influence else "${data.upgradeNames.influence}: +1${data.icons.influence}"
+            UpgradeType.LUCK -> if (concise) data.upgradeNames.luck else "${data.upgradeNames.luck}: +1${data.icons.luck}"
+            UpgradeType.UNDERCOVER -> if (concise) data.upgradeNames.undercover else "${data.upgradeNames.undercover}: If still in hand, this isn't discard at end of turn"
+        }
+    }
+
+    fun describeUpgrades(upgrades: Set<UpgradeType>, concise: Boolean = true): String {
+        return UpgradeType.values()
+            .filter { upgrade -> upgrades.contains(upgrade) }
+            .joinToString(" ") { upgrade -> describeUpgrade(upgrade, concise) }
+    }
+
     fun describeRange(range: IntRange): String {
         return when {
             range.first == range.last -> range.first.toString()
@@ -57,18 +73,7 @@ class Describer(private val data: GameData) {
         if (upgrades.isNotEmpty()) {
             appendLine() // Finish previous section
             appendLine() // Newline
-            if (upgrades.contains(UpgradeType.CASH)) {
-                append("${data.upgradeNames.cash}: +1${data.icons.cash}")
-            }
-            if (upgrades.contains(UpgradeType.INFLUENCE)) {
-                append("${data.upgradeNames.influence}: +1${data.icons.influence}")
-            }
-            if (upgrades.contains(UpgradeType.LUCK)) {
-                append("${data.upgradeNames.luck}: +1${data.icons.luck}")
-            }
-            if (upgrades.contains(UpgradeType.UNDERCOVER)) {
-                append("${data.upgradeNames.undercover}: If still in hand, this isn't discard at end of turn")
-            }
+            append(describeUpgrades(upgrades, concise = false))
             append('.')
         }
 
@@ -185,6 +190,10 @@ class Describer(private val data: GameData) {
             }
 
             if (!concise) {
+                if (card.counter > 0) {
+                    append(" ${describeCounter(card.counter)}")
+                }
+
                 appendCardBody(card.template, card.upgrades)
             }
         }

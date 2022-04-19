@@ -28,6 +28,7 @@ class CardSetMethod : Method("card-set!", 3) {
 
         cards.forEach { card ->
             val currValue = when (property) {
+                CardProperty.COUNTER -> card.counter
                 CardProperty.VP -> card.vp
                 CardProperty.VP_PASSIVE -> card.vpPassive
                 CardProperty.COST, CardProperty.TIER, CardProperty.TYPES, CardProperty.NAME, CardProperty.ID, CardProperty.VP_TOTAL  -> throw EvaluationException(
@@ -40,6 +41,7 @@ class CardSetMethod : Method("card-set!", 3) {
                 env.expectConvert<Int>(evaluator.evaluate(env, setExpr))
             }
             when (property) {
+                CardProperty.COUNTER -> card.counter = newValue
                 CardProperty.VP -> card.vp = newValue
                 CardProperty.VP_PASSIVE -> card.vpPassive = newValue
                 else -> error("Unhandled card-set case: ${property.name}")

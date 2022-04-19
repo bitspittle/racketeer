@@ -28,8 +28,9 @@ class CollectionMethodsTest {
                 return chooseResponse(list)
             }
         }
-        env.addMethod(ChooseMethod(chooseHandler))
-        env.addMethod(SetMethod(ConsoleLogger()))
+        val logger = ConsoleLogger()
+        env.addMethod(ChooseMethod(logger, chooseHandler))
+        env.addMethod(SetMethod(logger))
         env.addMethod(ListMethod())
         env.addMethod(IntRangeMethod())
         env.storeValue("_", Placeholder)

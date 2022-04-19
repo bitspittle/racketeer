@@ -27,6 +27,7 @@ class CardGetMethod : Method("card-get", 2) {
 
         return when (property) {
             CardProperty.COST -> card.template.cost
+            CardProperty.COUNTER -> card.counter
             CardProperty.NAME -> card.template.name
             CardProperty.ID -> card.id
             CardProperty.TIER -> card.template.tier

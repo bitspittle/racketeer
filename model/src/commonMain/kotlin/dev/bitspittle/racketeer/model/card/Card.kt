@@ -12,8 +12,9 @@ class Card private constructor(
     val id: Uuid,
     vpBase: Int,
     vpBonus: Int,
+    counter: Int,
     val upgrades: MutableSet<UpgradeType>): Comparable<Card> {
-    internal constructor(template: CardTemplate) : this(template, uuid4(), template.vp, 0, mutableSetOf())
+    internal constructor(template: CardTemplate) : this(template, uuid4(), template.vp, 0, 0, mutableSetOf())
 
     /**
      * Cards can earn victory points over the course of the game via upgrades and rewards from other cards.
@@ -31,17 +32,27 @@ class Card private constructor(
             field = value.coerceAtLeast(0)
         }
 
+    /**
+     * Cards can be given counters that can then be spent later for any desired effect.
+     */
+    var counter = counter
+        set(value) {
+            field = value.coerceAtLeast(0)
+        }
+
     fun copy(
         id: Uuid = this.id,
         vpBase: Int = this.vp,
         vpBonus: Int = this.vpPassive,
+        counter: Int = this.counter,
         upgrades: Set<UpgradeType> = this.upgrades
-    ) = Card(template, id, vpBase, vpBonus, upgrades.toMutableSet())
+    ) = Card(template, id, vpBase, vpBonus, counter, upgrades.toMutableSet())
 
     override fun compareTo(other: Card): Int {
         return template.compareTo(other.template).takeUnless { it == 0 }
             ?: vpTotal.compareTo(other.vpTotal).takeUnless { it == 0 }
             ?: upgrades.size.compareTo(other.upgrades.size).takeUnless { it == 0 }
+            ?: counter.compareTo(other.counter).takeUnless { it == 0 }
             ?: id.compareTo(other.id) // This last check is meaningless but consistent
     }
 }

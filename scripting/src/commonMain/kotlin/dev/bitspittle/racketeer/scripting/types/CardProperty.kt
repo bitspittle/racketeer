@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.scripting.types
 
 enum class CardProperty {
     COST,
+    COUNTER,
     ID,
     NAME,
     TIER,

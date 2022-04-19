@@ -18,6 +18,7 @@ private val FAKE_GAME_DATA_TEXT = """
       influence: "&"
       luck: "%"
       undercover: "_"
+      counter: "+"
       vp: "*"
     numTurns: 3
     initialHandSize: 4

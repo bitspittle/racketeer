@@ -8,5 +8,6 @@ data class GameIcons(
     val influence: String,
     val luck: String,
     val undercover: String,
+    val counter: String,
     val vp: String,
 )

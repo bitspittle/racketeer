@@ -3,6 +3,7 @@ package dev.bitspittle.racketeer.model.game
 import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.Pile
+import dev.bitspittle.racketeer.model.card.vpTotal
 import dev.bitspittle.racketeer.model.text.Describer
 
 /** Create a diff between two snapshots of a game state in time, useful for reporting changes to the user */
@@ -22,6 +23,7 @@ class GameStateDiff(val before: GameState, val after: GameState) {
                 && movedCards.isEmpty()
                 && createdCards.isEmpty()
                 && destroyedCards.isEmpty()
+                && changedCards.isEmpty()
     }
 
     val cash: Int
@@ -31,6 +33,7 @@ class GameStateDiff(val before: GameState, val after: GameState) {
     val movedCards: Map<Pair<Pile, Pile>, List<Card>>
     val createdCards: List<Card>
     val destroyedCards: List<Card>
+    val changedCards: List<Pair<Card, Card>>
 
     init {
         cash = after.cash - before.cash
@@ -54,6 +57,14 @@ class GameStateDiff(val before: GameState, val after: GameState) {
 
         createdCards = allCardsAfter.filter { (id, _) -> !allCardsBefore.contains(id) }.map { (_, card) -> card }
         destroyedCards = allCardsBefore.filter { (id, _) -> !allCardsAfter.contains(id) }.map { (_, card) -> card }
+
+        changedCards = allCardsAfter
+            .asSequence()
+            .filter { (id, _) -> allCardsBefore.contains(id) }
+            .mapNotNull { (id, cardAfter) ->
+                val cardBefore = allCardsBefore.getValue(id)
+                if (cardBefore.compareTo(cardAfter) != 0) cardBefore to cardAfter else null
+            }.toList()
     }
 }
 
@@ -69,6 +80,7 @@ private class GameStateDiffReporter(
         val report = buildString {
             reportMovedCards()
             reportCreatedAndDestroyedCards()
+            reportChangedCards()
             reportResources()
         }
         if (report.isNotEmpty()) {
@@ -78,6 +90,36 @@ private class GameStateDiffReporter(
 
     private fun StringBuilder.reportLine(message: String) {
         appendLine("- $message")
+    }
+
+    private fun StringBuilder.reportChangedCards() {
+        diff.changedCards.forEach { (cardBefore, cardAfter) ->
+            (cardAfter.upgrades - cardBefore.upgrades).let { upgrades ->
+                if (upgrades.isNotEmpty()) {
+                    reportLine("${cardAfter.template.name} was upgraded, becoming: ${describer.describeUpgrades(upgrades)}")
+                }
+            }
+
+            (cardBefore.upgrades - cardAfter.upgrades).let { downgrades ->
+                if (downgrades.isNotEmpty()) {
+                    reportLine("${cardAfter.template.name} was downgraded, losing: ${describer.describeUpgrades(downgrades)}")
+                }
+            }
+
+            (cardAfter.vpTotal - cardBefore.vpTotal).let { vpDiff ->
+                when {
+                    vpDiff > 0 -> reportLine("${cardAfter.template.name} gained ${describer.describeVictoryPoints(vpDiff)}")
+                    vpDiff < 0 -> reportLine("${cardAfter.template.name} lost ${describer.describeVictoryPoints(-vpDiff)}")
+                }
+            }
+
+            (cardAfter.counter - cardBefore.counter).let { counterDiff ->
+                when {
+                    counterDiff > 0 -> reportLine("${cardAfter.template.name} added ${describer.describeCounter(counterDiff)}")
+                    counterDiff < 0 -> reportLine("${cardAfter.template.name} removed ${describer.describeCounter(-counterDiff)}")
+                }
+            }
+        }
     }
 
     private fun StringBuilder.reportResources() {
