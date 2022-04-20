@@ -13,6 +13,7 @@ import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.views.admin.AdminMenuView
+import dev.bitspittle.racketeer.console.view.views.game.BrowsePilesView
 import dev.bitspittle.racketeer.console.view.views.system.OptionsMenuView
 
 private const val DESC_WRAP_WIDTH = 60
@@ -91,6 +92,12 @@ abstract class View(protected val ctx: GameContext) {
                     true
                 } else false
             }
+            Keys.BACKSLASH -> {
+                if (!(ctx.viewStack.contains { view -> view is BrowsePilesView })) {
+                    ctx.viewStack.pushView(BrowsePilesView(ctx))
+                    true
+                } else false
+            }
 
             else -> handleAdditionalKeys(key) || commandsSection.handleKey(key)
         }
@@ -140,6 +147,9 @@ abstract class View(protected val ctx: GameContext) {
 
             renderFooter()
 
+            if (!ctx.viewStack.contains { view -> view is BrowsePilesView }) {
+                text("Press "); cyan { text("\\") }; textLine(" to browse all card piles.")
+            }
             text("Press "); cyan { text("ESC") }
             if (ctx.viewStack.canGoBack && allowGoBack) textLine(" to go back.") else textLine(" to open options.")
         }
