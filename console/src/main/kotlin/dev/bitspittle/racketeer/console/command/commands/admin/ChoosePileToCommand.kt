@@ -15,7 +15,7 @@ class ChoosePileToCommand(
     forceDisabled: Boolean = false
 ) : Command(ctx) {
     override val type: Type = if (forceDisabled) Type.Disabled else Type.Warning
-    override val title = ctx.describer.describe(ctx.state, pile)
+    override val title = ctx.describer.describePileTitle(ctx.state, pile, withSize = true)
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {

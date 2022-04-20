@@ -247,7 +247,7 @@ private class Stringifier(private val describer: Describer, private val gameStat
     fun <T: Any?> toString(value: T): String {
         return when (value) {
             is Iterable<*> -> value.joinToString(prefix = "[", postfix = "]") { toString(it) }
-            is Pile -> describer.describe(gameState, value) + if (value.cards.isNotEmpty()) {
+            is Pile -> describer.describePileTitle(gameState, value) + if (value.cards.isNotEmpty()) {
                 ": " + toString(value.cards)
             } else ""
             is CardTemplate -> value.name

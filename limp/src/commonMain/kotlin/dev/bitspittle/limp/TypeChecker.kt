@@ -13,6 +13,9 @@ interface TypeChecker<T : Any> {
     fun isInstance(value: Any): Boolean
 }
 
+@Suppress("UNCHECKED_CAST")
+fun <T: Any> TypeChecker<T>.cast(value: Any): T? = if (isInstance(value)) value as T else null
+
 /**
  * A basic type checker which just verifies that `value is T`
  *

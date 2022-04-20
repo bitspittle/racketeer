@@ -176,8 +176,8 @@ private class GameStateDiffReporter(
                 }
                 cards.forEach { card ->
                     val cardTitle = describer.describe(card, concise = true)
-                    val pileFromDesc = describer.describe(diff.before, pileFrom, title = false)
-                    val pileToDesc = describer.describe(diff.after, pileTo, title = false)
+                    val pileFromDesc = describer.describePile(diff.before, pileFrom)
+                    val pileToDesc = describer.describePile(diff.after, pileTo)
                     reportLine("$cardTitle moved from $pileFromDesc into $pileToDesc.")
                 }
             }
@@ -186,7 +186,7 @@ private class GameStateDiffReporter(
     private fun StringBuilder.reportCreatedAndDestroyedCards() {
         diff.createdCards.sortedBy { it.template.name }.forEach { card ->
             val cardTitle = describer.describe(card, concise = true)
-            val pileDesc = describer.describe(diff.after, diff.after.pileFor(card)!!, title = false)
+            val pileDesc = describer.describePile(diff.after, diff.after.pileFor(card)!!)
             reportLine("$cardTitle was created and placed into $pileDesc.")
         }
 

@@ -5,6 +5,7 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.converters.IntToIntRangeConverter
 import dev.bitspittle.limp.converters.PlaceholderConverter
+import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.racketeer.scripting.types.CancelPlayException
 
@@ -16,6 +17,10 @@ interface ChooseHandler {
      * true.
      */
     suspend fun query(prompt: String?, list: List<Any>, range: IntRange, requiredChoice: Boolean): List<Any>?
+}
+
+private class FormattedItem(val wrapped: Any, private val displayText: String) {
+    override fun toString() = displayText
 }
 
 /**
@@ -32,6 +37,7 @@ class ChooseMethod(private val logger: Logger, private val chooseHandler: Choose
         rest: List<Any>
     ): Any {
         val prompt = options["prompt"]?.let { env.expectConvert<String>(it) }
+        val format = options["format"]?.let { env.expectConvert<Expr>(it)}
         val requiredChoice = env.scoped {
             env.addConverter(PlaceholderConverter(true))
             options["required"]?.let { env.expectConvert(it) }
@@ -55,13 +61,27 @@ class ChooseMethod(private val logger: Logger, private val chooseHandler: Choose
 
         if (range.first > list.size) throw IllegalArgumentException("Requested choosing ${range.first} item(s) from a list that only has ${list.size} item(s) in it.")
 
-        val response = chooseHandler.query(prompt, list, range, requiredChoice) ?: run {
-            if (requiredChoice) {
-                throw IllegalStateException("PLEASE REPORT THIS BUG! Internal code is not respecting the designers requirement that the user has to choose a value")
-            } else {
-                throw CancelPlayException("User canceled making a choice.")
+        val listFormatted = if (format != null) {
+            list.map { item ->
+                env.scoped { // Don't let values defined during the lambda escape
+                    FormattedItem(
+                        item,
+                        eval.extend(mapOf("\$it" to item)).evaluate(env, format).toString()
+                    )
+                }
             }
-        }
+        } else list
+
+        val response = chooseHandler.query(prompt, listFormatted, range, requiredChoice)
+            // Return the original item in case we wrapped it with a custom formatter
+            ?.map { item -> if (item is FormattedItem) item.wrapped else item }
+            ?: run {
+                if (requiredChoice) {
+                    throw IllegalStateException("PLEASE REPORT THIS BUG! Internal code is not respecting the designers requirement that the user has to choose a value")
+                } else {
+                    throw CancelPlayException("User canceled making a choice.")
+                }
+            }
 
         if (response.size !in range) throw IllegalStateException("PLEASE REPORT THIS BUG! Internal code returned a list of size ${response.size} despite being told it must return one within ${range.first} to ${range.last} items.")
 

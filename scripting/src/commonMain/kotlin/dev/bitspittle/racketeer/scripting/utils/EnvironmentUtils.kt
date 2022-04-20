@@ -12,6 +12,7 @@ import dev.bitspittle.racketeer.scripting.methods.collection.ChooseMethod
 import dev.bitspittle.racketeer.scripting.methods.effect.FxAddMethod
 import dev.bitspittle.racketeer.scripting.methods.game.*
 import dev.bitspittle.racketeer.scripting.methods.pile.PileCopyToMethod
+import dev.bitspittle.racketeer.scripting.methods.pile.PileGetMethod
 import dev.bitspittle.racketeer.scripting.methods.pile.PileMoveToMethod
 import dev.bitspittle.racketeer.scripting.methods.shop.ShopExcludeMethod
 import dev.bitspittle.racketeer.scripting.methods.shop.ShopRerollMethod
@@ -44,12 +45,14 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(CardHasTypeMethod(service.gameData.cardTypes))
     addMethod(CardRemoveMethod(service::gameState))
     addMethod(CardTriggerMethod(service.cardQueue))
+    addMethod(CardPileMethod(service::gameState))
 
     // Pile
     addConverter(MutablePileToCardsConverter())
     addConverter(PileToCardsConverter())
     addMethod(PileCopyToMethod(service::gameState))
     addMethod(PileMoveToMethod(service::gameState))
+    addMethod(PileGetMethod(service.describer, service::gameState))
 
     // Effects
     addMethod(FxAddMethod(service::gameState))

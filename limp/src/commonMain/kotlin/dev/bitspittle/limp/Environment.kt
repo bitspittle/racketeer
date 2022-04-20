@@ -122,9 +122,7 @@ class Environment {
 
     @Suppress("UNCHECKED_CAST")
     fun <T: Any> tryConvert(value: Any, typeChecker: TypeChecker<T>): T? {
-        if (typeChecker.isInstance(value)) {
-            return value as T
-        }
+        typeChecker.cast(value)?.let { return it }
 
         return convertersStack.reversed().asSequence()
             .filterNotNull()

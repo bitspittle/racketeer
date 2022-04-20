@@ -2,6 +2,8 @@ package dev.bitspittle.racketeer.console.command
 
 import com.varabyte.kotter.foundation.text.*
 import com.varabyte.kotter.runtime.render.RenderScope
+import dev.bitspittle.limp.cast
+import dev.bitspittle.limp.listTypeOf
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.pile.Pile
