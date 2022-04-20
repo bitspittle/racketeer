@@ -182,6 +182,8 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
     override suspend fun doHandleInputEntered(input: String, clearInput: () -> Unit) {
         val input = input + inputSuffix
         ctx.state.addVariablesInto(ctx.env)
+        val prevState = ctx.state.copy()
+
         val evaluator = Evaluator()
         val result = evaluator.evaluate(ctx.env, input)
         ctx.state.updateVictoryPoints()
@@ -198,6 +200,8 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
             lastResultLog = "\$last = ${stringifier.toString(result)}"
         }
         refreshSymbolTextTree()
+
+        GameStateDiff(prevState, ctx.state).reportTo(ctx.describer, ctx.app.logger)
 
         inputSuffix = ""
         clearInput()
@@ -238,8 +242,6 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
     override fun onEscRequested() {
         ctx.env.popScope() // Pop user scope
         ctx.env.popScope() // Pop scripting scope
-
-        latestDiff.reportTo(ctx.describer, ctx.app.logger)
     }
 }
 
