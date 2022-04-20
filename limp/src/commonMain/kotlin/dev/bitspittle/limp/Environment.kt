@@ -1,5 +1,7 @@
 package dev.bitspittle.limp
 
+import dev.bitspittle.limp.types.Expr
+
 class Environment {
     private val methodsStack = mutableListOf<MutableMap<String, Method>?>()
     private val aliasesStack = mutableListOf<MutableMap<String, String>?>()
@@ -127,7 +129,7 @@ class Environment {
         return convertersStack.reversed().asSequence()
             .filterNotNull()
             .flatMap { converters -> converters.asSequence() }
-            .mapNotNull { converter -> converter.convert(value) as T? }
+            .mapNotNull { converter -> converter.convert(value)?.let { typeChecker.cast(it) } }
             .firstOrNull()
     }
 
@@ -139,8 +141,14 @@ class Environment {
         return loadValue(name) ?: throw IllegalArgumentException("No variable named \"$name\" is registered")
     }
 
-    fun <T: Any> expectConvert(value: Any, typeChecker: TypeChecker<T>): T {
-        return tryConvert(value, typeChecker) ?: throw IllegalArgumentException("Could not convert ${value::class} (value = \"${value}\") to ${typeChecker.targetClass.qualifiedName}")
+    fun <T : Any> expectConvert(value: Any, typeChecker: TypeChecker<T>): T {
+        return tryConvert(value, typeChecker) ?: throw IllegalArgumentException(
+            "Could not convert ${value::class.simpleName} to ${typeChecker.targetClass.simpleName}." +
+                    when (typeChecker.targetClass) {
+                        Expr::class -> " Did you forget to add a tick?"
+                        else -> ""
+                    }
+        )
     }
 
     inline fun <reified T: Any> tryConvert(value: Any): T? = tryConvert(value, typeOf())
