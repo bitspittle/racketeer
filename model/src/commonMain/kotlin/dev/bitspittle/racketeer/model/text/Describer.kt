@@ -4,6 +4,7 @@ import com.benasher44.uuid.uuid4
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.pile.Pile
 
 class Describer(private val data: GameData) {
     fun convertIcons(text: String): String {
@@ -204,7 +205,7 @@ class Describer(private val data: GameData) {
                 state.deck.id -> "your deck"
                 state.street.id -> "the street"
                 state.discard.id -> "the discard pile"
-                state.jail.id -> "jail"
+                state.jail.id -> "the jail"
                 else -> error("Unknown pile")
             }
         }

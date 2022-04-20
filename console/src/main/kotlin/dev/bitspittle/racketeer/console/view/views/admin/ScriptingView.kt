@@ -12,7 +12,7 @@ import dev.bitspittle.racketeer.console.trie.TextTreeCursor
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
-import dev.bitspittle.racketeer.model.card.Pile
+import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.GameStateDiff
 import dev.bitspittle.racketeer.model.game.reportTo

@@ -6,7 +6,7 @@ import dev.bitspittle.racketeer.console.utils.runStateChangingAction
 import dev.bitspittle.racketeer.console.view.popPast
 import dev.bitspittle.racketeer.console.view.views.admin.AdminMenuView
 import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.card.Pile
+import dev.bitspittle.racketeer.model.pile.Pile
 
 class ChoosePileToCommand(
     ctx: GameContext,

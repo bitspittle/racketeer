@@ -5,7 +5,7 @@ import dev.bitspittle.racketeer.console.command.commands.admin.ChoosePileToComma
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.card.Pile
+import dev.bitspittle.racketeer.model.pile.Pile
 
 class ChoosePileToView(ctx: GameContext, private val cards: List<Card>, private val disallowedPile: Pile? = null) : View(ctx) {
     override val heading = "Choose a pile to move your selected cards to."

@@ -2,7 +2,7 @@ package dev.bitspittle.racketeer.model.game
 
 import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.card.Pile
+import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.card.vpTotal
 import dev.bitspittle.racketeer.model.text.Describer
 

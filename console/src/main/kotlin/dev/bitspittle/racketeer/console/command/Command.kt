@@ -4,6 +4,7 @@ import com.varabyte.kotter.foundation.text.*
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.pile.Pile
 
 abstract class Command(protected val ctx: GameContext) {
     enum class Type {
