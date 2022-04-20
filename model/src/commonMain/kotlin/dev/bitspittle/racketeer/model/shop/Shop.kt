@@ -42,48 +42,39 @@ class MutableShop private constructor(
 
     override val exclusions get() = _exclusions.map { it.desc }
 
-    private fun handleRestock(restockAll: Boolean, possibleNewStock: MutableMap<Int, MutableList<CardTemplate>>): Boolean {
+    private fun handleRestock(restockAll: Boolean, possibleNewStock: List<CardTemplate>): Boolean {
         if (!restockAll && stock.size == shopSizes[tier]) return false // Shop is full; incremental restock fails
 
         if (restockAll) {
             stock.clear()
         }
 
-        var numCardsToStock = shopSizes[tier] - stock.size
+        val numCardsToStock = shopSizes[tier] - stock.size
 
         // This should never happen, but fail fast in case game data is bad!
-        require(possibleNewStock.values.sumOf { it.size } >= numCardsToStock) {
+        require(possibleNewStock.size >= numCardsToStock) {
             "There are not enough cards defined to restock the shop at tier ${tier + 1}."
         }
 
-        // Don't include frequency distribution entries for tiers we don't yet support
-        val frequencyBuckets = FrequencyBuckets(tierFrequencies.take(tier + 1))
-        val rarityBuckets = FrequencyBuckets(rarityFrequencies)
-        while (numCardsToStock > 0) {
-            val tier = frequencyBuckets.pickRandomBucket(random)
-            // Choices for a tier might be unavailable even if we wanted to randomly pick it, due to the passed in
-            // filter. At that point, just give up and keep trying until we get a tier that works
-            val choicesForThisTier = possibleNewStock[tier]?.takeIf { cards -> cards.isNotEmpty() } ?: continue
+        // Create an uber stock, which has all cards repeated a bunch of times as a lazy way to implement random
+        // frequency distribution
+        val uberStock = mutableListOf<CardTemplate>()
+        possibleNewStock.forEach { card ->
+            repeat(tierFrequencies[card.tier] * rarityFrequencies[card.rarity]) { uberStock.add(card) }
+        }
 
-            // Same thing we said above -- except applied to card rarity
-            var chosenCard: CardTemplate? = null
-            while (chosenCard == null) {
-                val rarity = rarityBuckets.pickRandomBucket(random)
-                chosenCard = choicesForThisTier.filter { it.rarity == rarity }.takeIf { it.isNotEmpty() }?.random(random)
-            }
-
-            stock.add(chosenCard.instantiate())
-            choicesForThisTier.remove(chosenCard)
-            numCardsToStock--
+        repeat(numCardsToStock) {
+            val template = uberStock.random(random)
+            uberStock.removeAll { it === template } // We never want to sell the same item twice
+            stock.add(template.instantiate())
         }
 
         return true
     }
 
-    private inline fun filterAllCards(additionalFilter: (CardTemplate) -> Boolean): MutableMap<Int, MutableList<CardTemplate>> {
+    private inline fun filterAllCards(additionalFilter: (CardTemplate) -> Boolean): List<CardTemplate> {
         return allCards
             .filter { card -> card.cost > 0 && card.tier <= this.tier && additionalFilter(card) }
-            .groupByTo(mutableMapOf()) { it.tier }
     }
 
     override suspend fun restock(restockAll: Boolean, additionalFilter: suspend (CardTemplate) -> Boolean): Boolean {
