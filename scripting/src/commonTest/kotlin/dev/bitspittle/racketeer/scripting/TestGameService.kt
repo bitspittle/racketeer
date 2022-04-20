@@ -173,8 +173,13 @@ class TestGameService(
     override val gameData: GameData = createFakeGameData(),
     override val cardQueue: CardQueue = StubCardQueue(),
     override val chooseHandler: ChooseHandler = object : ChooseHandler {
-        override suspend fun query(prompt: String?, list: List<Any>, range: IntRange): List<Any> {
-            return listOf()
+        override suspend fun query(
+            prompt: String?,
+            list: List<Any>,
+            range: IntRange,
+            requiredChoice: Boolean
+        ): List<Any> {
+            return emptyList()
         }
     },
 ) : GameService {
