@@ -8,9 +8,9 @@ class PlayCardCommand(ctx: GameContext, private val handIndex: Int) : Command(ct
     override val type = Type.Modify
     private val card = ctx.state.hand.cards[handIndex]
 
-    override val title = "Play: ${ctx.describer.describe(card, concise = true)}"
+    override val title = "Play: ${ctx.describer.describeCard(card, concise = true)}"
 
-    override val description = ctx.describer.describe(card)
+    override val description = ctx.describer.describeCard(card)
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {

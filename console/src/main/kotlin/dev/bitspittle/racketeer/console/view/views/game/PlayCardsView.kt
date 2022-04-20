@@ -37,7 +37,7 @@ class PlayCardsView(ctx: GameContext) : View(ctx) {
                 }
             }
             ctx.state.street.cards.forEach { card ->
-                textLine("- ${ctx.describer.describe(card, concise = true)}")
+                textLine("- ${ctx.describer.describeCard(card, concise = true)}")
             }
         } else {
             black(isBright = true) { textLine("(Empty)") }

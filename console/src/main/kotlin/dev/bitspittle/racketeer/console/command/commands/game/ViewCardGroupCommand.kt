@@ -13,8 +13,8 @@ class ViewCardGroupCommand(ctx: GameContext, private val cards: List<Card>) : Co
         require(cards.isNotEmpty())
     }
 
-    override val title = ctx.describer.describe(cards, concise = true)
-    override val description = ctx.describer.describe(cards)
+    override val title = ctx.describer.describeCard(cards, concise = true)
+    override val description = ctx.describer.describeCard(cards)
 
     override suspend fun invoke(): Boolean {
         // Sort the cards before viewing so we don't give away card order in this pile

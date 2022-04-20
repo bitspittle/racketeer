@@ -132,7 +132,7 @@ class Describer(private val data: GameData) {
         }
     }
 
-    fun describe(template: CardTemplate, showCash: Boolean = false, concise: Boolean = false): String {
+    fun describeCard(template: CardTemplate, showCash: Boolean = false, concise: Boolean = false): String {
         return buildString {
             appendCardName(template.name, emptySet(), concise)
             if (showCash) {
@@ -157,7 +157,7 @@ class Describer(private val data: GameData) {
         appendCardName(card.template.name, card.upgrades, concise)
     }
 
-    fun describe(cards: List<Card>, concise: Boolean = false): String {
+    fun describeCard(cards: List<Card>, concise: Boolean = false): String {
         require(cards.isNotEmpty())
         val representativeCard = cards.first().copy(uuid4(), vpBase = 0, vpBonus = 0, upgrades = emptySet())
         return buildString {
@@ -175,7 +175,7 @@ class Describer(private val data: GameData) {
         }
     }
 
-    fun describe(card: Card, concise: Boolean = false): String {
+    fun describeCard(card: Card, concise: Boolean = false): String {
         return buildString {
             appendCardName(card, concise)
 

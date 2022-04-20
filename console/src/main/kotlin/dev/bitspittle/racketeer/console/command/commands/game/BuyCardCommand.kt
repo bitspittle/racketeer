@@ -8,9 +8,9 @@ import dev.bitspittle.racketeer.model.card.Card
 class BuyCardCommand(ctx: GameContext, private val card: Card) : Command(ctx) {
     override val type = if (ctx.state.cash >= card.template.cost) Type.Modify else Type.Disabled
 
-    override val title = "Buy: ${ctx.describer.describe(card.template, concise = true)}"
+    override val title = "Buy: ${ctx.describer.describeCard(card.template, concise = true)}"
     override val meta = ctx.describer.describeCash(card.template.cost)
-    override val description = ctx.describer.describe(card.template)
+    override val description = ctx.describer.describeCard(card.template)
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {
