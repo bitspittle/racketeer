@@ -3,6 +3,7 @@ icons:
   cash: "💰"
   influence: "🤝"
   luck: "🎲"
+  undercover: "🥸"
   vp: "🌟"
 numTurns: 20
 initialHandSize: 5
@@ -11,7 +12,7 @@ initialInfluence: 0
 initialLuck: 0
 initialDeck:
   - Pickpocket 5
-  - Rumormonger 3
+  - Newsie 3
 cardTypes:
   # Ordered by how they should show up on a card, NOT alphabetically necessarily
   - Action
@@ -81,6 +82,7 @@ globalActions:
   - def 'stop-if! '$cond '(if $cond '(stop!) _)
   - def 'cancel-if! '$cond '(if $cond '(cancel!) _)
   - def 'ask? '$prompt '(= (single (choose --prompt icon-convert $prompt (list "Yes" "No") 1) _) "Yes")
+  - def 'ask?! '$prompt '(= (single (choose --required _ --prompt icon-convert $prompt (list "Yes" "No") 1) _) "Yes")
   - def 'card-has-any-of-types? '$card '$types '(any? (card-get $card 'types) '(in? $types $it))
   - def 'card-has-all-types? '$card '$types '(all? (card-get $card 'types) '(in? $types $it))
   - def 'card-upgrade-count '$card '(count (list (card-has-upgrade? $card 'cash) (card-has-upgrade? $card 'influence) (card-has-upgrade? $card 'luck) (card-has-upgrade? $card 'undercover)) '(= $it true))
@@ -96,7 +98,7 @@ cards:
     types: [cop]
     flavor: Do nothing.
 
-  - name: Rumormonger
+  - name: Newsie
     tier: 0
     types: [spy]
     flavor: Gain &.
@@ -110,7 +112,7 @@ cards:
     playActions:
       - game-add! 'cash 1
 
-  - name: Fool's Gold
+  - name: Counterfeit Cash
     tier: 0
     rarity: 1
     types: [action]
@@ -119,16 +121,6 @@ cards:
     playActions:
       - game-add! 'cash 4
       - pile-move-to! $jail $this
-
-  - name: Squealer
-    tier: 0
-    rarity: 1
-    types: [spy]
-    cost: 3
-    flavor: Gain 2&. You may jail up to two cards on the Street.
-    playActions:
-      - game-add! 'influence 2
-      - pile-move-to! $jail (choose --prompt "Choose cards to jail." $street .. 0 2)
 
   - name: Con Artist
     tier: 0
@@ -140,6 +132,15 @@ cards:
       - game-add! 'cash 1
       - game-add! 'influence 1
 
+  - name: Squealer
+    tier: 0
+    rarity: 1
+    types: [spy, cop]
+    cost: 3
+    flavor: Gain 2&. You may jail a card on the Street.
+    playActions:
+      - game-add! 'influence 2
+      - pile-move-to! $jail (choose --prompt "Choose up to one card to jail." $street .. 0 1)
 
   - name: Burglar
     tier: 0
@@ -169,15 +170,16 @@ cards:
     flavor: Draw two cards, then discard one.
     playActions: 
       - game-draw! 2
-      - pile-move-to! $discard (choose --prompt "Choose a card to discard." $hand 1)
+      - pile-move-to! $discard (choose --required _ --prompt "Choose a card to discard." $hand 1)
 
   - name: I Know a Guy
     tier: 0
     rarity: 2
     types: [action]
     cost: 4
-    flavor: Gain a Burglar on top of your deck.
+    flavor: Gain %. Create a Burglar on top of your deck.
     playActions:
+      - game-add! 'luck 1
       - pile-copy-to! --pos 'front $deck (single (filter $all-cards '(= card-get $it 'name "Burglar")) _ )
 
   - name: Card Shark
@@ -194,12 +196,14 @@ cards:
 
   - name: Cheese It!
     tier: 1
-    rarity: 2
+    rarity: 0
     types: [action]
     cost: 2
-    flavor: Jail your hand.
+    flavor: Jail the street. Gain %.
     playActions:
-      - pile-move-to! $jail $hand
+      - pile-move-to! $jail $street
+      - game-add! 'luck 1
+
 
   - name: Ditch the Goods
     tier: 1
@@ -212,7 +216,7 @@ cards:
       - pile-move-to! $discard $hand
       - game-draw! + 1 $to-draw-count
 
-  - name: Schmoozer
+  - name: Oily Schmoozer
     tier: 1 
     rarity: 1
     types: [spy, trickster]
@@ -221,16 +225,16 @@ cards:
     playActions: 
       - game-add! 'influence 2
       - game-draw! 1
-      - pile-move-to! $discard (choose --prompt "Choose a card to discard." $hand 1)
+      - pile-move-to! $discard (choose --required _ --prompt "Choose a card to discard." $hand 1)
 
   - name: Lady Thistledown
     tier: 1
     rarity: 1
     types: [spy, legend]
     cost: 3
-    flavor: Give a Spy in your hand +1&.
+    flavor: Give a Spy you own +1&.
     playActions:
-      - set '$spies filter $hand '(card-has-type? $it 'spy)
+      - set '$spies filter $owned '(card-has-type? $it 'spy)
       - stop-if! empty? $spies
       - card-upgrade! (choose --prompt "Choose a Spy to upgrade." $spies 1) 'influence
 
@@ -239,9 +243,9 @@ cards:
     rarity: 1
     types: [thief, legend]
     cost: 3
-    flavor: Give a Thief in your hand +1$.
+    flavor: Give a Thief you own +1$.
     playActions:
-      - set '$thieves filter $hand '(card-has-type? $it 'thief)
+      - set '$thieves filter $owned '(card-has-type? $it 'thief)
       - stop-if! empty? $thieves
       - card-upgrade! (choose --prompt "Choose a Thief to upgrade." $thieves 1) 'cash
 
@@ -265,6 +269,14 @@ cards:
     vp: 2
     playActions:
       - game-draw! 1
+
+  - name: Gold Chain
+    tier: 1
+    rarity: 1
+    types: [treasure]
+    cost: 3
+    flavor: This is worth * for each Gold Chain you own.
+    passiveVp: size filter $owned '(= card-get $it 'name "Gold Chain")
 
   - name: Grift
     tier: 1
@@ -291,15 +303,28 @@ cards:
 
   - name: Embezzler
     tier: 1
-    rarity: 0
+    rarity: 1
     types: [thief, spy]
     cost: 4
     flavor: "Choose one: Gain 2$ or Gain 2&."
     playActions:
-      - set '$choices (list "Gain 2$" "Gain 2&")
+      - set '$choices (map (list "Gain 2$." "Gain 2&.") '(icon-convert $it))
       - set '$chosen-index (index-of $choices single choose $choices 1 _)
       - if-true (= $chosen-index 0) '(game-add! 'cash 2)
       - if-true (= $chosen-index 1) '(game-add! 'influence 2)
+
+  - name: Big Bill Murphy
+    tier: 1
+    rarity: 1
+    types: [cop, legend]
+    cost: 5
+    flavor: Gain 2$. You may convert all your $ to &.
+    playActions:
+      - game-add! 'cash 2
+      - set '$convert (ask?! "Would you like to convert your $ into &?")
+      - stop-if! ! $convert
+      - game-add! 'influence game-get 'cash
+      - game-set! 'cash 0
 
 
   - name: Wanted Poster
@@ -336,23 +361,22 @@ cards:
     playActions:
      - card-set! $this 'vp '(+ 2 $it)
 
-
   - name: Jade Ornament
     tier: 2
     rarity: 1
     types: [treasure]
     cost: 3
-    flavor: This is worth * for each ten cards you own.
-    passiveVp: / (size $owned) 10
+    flavor: This is worth * for each eight cards you own.
+    passiveVp: / (size $owned) 8
 
   - name: Lucky Parole
     tier: 2
     rarity: 2
     types: [action]
     cost: 3
-    flavor: Gain 3%. Put a card from Jail and a Constable into your hand.
+    flavor: Gain 2%. Put a card from Jail and a Constable into your hand.
     playActions:
-      - game-add! 'luck 3
+      - game-add! 'luck 2
       - stop-if! empty? $jail
       - pile-move-to! $hand (choose --prompt "Choose a card to get out of jail." $jail 1)
       - pile-copy-to! $hand (single (filter $all-cards '(= card-get $it 'name "Constable")) _ )
@@ -377,7 +401,7 @@ cards:
       - pile-copy-to! $hand $copied-card
 
   - name: Joey Omaha
-    tier: 3
+    tier: 2
     rarity: 2
     types: [trickster, legend]
     cost: 4
@@ -387,18 +411,24 @@ cards:
       - stop-if! ! any? $owned '(card-has-type? $it 'trickster)
       - card-upgrade! (choose --prompt "Choose a Trickster to upgrade." (filter $owned '(card-has-type? $it 'trickster)) 1) 'luck
 
-  - name: Secret Identity
+  - name: "'Velvet Thunder' Bauer"
     tier: 2
     rarity: 2
+    types: [cop, legend]
+    cost: 4
+    flavor: When you get this, jail all Pickpockets and Newsies.
+    initActions: 
+      - pile-move-to! $jail filter $owned '(= card-get $it 'name "Pickpocket")
+      - pile-move-to! $jail filter $owned '(= card-get $it 'name "Newsie")
+
+  - name: Run the Numbers
+    tier: 2
+    rarity: 1
     types: [action]
     cost: 4
-    flavor: Gain $$. Give a Thief, Spy, or Trickster in your hand "This isn't discarded at end of turn."
-    gameActions:
-      - game-add! 'cash 2
-      - set $types list 'thief 'spy 'trickster
-      - set $matches filter $hand '(card-has-any-type? $types)
-      - stop-if empty? $matches
-      - card-upgrade! (choose --prompt "Choose a card to upgrade." $matches 1) 'undercover
+    flavor: Draw a card for each eight cards you own.
+    playActions:
+      - game-draw! / (size $owned) 8
 
   - name: Swindler
     tier: 2
@@ -420,10 +450,10 @@ cards:
       - game-add! 'cash 2
       - pile-move-to! $jail (choose --prompt "Choose up to two cards to jail." $deck .. 0 2)
 
-  - name: Guildmaster
+  - name: The Don
     tier: 2
     rarity: 2
-    types: [thief]
+    types: [thief, legend]
     cost: 6
     flavor: Gain 1$ for each Thief on the street.
     playActions:
@@ -438,8 +468,9 @@ cards:
     playActions:
      - game-set! 'hand-size 6
      - pile-move-to! $jail $this
+     - shop-exclude! '(= card-get $card 'name "Turf Expansion")
 
-  - name: Bank Robber
+  - name: Safecracker
     tier: 2
     rarity: 0
     types: [thief]
@@ -451,7 +482,7 @@ cards:
   - name: Hottie Mara
     tier: 2
     rarity: 2
-    types: [spy]
+    types: [spy, legend]
     cost: 7
     flavor: Double your current &.
     playActions:
@@ -471,7 +502,7 @@ cards:
       - stop-if! empty? $maybe-card-to-jail
       - set '$card-to-jail single $maybe-card-to-jail _
       - pile-move-to! $jail $card-to-jail
-      - game-add! 'cash card-get $card-to-jail 'tier
+      - game-add! 'cash + 1 card-get $card-to-jail 'tier
 
   - name: Fence
     tier: 3
@@ -486,7 +517,7 @@ cards:
 
   - name: Purse Snatcher
     tier: 3
-    rarity: 2
+    rarity: 1
     types: [thief]
     cost: 5
     flavor: Add a card from the shop and a Constable to your discard pile.
@@ -499,10 +530,10 @@ cards:
     rarity: 2
     types: [thief, legend]
     cost: 5
-    flavor: Jail this card and all Cops you own. Gain $ for each.
+    flavor: Jail this card and all Cops you own. Gain 2$ for each.
     playActions:
       - set '$owned-cops (filter $owned '(card-has-type? $it 'cop))
-      - set '$cash-gained + 1 (size $owned-cops)
+      - set '$cash-gained * 2 + 1 (size $owned-cops)
       - pile-move-to! $jail $owned-cops
       - pile-move-to! $jail $this
       - game-add! 'cash $cash-gained
@@ -532,6 +563,36 @@ cards:
     flavor: This is worth * for each two cards in jail.
     passiveVp: / (size $jail) 2
 
+  - name: Ruthven Catsby, Esq.
+    tier: 3
+    rarity: 1
+    types: [spy, legend]
+    cost: 5
+    flavor: Gain 3&. You may convert all your & to $.
+    playActions:
+      - game-add! 'influence 3
+      - set '$convert (ask?! "Would you like to convert your & into $?")
+      - stop-if! ! $convert
+      - game-add! 'cash game-get 'influence
+      - game-set! 'influence 0
+
+  - name: Ruby
+    tier: 3
+    rarity: 1
+    types: [treasure]
+    cost: 6
+    flavor: There's no place like home.
+    vp: 7
+
+  - name: Bank Robber
+    tier: 3
+    rarity: 1
+    types: [thief]
+    cost: 6
+    flavor: Gain 4$.
+    playActions:
+      - game-add! 'cash 4
+
   - name: Corrupt Bailiff
     tier: 3
     rarity: 1
@@ -541,7 +602,7 @@ cards:
     playActions:
       - game-draw! 1
       - stop-if! < game-get 'influence 4
-      - set '$convert (ask? "Would you like to spend 4& to give this card 4*?")
+      - set '$convert (ask?! "Would you like to spend 4& to give this card 4*?")
       - stop-if! ! $convert
       - game-add! 'influence -4
       - card-set! $this 'vp '(+ 4 $it)
@@ -555,7 +616,7 @@ cards:
     flavor: Draw three cards, then discard one.
     playActions:
       - game-draw! 3
-      - pile-move-to! $discard (choose --prompt "Choose a card to discard." $hand 1)
+      - pile-move-to! $discard (choose --required _ --prompt "Choose a card to discard." $hand 1)
 
 # TIER 5
 
@@ -564,8 +625,8 @@ cards:
     rarity: 2
     types: [treasure]
     cost: 4
-    flavor: This is worth 2* for Legend you own.
-    passiveVp: * 2 (size (filter $owned '(card-has-type? 'legend)))
+    flavor: This is worth 3* for Legend you own.
+    passiveVp: * 3 (size (filter $owned '(card-has-type? $it 'legend)))
 
   - name: Dirty Sergeant
     tier: 4
@@ -574,7 +635,8 @@ cards:
     cost: 4
     flavor: Draw a card for every Cop you own.
     playActions:
-      - game-draw! size (filter $owned '(card-has-type? 'cop))
+      - set '$num-cops-owned size (filter $owned '(card-has-type? $it 'cop))
+      - game-draw! $num-cops-owned
 
   - name: Lucky Emerald
     tier: 4
@@ -586,7 +648,8 @@ cards:
     playActions:
       - game-add! 'luck 2
 
-  - name: Annie Doshan
+
+  - name: Annie Doshen
     tier: 4
     rarity: 2
     types: [thief, spy, trickster, legend]
@@ -603,24 +666,28 @@ cards:
     rarity: 2
     types: [action]
     cost: 6
-    flavor: Put any number of cards from Jail into your hand.
+    flavor: Put up to three cards from Jail into your hand. Burn this.
     playActions:
-      - pile-move-to! $hand (choose --prompt "Choose cards to get out of jail." $jail .. 0 _)
+      - pile-move-to! $hand (choose --prompt "Choose cards to get out of jail." $jail .. 0 3)
+      - card-remove! $this
 
 
   - name: Corner the Market
     tier: 4
-    rarity: 2
+    rarity: 1
     types: [action]
     cost: 7
     flavor: Set your hand size to 7. Jail this card.
     playActions:
      - game-set! 'hand-size 7
      - pile-move-to! $jail $this
+     - shop-exclude! '(= card-get $card 'name "Turf Expansion")
+     - shop-exclude! '(= card-get $card 'name "Corner the Market")
 
-  - name: Robber Baron
+
+  - name: Kingpin
     tier: 4
-    rarity: 0
+    rarity: 1
     types: [thief]
     cost: 7
     flavor: Gain 5$.
@@ -647,7 +714,7 @@ cards:
 
   - name: Diamond
     tier: 4
-    rarity: 0
+    rarity: 1
     types: [treasure]
     cost: 8
     vp: 10
