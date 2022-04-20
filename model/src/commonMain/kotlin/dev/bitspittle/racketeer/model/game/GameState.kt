@@ -150,7 +150,7 @@ class GameState internal constructor(
     val discard: Pile = _discard
     val jail: Pile = _jail
 
-    private val _allPiles = listOf(deck, hand, street, discard, jail)
+    private val _allPiles = listOf(hand, deck, discard, street, jail)
     val allPiles: List<Pile> = _allPiles
     fun getOwnedCards() = (allPiles - jail).flatMap { it.cards }
 
