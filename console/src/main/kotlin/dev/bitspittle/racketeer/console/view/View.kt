@@ -2,11 +2,8 @@ package dev.bitspittle.racketeer.console.view
 
 import com.varabyte.kotter.foundation.input.Key
 import com.varabyte.kotter.foundation.input.Keys
-import com.varabyte.kotter.foundation.input.OnInputChangedScope
-import com.varabyte.kotter.foundation.input.OnInputEnteredScope
 import com.varabyte.kotter.foundation.text.*
 import com.varabyte.kotter.runtime.MainRenderScope
-import com.varabyte.kotter.runtime.RunScope
 import com.varabyte.kotter.runtime.render.RenderScope
 import com.varabyte.kotterx.decorations.BorderCharacters
 import com.varabyte.kotterx.decorations.bordered

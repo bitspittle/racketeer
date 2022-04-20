@@ -3,11 +3,11 @@ package dev.bitspittle.limp.utils
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.types.Expr
 
-private fun String.toIdentifierName(): String {
+fun String.toIdentifierName(): String {
     return this.lowercase().replace('_', '-')
 }
 
-private fun <E: Enum<E>> Array<E>.toIdentifierNames(): Sequence<Pair<E, String>> {
+fun <E: Enum<E>> Array<E>.toIdentifierNames(): Sequence<Pair<E, String>> {
     return this
         .asSequence()
         .map { enum -> enum to enum.name.toIdentifierName() }

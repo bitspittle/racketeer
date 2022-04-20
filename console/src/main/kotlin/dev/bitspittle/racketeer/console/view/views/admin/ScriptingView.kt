@@ -5,10 +5,13 @@ import com.varabyte.kotter.foundation.text.*
 import com.varabyte.kotter.runtime.MainRenderScope
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.limp.Evaluator
+import dev.bitspittle.limp.utils.toIdentifierName
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.trie.MutableTextTree
+import dev.bitspittle.racketeer.console.trie.TextTree
 import dev.bitspittle.racketeer.console.trie.TextTreeCursor
+import dev.bitspittle.racketeer.console.trie.intoWordTree
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
@@ -17,6 +20,9 @@ import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.GameStateDiff
 import dev.bitspittle.racketeer.model.game.reportTo
 import dev.bitspittle.racketeer.model.text.Describer
+import dev.bitspittle.racketeer.scripting.types.CardProperty
+import dev.bitspittle.racketeer.scripting.types.GameProperty
+import dev.bitspittle.racketeer.scripting.types.PileProperty
 import dev.bitspittle.racketeer.scripting.utils.addVariablesInto
 
 private class ScriptingCommand(
@@ -55,9 +61,16 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
 
     private val symbolTextTree = MutableTextTree()
     init { refreshSymbolTextTree() }
-    private val stringTextTree = MutableTextTree().apply {
+    private val stringTextTree: TextTree = MutableTextTree().apply {
         ctx.data.cards.forEach { card -> this.add(card.name) }
     }
+    private val propertiesTextTree: TextTree = listOf(GameProperty.values(), CardProperty.values(), PileProperty.values())
+        .asSequence()
+        .flatMap { it.asSequence() }
+        .map { it.name.toIdentifierName() }
+        .toList()
+        .intoWordTree()
+
     private var textCursor: TextTreeCursor? = null
     private val inputCompleter = object : InputCompleter {
         override fun complete(input: String): String? {
@@ -160,7 +173,11 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
                         val str = lastWord.drop(1)
                         textCursor = stringTextTree.cursor(str)
                     }
-                    '\'', '(' -> {
+                    '\'' -> {
+                        lastWord = lastWord.drop(1)
+                        textCursor = propertiesTextTree.cursor(lastWord).takeIf { it.curr != null }
+                    }
+                    '(' -> {
                         lastWord = lastWord.drop(1)
                     }
                     else -> {
@@ -176,6 +193,9 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
         (ctx.env.getMethodNames() + ctx.env.getVariableNames()).forEach { name ->
             symbolTextTree.add(name)
         }
+        symbolTextTree.add("\$this")
+        symbolTextTree.add("\$it")
+        symbolTextTree.add("\$card")
     }
 
     @Suppress("NAME_SHADOWING")
