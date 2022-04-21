@@ -29,6 +29,7 @@ class GameStateDiff(val before: GameState, val after: GameState) {
     val cash: Int
     val influence: Int
     val luck: Int
+    val handSize: Int
     val vp: Int
     val movedCards: Map<Pair<Pile, Pile>, List<Card>>
     val createdCards: List<Card>
@@ -39,6 +40,7 @@ class GameStateDiff(val before: GameState, val after: GameState) {
         cash = after.cash - before.cash
         influence = after.influence - before.influence
         luck = after.luck - before.luck
+        handSize = after.handSize - before.handSize
         vp = after.vp - before.vp
 
         val allCardsBefore = (before.allPiles.flatMap { it.cards }).associateBy { it.id }
@@ -140,6 +142,11 @@ private class GameStateDiffReporter(
         when {
             diff.luck > 0 -> reportLine("You earned ${describer.describeLuck(diff.luck)}.")
             diff.luck < 0 -> reportLine("You spent ${describer.describeLuck(-diff.luck)}.")
+        }
+
+        when {
+            diff.handSize > 0 -> reportLine("Your hand size grew from ${diff.before.handSize} to ${diff.after.handSize} cards.")
+            diff.handSize < 0 -> reportLine("Your hand size shrunk from ${diff.before.handSize} to ${diff.after.handSize} cards.")
         }
 
         when {
