@@ -4,14 +4,14 @@ import com.varabyte.truthish.assertThat
 import kotlin.random.Random
 import kotlin.test.Test
 
-class CloneableRandomTest {
+class CopyableRandomTest {
     @Test
-    fun cloneableRandomBasedOnNormalRandom() {
+    fun copyableRandomBasedOnNormalRandom() {
         repeat(100) {
-            val cloneableRandom = CloneableRandom()
-            val normalRandom = Random(cloneableRandom.seed)
-            val int1 = cloneableRandom.nextInt()
-            normalRandom.nextLong() // Implementation detail, but cloneableRandom generates a new seed each time
+            val copyableRandom = CopyableRandom()
+            val normalRandom = Random(copyableRandom.seed)
+            val int1 = copyableRandom.nextInt()
+            normalRandom.nextLong() // Implementation detail, but copyableRandom generates a new seed each time
             val int2 = normalRandom.nextInt()
 
             assertThat(int1).isEqualTo(int2)
@@ -20,13 +20,13 @@ class CloneableRandomTest {
 
     @Test
     fun checkCanCopyConsistentRandom() {
-        val cloneableRandom = CloneableRandom()
+        val copyableRandom = CopyableRandom()
 
         repeat(10) {
-            val copy1 = cloneableRandom.copy()
-            val copy2 = cloneableRandom.copy()
+            val copy1 = copyableRandom.copy()
+            val copy2 = copyableRandom.copy()
 
-            val nextInt = cloneableRandom.nextInt()
+            val nextInt = copyableRandom.nextInt()
             assertThat(copy1.nextInt()).isEqualTo(nextInt)
             assertThat(copy2.nextInt()).isEqualTo(nextInt)
         }

@@ -3,15 +3,10 @@ package dev.bitspittle.racketeer.console.command.commands.system
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.popAll
-import dev.bitspittle.racketeer.console.view.popAllAndRefresh
 import dev.bitspittle.racketeer.console.view.views.game.PlayCardsView
 import dev.bitspittle.racketeer.console.view.views.game.PreDrawView
-import dev.bitspittle.racketeer.model.game.GameState
-import dev.bitspittle.racketeer.model.random.CloneableRandom
 import dev.bitspittle.racketeer.model.snapshot.GameSnapshot
 import net.mamoe.yamlkt.Yaml
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import kotlin.io.path.*
 
 class LoadGameCommand(ctx: GameContext, private val slot: Int) : Command(ctx) {

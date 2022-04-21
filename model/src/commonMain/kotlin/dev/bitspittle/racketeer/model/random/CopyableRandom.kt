@@ -8,10 +8,10 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlin.random.Random
 
-class CloneableRandomSerializer : KSerializer<CloneableRandom> {
-    override val descriptor = PrimitiveSerialDescriptor("CloneableRandom", PrimitiveKind.LONG)
-    override fun serialize(encoder: Encoder, value: CloneableRandom) = encoder.encodeLong(value.seed)
-    override fun deserialize(decoder: Decoder): CloneableRandom = CloneableRandom(decoder.decodeLong())
+class CopyableRandomSerializer : KSerializer<CopyableRandom> {
+    override val descriptor = PrimitiveSerialDescriptor("CopyableRandom", PrimitiveKind.LONG)
+    override fun serialize(encoder: Encoder, value: CopyableRandom) = encoder.encodeLong(value.seed)
+    override fun deserialize(decoder: Decoder): CopyableRandom = CopyableRandom(decoder.decodeLong())
 }
 
 /**
@@ -20,8 +20,8 @@ class CloneableRandomSerializer : KSerializer<CloneableRandom> {
  * Our game needs to be able to restore back in time occasionally, and for that case, we want to be able to take a
  * snapshot of our random number generator at various points of time.
  */
-@Serializable(with = CloneableRandomSerializer::class)
-class CloneableRandom(seed: Long = Random.Default.nextLong()) {
+@Serializable(with = CopyableRandomSerializer::class)
+class CopyableRandom(seed: Long = Random.Default.nextLong()) {
     var seed: Long = seed
         private set
 
@@ -33,5 +33,5 @@ class CloneableRandom(seed: Long = Random.Default.nextLong()) {
 
     operator fun invoke() = random()
 
-    fun copy() = CloneableRandom(seed)
+    fun copy() = CopyableRandom(seed)
 }

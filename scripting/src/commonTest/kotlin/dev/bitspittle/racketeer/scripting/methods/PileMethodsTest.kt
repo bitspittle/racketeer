@@ -6,13 +6,11 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.methods.collection.FirstMethod
 import dev.bitspittle.limp.methods.collection.TakeMethod
 import dev.bitspittle.limp.types.Placeholder
-import dev.bitspittle.racketeer.model.random.CloneableRandom
 import dev.bitspittle.racketeer.scripting.TestGameService
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.pile.PileCopyToMethod
 import dev.bitspittle.racketeer.scripting.methods.pile.PileMoveToMethod
 import kotlinx.coroutines.test.runTest
-import kotlin.random.Random
 import kotlin.test.Test
 
 class PileMethodsTest {

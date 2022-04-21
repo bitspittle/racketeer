@@ -14,14 +14,13 @@ import dev.bitspittle.limp.methods.system.RunMethod
 import dev.bitspittle.limp.methods.system.SetMethod
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
-import dev.bitspittle.racketeer.model.random.CloneableRandom
+import dev.bitspittle.racketeer.model.random.CopyableRandom
 import dev.bitspittle.racketeer.scripting.TestGameService
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.card.*
 import dev.bitspittle.racketeer.scripting.methods.pile.PileCopyToMethod
 import dev.bitspittle.racketeer.scripting.types.CardQueueImpl
 import kotlinx.coroutines.test.runTest
-import kotlin.random.Random
 import kotlin.test.Test
 
 @Suppress("UNCHECKED_CAST")
@@ -99,7 +98,7 @@ class CardMethodsTest {
     @Test
     fun testRemoveMethod() = runTest {
         val env = Environment()
-        val service = TestGameService(CloneableRandom(123), )
+        val service = TestGameService(CopyableRandom(123), )
 
         val gameState = service.gameState
         env.addMethod(CardRemoveMethod { gameState })

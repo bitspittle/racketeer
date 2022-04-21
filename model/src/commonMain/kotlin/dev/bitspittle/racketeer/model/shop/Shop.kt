@@ -3,7 +3,7 @@ package dev.bitspittle.racketeer.model.shop
 import com.benasher44.uuid.Uuid
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
-import dev.bitspittle.racketeer.model.random.CloneableRandom
+import dev.bitspittle.racketeer.model.random.CopyableRandom
 
 interface Shop {
     val tier: Int
@@ -15,7 +15,7 @@ interface Shop {
 }
 
 class MutableShop internal constructor(
-    private val random: CloneableRandom,
+    private val random: CopyableRandom,
     private val allCards: List<CardTemplate>,
     private val shopSizes: List<Int>,
     private val tierFrequencies: List<Int>,
@@ -24,7 +24,7 @@ class MutableShop internal constructor(
     override val stock: MutableList<Card?>,
     override val exclusions: MutableList<Exclusion>,
 ) : Shop {
-    constructor(random: CloneableRandom, allCards: List<CardTemplate>, shopSizes: List<Int>, tierFrequencies: List<Int>, rarityFrequencies: List<Int>) : this(
+    constructor(random: CopyableRandom, allCards: List<CardTemplate>, shopSizes: List<Int>, tierFrequencies: List<Int>, rarityFrequencies: List<Int>) : this(
         random,
         allCards,
         shopSizes,
@@ -102,7 +102,7 @@ class MutableShop internal constructor(
         return true
     }
 
-    fun copy(random: CloneableRandom = this.random.copy()) = MutableShop(
+    fun copy(random: CopyableRandom = this.random.copy()) = MutableShop(
         random,
         allCards,
         shopSizes,

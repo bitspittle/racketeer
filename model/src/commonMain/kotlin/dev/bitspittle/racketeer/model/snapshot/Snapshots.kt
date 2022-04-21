@@ -1,6 +1,5 @@
 package dev.bitspittle.racketeer.model.snapshot
 
-import com.benasher44.uuid.uuid4
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.racketeer.model.card.Card
@@ -11,7 +10,7 @@ import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
-import dev.bitspittle.racketeer.model.random.CloneableRandom
+import dev.bitspittle.racketeer.model.random.CopyableRandom
 import dev.bitspittle.racketeer.model.shop.Exclusion
 import dev.bitspittle.racketeer.model.shop.MutableShop
 import dev.bitspittle.racketeer.model.shop.Shop
@@ -65,7 +64,7 @@ class ShopSnapshot(
         )
     }
 
-    fun create(data: GameData, random: CloneableRandom) = MutableShop(
+    fun create(data: GameData, random: CopyableRandom) = MutableShop(
         random,
         data.cards,
         data.shopSizes,
@@ -105,7 +104,7 @@ class EffectSnapshot(val expr: String, val desc: String) {
 
 @Serializable
 class GameSnapshot(
-    val random: CloneableRandom,
+    val random: CopyableRandom,
     val isPreDraw: Boolean,
     val numTurns: Int,
     val turn: Int,

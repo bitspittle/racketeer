@@ -19,7 +19,7 @@ import dev.bitspittle.racketeer.console.view.views.game.ChooseItemsView
 import dev.bitspittle.racketeer.console.view.views.game.PickItemView
 import dev.bitspittle.racketeer.console.view.views.system.TitleMenuView
 import dev.bitspittle.racketeer.model.game.GameData
-import dev.bitspittle.racketeer.model.random.CloneableRandom
+import dev.bitspittle.racketeer.model.random.CopyableRandom
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.types.CardQueueImpl
 import dev.bitspittle.racketeer.scripting.types.GameService
@@ -57,7 +57,7 @@ class GameSession(
             }
         }
 
-        val random = CloneableRandom()
+        val random = CopyableRandom()
 
         val env = Environment()
         env.installDefaults(object : LangService {

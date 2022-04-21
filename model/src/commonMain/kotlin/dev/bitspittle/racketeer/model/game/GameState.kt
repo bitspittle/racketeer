@@ -5,13 +5,13 @@ import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
-import dev.bitspittle.racketeer.model.random.CloneableRandom
+import dev.bitspittle.racketeer.model.random.CopyableRandom
 import dev.bitspittle.racketeer.model.shop.MutableShop
 import dev.bitspittle.racketeer.model.shop.Shop
 import kotlin.math.max
 
 class GameState internal constructor(
-    internal val random: CloneableRandom,
+    internal val random: CopyableRandom,
     val allCards: List<CardTemplate>,
     private val cardQueue: CardQueue,
     numTurns: Int,
@@ -29,7 +29,7 @@ class GameState internal constructor(
     jail: MutablePile,
     streetEffects: MutableList<Effect>,
 ) {
-    constructor(data: GameData, cardQueue: CardQueue, random: CloneableRandom) : this(
+    constructor(data: GameData, cardQueue: CardQueue, random: CopyableRandom) : this(
         random = random,
         allCards = data.cards,
         cardQueue = cardQueue,
