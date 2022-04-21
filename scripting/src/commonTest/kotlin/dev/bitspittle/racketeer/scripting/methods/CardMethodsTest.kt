@@ -14,6 +14,7 @@ import dev.bitspittle.limp.methods.system.RunMethod
 import dev.bitspittle.limp.methods.system.SetMethod
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
+import dev.bitspittle.racketeer.model.random.CloneableRandom
 import dev.bitspittle.racketeer.scripting.TestGameService
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.card.*
@@ -98,12 +99,12 @@ class CardMethodsTest {
     @Test
     fun testRemoveMethod() = runTest {
         val env = Environment()
-        val service = TestGameService(Random(123), )
+        val service = TestGameService(CloneableRandom(123), )
 
         val gameState = service.gameState
         env.addMethod(CardRemoveMethod { gameState })
         env.addMethod(SizeMethod())
-        env.addMethod(TakeMethod(service.random))
+        env.addMethod(TakeMethod(service::random))
         env.addMethod(ListGetMethod())
 
         gameState.draw(4)
@@ -149,8 +150,8 @@ class CardMethodsTest {
         env.addMethod(CardHasUpgradeMethod())
         env.addMethod(SetMethod(service.logger))
         env.addMethod(ListGetMethod())
-        env.addMethod(DropMethod(service.random))
-        env.addMethod(TakeMethod(service.random))
+        env.addMethod(DropMethod(service::random))
+        env.addMethod(TakeMethod(service::random))
         env.addMethod(CountMethod())
         env.addConverter(PileToCardsConverter())
 

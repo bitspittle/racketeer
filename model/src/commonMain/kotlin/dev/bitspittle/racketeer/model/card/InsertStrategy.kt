@@ -1,9 +1,10 @@
 package dev.bitspittle.racketeer.model.card
 
 import dev.bitspittle.limp.types.ListStrategy
+import dev.bitspittle.racketeer.model.random.CloneableRandom
 import kotlin.random.Random
 
-fun MutableList<Card>.insert(cards: List<Card>, listStrategy: ListStrategy, random: Random = Random.Default) {
+fun MutableList<Card>.insert(cards: List<Card>, listStrategy: ListStrategy, random: CloneableRandom) {
     when (listStrategy) {
         ListStrategy.FRONT -> cards.forEachIndexed { i, card -> this.add(i, card) }
         ListStrategy.BACK -> cards.forEach { card -> this.add(card) }

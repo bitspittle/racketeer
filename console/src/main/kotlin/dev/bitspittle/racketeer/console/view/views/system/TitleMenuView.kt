@@ -16,10 +16,18 @@ import dev.bitspittle.racketeer.console.view.views.game.PreDrawView
 import dev.bitspittle.racketeer.model.card.CardQueue
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.random.CloneableRandom
 import dev.bitspittle.racketeer.model.text.Describer
 import kotlin.random.Random
 
-class TitleMenuView(data: GameData, app: App, viewStack: ViewStack, env: Environment, cardQueue: CardQueue, random: Random) : View(viewStack, app) {
+class TitleMenuView(
+    data: GameData,
+    app: App,
+    viewStack: ViewStack,
+    env: Environment,
+    cardQueue: CardQueue,
+    random: CloneableRandom
+) : View(viewStack, app) {
     val ctx = GameContext(
         data,
         Describer(data),

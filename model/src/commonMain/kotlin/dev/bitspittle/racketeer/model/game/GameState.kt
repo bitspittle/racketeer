@@ -5,13 +5,13 @@ import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
+import dev.bitspittle.racketeer.model.random.CloneableRandom
 import dev.bitspittle.racketeer.model.shop.MutableShop
 import dev.bitspittle.racketeer.model.shop.Shop
 import kotlin.math.max
-import kotlin.random.Random
 
 class GameState private constructor(
-    private val random: Random,
+    private val random: CloneableRandom,
     val allCards: List<CardTemplate>,
     private val cardQueue: CardQueue,
     numTurns: Int,
@@ -30,7 +30,7 @@ class GameState private constructor(
     jail: MutablePile,
     streetEffects: MutableList<Effect>,
 ) {
-    constructor(data: GameData, cardQueue: CardQueue, random: Random = Random.Default) : this(
+    constructor(data: GameData, cardQueue: CardQueue, random: CloneableRandom) : this(
         random = random,
         allCards = data.cards,
         cardQueue = cardQueue,
@@ -52,7 +52,7 @@ class GameState private constructor(
                 List(count) { card.instantiate() }
             }
             .toMutableList()
-            .apply { shuffle(random) }
+            .apply { shuffle(random()) }
         ),
         hand = MutablePile(),
         street = MutablePile(),
@@ -73,13 +73,13 @@ class GameState private constructor(
     var isGameOver = false
         private set
 
-    private val lastTurnIndex = numTurns - 1
+    private val lastTurnIndex get() = numTurns - 1
 
     /**
      * How many turns are in a game.
      */
     var numTurns = numTurns
-        private set(value) {
+        set(value) {
             field = value.coerceAtLeast(turn + 1)
         }
 
@@ -251,7 +251,7 @@ class GameState private constructor(
 
         if (remainingCount > 0) {
             // Shuffle the discard pile and move it to the back of the deck!
-            moveNow(_discard.cards.shuffled(random), _deck)
+            moveNow(_discard.cards.shuffled(random()), _deck)
         }
 
         _deck.cards.take(remainingCount).let { cards ->
@@ -295,6 +295,7 @@ class GameState private constructor(
     }
 
     fun copy(): GameState {
+        val random = random.copy()
         return GameState(
             random,
             allCards,
@@ -307,7 +308,7 @@ class GameState private constructor(
             luck,
             vp,
             handSize,
-            _shop.copy(),
+            _shop.copy(random),
             _deck.copy(),
             _hand.copy(),
             _street.copy(),

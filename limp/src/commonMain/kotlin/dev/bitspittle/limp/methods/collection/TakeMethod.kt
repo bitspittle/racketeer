@@ -12,7 +12,7 @@ import kotlin.random.Random
 /**
  * Take some number of elements from a list, returning what was taken.
  */
-class TakeMethod(private val random: Random) : Method("take", 2) {
+class TakeMethod(private val random: () -> Random) : Method("take", 2) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
@@ -34,7 +34,7 @@ class TakeMethod(private val random: Random) : Method("take", 2) {
         return when (strategy) {
             ListStrategy.FRONT -> list.take(count)
             ListStrategy.BACK -> list.takeLast(count)
-            ListStrategy.RANDOM -> list.shuffled(random).take(count)
+            ListStrategy.RANDOM -> list.shuffled(random()).take(count)
         }
     }
 }

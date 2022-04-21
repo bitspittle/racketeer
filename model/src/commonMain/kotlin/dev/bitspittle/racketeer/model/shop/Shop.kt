@@ -3,7 +3,7 @@ package dev.bitspittle.racketeer.model.shop
 import com.benasher44.uuid.Uuid
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
-import kotlin.random.Random
+import dev.bitspittle.racketeer.model.random.CloneableRandom
 
 interface Shop {
     val tier: Int
@@ -15,7 +15,7 @@ interface Shop {
 }
 
 class MutableShop private constructor(
-    private val random: Random,
+    private val random: CloneableRandom,
     private val allCards: List<CardTemplate>,
     private val shopSizes: List<Int>,
     private val tierFrequencies: List<Int>,
@@ -24,7 +24,7 @@ class MutableShop private constructor(
     override val stock: MutableList<Card?>,
     private val _exclusions: MutableList<Exclusion>,
 ) : Shop {
-    constructor(random: Random, allCards: List<CardTemplate>, shopSizes: List<Int>, tierFrequencies: List<Int>, rarityFrequencies: List<Int>) : this(
+    constructor(random: CloneableRandom, allCards: List<CardTemplate>, shopSizes: List<Int>, tierFrequencies: List<Int>, rarityFrequencies: List<Int>) : this(
         random,
         allCards,
         shopSizes,
@@ -64,7 +64,7 @@ class MutableShop private constructor(
         }
 
         repeat(numCardsToStock) {
-            val template = uberStock.random(random)
+            val template = uberStock.random(random())
             uberStock.removeAll { it === template } // We never want to sell the same item twice
             stock.add(template.instantiate())
         }
@@ -104,7 +104,7 @@ class MutableShop private constructor(
         return true
     }
 
-    fun copy() = MutableShop(
+    fun copy(random: CloneableRandom = this.random.copy()) = MutableShop(
         random,
         allCards,
         shopSizes,

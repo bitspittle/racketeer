@@ -10,7 +10,7 @@ import kotlin.random.Random
  *
  * Take a mutable list and randomize it in place.
  */
-class ShuffleMethod(private val random: Random) : Method("shuffle!", 1) {
+class ShuffleMethod(private val random: () -> Random) : Method("shuffle!", 1) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
@@ -19,7 +19,7 @@ class ShuffleMethod(private val random: Random) : Method("shuffle!", 1) {
         rest: List<Any>
     ): Any {
         val list = env.expectConvert<MutableList<*>>(params[0])
-        list.shuffle(random)
+        list.shuffle(random())
         return list
     }
 }

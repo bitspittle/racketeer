@@ -57,12 +57,7 @@ class EffectMethodsTest {
             ++expectedHandSize
         }
         assertThat(gameState.hand.cards.size).isEqualTo(expectedHandSize)
-        assertThat(gameState.hand.cards.take(3).map { it.template.name })
-            .containsExactly(
-                "Embezzler", // Installs an effect
-                "Rumormonger",
-                "Pickpocket"
-            ).inOrder()
+        assertThat(gameState.hand.cards[0].template.name).isEqualTo("Embezzler") // Installs an effect
         val card1 = gameState.hand.cards[0]
         val card2 = gameState.hand.cards[1]
         val card3 = gameState.hand.cards[2]

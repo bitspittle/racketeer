@@ -22,7 +22,7 @@ class ConvertersTest {
         env.addMethod(SetMethod(ConsoleLogger()))
         env.addMethod(ListMethod())
         env.addMethod(ListGetMethod())
-        env.addMethod(TakeMethod(Random.Default)) // Random doesn't matter -- we don't call `take --from 'random`
+        env.addMethod(TakeMethod { Random.Default})  // Random doesn't matter -- we don't call `take --from 'random`
 
         val evaluator = Evaluator()
         // Normally, list-get has to take in a list as its first element, or it's error time baby. However, we added

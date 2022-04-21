@@ -19,13 +19,13 @@ import dev.bitspittle.racketeer.console.view.views.game.ChooseItemsView
 import dev.bitspittle.racketeer.console.view.views.game.PickItemView
 import dev.bitspittle.racketeer.console.view.views.system.TitleMenuView
 import dev.bitspittle.racketeer.model.game.GameData
+import dev.bitspittle.racketeer.model.random.CloneableRandom
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.types.CardQueueImpl
 import dev.bitspittle.racketeer.scripting.types.GameService
 import dev.bitspittle.racketeer.scripting.utils.installGameLogic
 import kotlinx.coroutines.*
 import kotlin.coroutines.suspendCoroutine
-import kotlin.random.Random
 
 class GameSession(
     private val gameData: GameData
@@ -57,9 +57,11 @@ class GameSession(
             }
         }
 
+        val random = CloneableRandom()
+
         val env = Environment()
         env.installDefaults(object : LangService {
-            override val random = Random.Default
+            override val random get() = random()
             override val logger = app.logger
         })
         Evaluator().let { evaluator ->
@@ -76,7 +78,7 @@ class GameSession(
         gameData.cards.flatMap { it.playActions }.forEach { Expr.parse(it) }
         val cardQueue = CardQueueImpl(env)
 
-        val titleView = TitleMenuView(gameData, app, viewStack, env, cardQueue, Random.Default)
+        val titleView = TitleMenuView(gameData, app, viewStack, env, cardQueue, random)
 
         var handleRerender: () -> Unit = {}
         titleView.ctx.let { ctx ->

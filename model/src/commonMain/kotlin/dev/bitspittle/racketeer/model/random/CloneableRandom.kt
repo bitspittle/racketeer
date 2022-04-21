@@ -26,6 +26,7 @@ class CloneableRandom(seed: Long = Random.Default.nextLong()) {
     private fun random() = Random(seed).also { seed = it.nextLong() }
 
     fun nextInt() = random().nextInt()
+    fun nextInt(until: Int) = random().nextInt(until)
     fun nextInt(from: Int, until: Int) = random().nextInt(from, until)
 
     operator fun invoke() = random()

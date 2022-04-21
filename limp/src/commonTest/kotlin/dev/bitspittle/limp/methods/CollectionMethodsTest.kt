@@ -164,8 +164,9 @@ class CollectionMethodsTest {
 
     @Test
     fun testTakeMethod() = runTest {
-        val env = Environment() // Fixed seed so that we get the same shuffle everytime for this test
-        env.addMethod(TakeMethod(Random(123)))
+        val env = Environment()
+        val random = Random(123)
+        env.addMethod(TakeMethod { random })
         env.storeValue("_", Placeholder)
 
         val evaluator = Evaluator()
@@ -195,7 +196,8 @@ class CollectionMethodsTest {
     @Test
     fun testDropMethod() = runTest {
         val env = Environment()
-        env.addMethod(DropMethod(Random(123))) // Fixed seed so that we get the same shuffle everytime for this test
+        val random = Random(123)
+        env.addMethod(DropMethod { random })
 
         val evaluator = Evaluator()
 
@@ -304,8 +306,9 @@ class CollectionMethodsTest {
 
     @Test
     fun testShuffledMethod() = runTest {
-        val env = Environment() // Fixed seed so that we get the same shuffle everytime for this test
-        env.addMethod(ShuffledMethod(Random(123)))
+        val env = Environment()
+        val random = Random(123)
+        env.addMethod(ShuffledMethod { random })
         env.storeValue("ints", listOf(1, 2, 3, 4, 5))
 
         val evaluator = Evaluator()
@@ -320,8 +323,9 @@ class CollectionMethodsTest {
 
     @Test
     fun testShuffleMethod() = runTest {
-        val env = Environment() // Fixed seed so that we get the same shuffle everytime for this test
-        env.addMethod(ShuffleMethod(Random(123)))
+        val env = Environment()
+        val random = Random(123)
+        env.addMethod(ShuffleMethod { random })
         // Limp does not (at the moment) support creating mutable lists, but they can be passed in via code
         env.storeValue("ints", mutableListOf(1, 2, 3, 4, 5))
 

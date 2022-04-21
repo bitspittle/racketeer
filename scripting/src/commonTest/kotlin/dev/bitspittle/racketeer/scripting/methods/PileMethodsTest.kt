@@ -6,6 +6,7 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.methods.collection.FirstMethod
 import dev.bitspittle.limp.methods.collection.TakeMethod
 import dev.bitspittle.limp.types.Placeholder
+import dev.bitspittle.racketeer.model.random.CloneableRandom
 import dev.bitspittle.racketeer.scripting.TestGameService
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.pile.PileCopyToMethod
@@ -18,10 +19,10 @@ class PileMethodsTest {
     @Test
     fun testCopyToMethod() = runTest {
         val env = Environment()
-        val service = TestGameService(Random(2)) // Seed chosen so deck and hand cards are interesting
+        val service = TestGameService()
         val gameState = service.gameState
         env.addMethod(PileCopyToMethod { gameState })
-        env.addMethod(TakeMethod(service.random))
+        env.addMethod(TakeMethod(service::random))
         env.addMethod(FirstMethod())
         env.addConverter(PileToCardsConverter())
         env.storeValue("_", Placeholder)
@@ -91,7 +92,7 @@ class PileMethodsTest {
         val service = TestGameService()
         val gameState = service.gameState
         env.addMethod(PileMoveToMethod { gameState })
-        env.addMethod(TakeMethod(service.random))
+        env.addMethod(TakeMethod(service::random))
         env.addMethod(FirstMethod())
         env.addConverter(PileToCardsConverter())
         env.storeValue("_", Placeholder)

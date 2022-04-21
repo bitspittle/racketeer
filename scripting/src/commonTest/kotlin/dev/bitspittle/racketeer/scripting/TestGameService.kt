@@ -1,11 +1,11 @@
 package dev.bitspittle.racketeer.scripting
 
 import dev.bitspittle.limp.types.DelegatingLogger
-import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardQueue
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.random.CloneableRandom
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.types.GameService
@@ -169,7 +169,7 @@ class StubCardQueue : CardQueue {
 
 // Create a random with a fixed seed so tests run consistently
 class TestGameService(
-    val random: Random = Random(0),
+    private val cloneableRandom: CloneableRandom = CloneableRandom(0),
     override val gameData: GameData = createFakeGameData(),
     override val cardQueue: CardQueue = StubCardQueue(),
     override val chooseHandler: ChooseHandler = object : ChooseHandler {
@@ -183,9 +183,10 @@ class TestGameService(
         }
     },
 ) : GameService {
+    val random: Random get() = cloneableRandom()
 
     override val describer: Describer = Describer(gameData)
-    override val gameState = GameState(gameData, cardQueue, random)
+    override val gameState = GameState(gameData, cardQueue, cloneableRandom)
     private val _logs = mutableListOf<String>()
     val logs: List<String> = _logs
 
