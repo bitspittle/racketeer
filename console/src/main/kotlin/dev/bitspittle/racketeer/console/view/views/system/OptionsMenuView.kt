@@ -19,6 +19,23 @@ class OptionsMenuView(ctx: GameContext) : GameView(ctx) {
                 }
             },
             object : Command(ctx) {
+                override val title = "Save game"
+                override val description: String = "Save this game into the desired save slot."
+                override suspend fun invoke(): Boolean {
+                    ctx.viewStack.pushView(SaveGameView(ctx))
+                    return true
+                }
+            },
+            object : Command(ctx) {
+                override val type = Type.Warning
+                override val title = "Load game"
+                override val description: String = "Load a game. This will interrupt your current game!"
+                override suspend fun invoke(): Boolean {
+                    ctx.viewStack.pushView(LoadGameView(ctx))
+                    return true
+                }
+            },
+            object : Command(ctx) {
                 override val type = Type.Warning
                 override val title = "Restart"
                 override val description: String = "End this game and start a new one. You will have one last chance to confirm."

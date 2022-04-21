@@ -8,13 +8,13 @@ import dev.bitspittle.racketeer.model.random.CloneableRandom
 interface Shop {
     val tier: Int
     val stock: List<Card?>
-    val exclusions: List<String>
+    val exclusions: List<Exclusion>
     fun addExclusion(exclusion: Exclusion)
     suspend fun upgrade(): Boolean
     suspend fun restock(restockAll: Boolean = true, additionalFilter: suspend (CardTemplate) -> Boolean = { true }): Boolean
 }
 
-class MutableShop private constructor(
+class MutableShop internal constructor(
     private val random: CloneableRandom,
     private val allCards: List<CardTemplate>,
     private val shopSizes: List<Int>,
@@ -22,7 +22,7 @@ class MutableShop private constructor(
     private val rarityFrequencies: List<Int>,
     tier: Int,
     override val stock: MutableList<Card?>,
-    private val _exclusions: MutableList<Exclusion>,
+    override val exclusions: MutableList<Exclusion>,
 ) : Shop {
     constructor(random: CloneableRandom, allCards: List<CardTemplate>, shopSizes: List<Int>, tierFrequencies: List<Int>, rarityFrequencies: List<Int>) : this(
         random,
@@ -39,8 +39,6 @@ class MutableShop private constructor(
 
     override var tier: Int = tier
         private set
-
-    override val exclusions get() = _exclusions.map { it.desc }
 
     private fun handleRestock(restockAll: Boolean, possibleNewStock: List<CardTemplate>): Boolean {
         if (!restockAll && stock.size == shopSizes[tier]) return false // Shop is full; incremental restock fails
@@ -80,10 +78,10 @@ class MutableShop private constructor(
     override suspend fun restock(restockAll: Boolean, additionalFilter: suspend (CardTemplate) -> Boolean): Boolean {
         return handleRestock(
             restockAll,
-            filterAllCards { card -> additionalFilter(card) && _exclusions.none { exclude -> exclude(card) } })
+            filterAllCards { card -> additionalFilter(card) && exclusions.none { exclude -> exclude(card) } })
     }
 
-    override fun addExclusion(exclusion: Exclusion) { _exclusions.add(exclusion) }
+    override fun addExclusion(exclusion: Exclusion) { exclusions.add(exclusion) }
 
     fun remove(cardId: Uuid) {
         for (i in stock.indices) {
@@ -112,6 +110,6 @@ class MutableShop private constructor(
         rarityFrequencies,
         tier,
         stock.toMutableList(),
-        _exclusions.toMutableList()
+        exclusions.toMutableList()
     )
 }

@@ -10,8 +10,8 @@ import dev.bitspittle.racketeer.model.shop.MutableShop
 import dev.bitspittle.racketeer.model.shop.Shop
 import kotlin.math.max
 
-class GameState private constructor(
-    private val random: CloneableRandom,
+class GameState internal constructor(
+    internal val random: CloneableRandom,
     val allCards: List<CardTemplate>,
     private val cardQueue: CardQueue,
     numTurns: Int,
@@ -135,7 +135,7 @@ class GameState private constructor(
      * A list of 0 more effects that will be applied to each card that is played in the street this turn.
      */
     private val _streetEffects = streetEffects
-    val streetEffects get() = _streetEffects.map { it.desc }
+    val streetEffects get() = _streetEffects
 
     private val _shop = shop
 
@@ -229,8 +229,8 @@ class GameState private constructor(
         cards.toList().forEach(::remove)
     }
 
-    fun installStreetEffect(desc: String, effect: suspend (Card) -> Unit) {
-        _streetEffects.add(Effect(desc, effect))
+    fun installStreetEffect(expr: String, desc: String, effect: suspend (Card) -> Unit) {
+        _streetEffects.add(Effect(expr, desc, effect))
     }
 
     private fun remove(card: Card) {

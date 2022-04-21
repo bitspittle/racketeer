@@ -2,12 +2,14 @@ package dev.bitspittle.racketeer.model.random
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlin.random.Random
 
 class CloneableRandomSerializer : KSerializer<CloneableRandom> {
-    override val descriptor = CloneableRandom.serializer().descriptor
+    override val descriptor = PrimitiveSerialDescriptor("CloneableRandom", PrimitiveKind.LONG)
     override fun serialize(encoder: Encoder, value: CloneableRandom) = encoder.encodeLong(value.seed)
     override fun deserialize(decoder: Decoder): CloneableRandom = CloneableRandom(decoder.decodeLong())
 }

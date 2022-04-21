@@ -62,6 +62,13 @@ class TitleMenuView(
                 }
             },
             object : Command(ctx) {
+                override val title = "Load Game"
+                override suspend fun invoke(): Boolean {
+                    ctx.viewStack.pushView(LoadGameView(ctx))
+                    return true
+                }
+            },
+            object : Command(ctx) {
                 override val type = Type.Warning
                 override val title = "Quit"
                 override suspend fun invoke(): Boolean {

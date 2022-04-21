@@ -15,8 +15,8 @@ class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!",
         rest: List<Any>
     ): Any {
         val effectExpr = env.expectConvert<Expr>(params[0])
-        val desc = options["desc"]?.let { env.expectConvert<String>(it) } ?: effectExpr.ctx.text
-        getGameState().installStreetEffect(desc) { card ->
+        val desc = options["desc"]?.let { env.expectConvert(it) } ?: effectExpr.ctx.text
+        getGameState().installStreetEffect(effectExpr.ctx.text, desc) { card ->
             eval.extend(mapOf("\$card" to card)).evaluate(env, effectExpr)
         }
 

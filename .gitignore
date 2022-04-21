@@ -24,3 +24,6 @@ kotlin-js-store
 
 # Gradle ignores
 .gradle
+
+# Racketeer ignores
+/console/staging/userdata

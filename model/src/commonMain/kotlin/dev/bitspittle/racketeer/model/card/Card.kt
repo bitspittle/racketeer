@@ -7,17 +7,20 @@ import com.benasher44.uuid.uuid4
  * @param template The read-only template this card is based on
  * @param id A globally unique ID which can act as this specific card's fingerprint
  */
-class Card private constructor(
+class Card internal constructor(
     val template: CardTemplate,
-    val id: Uuid,
     vpBase: Int,
     vpBonus: Int,
     counter: Int,
-    val upgrades: MutableSet<UpgradeType>): Comparable<Card> {
-    internal constructor(template: CardTemplate) : this(template, uuid4(), template.vp, 0, 0,
+    val upgrades: MutableSet<UpgradeType>,
+    val id: Uuid = uuid4(),
+): Comparable<Card> {
+    internal constructor(template: CardTemplate) : this(
+        template, template.vp, 0, 0,
         template.upgrades.map { upgradeStr ->
             UpgradeType.values().first { it.name.compareTo(upgradeStr, ignoreCase = true) == 0 }
-        }.toMutableSet()
+        }.toMutableSet(),
+        uuid4(),
     )
 
     /**
@@ -50,7 +53,7 @@ class Card private constructor(
         vpBonus: Int = this.vpPassive,
         counter: Int = this.counter,
         upgrades: Set<UpgradeType> = this.upgrades
-    ) = Card(template, id, vpBase, vpBonus, counter, upgrades.toMutableSet())
+    ) = Card(template, vpBase, vpBonus, counter, upgrades.toMutableSet(), id)
 
     override fun compareTo(other: Card): Int {
         return template.compareTo(other.template).takeUnless { it == 0 }
