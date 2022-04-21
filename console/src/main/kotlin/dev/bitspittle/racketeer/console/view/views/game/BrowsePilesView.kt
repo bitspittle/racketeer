@@ -15,10 +15,6 @@ class BrowsePilesView(ctx: GameContext) : GameView(ctx) {
         BrowseDeckCommand(ctx),
         BrowseDiscardCommand(ctx),
         BrowseJailCommand(ctx),
+        BrowseOwnedCardsCommand(ctx),
     )
-
-    override fun MainRenderScope.renderContentUpper() {
-        textLine("You own ${ctx.state.getOwnedCards().size} cards.")
-        textLine()
-    }
 }

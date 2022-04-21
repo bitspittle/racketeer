@@ -10,22 +10,22 @@ import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.ViewCardTemplateCommand
 
-enum class CardSortingOrder {
-    NAME,
-    TIER;
+class BrowseAllCardsView(ctx: GameContext, private val sortingOrder: SortingOrder = SortingOrder.NAME) : GameView(ctx) {
+    enum class SortingOrder {
+        NAME,
+        TIER;
 
-    fun next(): CardSortingOrder {
-        return when (this) {
-            NAME -> TIER
-            TIER -> NAME
+        fun next(): SortingOrder {
+            return when (this) {
+                NAME -> TIER
+                TIER -> NAME
+            }
         }
     }
-}
 
-class BrowseAllCardsView(ctx: GameContext, private val sortingOrder: CardSortingOrder = CardSortingOrder.NAME) : GameView(ctx) {
     private val sortedCards = ctx.data.cards.sortedBy { it.name }.let { cards ->
         // Even if we sort by tier, it should still be name-sorted secondarily
-        if (sortingOrder == CardSortingOrder.TIER) cards.sortedBy { it.tier } else cards
+        if (sortingOrder == SortingOrder.TIER) cards.sortedBy { it.tier } else cards
     }
 
     override fun createCommands(): List<Command> =
@@ -39,7 +39,7 @@ class BrowseAllCardsView(ctx: GameContext, private val sortingOrder: CardSorting
     }
 
     override fun RenderScope.renderUpperFooter() {
-        val sortingWord = if (sortingOrder == CardSortingOrder.NAME) {
+        val sortingWord = if (sortingOrder == SortingOrder.NAME) {
             "tier"
         } else {
             "name"
