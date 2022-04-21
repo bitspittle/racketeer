@@ -21,7 +21,6 @@ data class GameData(
     val icons: GameIcons,
     val numTurns: Int,
     val initialHandSize: Int,
-    val initialCash: Int,
     val initialInfluence: Int,
     val initialLuck: Int,
     val initialDeck: List<String>,

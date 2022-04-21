@@ -16,7 +16,6 @@ class GameState private constructor(
     private val cardQueue: CardQueue,
     numTurns: Int,
     turn: Int,
-    private val baseCash: Int,
     cash: Int,
     influence: Int,
     luck: Int,
@@ -36,8 +35,7 @@ class GameState private constructor(
         cardQueue = cardQueue,
         numTurns = data.numTurns,
         turn = 0,
-        baseCash = data.initialCash,
-        cash = data.initialCash,
+        cash = 0,
         influence = data.initialInfluence,
         luck = data.initialLuck,
         vp = 0,
@@ -284,7 +282,7 @@ class GameState private constructor(
         }
 
         turn++
-        cash = baseCash
+        cash = 0
 
         _streetEffects.clear()
         move(_street, _discard)
@@ -302,7 +300,6 @@ class GameState private constructor(
             cardQueue,
             numTurns,
             turn,
-            baseCash,
             cash,
             influence,
             luck,
