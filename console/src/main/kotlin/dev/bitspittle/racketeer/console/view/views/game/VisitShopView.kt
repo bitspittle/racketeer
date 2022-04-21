@@ -28,7 +28,7 @@ class VisitShopView(ctx: GameContext) : GameView(ctx) {
         if (ctx.state.shop.exclusions.isNotEmpty()) {
             textLine("Exclusions:")
             ctx.state.shop.exclusions.forEach { exclusion ->
-                textLine("- $exclusion")
+                textLine("- ${exclusion.desc}")
             }
             textLine()
         }

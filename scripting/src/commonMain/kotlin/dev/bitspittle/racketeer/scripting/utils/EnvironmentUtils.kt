@@ -58,8 +58,8 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(FxAddMethod(service::gameState))
 
     // Shop
-    addMethod(ShopRerollMethod(service.gameState::shop))
-    addMethod(ShopExcludeMethod(service.gameState::shop))
+    addMethod(ShopRerollMethod { service.gameState.shop })
+    addMethod(ShopExcludeMethod { service.gameState.shop })
     (0..4).forEach { i -> storeValue("\$tier${i + 1}", i) }
 
     // Text

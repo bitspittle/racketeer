@@ -20,7 +20,7 @@ class BrowseStreetView(ctx: GameContext) : GameView(ctx) {
         if (ctx.state.streetEffects.isNotEmpty()) {
             textLine("Active effects:")
             ctx.state.streetEffects.forEach { effect ->
-                textLine("- $effect")
+                textLine("- ${effect.desc}")
             }
             textLine()
         }
