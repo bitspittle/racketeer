@@ -52,7 +52,7 @@ class ChooseItemsView(
         }
     }
 
-    override fun RenderScope.renderFooter() {
+    override fun RenderScope.renderUpperFooter() {
         if (requiredChoice) textLine("This choice is not optional, so you cannot back out of it.")
     }
 

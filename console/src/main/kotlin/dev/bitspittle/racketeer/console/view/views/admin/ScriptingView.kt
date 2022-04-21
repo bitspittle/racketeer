@@ -48,6 +48,7 @@ class ScriptingView(ctx: GameContext) : GameView(ctx) {
     }
 
     override val heading = """ Edit and scripts against the current game state. """.trimIndent()
+    override val allowBrowseCards get() = !inEditingMode
 
     private val stringifier = Stringifier(ctx.describer, ctx.state)
 
@@ -242,7 +243,7 @@ class ScriptingView(ctx: GameContext) : GameView(ctx) {
         }
     }
 
-    override fun RenderScope.renderFooter() {
+    override fun RenderScope.renderUpperFooter() {
         text("Press "); cyan { text("TAB") }; text(" to set focus to ")
         text(if (inEditingMode) { "the menu" } else { "the script editor" })
         textLine('.')

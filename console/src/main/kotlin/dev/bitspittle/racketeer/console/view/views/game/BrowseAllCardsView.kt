@@ -38,7 +38,7 @@ class BrowseAllCardsView(ctx: GameContext, private val sortingOrder: CardSorting
         } else false
     }
 
-    override fun RenderScope.renderFooter() {
+    override fun RenderScope.renderUpperFooter() {
         val sortingWord = if (sortingOrder == CardSortingOrder.NAME) {
             "tier"
         } else {

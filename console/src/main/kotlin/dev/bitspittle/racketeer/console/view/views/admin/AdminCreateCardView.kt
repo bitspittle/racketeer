@@ -19,7 +19,7 @@ class AdminCreateCardView(ctx: GameContext) : GameView(ctx) {
 
     override fun createCommands(): List<Command> = sortedCards.map { CreateCardCommand(ctx, it) }
 
-    override fun RenderScope.renderFooter() {
+    override fun RenderScope.renderUpperFooter() {
         text("Press "); cyan { text("A-Z") }; textLine(" to jump to cards by name.")
     }
 
