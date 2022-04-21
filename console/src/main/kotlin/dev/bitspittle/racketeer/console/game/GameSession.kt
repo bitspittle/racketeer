@@ -8,8 +8,6 @@ import com.varabyte.kotter.foundation.runUntilSignal
 import com.varabyte.kotter.foundation.session
 import com.varabyte.kotter.foundation.text.*
 import com.varabyte.kotter.runtime.render.RenderScope
-import com.varabyte.kotterx.decorations.BorderCharacters
-import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.types.Expr
@@ -19,10 +17,8 @@ import dev.bitspittle.limp.utils.installDefaults
 import dev.bitspittle.racketeer.console.view.ViewStackImpl
 import dev.bitspittle.racketeer.console.view.views.game.ChooseItemsView
 import dev.bitspittle.racketeer.console.view.views.game.PickItemView
-import dev.bitspittle.racketeer.console.view.views.game.PreDrawView
+import dev.bitspittle.racketeer.console.view.views.system.TitleMenuView
 import dev.bitspittle.racketeer.model.game.GameData
-import dev.bitspittle.racketeer.model.game.GameState
-import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.types.CardQueueImpl
 import dev.bitspittle.racketeer.scripting.types.GameService
@@ -35,20 +31,6 @@ class GameSession(
     private val gameData: GameData
 ) {
     fun start() = session {
-        section {
-            textLine()
-
-            bold {
-                red {
-                    bordered(borderCharacters = BorderCharacters.CURVED, paddingLeftRight = 1) {
-                        textLine(gameData.title)
-                    }
-                }
-            }
-
-            textLine()
-        }.run()
-
         val logRenderers = mutableListOf<RenderScope.() -> Unit>()
         var handleQuit: () -> Unit = {}
         val app = object : App {
@@ -93,59 +75,58 @@ class GameSession(
         // Compile early to suss out any syntax errors
         gameData.cards.flatMap { it.playActions }.forEach { Expr.parse(it) }
         val cardQueue = CardQueueImpl(env)
-        val ctx = GameContext(
-            gameData,
-            Describer(gameData),
-            GameState(gameData, cardQueue),
-            env,
-            cardQueue,
-            viewStack,
-            app,
-        )
+
+        val titleView = TitleMenuView(gameData, app, viewStack, env, cardQueue, Random.Default)
 
         var handleRerender: () -> Unit = {}
-        env.installGameLogic(object : GameService {
-            override val gameData = ctx.data
-            override val describer = ctx.describer
-            override val gameState get() = ctx.state
-            override val cardQueue get() = ctx.cardQueue
-            override val chooseHandler
-                get() = object : ChooseHandler {
-                    override suspend fun query(prompt: String?, list: List<Any>, range: IntRange, requireChoice: Boolean): List<Any>? {
-                        return suspendCoroutine { choices ->
-                            viewStack.pushView(
-                                if (range.first == range.last && range.first == 1) {
-                                    PickItemView(ctx, prompt, list, choices, requireChoice)
-                                } else {
-                                    ChooseItemsView(ctx, prompt, list, range, choices, requireChoice)
-                                }
-                            )
-                            handleRerender()
+        titleView.ctx.let { ctx ->
+            env.installGameLogic(object : GameService {
+                override val gameData = ctx.data
+                override val describer = ctx.describer
+                override val gameState get() = ctx.state
+                override val cardQueue get() = ctx.cardQueue
+                override val chooseHandler
+                    get() = object : ChooseHandler {
+                        override suspend fun query(
+                            prompt: String?,
+                            list: List<Any>,
+                            range: IntRange,
+                            requiredChoice: Boolean
+                        ): List<Any>? {
+                            return suspendCoroutine { choices ->
+                                viewStack.pushView(
+                                    if (range.first == range.last && range.first == 1) {
+                                        PickItemView(ctx, prompt, list, choices, requiredChoice)
+                                    } else {
+                                        ChooseItemsView(ctx, prompt, list, range, choices, requiredChoice)
+                                    }
+                                )
+                                handleRerender()
+                            }
                         }
                     }
+
+                override val logger = object : Logger {
+                    override fun info(message: String) {
+                        logRenderers.add { green { textLine(message) } }
+                    }
+
+                    override fun warn(message: String) {
+                        logRenderers.add { yellow { textLine(message) } }
+                    }
+
+                    override fun error(message: String) {
+                        logRenderers.add { red { textLine(message) } }
+                    }
+
+                    override fun debug(message: String) {
+                        logRenderers.add { magenta { textLine(message) } }
+                    }
                 }
+            })
+        }
 
-            override val logger = object : Logger {
-                override fun info(message: String) {
-                    logRenderers.add { green { textLine(message) } }
-                }
-
-                override fun warn(message: String) {
-                    logRenderers.add { yellow { textLine(message) } }
-                }
-
-                override fun error(message: String) {
-                    logRenderers.add { red { textLine(message) } }
-                }
-
-                override fun debug(message: String) {
-                    logRenderers.add { magenta { textLine(message) } }
-                }
-            }
-
-        })
-
-        viewStack.pushView(PreDrawView(ctx))
+        viewStack.pushView(titleView)
         section {
             viewStack.currentView.renderInto(this)
             logRenderers.forEach {

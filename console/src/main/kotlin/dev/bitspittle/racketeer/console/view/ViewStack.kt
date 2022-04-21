@@ -1,25 +1,23 @@
 package dev.bitspittle.racketeer.console.view
 
-import dev.bitspittle.racketeer.console.view.views.game.GameView
-
 interface ViewStack {
     val canGoBack: Boolean
-    val currentView: GameView
+    val currentView: View
 
-    fun pushView(view: GameView)
+    fun pushView(view: View)
     fun popView(): Boolean
-    fun replaceView(view: GameView)
+    fun replaceView(view: View)
 
-    fun contains(pred: (GameView) -> Boolean): Boolean
+    fun contains(pred: (View) -> Boolean): Boolean
 }
 
 /** Keep popping screens until the passed in predicate is true (or we hit bottom) */
-fun ViewStack.popUntil(pred: (GameView) -> Boolean) {
+fun ViewStack.popUntil(pred: (View) -> Boolean) {
     @Suppress("ControlFlowWithEmptyBody") // popView's side effect is all we need
     while (this.popView() && !pred(this.currentView)) {}
 }
 
-fun ViewStack.popUntilAndRefresh(pred: (GameView) -> Boolean) {
+fun ViewStack.popUntilAndRefresh(pred: (View) -> Boolean) {
     popUntil(pred)
     currentView.refreshCommands()
 }
@@ -35,7 +33,7 @@ fun ViewStack.popAllAndRefresh() {
 }
 
 /** Keep popping screens until one AFTER we match the predicate, useful for going on past some root screen. */
-fun ViewStack.popPast(pred: (GameView) -> Boolean) {
+fun ViewStack.popPast(pred: (View) -> Boolean) {
     var abortNext = false
     popUntil { view ->
         if (abortNext) {
@@ -47,19 +45,19 @@ fun ViewStack.popPast(pred: (GameView) -> Boolean) {
     }
 }
 
-fun ViewStack.popPastAndRefresh(pred: (GameView) -> Boolean) {
+fun ViewStack.popPastAndRefresh(pred: (View) -> Boolean) {
     popPast(pred)
     currentView.refreshCommands()
 }
 
 class ViewStackImpl : ViewStack {
-    private val _views = mutableListOf<GameView>()
-    val views: List<GameView> = _views
+    private val _views = mutableListOf<View>()
+    val views: List<View> = _views
 
     override val canGoBack get() = _views.size > 1
     override val currentView get() = views.last()
 
-    override fun pushView(view: GameView) {
+    override fun pushView(view: View) {
         _views.add(view)
     }
 
@@ -73,12 +71,12 @@ class ViewStackImpl : ViewStack {
         }
     }
 
-    override fun replaceView(view: GameView) {
+    override fun replaceView(view: View) {
         _views.removeLast()
         pushView(view)
     }
 
-    override fun contains(pred: (GameView) -> Boolean): Boolean {
+    override fun contains(pred: (View) -> Boolean): Boolean {
         return _views.indexOfFirst(pred) >= 0
     }
 }
