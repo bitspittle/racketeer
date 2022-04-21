@@ -5,9 +5,8 @@ import com.varabyte.kotter.runtime.MainRenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.*
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.view.View
 
-class VisitShopView(ctx: GameContext) : View(ctx) {
+class VisitShopView(ctx: GameContext) : GameView(ctx) {
     override val subtitle get() = "Shop (Tier ${ctx.state.shop.tier + 1})"
 
     override fun createCommands(): List<Command> = run {

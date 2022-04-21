@@ -3,9 +3,9 @@ package dev.bitspittle.racketeer.console.view.views.system
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.NewGameCommand
-import dev.bitspittle.racketeer.console.view.View
+import dev.bitspittle.racketeer.console.view.views.game.GameView
 
-class ConfirmNewGameView(ctx: GameContext) : View(ctx) {
+class ConfirmNewGameView(ctx: GameContext) : GameView(ctx) {
     override fun createCommands(): List<Command> = listOf(
         object : Command(ctx) {
             override val type = Type.Danger

@@ -12,7 +12,7 @@ import dev.bitspittle.racketeer.console.trie.MutableTextTree
 import dev.bitspittle.racketeer.console.trie.TextTree
 import dev.bitspittle.racketeer.console.trie.TextTreeCursor
 import dev.bitspittle.racketeer.console.trie.intoWordTree
-import dev.bitspittle.racketeer.console.view.View
+import dev.bitspittle.racketeer.console.view.views.game.GameView
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.pile.Pile
@@ -42,7 +42,7 @@ private class ScriptingCommand(
     }
 }
 
-class ScriptingView(ctx: GameContext) : View(ctx) {
+class ScriptingView(ctx: GameContext) : GameView(ctx) {
     init {
         onEnteringView()
     }

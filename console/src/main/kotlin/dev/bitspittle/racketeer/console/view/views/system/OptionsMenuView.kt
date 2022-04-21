@@ -2,10 +2,10 @@ package dev.bitspittle.racketeer.console.view.views.system
 
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.view.View
+import dev.bitspittle.racketeer.console.view.views.game.GameView
 import dev.bitspittle.racketeer.console.view.views.game.BrowseAllCardsView
 
-class OptionsMenuView(ctx: GameContext) : View(ctx) {
+class OptionsMenuView(ctx: GameContext) : GameView(ctx) {
     override val title: String = "Options"
 
     override fun createCommands(): List<Command> =

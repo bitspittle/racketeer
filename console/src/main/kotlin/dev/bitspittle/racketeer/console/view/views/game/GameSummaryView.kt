@@ -8,10 +8,9 @@ import com.varabyte.kotter.runtime.MainRenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.NewGameCommand
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.game.Rating
 
-class GameSummaryView(ctx: GameContext) : View(ctx) {
+class GameSummaryView(ctx: GameContext) : GameView(ctx) {
     override fun createCommands(): List<Command> =
         listOf(
             NewGameCommand(ctx),

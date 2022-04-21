@@ -7,7 +7,6 @@ import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.SelectItemCommand
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.view.View
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 
@@ -18,7 +17,7 @@ class ChooseItemsView(
     private val range: IntRange,
     private val choices: Continuation<List<Any>?>,
     private val requiredChoice: Boolean,
-) : View(ctx) {
+) : GameView(ctx) {
     override val heading = (prompt ?: "Choose ${ctx.describer.describeRange(range)} item(s):")
     override val allowGoBack = !requiredChoice
 

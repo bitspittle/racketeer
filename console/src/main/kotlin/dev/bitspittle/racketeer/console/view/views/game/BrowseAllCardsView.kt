@@ -8,11 +8,7 @@ import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
-import dev.bitspittle.racketeer.console.command.commands.admin.CreateCardCommand
-import dev.bitspittle.racketeer.console.command.commands.game.ViewCardCommand
 import dev.bitspittle.racketeer.console.command.commands.game.ViewCardTemplateCommand
-import dev.bitspittle.racketeer.console.view.View
-import dev.bitspittle.racketeer.model.card.Card
 
 enum class CardSortingOrder {
     NAME,
@@ -26,7 +22,7 @@ enum class CardSortingOrder {
     }
 }
 
-class BrowseAllCardsView(ctx: GameContext, private val sortingOrder: CardSortingOrder = CardSortingOrder.NAME) : View(ctx) {
+class BrowseAllCardsView(ctx: GameContext, private val sortingOrder: CardSortingOrder = CardSortingOrder.NAME) : GameView(ctx) {
     private val sortedCards = ctx.data.cards.sortedBy { it.name }.let { cards ->
         // Even if we sort by tier, it should still be name-sorted secondarily
         if (sortingOrder == CardSortingOrder.TIER) cards.sortedBy { it.tier } else cards

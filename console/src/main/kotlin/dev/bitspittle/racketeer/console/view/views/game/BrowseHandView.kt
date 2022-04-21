@@ -3,9 +3,8 @@ package dev.bitspittle.racketeer.console.view.views.game
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.ViewCardCommand
-import dev.bitspittle.racketeer.console.view.View
 
-class BrowseHandView(ctx: GameContext) : View(ctx) {
+class BrowseHandView(ctx: GameContext) : GameView(ctx) {
     init {
         check(ctx.state.hand.cards.isNotEmpty())
     }

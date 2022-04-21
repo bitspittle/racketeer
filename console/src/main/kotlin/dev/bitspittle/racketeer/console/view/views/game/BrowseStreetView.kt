@@ -5,9 +5,8 @@ import com.varabyte.kotter.runtime.MainRenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.ViewCardCommand
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.view.View
 
-class BrowseStreetView(ctx: GameContext) : View(ctx) {
+class BrowseStreetView(ctx: GameContext) : GameView(ctx) {
     init {
         check(ctx.state.street.cards.isNotEmpty())
     }

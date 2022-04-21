@@ -3,9 +3,8 @@ package dev.bitspittle.racketeer.console.view.views.game
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.ViewCardGroupCommand
-import dev.bitspittle.racketeer.console.view.View
 
-class BrowseDeckView(ctx: GameContext) : View(ctx) {
+class BrowseDeckView(ctx: GameContext) : GameView(ctx) {
     init {
         check(ctx.state.deck.cards.isNotEmpty())
     }

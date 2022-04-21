@@ -12,9 +12,9 @@ import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.admin.CreateCardCommand
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.view.View
+import dev.bitspittle.racketeer.console.view.views.game.GameView
 
-class AdminCreateCardView(ctx: GameContext) : View(ctx) {
+class AdminCreateCardView(ctx: GameContext) : GameView(ctx) {
     private val sortedCards = ctx.data.cards.sortedBy { it.name }
 
     override fun createCommands(): List<Command> = sortedCards.map { CreateCardCommand(ctx, it) }
