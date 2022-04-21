@@ -10,7 +10,7 @@ import dev.bitspittle.racketeer.model.shop.Shop
 import kotlin.math.max
 import kotlin.random.Random
 
-class GameState internal constructor(
+class GameState private constructor(
     private val random: Random,
     val allCards: List<CardTemplate>,
     private val cardQueue: CardQueue,
@@ -70,11 +70,16 @@ class GameState internal constructor(
         vp = deck.cards.sumOf { it.vpTotal }
     }
 
+    var isGameOver = false
+        private set
+
+    private val lastTurnIndex = numTurns - 1
+
     /**
      * How many turns are in a game.
      */
     var numTurns = numTurns
-        set(value) {
+        private set(value) {
             field = value.coerceAtLeast(turn + 1)
         }
 
@@ -273,7 +278,10 @@ class GameState internal constructor(
     }
 
     suspend fun endTurn(): Boolean {
-        if (turn >= numTurns - 1) return false
+        if (turn >= lastTurnIndex) {
+            isGameOver = true
+            return false
+        }
 
         turn++
         cash = baseCash
