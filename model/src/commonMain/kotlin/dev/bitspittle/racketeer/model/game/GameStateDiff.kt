@@ -150,8 +150,8 @@ private class GameStateDiffReporter(
         }
 
         when {
-            diff.vp > 0 -> reportLine("You gained ${describer.describeLuck(diff.vp)}.")
-            diff.vp < 0 -> reportLine("You lost ${describer.describeLuck(-diff.vp)}.")
+            diff.vp > 0 -> reportLine("You gained ${describer.describeVictoryPoints(diff.vp)}.")
+            diff.vp < 0 -> reportLine("You lost ${describer.describeVictoryPoints(-diff.vp)}.")
         }
     }
 
