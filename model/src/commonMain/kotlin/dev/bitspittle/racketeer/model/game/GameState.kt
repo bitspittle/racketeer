@@ -264,13 +264,16 @@ class GameState internal constructor(
 
         moveNow(card, street)
 
+        // Apply upgrades *first*, as otherwise, playing a card may add an upgrade which shouldn't take affect until
+        // a later turn.
+        if (card.isDexterous()) cash++
+        if (card.isArtful()) influence++
+        if (card.isLucky()) luck++
+
         // Playing this card might install an effect, but that shouldn't take effect until the next card is played
         val streetEffectsCopy = _streetEffects.toList()
         cardQueue.enqueuePlayActions(card)
         cardQueue.runEnqueuedActions(this)
-        if (card.isDexterous()) cash++
-        if (card.isArtful()) influence++
-        if (card.isLucky()) luck++
         streetEffectsCopy.forEach { streetEffect -> streetEffect.invoke(card) }
         updateVictoryPoints()
     }
