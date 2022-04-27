@@ -18,11 +18,19 @@ abstract class View(
     private val app: App
 ) {
     protected abstract fun createCommands(): List<Command>
+    private var shouldRefreshCommands = true
     private var _commandsSection: CommandsSection? = null
     private val commandsSection: CommandsSection
         get() {
-            if (_commandsSection == null) {
-                _commandsSection = CommandsSection(createCommands())
+            if (shouldRefreshCommands) {
+                shouldRefreshCommands = false
+
+                _commandsSection?.let { cs ->
+                    val newIndex = refreshCursorPosition(cs.currIndex, cs.currCommand)
+                    _commandsSection = CommandsSection(createCommands(), newIndex)
+                } ?: run {
+                    _commandsSection = CommandsSection(createCommands())
+                }
             }
             return _commandsSection!!
         }
@@ -39,8 +47,7 @@ abstract class View(
         }
 
     fun refreshCommands() {
-        val newIndex = refreshCursorPosition(commandsSection.currIndex, commandsSection.currCommand)
-        _commandsSection = CommandsSection(createCommands(), newIndex)
+        shouldRefreshCommands = true
     }
 
     /**
