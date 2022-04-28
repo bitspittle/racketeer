@@ -67,12 +67,18 @@ private val FAKE_GAME_DATA_TEXT = """
       - 10
       - 15
       - 20
-    ratingScores:
-      # Anything lower than the first score is D
-      - 10 # C
-      - 20 # B
-      - 30 # A
-      - 40 # S
+
+    rankings:
+      - name: D
+        score: 0
+      - name: C
+        score: 10
+      - name: B
+        score: 20
+      - name: A
+        score: 30
+      - name: S
+        score: 40
 
     cards:
       # TIER 1

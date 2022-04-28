@@ -30,7 +30,7 @@ data class GameData(
     val tierFrequencies: List<Int>,
     val shopSizes: List<Int>,
     val shopPrices: List<Int>,
-    val ratingScores: List<Int>,
+    val rankings: List<Ranking>,
     val cards: List<CardTemplate>,
     val globalActions: List<String> = listOf()
 ) {
@@ -125,10 +125,13 @@ data class GameData(
             }
 
         }
-        require(ratingScores.size == Rating.values().size - 1) {
-            "Too many scores defined for rating values: ${
-                Rating.values().joinToString { it.name }
-            }"
+
+        require(rankings.isNotEmpty()) { "You must specify at least one rating."}
+        require(rankings.first().score == 0) { "The first rating (the lowest) MUST have a score of 0"}
+        for (i in rankings.indices) {
+            if (i > 0) {
+                require(rankings[i].score > rankings[i - 1].score) { "Each rating should have a higher score than the previous rating" }
+            }
         }
 
         cards.forEach { card ->

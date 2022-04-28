@@ -8,7 +8,7 @@ import com.varabyte.kotter.runtime.MainRenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.NewGameCommand
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.model.game.Rating
+import dev.bitspittle.racketeer.model.game.from
 
 class GameSummaryView(ctx: GameContext) : GameView(ctx) {
     override fun createCommands(): List<Command> =
@@ -26,9 +26,9 @@ class GameSummaryView(ctx: GameContext) : GameView(ctx) {
         )
 
     override fun MainRenderScope.renderContentUpper() {
-        textLine("You ended the game with ${ctx.data.icons.vp} ${ctx.state.vp}, to earn a ranking of: ")
+        textLine("You ended the game with ${ctx.describer.describeVictoryPoints(ctx.state.vp)}, to earn a ranking of: ")
         textLine()
-        bold { textLine(" ${Rating.from(ctx.data, ctx.state.vp)}") }
+        bold { textLine(" ${ctx.data.rankings.from(ctx.state.vp).name}") }
         textLine()
 
         text("Press "); cyan { text("New Game") }; text(" to play again or "); cyan { text("Exit") }; textLine(" to quit.")

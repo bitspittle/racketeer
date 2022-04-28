@@ -55,12 +55,18 @@ shopPrices:
   - 8
   - 11
   - 14
-ratingScores:
-  # Anything lower than the first score is D
-  - 10 # C
-  - 20 # B
-  - 30 # A
-  - 40 # S
+
+rankings:
+  - name: D
+    score: 0
+  - name: C
+    score: 10
+  - name: B
+    score: 20
+  - name: A
+    score: 30
+  - name: S
+    score: 40
 
 globalActions:
   # yaml freaks out a bit about some characters (e.g. | or >, which it tries to interpret), so define non-symbol
