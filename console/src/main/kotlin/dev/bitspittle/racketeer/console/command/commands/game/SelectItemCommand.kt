@@ -5,10 +5,10 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.model.card.Card
 
 class SelectItemCommand(
-    ctx: GameContext, val item: Any, var selected: Boolean = false
+    ctx: GameContext, val item: Any, var selected: Boolean = false, description: String? = null
 ) : Command(ctx) {
     override val title get() = "[${if (selected) 'x' else ' '}] ${describeForTitle(item)}"
-    override val description = describeForDescription(item)
+    override val description = description ?: describeForDescription(item)
 
     override suspend fun invoke(): Boolean {
         selected = !selected

@@ -41,6 +41,14 @@ class AdminMenuView(ctx: GameContext) : GameView(ctx) {
                 }
             },
             object : Command(ctx) {
+                override val title = "Admin Settings"
+                override val description: String = "Modify admin settings"
+                override suspend fun invoke(): Boolean {
+                    ctx.viewStack.pushView(AdminSettingsView(ctx))
+                    return true
+                }
+            },
+            object : Command(ctx) {
                 override val title = "Save game"
                 override val description: String = "Save this game into the desired save slot."
                 override suspend fun invoke(): Boolean {
