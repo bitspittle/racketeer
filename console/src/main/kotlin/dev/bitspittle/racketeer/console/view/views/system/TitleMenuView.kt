@@ -37,7 +37,7 @@ class TitleMenuView(
     val ctx = GameContext(
         data,
         settings,
-        Describer(data),
+        Describer(data, showDebugInfo = { settings.showDebugInfo }),
         GameState(data, cardQueue, random),
         env,
         cardQueue,

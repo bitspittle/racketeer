@@ -25,7 +25,7 @@ class VisitShopView(ctx: GameContext) : GameView(ctx) {
     }
 
     override fun MainRenderScope.renderContentUpper() {
-        if (ctx.state.shop.exclusions.isNotEmpty()) {
+        if (ctx.settings.showDebugInfo && ctx.state.shop.exclusions.isNotEmpty()) {
             textLine("Exclusions:")
             ctx.state.shop.exclusions.forEach { exclusion ->
                 textLine("- ${exclusion.desc}")

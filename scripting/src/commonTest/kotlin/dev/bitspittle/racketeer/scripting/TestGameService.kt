@@ -191,7 +191,7 @@ class TestGameService(
 ) : GameService {
     val random: Random get() = copyableRandom()
 
-    override val describer: Describer = Describer(gameData)
+    override val describer: Describer = Describer(gameData, showDebugInfo = { true })
     override val gameState = GameState(gameData, cardQueue, copyableRandom)
     private val _logs = mutableListOf<String>()
     val logs: List<String> = _logs

@@ -6,7 +6,7 @@ import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.pile.Pile
 
-class Describer(private val data: GameData) {
+class Describer(private val data: GameData, private val showDebugInfo: () -> Boolean) {
     fun convertIcons(text: String): String {
         return text.replace("$", data.icons.cash)
             .replace("&", data.icons.influence)
@@ -97,36 +97,38 @@ class Describer(private val data: GameData) {
             append(describeUpgradesBody(upgrades))
         }
 
-        if (template.initActions.isNotEmpty()) {
-            appendLine() // Finish previous section
-            appendLine() // Newline
-            appendLine("When card first enters play:")
-            template.initActions.forEachIndexed { i, action ->
-                append("- $action")
-                if (i < template.initActions.lastIndex) {
-                    appendLine()
+        if (showDebugInfo()) {
+            if (template.initActions.isNotEmpty()) {
+                appendLine() // Finish previous section
+                appendLine() // Newline
+                appendLine("When card first enters play:")
+                template.initActions.forEachIndexed { i, action ->
+                    append("- $action")
+                    if (i < template.initActions.lastIndex) {
+                        appendLine()
+                    }
                 }
             }
-        }
-        if (template.playActions.isNotEmpty()) {
-            appendLine() // Finish previous section
-            appendLine() // Newline
-            appendLine("When card is played:")
-            template.playActions.forEachIndexed { i, action ->
-                append("- $action")
-                if (i < template.playActions.lastIndex) {
-                    appendLine()
+            if (template.playActions.isNotEmpty()) {
+                appendLine() // Finish previous section
+                appendLine() // Newline
+                appendLine("When card is played:")
+                template.playActions.forEachIndexed { i, action ->
+                    append("- $action")
+                    if (i < template.playActions.lastIndex) {
+                        appendLine()
+                    }
                 }
             }
-        }
-        template.allPassiveActions.takeIf { it.isNotEmpty() }?.let { allPassiveActions ->
-            appendLine() // Finish previous section
-            appendLine() // Newline
-            appendLine("Passive actions:")
-            allPassiveActions.forEachIndexed { i, action ->
-                append("- $action")
-                if (i < allPassiveActions.lastIndex) {
-                    appendLine()
+            template.allPassiveActions.takeIf { it.isNotEmpty() }?.let { allPassiveActions ->
+                appendLine() // Finish previous section
+                appendLine() // Newline
+                appendLine("Passive actions:")
+                allPassiveActions.forEachIndexed { i, action ->
+                    append("- $action")
+                    if (i < allPassiveActions.lastIndex) {
+                        appendLine()
+                    }
                 }
             }
         }
