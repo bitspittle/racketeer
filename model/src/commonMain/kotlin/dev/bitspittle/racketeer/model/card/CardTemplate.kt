@@ -20,10 +20,10 @@ data class CardTemplate(
     val vp: Int = 0,
     val passiveVp: String? = null,
     val cost: Int = 0,
-    val upgrades: List<String> = listOf(),
-    val initActions: List<String> = listOf(),
-    val playActions: List<String> = listOf(),
-    val passiveActions: List<String> = listOf(),
+    val upgrades: List<String> = emptyList(),
+    val initActions: List<String> = emptyList(),
+    val playActions: List<String> = emptyList(),
+    val passiveActions: List<String> = emptyList(),
 ): Comparable<CardTemplate> {
     val isPriceless get() = cost == 0
 
@@ -36,4 +36,4 @@ data class CardTemplate(
  * A collection of all passive actions, both those written explicitly and also implicitly extracted from other fields
  */
 val CardTemplate.allPassiveActions: List<String> get() =
-    (passiveVp?.let { expr -> listOf("card-set! \$this 'vp-passive ($expr)") } ?: listOf()) + passiveActions
+    (passiveVp?.let { expr -> listOf("card-set! \$this 'vp-passive ($expr)") } ?: emptyList()) + passiveActions
