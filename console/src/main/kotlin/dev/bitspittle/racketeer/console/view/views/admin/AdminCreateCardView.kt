@@ -27,7 +27,7 @@ class AdminCreateCardView(ctx: GameContext) : GameView(ctx) {
 
     override suspend fun handleAdditionalKeys(key: Key): Boolean {
         return if (key is CharKey) {
-            key.code.takeIf { it in 'a'..'z' || it in 'A'..'Z' }?.let { searchLetter ->
+            key.code.takeIf { it in 'a'..'z' || it in 'A'..'Z' || it == ' ' }?.let { searchLetter ->
                 searchPrefix += searchLetter.lowercase()
                 // Return
                 // - the first card that matches the search letter (e.g. 'P' -> "P1" in ["P1", "P2", "P3"]) OR
