@@ -62,7 +62,7 @@ class TitleMenuView(
                 }
             },
             object : Command(ctx) {
-                override val type get() = if (SerializationSupport.firstFreeSlot() > 0) Type.Read else Type.Hidden
+                override val type get() = if (SerializationSupport.firstFreeSlot() > 0) Type.Normal else Type.Hidden
                 override val title = "Load Game"
                 override suspend fun invoke(): Boolean {
                     ctx.viewStack.pushView(LoadGameView(ctx))

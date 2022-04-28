@@ -10,7 +10,7 @@ class ExpandShopCommand(ctx: GameContext) : Command(ctx) {
     }
 
     private val influenceCost = ctx.data.shopPrices[ctx.state.shop.tier]
-    override val type = if (ctx.state.influence >= influenceCost) Type.ModifyAlt else Type.Disabled
+    override val type = if (ctx.state.influence >= influenceCost) Type.Accented else Type.Disabled
 
     override val title = "Expand shop"
     override val meta = ctx.describer.describeInfluence(influenceCost)

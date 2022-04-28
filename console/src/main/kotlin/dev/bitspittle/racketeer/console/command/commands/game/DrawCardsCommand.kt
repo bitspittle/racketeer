@@ -6,7 +6,7 @@ import dev.bitspittle.racketeer.console.utils.runStateChangingAction
 import dev.bitspittle.racketeer.console.view.views.game.PlayCardsView
 
 class DrawCardsCommand(ctx: GameContext) : Command(ctx) {
-    override val type: Type = Type.Modify
+    override val type: Type = Type.Emphasized
     override val title = "Draw cards"
 
     override val description = "Draw ${ctx.state.handSize} cards and put them into your hand."

@@ -5,7 +5,7 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.view.views.game.BrowseJailView
 
 class BrowseJailCommand(ctx: GameContext) : Command(ctx) {
-    override val type = if (ctx.state.jail.cards.isNotEmpty()) Type.Read else Type.Disabled
+    override val type = if (ctx.state.jail.cards.isNotEmpty()) Type.Normal else Type.Disabled
     override val title = "Browse jail (${ctx.state.jail.cards.size})"
 
     override val description = "Look over the cards that have been jailed."

@@ -5,7 +5,7 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.utils.runStateChangingAction
 
 class RestockShopCommand(ctx: GameContext) : Command(ctx) {
-    override val type = if (ctx.state.luck >= 1) Type.Modify else Type.Disabled
+    override val type = if (ctx.state.luck >= 1) Type.Emphasized else Type.Disabled
 
     override val title = "Restock shop"
     override val meta = ctx.describer.describeLuck(1)

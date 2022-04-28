@@ -5,7 +5,7 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.view.views.game.BrowseDiscardView
 
 class BrowseDiscardCommand(ctx: GameContext) : Command(ctx) {
-    override val type = if (ctx.state.discard.cards.isNotEmpty()) Type.Read else Type.Disabled
+    override val type = if (ctx.state.discard.cards.isNotEmpty()) Type.Normal else Type.Disabled
     override val title = "Browse discard (${ctx.state.discard.cards.size})"
 
     override val description = "Look over the cards in the discard pile."

@@ -8,7 +8,7 @@ import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.random.CopyableRandom
 
 class NewGameCommand(ctx: GameContext) : Command(ctx) {
-    override val type = Type.ModifyAlt
+    override val type = Type.Accented
 
     override val title = "New Game"
 

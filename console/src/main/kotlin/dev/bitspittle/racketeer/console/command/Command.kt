@@ -8,13 +8,13 @@ import dev.bitspittle.racketeer.model.card.Card
 abstract class Command(protected val ctx: GameContext) {
     enum class Type {
         /** A command which reads the game state without changing anything. Super safe! */
-        Read,
+        Normal,
         /** A command which can't currently be invoked. */
         Disabled,
         /** A command which represents a normal game action that modifies the game state somehow, e.g. playing a card. */
-        Modify,
+        Emphasized,
         /** A command which represents a bigger action that requires a bit of thought. Proceed with caution! */
-        ModifyAlt,
+        Accented,
         /** A command which recommends caution, often leading to a dangerous or permanent effect on the next screen. */
         Warning,
         /** A command which represents a dangerous, potentially game-destroying action. Are you sure??? */
@@ -26,7 +26,7 @@ abstract class Command(protected val ctx: GameContext) {
         Hidden,
     }
 
-    open val type: Type = Type.Read
+    open val type: Type = Type.Normal
 
     abstract val title: String
     /** Extra information to show to the right of the title, aligned with all other commands in this section */
@@ -37,10 +37,10 @@ abstract class Command(protected val ctx: GameContext) {
         scope.apply {
             scopedState {
                 when (type) {
-                    Type.Read, Type.Hidden -> {}
-                    Type.Modify -> { bold() }
+                    Type.Normal, Type.Hidden -> {}
+                    Type.Emphasized -> { bold() }
                     Type.Disabled -> black(isBright = true)
-                    Type.ModifyAlt -> cyan()
+                    Type.Accented -> cyan()
                     Type.Warning -> yellow()
                     Type.Danger -> red()
                 }

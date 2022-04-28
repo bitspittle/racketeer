@@ -58,7 +58,7 @@ class AdminMenuView(ctx: GameContext) : GameView(ctx) {
                 }
             },
             object : Command(ctx) {
-                override val type = Type.ModifyAlt
+                override val type = Type.Accented
                 override val title = "Open scripting console"
                 override val description: String = "Run scripts live against the current game state."
                 override suspend fun invoke(): Boolean {

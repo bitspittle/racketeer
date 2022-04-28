@@ -10,7 +10,7 @@ import kotlin.io.path.exists
 import kotlin.io.path.writeText
 
 class SaveGameCommand(ctx: GameContext, private val slot: Int) : Command(ctx) {
-    override val type: Type get() = if (SerializationSupport.pathForSlot(slot).exists()) Type.Warning else Type.Read
+    override val type: Type get() = if (SerializationSupport.pathForSlot(slot).exists()) Type.Warning else Type.Normal
     override val title = "Save #${slot + 1}:"
     override val meta: String get() = SerializationSupport.modifiedTime(slot)
 

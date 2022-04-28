@@ -25,7 +25,7 @@ class ChooseItemsView(
 
     override fun createCommands(): List<Command> =
          selectItemCommands + object : Command(ctx) {
-             override val type: Type get() = if (hasUserSelectedEnoughChoices()) Type.Read else Type.Disabled
+             override val type: Type get() = if (hasUserSelectedEnoughChoices()) Type.Normal else Type.Disabled
              override val title: String = "Confirm"
             override val description: String
                 get() = if (hasUserSelectedEnoughChoices()) {

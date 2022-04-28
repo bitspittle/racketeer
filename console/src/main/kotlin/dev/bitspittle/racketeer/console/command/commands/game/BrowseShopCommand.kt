@@ -5,7 +5,7 @@ import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.views.game.BrowseShopView
 
 class BrowseShopCommand(ctx: GameContext) : Command(ctx) {
-    override val type = if (ctx.state.shop.stock.any { it != null }) Type.Read else Type.Disabled
+    override val type = if (ctx.state.shop.stock.any { it != null }) Type.Normal else Type.Disabled
     override val title = "Browse shop (${ctx.state.shop.stock.count { it != null }})"
 
     override val description = "Look over the cards in the shop."

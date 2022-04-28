@@ -8,7 +8,7 @@ import dev.bitspittle.racketeer.console.view.views.game.GameSummaryView
 import dev.bitspittle.racketeer.console.view.views.game.PreDrawView
 
 class EndTurnCommand(ctx: GameContext, private val showConfirmationIfNecessary: Boolean = true) : Command(ctx) {
-    override val type = Type.ModifyAlt
+    override val type = Type.Accented
 
     override val title = "End turn"
 
