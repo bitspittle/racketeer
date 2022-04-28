@@ -4,6 +4,7 @@ import com.varabyte.kotter.foundation.text.*
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.scripting.methods.collection.FormattedItem
 
 abstract class Command(protected val ctx: GameContext) {
     enum class Type {
@@ -67,6 +68,7 @@ abstract class Command(protected val ctx: GameContext) {
     protected fun describeForDescription(item: Any): String? {
         return when (item) {
             is Card -> ctx.describer.describeCard(item, concise = false )
+            is FormattedItem -> describeForDescription(item.wrapped)
             else -> null
         }
     }

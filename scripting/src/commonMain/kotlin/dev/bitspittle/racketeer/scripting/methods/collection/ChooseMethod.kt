@@ -19,7 +19,7 @@ interface ChooseHandler {
     suspend fun query(prompt: String?, list: List<Any>, range: IntRange, requiredChoice: Boolean): List<Any>?
 }
 
-private class FormattedItem(val wrapped: Any, private val displayText: String) {
+class FormattedItem(val wrapped: Any, private val displayText: String) {
     override fun toString() = displayText
 }
 
