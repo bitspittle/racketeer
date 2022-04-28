@@ -1,6 +1,7 @@
 package dev.bitspittle.racketeer.model.random
 
 import com.varabyte.truthish.assertThat
+import net.mamoe.yamlkt.Yaml
 import kotlin.random.Random
 import kotlin.test.Test
 
@@ -29,6 +30,18 @@ class CopyableRandomTest {
             val nextInt = copyableRandom.nextInt()
             assertThat(copy1.nextInt()).isEqualTo(nextInt)
             assertThat(copy2.nextInt()).isEqualTo(nextInt)
+        }
+    }
+
+    @Test
+    fun canSerializeCopyableRandom() {
+        repeat(100) {
+            val copyableRandom = CopyableRandom()
+            val copyrableRandomCopy = Yaml.decodeFromString(CopyableRandom.serializer(), Yaml.encodeToString(copyableRandom))
+
+            assertThat(copyableRandom.nextInt()).isEqualTo(copyrableRandomCopy.nextInt())
+            assertThat(copyableRandom.nextInt(123)).isEqualTo(copyrableRandomCopy.nextInt(123))
+            assertThat(copyableRandom.nextInt(123, 456)).isEqualTo(copyrableRandomCopy.nextInt(123, 456))
         }
     }
 }
