@@ -2,8 +2,7 @@ package dev.bitspittle.racketeer.console.view.views.system
 
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
-import dev.bitspittle.racketeer.console.command.commands.system.NewGameCommand
-import dev.bitspittle.racketeer.console.command.commands.system.SerializationSupport
+import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport
 import dev.bitspittle.racketeer.console.view.views.game.GameView
 import kotlin.io.path.deleteIfExists
 
@@ -16,7 +15,7 @@ class ConfirmDeleteSaveView(ctx: GameContext, private val slot: Int) : GameView(
             override val description = "Press ENTER if you're sure you want to delete the save data in slot #${slot + 1}. Otherwise, go back!"
 
             override suspend fun invoke(): Boolean {
-                if (SerializationSupport.pathForSlot(slot).deleteIfExists()) {
+                if (UserDataSupport.pathForSlot(slot).deleteIfExists()) {
                     ctx.app.logger.info("Slot #${slot + 1} deleted!")
                 }
                 ctx.viewStack.popView()

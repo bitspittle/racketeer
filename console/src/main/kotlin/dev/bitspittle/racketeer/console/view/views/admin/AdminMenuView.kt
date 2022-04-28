@@ -1,7 +1,7 @@
 package dev.bitspittle.racketeer.console.view.views.admin
 
 import dev.bitspittle.racketeer.console.command.Command
-import dev.bitspittle.racketeer.console.command.commands.system.SerializationSupport
+import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.views.game.GameView
 import dev.bitspittle.racketeer.console.view.views.system.LoadGameView
@@ -49,7 +49,7 @@ class AdminMenuView(ctx: GameContext) : GameView(ctx) {
                 }
             },
             object : Command(ctx) {
-                override val type get() = if (SerializationSupport.firstFreeSlot() > 0) Type.Warning else Type.Disabled
+                override val type get() = if (UserDataSupport.firstFreeSlot() > 0) Type.Warning else Type.Disabled
                 override val title = "Load game"
                 override val description: String = "Load a game. This will interrupt your current game!"
                 override suspend fun invoke(): Boolean {

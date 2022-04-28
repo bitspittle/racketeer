@@ -9,8 +9,8 @@ import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.LoadGameCommand
-import dev.bitspittle.racketeer.console.command.commands.system.SerializationSupport
-import dev.bitspittle.racketeer.console.command.commands.system.SerializationSupport.QUICKSAVE_SLOT
+import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport
+import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport.QUICKSAVE_SLOT
 import dev.bitspittle.racketeer.console.game.App
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.View
@@ -63,7 +63,7 @@ class TitleMenuView(
                 override val title = "New Game"
                 override val description = "Command your cronies, expand your turf, and become the most powerful crime boss in the city. Start a new game!"
                 override suspend fun invoke(): Boolean {
-                    if (!SerializationSupport.pathForSlot(QUICKSAVE_SLOT).exists()) {
+                    if (!UserDataSupport.pathForSlot(QUICKSAVE_SLOT).exists()) {
                         ctx.viewStack.replaceView(PreDrawView(ctx))
                     } else {
                         ctx.viewStack.pushView(ConfirmNewGameView(ctx))
@@ -72,13 +72,13 @@ class TitleMenuView(
                 }
             },
             object : Command(ctx) {
-                override val type = if (SerializationSupport.pathForSlot(QUICKSAVE_SLOT).exists()) Type.Accented else Type.Hidden
+                override val type = if (UserDataSupport.pathForSlot(QUICKSAVE_SLOT).exists()) Type.Accented else Type.Hidden
                 override val title = "Restore"
                 override val description = "Resume a game that was previously started but not finished."
 
                 override suspend fun invoke(): Boolean {
                     return if (LoadGameCommand(ctx, QUICKSAVE_SLOT).invoke()) {
-                        SerializationSupport.pathForSlot(QUICKSAVE_SLOT).deleteIfExists()
+                        UserDataSupport.pathForSlot(QUICKSAVE_SLOT).deleteIfExists()
                         true
                     } else {
                         false
@@ -86,7 +86,7 @@ class TitleMenuView(
                 }
             },
             object : Command(ctx) {
-                override val type = if (SerializationSupport.firstFreeSlot() > 0) Type.Normal else Type.Hidden
+                override val type = if (UserDataSupport.firstFreeSlot() > 0) Type.Normal else Type.Hidden
                 override val title = "Load Game"
                 override val description = "Load previously saved game data."
                 override suspend fun invoke(): Boolean {

@@ -10,12 +10,12 @@ import net.mamoe.yamlkt.Yaml
 import kotlin.io.path.*
 
 class LoadGameCommand(ctx: GameContext, private val slot: Int) : Command(ctx) {
-    override val type: Type get() = if (SerializationSupport.pathForSlot(slot).exists()) Type.Warning else Type.Disabled
+    override val type: Type get() = if (UserDataSupport.pathForSlot(slot).exists()) Type.Warning else Type.Disabled
     override val title = "Load #${slot + 1}:"
-    override val meta: String get() = SerializationSupport.modifiedTime(slot)
+    override val meta: String get() = UserDataSupport.modifiedTime(slot)
 
     override suspend fun invoke(): Boolean {
-        val path = SerializationSupport.pathForSlot(slot)
+        val path = UserDataSupport.pathForSlot(slot)
         val snapshot = Yaml.decodeFromString(GameSnapshot.serializer(), path.readText())
         snapshot.create(ctx.data, ctx.env, ctx.cardQueue) { state ->
             ctx.state = state

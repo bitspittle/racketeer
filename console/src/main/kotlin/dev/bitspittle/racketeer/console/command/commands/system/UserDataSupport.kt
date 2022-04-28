@@ -6,7 +6,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.io.path.getLastModifiedTime
 
-object SerializationSupport {
+object UserDataSupport {
     private const val SAVE_PATH_BASE = "userdata/"
     const val QUICKSAVE_SLOT = -1
 

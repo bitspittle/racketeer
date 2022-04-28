@@ -10,14 +10,14 @@ import kotlin.io.path.exists
 import kotlin.io.path.writeText
 
 class SaveGameCommand(ctx: GameContext, private val slot: Int) : Command(ctx) {
-    override val type: Type get() = if (SerializationSupport.pathForSlot(slot).exists()) Type.Warning else Type.Normal
+    override val type: Type get() = if (UserDataSupport.pathForSlot(slot).exists()) Type.Warning else Type.Normal
     override val title = "Save #${slot + 1}:"
-    override val meta: String get() = SerializationSupport.modifiedTime(slot)
+    override val meta: String get() = UserDataSupport.modifiedTime(slot)
 
     override suspend fun invoke(): Boolean {
-        val path = SerializationSupport.pathForSlot(slot)
+        val path = UserDataSupport.pathForSlot(slot)
         val overwritten = path.exists()
-        SerializationSupport.pathForSlot(slot).apply {
+        UserDataSupport.pathForSlot(slot).apply {
             parent.createDirectories()
             writeText(
                 Yaml.encodeToString(
