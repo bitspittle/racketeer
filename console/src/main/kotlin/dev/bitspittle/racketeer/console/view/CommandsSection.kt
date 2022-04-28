@@ -13,6 +13,7 @@ class CommandsSection(commands: List<Command>, currIndex: Int = 0) {
     private val commands = commands.filter { it.type != Command.Type.Hidden }
     init {
         require(commands.isNotEmpty())
+        require(commands.count { it.type == Command.Type.Accented } <= 1) { "Menu has more than one accented item!"}
         check(Constants.PAGE_SIZE > 4) // Need room for up and down arrows plus remaining command counts
     }
 

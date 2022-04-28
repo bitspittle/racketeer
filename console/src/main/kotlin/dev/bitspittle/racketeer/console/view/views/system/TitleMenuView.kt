@@ -62,7 +62,7 @@ class TitleMenuView(
     override fun createCommands(): List<Command> =
         listOf(
             object : Command(ctx) {
-                override val type = Type.Normal
+                override val type = if (UserDataSupport.pathForSlot(QUICKSAVE_SLOT).exists()) Type.Normal else Type.Accented
                 override val title = "New Game"
                 override val description = "Command your cronies, expand your turf, and become the most powerful crime boss in the city. Start a new game!"
                 override suspend fun invoke(): Boolean {

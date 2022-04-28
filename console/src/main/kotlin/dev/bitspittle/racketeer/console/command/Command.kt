@@ -13,7 +13,12 @@ abstract class Command(protected val ctx: GameContext) {
         Disabled,
         /** A command which represents a normal game action that modifies the game state somehow, e.g. playing a card. */
         Emphasized,
-        /** A command which represents a bigger action that requires a bit of thought. Proceed with caution! */
+        /**
+         * A command which is worth drawing the user's attention to as a recommended way to move the game forward.
+         * Still, users should proceed with caution if they're not ready.
+         *
+         * There should either be a single accented item per menu or none.
+         */
         Accented,
         /** A command which recommends caution, often leading to a dangerous or permanent effect on the next screen. */
         Warning,
