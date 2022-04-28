@@ -10,7 +10,7 @@ import dev.bitspittle.racketeer.console.view.views.admin.AdminMenuView
 import dev.bitspittle.racketeer.console.view.views.system.OptionsMenuView
 
 abstract class GameView(protected val ctx: GameContext) : View(ctx.viewStack, ctx.app) {
-    protected open val allowGoBack: Boolean = true
+    protected open val allowEsc: Boolean = true
     protected open val allowBrowseCards: Boolean = true
     private fun allowAdminAccess(): Boolean {
         return ctx.settings.enableAdminFeatures && !(ctx.viewStack.contains { view -> view is AdminMenuView })
@@ -19,13 +19,17 @@ abstract class GameView(protected val ctx: GameContext) : View(ctx.viewStack, ct
     final override suspend fun doHandleKeys(key: Key): Boolean {
         return when (key) {
             Keys.ESC -> {
-                if (ctx.viewStack.canGoBack && allowGoBack) {
-                    onEscRequested()
-                    goBack()
+                if (allowEsc) {
+                    if (ctx.viewStack.canGoBack) {
+                        onEscRequested()
+                        goBack()
+                    } else {
+                        ctx.viewStack.pushView(OptionsMenuView(ctx))
+                    }
+                    true
                 } else {
-                    ctx.viewStack.pushView(OptionsMenuView(ctx))
+                    false
                 }
-                true
             }
             Keys.TICK, Keys.TILDE -> {
                 if (allowAdminAccess()) {
@@ -85,8 +89,10 @@ abstract class GameView(protected val ctx: GameContext) : View(ctx.viewStack, ct
         if (allowAdminAccess()) {
             text("Press "); cyan { text("~") }; textLine(" to access the admin menu.")
         }
-        text("Press "); cyan { text("ESC") }
-        if (ctx.viewStack.canGoBack && allowGoBack) textLine(" to go back.") else textLine(" to open options.")
+        if (allowEsc) {
+            text("Press "); cyan { text("ESC") }
+            if (ctx.viewStack.canGoBack) textLine(" to go back.") else textLine(" to open options.")
+        }
     }
 
     protected open fun RenderScope.renderUpperFooter() = Unit

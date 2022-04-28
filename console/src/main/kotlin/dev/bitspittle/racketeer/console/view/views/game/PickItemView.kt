@@ -1,7 +1,8 @@
 package dev.bitspittle.racketeer.console.view.views.game
 
 import com.varabyte.kotter.foundation.text.textLine
-import com.varabyte.kotter.runtime.render.RenderScope
+import com.varabyte.kotter.foundation.text.yellow
+import com.varabyte.kotter.runtime.MainRenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import kotlin.coroutines.Continuation
@@ -18,7 +19,7 @@ class PickItemView(
     private val requiredChoice: Boolean,
 ) : GameView(ctx) {
     override val heading = (prompt ?: "Choose 1 item:")
-    override val allowGoBack = !requiredChoice
+    override val allowEsc = !requiredChoice
 
     override fun createCommands(): List<Command> = items.map { item ->
         object : Command(ctx) {
@@ -33,8 +34,8 @@ class PickItemView(
         }
     }
 
-    override fun RenderScope.renderUpperFooter() {
-        if (requiredChoice) textLine("This choice is not optional, so you cannot back out of it.")
+    override fun MainRenderScope.renderContentUpper() {
+        if (requiredChoice) yellow { textLine("This choice is not optional, so you cannot back out of it."); textLine() }
     }
 
     override fun onEscRequested() {
