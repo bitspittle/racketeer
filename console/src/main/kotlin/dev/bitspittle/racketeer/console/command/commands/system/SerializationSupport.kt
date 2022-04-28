@@ -8,6 +8,7 @@ import kotlin.io.path.getLastModifiedTime
 
 object SerializationSupport {
     private const val SAVE_PATH_BASE = "userdata/"
+    const val QUICKSAVE_SLOT = -1
 
     fun firstFreeSlot(): Int {
         var slot = 0
@@ -17,7 +18,8 @@ object SerializationSupport {
         return slot
     }
 
-    fun pathForSlot(slot: Int) = Path(SAVE_PATH_BASE, "savegame.$slot.yaml")
+    fun pathForSlot(slot: Int) = Path(SAVE_PATH_BASE, if (slot >= 0) "savegame.$slot.yaml" else "quicksave.yaml")
+
     fun modifiedTime(slot: Int): String {
         val path = pathForSlot(slot).takeIf { it.exists() }
         return if (path != null) {

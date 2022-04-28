@@ -5,13 +5,13 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.NewGameCommand
 import dev.bitspittle.racketeer.console.view.views.game.GameView
 
-class ConfirmNewGameView(ctx: GameContext) : GameView(ctx) {
+class ConfirmRestartView(ctx: GameContext) : GameView(ctx) {
     override fun createCommands(): List<Command> = listOf(
         object : Command(ctx) {
-            override val type = Type.Warning
+            override val type = Type.Danger
             override val title = "Confirm"
 
-            override val description = "Once you confirm, the existing quick save from your last game will be deleted. If you don't want this to happen, go back!"
+            override val description = "Press ENTER if you're sure you want to restart this game. Otherwise, go back!"
 
             override suspend fun invoke(): Boolean {
                 return NewGameCommand(ctx).invoke()

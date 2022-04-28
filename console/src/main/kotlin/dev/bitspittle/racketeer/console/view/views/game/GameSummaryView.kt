@@ -15,7 +15,7 @@ class GameSummaryView(ctx: GameContext) : GameView(ctx) {
         listOf(
             NewGameCommand(ctx),
             object : Command(ctx) {
-                override val type = Type.Danger
+                override val type = Type.Normal
 
                 override val title = "Exit"
                 override suspend fun invoke(): Boolean {

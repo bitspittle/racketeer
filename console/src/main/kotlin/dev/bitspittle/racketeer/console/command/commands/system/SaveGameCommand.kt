@@ -27,7 +27,10 @@ class SaveGameCommand(ctx: GameContext, private val slot: Int) : Command(ctx) {
                 )
             )
         }
-        ctx.app.logger.info("Slot #${slot + 1} successfully " + (if (overwritten) "overwritten" else "saved") + "!")
+        if (slot >= 0) {
+            ctx.app.logger.info("Slot #${slot + 1} successfully " + (if (overwritten) "overwritten" else "saved") + "!")
+        }
+
         return true
     }
 }
