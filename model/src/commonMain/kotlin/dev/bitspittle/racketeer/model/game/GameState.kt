@@ -199,8 +199,9 @@ class GameState internal constructor(
 
     // Needs to be suspend because it might trigger init actions
     suspend fun move(cards: List<Card>, toPile: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
+        // Any cards that go from being unowned to owned should be initialized; including cards from the jail
         val cardsToInit = cards
-            .filter { card -> card.template.initActions.isNotEmpty() && !cardPiles.contains(card.id) }
+            .filter { card -> card.template.initActions.isNotEmpty() && cardPiles[card.id].let { it == null || it == _jail} }
         moveNow(cards, toPile, listStrategy)
 
         cardsToInit.forEach { cardQueue.enqueueInitActions(it) }
