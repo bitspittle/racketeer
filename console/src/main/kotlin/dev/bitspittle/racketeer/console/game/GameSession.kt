@@ -14,6 +14,7 @@ import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.LangService
 import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.limp.utils.installDefaults
+import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport
 import dev.bitspittle.racketeer.console.view.ViewStackImpl
 import dev.bitspittle.racketeer.console.view.views.game.ChooseItemsView
 import dev.bitspittle.racketeer.console.view.views.game.PickItemView
@@ -25,7 +26,12 @@ import dev.bitspittle.racketeer.scripting.types.CardQueueImpl
 import dev.bitspittle.racketeer.scripting.types.GameService
 import dev.bitspittle.racketeer.scripting.utils.installGameLogic
 import kotlinx.coroutines.*
+import net.mamoe.yamlkt.Yaml
+import java.nio.file.OpenOption
 import kotlin.coroutines.suspendCoroutine
+import kotlin.io.path.createDirectories
+import kotlin.io.path.readText
+import kotlin.io.path.writeText
 
 class GameSession(
     private val gameData: GameData
@@ -57,6 +63,12 @@ class GameSession(
             }
         }
 
+        val settings = try {
+            Yaml.decodeFromString(Settings.serializer(), UserDataSupport.pathForSettings().readText())
+        } catch (ex: Exception) {
+            Settings()
+        }
+
         val random = CopyableRandom()
 
         val env = Environment()
@@ -78,7 +90,7 @@ class GameSession(
         gameData.cards.flatMap { it.playActions }.forEach { Expr.parse(it) }
         val cardQueue = CardQueueImpl(env)
 
-        val titleView = TitleMenuView(gameData, app, viewStack, env, cardQueue, random)
+        val titleView = TitleMenuView(gameData, settings, app, viewStack, env, cardQueue, random)
 
         var handleRerender: () -> Unit = {}
         titleView.ctx.let { ctx ->

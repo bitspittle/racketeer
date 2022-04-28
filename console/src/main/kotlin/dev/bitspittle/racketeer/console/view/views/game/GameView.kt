@@ -12,6 +12,9 @@ import dev.bitspittle.racketeer.console.view.views.system.OptionsMenuView
 abstract class GameView(protected val ctx: GameContext) : View(ctx.viewStack, ctx.app) {
     protected open val allowGoBack: Boolean = true
     protected open val allowBrowseCards: Boolean = true
+    private fun allowAdminAccess(): Boolean {
+        return ctx.settings.enableAdminFeatures && !(ctx.viewStack.contains { view -> view is AdminMenuView })
+    }
 
     final override suspend fun doHandleKeys(key: Key): Boolean {
         return when (key) {
@@ -24,8 +27,8 @@ abstract class GameView(protected val ctx: GameContext) : View(ctx.viewStack, ct
                 }
                 true
             }
-            Keys.TICK -> {
-                if (!(ctx.viewStack.contains { view -> view is AdminMenuView })) {
+            Keys.TICK, Keys.TILDE -> {
+                if (allowAdminAccess()) {
                     ctx.viewStack.pushView(AdminMenuView(ctx))
                     true
                 } else false
@@ -78,6 +81,9 @@ abstract class GameView(protected val ctx: GameContext) : View(ctx.viewStack, ct
 
         if (allowBrowseCards && !ctx.viewStack.contains { view -> view is BrowsePilesView }) {
             text("Press "); cyan { text("\\") }; textLine(" to browse all card piles.")
+        }
+        if (allowAdminAccess()) {
+            text("Press "); cyan { text("~") }; textLine(" to access the admin menu.")
         }
         text("Press "); cyan { text("ESC") }
         if (ctx.viewStack.canGoBack && allowGoBack) textLine(" to go back.") else textLine(" to open options.")

@@ -20,6 +20,8 @@ object UserDataSupport {
 
     fun pathForSlot(slot: Int) = Path(SAVE_PATH_BASE, if (slot >= 0) "savegame.$slot.yaml" else "quicksave.yaml")
 
+    fun pathForSettings() = Path(SAVE_PATH_BASE, "settings.yaml")
+
     fun modifiedTime(slot: Int): String {
         val path = pathForSlot(slot).takeIf { it.exists() }
         return if (path != null) {
