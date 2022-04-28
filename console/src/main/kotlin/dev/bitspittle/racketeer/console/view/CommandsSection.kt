@@ -9,7 +9,8 @@ import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import kotlin.math.min
 
-class CommandsSection(private val commands: List<Command>, currIndex: Int = 0) {
+class CommandsSection(commands: List<Command>, currIndex: Int = 0) {
+    private val commands = commands.filter { it.type != Command.Type.Hidden }
     init {
         require(commands.isNotEmpty())
         check(Constants.PAGE_SIZE > 4) // Need room for up and down arrows plus remaining command counts

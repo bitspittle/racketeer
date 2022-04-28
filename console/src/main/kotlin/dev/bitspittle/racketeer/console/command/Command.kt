@@ -19,6 +19,11 @@ abstract class Command(protected val ctx: GameContext) {
         Warning,
         /** A command which represents a dangerous, potentially game-destroying action. Are you sure??? */
         Danger,
+        /**
+         * A special type which causes this command to get filtered from the final list, which can sometimes be the
+         * most convenient way to remove an element from the middle of a bunch of options.
+         */
+        Hidden,
     }
 
     open val type: Type = Type.Read
@@ -32,7 +37,7 @@ abstract class Command(protected val ctx: GameContext) {
         scope.apply {
             scopedState {
                 when (type) {
-                    Type.Read -> {}
+                    Type.Read, Type.Hidden -> {}
                     Type.Modify -> { bold() }
                     Type.Disabled -> black(isBright = true)
                     Type.ModifyAlt -> cyan()

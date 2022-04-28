@@ -9,6 +9,14 @@ import kotlin.io.path.getLastModifiedTime
 object SerializationSupport {
     private const val SAVE_PATH_BASE = "userdata/"
 
+    fun firstFreeSlot(): Int {
+        var slot = 0
+        while (pathForSlot(slot).exists()) {
+            ++slot
+        }
+        return slot
+    }
+
     fun pathForSlot(slot: Int) = Path(SAVE_PATH_BASE, "savegame.$slot.yaml")
     fun modifiedTime(slot: Int): String {
         val path = pathForSlot(slot).takeIf { it.exists() }

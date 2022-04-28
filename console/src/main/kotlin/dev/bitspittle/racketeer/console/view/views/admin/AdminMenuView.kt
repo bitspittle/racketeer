@@ -1,8 +1,11 @@
 package dev.bitspittle.racketeer.console.view.views.admin
 
 import dev.bitspittle.racketeer.console.command.Command
+import dev.bitspittle.racketeer.console.command.commands.system.SerializationSupport
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.views.system.LoadGameView
+import dev.bitspittle.racketeer.console.view.views.system.SaveGameView
 
 class AdminMenuView(ctx: GameContext) : GameView(ctx) {
     override val title: String = "Admin"
@@ -34,6 +37,23 @@ class AdminMenuView(ctx: GameContext) : GameView(ctx) {
 
                 override suspend fun invoke(): Boolean {
                     ctx.viewStack.pushView(AddResourcesView(ctx))
+                    return true
+                }
+            },
+            object : Command(ctx) {
+                override val title = "Save game"
+                override val description: String = "Save this game into the desired save slot."
+                override suspend fun invoke(): Boolean {
+                    ctx.viewStack.pushView(SaveGameView(ctx))
+                    return true
+                }
+            },
+            object : Command(ctx) {
+                override val type get() = if (SerializationSupport.firstFreeSlot() > 0) Type.Warning else Type.Disabled
+                override val title = "Load game"
+                override val description: String = "Load a game. This will interrupt your current game!"
+                override suspend fun invoke(): Boolean {
+                    ctx.viewStack.pushView(LoadGameView(ctx))
                     return true
                 }
             },

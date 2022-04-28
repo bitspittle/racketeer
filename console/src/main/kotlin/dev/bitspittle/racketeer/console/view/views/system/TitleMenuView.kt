@@ -8,6 +8,7 @@ import com.varabyte.kotterx.decorations.BorderCharacters
 import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.racketeer.console.command.Command
+import dev.bitspittle.racketeer.console.command.commands.system.SerializationSupport
 import dev.bitspittle.racketeer.console.game.App
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.View
@@ -61,6 +62,7 @@ class TitleMenuView(
                 }
             },
             object : Command(ctx) {
+                override val type get() = if (SerializationSupport.firstFreeSlot() > 0) Type.Read else Type.Hidden
                 override val title = "Load Game"
                 override suspend fun invoke(): Boolean {
                     ctx.viewStack.pushView(LoadGameView(ctx))
