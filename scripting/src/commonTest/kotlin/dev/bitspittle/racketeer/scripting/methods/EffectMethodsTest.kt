@@ -39,7 +39,7 @@ class EffectMethodsTest {
         assertThat(evaluator.evaluate(env, "fx-add! --desc \"Add 2*\" '(card-set! \$card 'vp '(+ \$it 2))"))
         assertThat(evaluator.evaluate(env, "fx-add! --desc \"Add 3&\"'(game-set! 'influence '(+ \$it 3))"))
 
-        assertThat(gameState.streetEffects).containsExactly(
+        assertThat(gameState.streetEffects.map { it.desc }).containsExactly(
             "(+ 123 456)",
             "Add 2*",
             "Add 3&",
