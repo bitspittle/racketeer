@@ -13,7 +13,7 @@ class EndTurnCommand(ctx: GameContext, private val showConfirmationIfNecessary: 
     override val title = "End turn"
 
     override val description =
-        "Finish this turn. Cards in your hand and the street will move to the discard pile, any leftover money will be" +
+        "Finish this turn. Cards in your hand and the street will move to the discard pile, any leftover money will be " +
                 "lost, and the shop will get restocked with random items."
 
     private fun canStillBuyStuff() = run {
