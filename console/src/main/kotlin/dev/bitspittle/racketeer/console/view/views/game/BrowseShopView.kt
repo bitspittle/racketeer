@@ -15,7 +15,7 @@ class BrowseShopView(ctx: GameContext) : GameView(ctx) {
             .map { card ->
                 object : Command(ctx) {
                     override val title = ctx.describer.describeCard(card.template, concise = true)
-                    override val meta = ctx.describer.describeCash(card.template.cost)
+                    override val extra = ctx.describer.describeCash(card.template.cost)
                     override val description = ctx.describer.describeCard(card.template)
                 }
             }

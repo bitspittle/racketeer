@@ -36,7 +36,7 @@ abstract class Command(protected val ctx: GameContext) {
 
     abstract val title: String
     /** Extra information to show to the right of the title, aligned with all other commands in this section */
-    open val meta: String? = null
+    open val extra: String? = null
     open val description: String? = null
 
     fun renderTitleInto(scope: RenderScope, padding: Int) {
@@ -50,8 +50,8 @@ abstract class Command(protected val ctx: GameContext) {
                     Type.Warning -> yellow()
                     Type.Danger -> red()
                 }
-                // padding + 1 for a space between the title and the metadata
-                text(title.padEnd(padding + 1)); textLine(meta ?: "")
+                // padding + 1 for a space between the title and the extra data
+                text(title.padEnd(padding + 1)); textLine(extra ?: "")
             }
         }
     }

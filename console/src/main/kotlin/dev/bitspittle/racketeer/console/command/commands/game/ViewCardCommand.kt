@@ -10,7 +10,7 @@ import dev.bitspittle.racketeer.model.card.Card
 class ViewCardCommand(ctx: GameContext, card: Card, showPile: Boolean = false) : Command(ctx) {
     override val title = ctx.describer.describeCard(card, concise = true)
     override val description = ctx.describer.describeCard(card)
-    override val meta = if (showPile) ctx.state.pileFor(card)?.let { pile ->
+    override val extra = if (showPile) ctx.state.pileFor(card)?.let { pile ->
         "(${ctx.describer.describePileTitle(ctx.state, pile)})"
     } else null
 }

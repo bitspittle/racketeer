@@ -12,7 +12,7 @@ import kotlin.io.path.writeText
 class SaveGameCommand(ctx: GameContext, private val slot: Int) : Command(ctx) {
     override val type: Type get() = if (UserDataSupport.pathForSlot(slot).exists()) Type.Warning else Type.Normal
     override val title = "Save #${slot + 1}:"
-    override val meta: String get() = UserDataSupport.modifiedTime(slot)
+    override val extra: String get() = UserDataSupport.modifiedTime(slot)
 
     override suspend fun invoke(): Boolean {
         val path = UserDataSupport.pathForSlot(slot)
