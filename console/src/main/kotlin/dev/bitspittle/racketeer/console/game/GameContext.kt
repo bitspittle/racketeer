@@ -13,7 +13,7 @@ import dev.bitspittle.racketeer.model.text.Describer
 fun MutableMap<String, CardStats>.notifyOwnership(card: CardTemplate) {
     compute(card.name) { _, prevStats ->
         val stats = prevStats ?: CardStats(card.name)
-        stats.numTimesOwned++
+        stats.ownedCount++
         stats
     }
 }

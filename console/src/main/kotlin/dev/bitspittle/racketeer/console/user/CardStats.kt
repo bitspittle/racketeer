@@ -12,7 +12,7 @@ import kotlin.io.path.writeText
 @Serializable
 class CardStats(
     val name: String,
-    var numTimesOwned: Long = 0,
+    var ownedCount: Long = 0,
 ) {
     companion object {
         fun load(): Iterable<CardStats>? {
