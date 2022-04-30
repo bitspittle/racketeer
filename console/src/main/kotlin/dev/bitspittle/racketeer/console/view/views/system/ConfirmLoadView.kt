@@ -2,8 +2,8 @@ package dev.bitspittle.racketeer.console.view.views.system
 
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
-import dev.bitspittle.racketeer.console.command.commands.system.NewGameCommand
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport
+import dev.bitspittle.racketeer.console.game.notifyOwnership
 import dev.bitspittle.racketeer.console.view.popAll
 import dev.bitspittle.racketeer.console.view.views.game.GameView
 import dev.bitspittle.racketeer.console.view.views.game.PlayCardsView
@@ -23,7 +23,7 @@ class ConfirmLoadView(ctx: GameContext, private val slot: Int) : GameView(ctx) {
             override suspend fun invoke(): Boolean {
                 val path = UserDataSupport.pathForSlot(slot)
                 val snapshot = Yaml.decodeFromString(GameSnapshot.serializer(), path.readText())
-                snapshot.create(ctx.data, ctx.env, ctx.cardQueue) { state ->
+                snapshot.create(ctx.data, ctx.env, ctx.cardQueue, onCardOwned = { ctx.cardStats.notifyOwnership(it) }) { state ->
                     ctx.state = state
                 }
 

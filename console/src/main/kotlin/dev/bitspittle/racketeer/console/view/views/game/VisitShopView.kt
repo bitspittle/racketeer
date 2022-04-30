@@ -33,4 +33,8 @@ class VisitShopView(ctx: GameContext) : GameView(ctx) {
             textLine()
         }
     }
+
+    override fun MainRenderScope.renderContentLower() {
+        (currCommand as? BuyCardCommand)?.renderHelpInto(this)
+    }
 }

@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.console.command.commands.system
 
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.user.save
 import dev.bitspittle.racketeer.console.view.views.game.PreDrawView
 import dev.bitspittle.racketeer.model.snapshot.GameSnapshot
 import net.mamoe.yamlkt.Yaml
@@ -27,6 +28,9 @@ class SaveGameCommand(ctx: GameContext, private val slot: Int) : Command(ctx) {
                 )
             )
         }
+        // While we're here, save card stats too
+        ctx.cardStats.values.save()
+
         if (slot >= 0) {
             ctx.app.logger.info("Slot #${slot + 1} successfully " + (if (overwritten) "overwritten" else "saved") + "!")
         }

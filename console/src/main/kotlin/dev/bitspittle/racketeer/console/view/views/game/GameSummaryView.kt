@@ -7,10 +7,18 @@ import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.runtime.MainRenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.NewGameCommand
+import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.user.save
 import dev.bitspittle.racketeer.model.game.from
+import kotlin.io.path.createDirectories
+import kotlin.io.path.writeText
 
 class GameSummaryView(ctx: GameContext) : GameView(ctx) {
+    init {
+        ctx.cardStats.values.save()
+    }
+
     override fun createCommands(): List<Command> =
         listOf(
             NewGameCommand(ctx),

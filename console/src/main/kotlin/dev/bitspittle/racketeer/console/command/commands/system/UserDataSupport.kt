@@ -7,7 +7,7 @@ import kotlin.io.path.exists
 import kotlin.io.path.getLastModifiedTime
 
 object UserDataSupport {
-    private const val SAVE_PATH_BASE = "userdata/"
+    private const val USERDATA_BASE = "userdata/"
     const val QUICKSAVE_SLOT = -1
 
     fun firstFreeSlot(): Int {
@@ -18,9 +18,10 @@ object UserDataSupport {
         return slot
     }
 
-    fun pathForSlot(slot: Int) = Path(SAVE_PATH_BASE, if (slot >= 0) "savegame.$slot.yaml" else "quicksave.yaml")
+    fun pathForSlot(slot: Int) = Path(USERDATA_BASE, if (slot >= 0) "savegame.$slot.yaml" else "quicksave.yaml")
 
-    fun pathForSettings() = Path(SAVE_PATH_BASE, "settings.yaml")
+    fun pathForCardStats() = Path(USERDATA_BASE, "cardstats.yaml")
+    fun pathForSettings() = Path(USERDATA_BASE, "settings.yaml")
 
     fun modifiedTime(slot: Int): String {
         val path = pathForSlot(slot).takeIf { it.exists() }

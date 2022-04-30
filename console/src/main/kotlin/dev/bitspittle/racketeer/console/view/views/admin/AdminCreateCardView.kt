@@ -25,7 +25,7 @@ class AdminCreateCardView(ctx: GameContext) : GameView(ctx) {
     override suspend fun handleAdditionalKeys(key: Key): Boolean {
         return if (key is CharKey && (key.code.isLetter() || key.code == ' ')) {
             searchPrefix += key.code.lowercase()
-            currIndex = cardSearcher.search(searchPrefix)
+            currIndex = cardSearcher.search(searchPrefix)?.let { found -> ctx.data.cards.indexOf(found) } ?: 0
             true
         } else {
             when (key) {

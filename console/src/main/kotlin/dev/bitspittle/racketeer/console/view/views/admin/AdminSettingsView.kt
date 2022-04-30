@@ -14,6 +14,20 @@ import dev.bitspittle.racketeer.console.user.save
 import dev.bitspittle.racketeer.console.view.views.game.GameView
 
 class AdminSettingsView(ctx: GameContext) : GameView(ctx) {
+    private val maskCardsSetting = SelectItemCommand(
+        ctx,
+        "Mask cards",
+        ctx.settings.maskCards,
+        "If true, card list screens will hide card names and descriptions until the first time you buy one."
+    )
+
+    private val highlightNewCardsSetting = SelectItemCommand(
+        ctx,
+        "Highlight new cards",
+        ctx.settings.highlightNewCards,
+        "If true, cards in the shop you never bought before will be suffixed with a [NEW] tag."
+    )
+
     private val debugInfoSetting = SelectItemCommand(
         ctx,
         "Show debug info",
@@ -36,10 +50,14 @@ class AdminSettingsView(ctx: GameContext) : GameView(ctx) {
 
     private fun createNewSettings() = Settings().apply {
         setFrom(ctx.settings)
-        showDebugInfo = debugInfoSetting.selected
+        this.maskCards = maskCardsSetting.selected
+        this.highlightNewCards = highlightNewCardsSetting.selected
+        this.showDebugInfo = debugInfoSetting.selected
     }
 
     override fun createCommands(): List<Command> = listOf(
+        maskCardsSetting,
+        highlightNewCardsSetting,
         debugInfoSetting,
         object : Command(ctx) {
             override val type get() = if (createNewSettings() != ctx.settings) Type.Normal else Type.Disabled

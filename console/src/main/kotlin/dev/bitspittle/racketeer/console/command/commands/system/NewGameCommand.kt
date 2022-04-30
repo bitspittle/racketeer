@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.console.command.commands.system
 
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.game.notifyOwnership
 import dev.bitspittle.racketeer.console.view.popAll
 import dev.bitspittle.racketeer.console.view.views.game.PreDrawView
 import dev.bitspittle.racketeer.model.game.GameState
@@ -15,7 +16,7 @@ class NewGameCommand(ctx: GameContext) : Command(ctx) {
 
     override suspend fun invoke(): Boolean {
         UserDataSupport.pathForSlot(UserDataSupport.QUICKSAVE_SLOT).deleteIfExists()
-        ctx.state = GameState(ctx.data, ctx.cardQueue, CopyableRandom())
+        ctx.state = GameState(ctx.data, ctx.cardQueue, CopyableRandom(), onCardOwned = { ctx.cardStats.notifyOwnership(it) })
         ctx.viewStack.popAll()
         ctx.viewStack.replaceView(PreDrawView(ctx))
         return true

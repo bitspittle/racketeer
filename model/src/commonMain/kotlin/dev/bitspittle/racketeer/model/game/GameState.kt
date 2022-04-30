@@ -14,6 +14,7 @@ class GameState internal constructor(
     internal val random: CopyableRandom,
     val allCards: List<CardTemplate>,
     private val cardQueue: CardQueue,
+    private val onCardOwned: (CardTemplate) -> Unit,
     numTurns: Int,
     turn: Int,
     cash: Int,
@@ -29,10 +30,11 @@ class GameState internal constructor(
     jail: MutablePile,
     streetEffects: MutableList<Effect>,
 ) {
-    constructor(data: GameData, cardQueue: CardQueue, random: CopyableRandom) : this(
+    constructor(data: GameData, cardQueue: CardQueue, random: CopyableRandom, onCardOwned: (CardTemplate) -> Unit) : this(
         random = random,
         allCards = data.cards,
         cardQueue = cardQueue,
+        onCardOwned = onCardOwned,
         numTurns = data.numTurns,
         turn = 0,
         cash = 0,
@@ -51,7 +53,7 @@ class GameState internal constructor(
             }
             .toMutableList()
             .apply { shuffle(random()) }
-        ),
+        ).also { pile -> pile.cards.forEach { onCardOwned(it.template) } },
         hand = MutablePile(),
         street = MutablePile(),
         discard = MutablePile(),
@@ -200,6 +202,7 @@ class GameState internal constructor(
     // Needs to be suspend because it might trigger init actions
     suspend fun move(cards: List<Card>, toPile: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
         // Any cards that go from being unowned to owned should be initialized; including cards from the jail
+        val newlyOwnedCards = cards.filter { card -> !cardPiles.contains(card.id) }
         val cardsToInit = cards
             .filter { card -> card.template.initActions.isNotEmpty() && cardPiles[card.id].let { it == null || it == _jail} }
         moveNow(cards, toPile, listStrategy)
@@ -207,6 +210,8 @@ class GameState internal constructor(
         cardsToInit.forEach { cardQueue.enqueueInitActions(it) }
         cardQueue.runEnqueuedActions(this)
         updateVictoryPoints()
+
+        newlyOwnedCards.forEach { onCardOwned(it.template) }
     }
 
     // Guaranteed owned card to owned card - it's not necessary to worry about running init actions (so no need to be
@@ -302,6 +307,7 @@ class GameState internal constructor(
             random,
             allCards,
             cardQueue,
+            onCardOwned,
             numTurns,
             turn,
             cash,

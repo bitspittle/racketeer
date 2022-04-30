@@ -6,17 +6,14 @@ import dev.bitspittle.racketeer.model.card.CardTemplate
 class CardSearcher(cards: List<CardTemplate>) {
     val cards = cards.sortedBy { it.name }
 
-    fun search(searchPrefix: String): Int {
-        val foundCard =
-            cards
+    fun search(searchPrefix: String): CardTemplate? {
+        return cards
+            .asSequence()
+            .filter { card -> card.name.startsWith(searchPrefix, ignoreCase = true) }
+            .firstOrNull()
+            ?: cards.reversed()
                 .asSequence()
-                .filter { card -> card.name.startsWith(searchPrefix, ignoreCase = true) }
+                .filter { card -> searchPrefix > card.name.lowercase() }
                 .firstOrNull()
-                ?: cards.reversed()
-                    .asSequence()
-                    .filter { card -> searchPrefix > card.name.lowercase() }
-                    .firstOrNull()
-
-        return foundCard?.let { cards.indexOf(it) } ?: 0
     }
 }

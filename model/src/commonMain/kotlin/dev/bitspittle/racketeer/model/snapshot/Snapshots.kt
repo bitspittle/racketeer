@@ -4,6 +4,7 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardQueue
+import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.game.Effect
 import dev.bitspittle.racketeer.model.game.GameData
@@ -140,11 +141,12 @@ class GameSnapshot(
         )
     }
 
-    suspend fun create(data: GameData, env: Environment, cardQueue: CardQueue, setGameState: (GameState) -> Unit) {
+    suspend fun create(data: GameData, env: Environment, cardQueue: CardQueue, onCardOwned: (CardTemplate) -> Unit, setGameState: (GameState) -> Unit) {
         val gs = GameState(
             random,
             data.cards,
             cardQueue,
+            onCardOwned,
             numTurns,
             turn,
             cash,

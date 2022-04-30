@@ -1,17 +1,16 @@
 package dev.bitspittle.racketeer.console.view.views.system
 
 import dev.bitspittle.racketeer.console.command.Command
-import dev.bitspittle.racketeer.console.command.commands.system.BrowseAllCardsCommand
+import dev.bitspittle.racketeer.console.command.commands.system.CardListCommand
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.views.game.GameView
-import dev.bitspittle.racketeer.console.view.views.game.BrowseAllCardsView
 
 class OptionsMenuView(ctx: GameContext) : GameView(ctx) {
     override val title: String = "Options"
 
     override fun createCommands(): List<Command> =
         listOf(
-            BrowseAllCardsCommand(ctx),
+            CardListCommand(ctx),
             object : Command(ctx) {
                 override val type = Type.Warning
                 override val title = "Restart"

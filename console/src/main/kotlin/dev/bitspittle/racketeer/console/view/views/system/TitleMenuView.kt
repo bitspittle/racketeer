@@ -8,12 +8,14 @@ import com.varabyte.kotterx.decorations.BorderCharacters
 import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.racketeer.console.command.Command
-import dev.bitspittle.racketeer.console.command.commands.system.BrowseAllCardsCommand
+import dev.bitspittle.racketeer.console.command.commands.system.CardListCommand
 import dev.bitspittle.racketeer.console.command.commands.system.LoadGameCommand
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport.QUICKSAVE_SLOT
 import dev.bitspittle.racketeer.console.game.App
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.game.notifyOwnership
+import dev.bitspittle.racketeer.console.user.CardStats
 import dev.bitspittle.racketeer.console.user.Settings
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.console.view.ViewStack
@@ -29,22 +31,29 @@ import kotlin.io.path.exists
 class TitleMenuView(
     data: GameData,
     settings: Settings,
+    cardStats: Iterable<CardStats>,
     app: App,
     viewStack: ViewStack,
     env: Environment,
     cardQueue: CardQueue,
     random: CopyableRandom
 ) : View(viewStack, app) {
-    val ctx = GameContext(
-        data,
-        settings,
-        Describer(data, showDebugInfo = { settings.showDebugInfo }),
-        GameState(data, cardQueue, random),
-        env,
-        cardQueue,
-        viewStack,
-        app
-    )
+    val ctx = run {
+        @Suppress("NAME_SHADOWING")
+        val cardStats = cardStats.associateBy { it.name }.toMutableMap()
+
+        GameContext(
+            data,
+            settings,
+            cardStats,
+            Describer(data, showDebugInfo = { settings.showDebugInfo }),
+            GameState(data, cardQueue, random, onCardOwned = { cardStats.notifyOwnership(it) }),
+            env,
+            cardQueue,
+            viewStack,
+            app
+        )
+    }
 
     override fun RenderScope.renderHeader() {
         textLine()
@@ -98,7 +107,7 @@ class TitleMenuView(
                     return true
                 }
             },
-            BrowseAllCardsCommand(ctx),
+            CardListCommand(ctx),
             object : Command(ctx) {
                 override val title = "Quit"
                 override val description = "Actually, I'm feeling scared. Maybe this crime stuff isn't for me..."
