@@ -61,7 +61,15 @@ abstract class Command(protected val ctx: GameContext) {
     protected fun describeForTitle(item: Any): String {
         return when (item) {
             is Card -> ctx.describer.describeCard(item, concise = true)
+            is FormattedItem -> item.displayText ?: describeForTitle(item.wrapped)
             else -> item.toString()
+        }
+    }
+
+    protected fun describeForExtra(item: Any): String? {
+        return when (item) {
+            is FormattedItem -> item.extraText
+            else -> null
         }
     }
 

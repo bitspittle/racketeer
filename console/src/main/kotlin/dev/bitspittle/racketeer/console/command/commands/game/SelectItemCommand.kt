@@ -8,6 +8,7 @@ class SelectItemCommand(
     ctx: GameContext, val item: Any, var selected: Boolean = false, description: String? = null
 ) : Command(ctx) {
     override val title get() = "[${if (selected) 'x' else ' '}] ${describeForTitle(item)}"
+    override val extra get() = describeForExtra(item)
     override val description = description ?: describeForDescription(item)
 
     override suspend fun invoke(): Boolean {

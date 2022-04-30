@@ -24,6 +24,7 @@ class PickItemView(
     override fun createCommands(): List<Command> = items.map { item ->
         object : Command(ctx) {
             override val title = describeForTitle(item)
+            override val extra = describeForExtra(item)
             override val description = describeForDescription(item)
 
             override suspend fun invoke(): Boolean {

@@ -19,9 +19,7 @@ interface ChooseHandler {
     suspend fun query(prompt: String?, list: List<Any>, range: IntRange, requiredChoice: Boolean): List<Any>?
 }
 
-class FormattedItem(val wrapped: Any, private val displayText: String) {
-    override fun toString() = displayText
-}
+class FormattedItem(val wrapped: Any, val displayText: String?, val extraText: String?)
 
 /**
  * Ask a user to choose some values.
@@ -64,10 +62,11 @@ class ChooseMethod(private val logger: Logger, private val chooseHandler: Choose
         val listFormatted = if (format != null) {
             list.map { item ->
                 env.scoped { // Don't let values defined during the lambda escape
-                    FormattedItem(
-                        item,
-                        eval.extend(mapOf("\$it" to item)).evaluate(env, format).toString()
-                    )
+                    val parts = eval.extend(mapOf("\$it" to item)).evaluate(env, format).toString().split(';', limit = 2).map { it.takeIf { it.isNotBlank() } }
+                    val (displayText, extraText) = if (parts.size == 1)
+                        listOf(parts[0], null)
+                    else listOf(parts[0], parts[1])
+                    FormattedItem(item, displayText, extraText)
                 }
             }
         } else list
