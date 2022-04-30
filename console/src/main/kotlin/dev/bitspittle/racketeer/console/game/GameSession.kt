@@ -91,12 +91,7 @@ class GameSession(
         gameData.cards.flatMap { it.playActions }.forEach { Expr.parse(it) }
         val cardQueue = CardQueueImpl(env)
 
-        val cardStats = try {
-            Yaml.decodeListFromString(UserDataSupport.pathForCardStats().readText()).map { it as CardStats }
-        } catch (ex: Exception) {
-            gameData.initialDeck
-            emptyList()
-        }
+        val cardStats = CardStats.load() ?: emptyList()
 
         val titleView = TitleMenuView(gameData, settings, cardStats, app, viewStack, env, cardQueue, random)
 
