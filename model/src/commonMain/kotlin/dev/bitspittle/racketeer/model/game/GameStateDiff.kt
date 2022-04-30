@@ -166,22 +166,29 @@ private class GameStateDiffReporter(
             reshuffleHappened = true
         }
 
-        diff.movedCards
-            .filter { (transfer, _) -> transfer != reshuffleTransfer }
-            .forEach { (transfer, cards) ->
-                val (pileFrom, pileTo) = transfer.let { transfer ->
-                    // In the early game, your deck is so small that when you draw cards on the second round, you will
-                    // trigger a discard reshuffle that goes into your deck and THEN into your hand. It's confusing to
-                    // report this as "A card went from the discard pile into your hand" even though that's technically
-                    // true. But to the user, they think more the card should have gone from the discard pile into their
-                    // deck, and then the deck into their hand.
-                    // We only do this interception if a reshuffle happened. Otherwise, maybe there will be a card whose
-                    // effect is to recover a card from the discard pile.
-                    if (transfer.first == diff.before.discard && reshuffleHappened) {
-                        diff.after.deck to transfer.second
-                    } else transfer
-                }
+        val movedCards = if (reshuffleHappened) {
+            // In the early game, your deck is so small that when you draw cards on the second round, you will
+            // trigger a discard reshuffle that goes into your deck and THEN into your hand. It's confusing to
+            // report this as "A card went from the discard pile into your hand" even though that's technically
+            // true. To the user, they think more the card should have gone from the discard pile into their
+            // deck, and *then* from the deck into their hand.
+            // We only do this interception if a reshuffle happened. Otherwise, maybe there will be a card whose
+            // effect is to recover a card from the discard pile.
 
+            val movedCardsCopy = diff.movedCards.toMutableMap()
+            val reshuffledCards = movedCardsCopy.remove(diff.before.discard to diff.after.hand) ?: emptyList()
+            // We already reported the reshuffling above, so no need to mention it again below
+            movedCardsCopy.remove(diff.before.discard to diff.after.deck)
+            val newTransfer = diff.before.deck to diff.after.hand
+            movedCardsCopy[newTransfer] = (movedCardsCopy[newTransfer] ?: emptyList()) + reshuffledCards
+            movedCardsCopy
+        } else {
+            diff.movedCards
+        }
+
+        movedCards
+            .forEach { (transfer, cards) ->
+                val (pileFrom, pileTo) = transfer
                 val pileFromDesc = describer.describePile(diff.before, pileFrom)
                 val pileToDesc = describer.describePile(diff.after, pileTo)
                 if (cards.size > 1) {
@@ -195,10 +202,21 @@ private class GameStateDiffReporter(
     }
 
     private fun StringBuilder.reportCreatedAndDestroyedCards() {
-        diff.createdCards.sortedBy { it.template.name }.forEach { card ->
-            val cardTitle = describer.describeCard(card, concise = true)
-            val pileDesc = describer.describePile(diff.after, diff.after.pileFor(card)!!)
-            reportLine("$cardTitle was created and placed into $pileDesc.")
+        // When a game starts, we create an initial cards, but we shouldn't report that here. These updates are meant
+        // for cards created via explicit user actions.
+        if (diff.before.getOwnedCards().isNotEmpty()) {
+            diff.createdCards.sortedBy { it.template.name }.forEach { card ->
+                val cardTitle = describer.describeCard(card, concise = true)
+                val pileDesc = describer.describePile(diff.after, diff.after.pileFor(card)!!)
+                reportLine("$cardTitle was created and placed into $pileDesc.")
+            }
+        } else {
+            // For the initial turn, when we put cards into the user's hand, because there's no "before" state, we don't
+            // end up reporting it in `reportMovedCards`, so report it here as if there was always a deck.
+            val cards = diff.createdCards.filter { card -> diff.after.pileFor(card) == diff.after.hand }
+            val pileFromDesc = describer.describePile(diff.after, diff.after.deck)
+            val pileToDesc = describer.describePile(diff.after, diff.after.hand)
+            reportLine("${cards.size} cards moved from $pileFromDesc into $pileToDesc.")
         }
 
         diff.destroyedCards.sortedBy { it.template.name }.forEach { card ->
