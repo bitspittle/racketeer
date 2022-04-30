@@ -9,6 +9,7 @@ import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.CardListCommand
+import dev.bitspittle.racketeer.console.command.commands.system.ConfirmLoadCommand
 import dev.bitspittle.racketeer.console.command.commands.system.LoadGameCommand
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport.QUICKSAVE_SLOT
@@ -90,7 +91,7 @@ class TitleMenuView(
                 override val description = "Resume a game that was previously started but not finished."
 
                 override suspend fun invoke(): Boolean {
-                    return if (LoadGameCommand(ctx, QUICKSAVE_SLOT).invoke()) {
+                    return if (ConfirmLoadCommand(ctx, QUICKSAVE_SLOT).invoke()) {
                         UserDataSupport.pathForSlot(QUICKSAVE_SLOT).deleteIfExists()
                         true
                     } else {
