@@ -38,7 +38,7 @@ class BrowseAllCardsView(ctx: GameContext, private var sortingOrder: SortingOrde
     override fun createCommands(): List<Command> =
         cardSearcher.cards
             .let { cards -> if (sortingOrder == SortingOrder.TIER) cards.sortedBy { it.tier } else cards }
-            .map { ViewCardTemplateCommand(ctx, it, "(Tier ${it.tier + 1})") }
+            .map { ViewCardTemplateCommand(ctx, it, if (sortingOrder == SortingOrder.TIER) "(Tier ${it.tier + 1})" else null) }
 
     override suspend fun handleAdditionalKeys(key: Key): Boolean {
         return if (key is CharKey && (key.code.isLetter() || key.code == ' ') && sortingOrder == SortingOrder.NAME) {

@@ -34,7 +34,15 @@ class BrowseManyCardsView(ctx: GameContext, cards: List<Card>) : GameView(ctx) {
         SortingOrder.NAME -> cards
     }.filter { card ->
         if (typeFilter == null) true else card.template.types.any { it.equals(typeFilter, ignoreCase = true) }
-    }.map { card -> ViewCardCommand(ctx, card, "(${pileNames.getValue(card)}, Tier ${card.template.tier + 1})") }
+    }.map { card ->
+        ViewCardCommand(
+            ctx, card, when (sortingOrder) {
+                SortingOrder.NAME -> null
+                SortingOrder.TIER -> "(Tier ${card.template.tier + 1})"
+                SortingOrder.PILE -> "(${pileNames.getValue(card)})"
+            }
+        )
+    }
         .takeIf { it.isNotEmpty() }
         ?: listOf(object : Command(ctx) {
             override val type = Type.Disabled
@@ -64,6 +72,7 @@ class BrowseManyCardsView(ctx: GameContext, cards: List<Card>) : GameView(ctx) {
             else -> return false
         }
 
+        currIndex = 0
         refreshCommands()
         return true
     }
