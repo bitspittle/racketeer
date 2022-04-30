@@ -9,8 +9,8 @@ import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.SelectItemCommand
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.game.Settings
-import dev.bitspittle.racketeer.console.game.save
+import dev.bitspittle.racketeer.console.user.Settings
+import dev.bitspittle.racketeer.console.user.save
 import dev.bitspittle.racketeer.console.view.views.game.GameView
 
 class AdminSettingsView(ctx: GameContext) : GameView(ctx) {

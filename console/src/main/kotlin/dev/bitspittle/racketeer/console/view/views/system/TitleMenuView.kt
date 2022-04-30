@@ -14,7 +14,7 @@ import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport.QUICKSAVE_SLOT
 import dev.bitspittle.racketeer.console.game.App
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.game.Settings
+import dev.bitspittle.racketeer.console.user.Settings
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.console.view.ViewStack
 import dev.bitspittle.racketeer.console.view.views.game.PreDrawView

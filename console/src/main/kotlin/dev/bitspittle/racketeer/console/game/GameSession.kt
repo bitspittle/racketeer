@@ -15,6 +15,7 @@ import dev.bitspittle.limp.types.LangService
 import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.limp.utils.installDefaults
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport
+import dev.bitspittle.racketeer.console.user.Settings
 import dev.bitspittle.racketeer.console.view.ViewStackImpl
 import dev.bitspittle.racketeer.console.view.views.game.ChooseItemsView
 import dev.bitspittle.racketeer.console.view.views.game.PickItemView

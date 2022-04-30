@@ -1,4 +1,4 @@
-package dev.bitspittle.racketeer.console.game
+package dev.bitspittle.racketeer.console.user
 
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport
 import kotlinx.serialization.Serializable
