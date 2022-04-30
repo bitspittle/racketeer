@@ -37,6 +37,12 @@ class GameSession(
     private val gameData: GameData
 ) {
     fun start() = session {
+        val settings = try {
+            Yaml.decodeFromString(Settings.serializer(), UserDataSupport.pathForSettings().readText())
+        } catch (ex: Exception) {
+            Settings()
+        }
+
         val logRenderers = mutableListOf<RenderScope.() -> Unit>()
         var handleQuit: () -> Unit = {}
         val app = object : App {
@@ -58,15 +64,11 @@ class GameSession(
                 }
 
                 override fun debug(message: String) {
-                    logRenderers.add { magenta { textLine(message) } }
+                    if (settings.showDebugInfo) {
+                        logRenderers.add { magenta { textLine(message) } }
+                    }
                 }
             }
-        }
-
-        val settings = try {
-            Yaml.decodeFromString(Settings.serializer(), UserDataSupport.pathForSettings().readText())
-        } catch (ex: Exception) {
-            Settings()
         }
 
         val random = CopyableRandom()
