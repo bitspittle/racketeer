@@ -8,6 +8,7 @@ import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.console.view.views.admin.AdminMenuView
 import dev.bitspittle.racketeer.console.view.views.system.OptionsMenuView
+import dev.bitspittle.racketeer.console.view.views.system.TitleMenuView
 
 abstract class GameView(protected val ctx: GameContext) : View(ctx.viewStack, ctx.app) {
     protected open val allowEsc: Boolean = true
@@ -59,20 +60,24 @@ abstract class GameView(protected val ctx: GameContext) : View(ctx.viewStack, ct
         textLine() // Give the top line some breathing space from the prompt
 
         val state = ctx.state
-        textLine(
-            "${ctx.describer.describeCash(state.cash)} ${ctx.describer.describeInfluence(state.influence)} ${
-                ctx.describer.describeLuck(
-                    state.luck
-                )
-            } ${ctx.describer.describeVictoryPoints(state.vp)} "
-        )
-        textLine()
-        scopedState {
-            val numRemainingTurns = state.numTurns - state.turn
-            if (numRemainingTurns == 1) red() else if (numRemainingTurns <= 4) yellow()
-            bold { textLine("Turn ${state.turn + 1} out of ${state.numTurns}") }
+
+        if (!ctx.viewStack.contains { view -> view is TitleMenuView }) {
+            textLine(
+                "${ctx.describer.describeCash(state.cash)} ${ctx.describer.describeInfluence(state.influence)} ${
+                    ctx.describer.describeLuck(
+                        state.luck
+                    )
+                } ${ctx.describer.describeVictoryPoints(state.vp)} "
+            )
+            textLine()
+            scopedState {
+                val numRemainingTurns = state.numTurns - state.turn
+                if (numRemainingTurns == 1) red() else if (numRemainingTurns <= 4) yellow()
+                bold { textLine("Turn ${state.turn + 1} out of ${state.numTurns}") }
+            }
+            textLine()
         }
-        textLine()
+
         title?.let { title ->
             bold { textLine(title.uppercase()) }
             textLine()
