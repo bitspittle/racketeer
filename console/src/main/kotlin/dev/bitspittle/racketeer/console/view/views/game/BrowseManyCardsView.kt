@@ -2,7 +2,6 @@ package dev.bitspittle.racketeer.console.view.views.game
 
 import com.varabyte.kotter.foundation.input.Key
 import com.varabyte.kotter.foundation.input.Keys
-import com.varabyte.kotter.foundation.text.black
 import com.varabyte.kotter.foundation.text.cyan
 import com.varabyte.kotter.foundation.text.text
 import com.varabyte.kotter.foundation.text.textLine
@@ -24,17 +23,18 @@ class BrowseManyCardsView(ctx: GameContext, cards: List<Card>) : GameView(ctx) {
     // Always sort the cards at least by name a bit, to avoid giving away meaningful order information. For other
     // sort patterns, they will still be sorted by name as a secondary sort
     private val cards = cards.sortedBy { it.template.name }
+    private val pileNames = cards.associateWith { ctx.describer.describePileTitle(ctx.state, ctx.state.pileFor(it)!!) }
     private var sortingOrder = SortingOrder.PILE
     private var typeFilter: String? = null
     private val typeFilters = listOf<String?>(null) + ctx.data.cardTypes
 
     override fun createCommands() = when (sortingOrder) {
-        SortingOrder.PILE -> cards.sortedBy { ctx.describer.describePileTitle(ctx.state, ctx.state.pileFor(it)!!) }
+        SortingOrder.PILE -> cards.sortedBy { card -> pileNames.getValue(card) }
         SortingOrder.TIER -> cards.sortedBy { it.template.tier }
         SortingOrder.NAME -> cards
     }.filter { card ->
         if (typeFilter == null) true else card.template.types.any { it.equals(typeFilter, ignoreCase = true) }
-    }.map { card -> ViewCardCommand(ctx, card, showPile = true) }
+    }.map { card -> ViewCardCommand(ctx, card, "(${pileNames.getValue(card)}, Tier ${card.template.tier + 1})") }
         .takeIf { it.isNotEmpty() }
         ?: listOf(object : Command(ctx) {
             override val type = Type.Disabled
