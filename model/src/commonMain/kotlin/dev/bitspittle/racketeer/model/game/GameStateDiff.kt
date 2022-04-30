@@ -181,10 +181,14 @@ private class GameStateDiffReporter(
                         diff.after.deck to transfer.second
                     } else transfer
                 }
-                cards.forEach { card ->
+
+                val pileFromDesc = describer.describePile(diff.before, pileFrom)
+                val pileToDesc = describer.describePile(diff.after, pileTo)
+                if (cards.size > 1) {
+                    reportLine("${cards.size} cards moved from $pileFromDesc into $pileToDesc.")
+                } else {
+                    val card = cards.single()
                     val cardTitle = describer.describeCard(card, concise = true)
-                    val pileFromDesc = describer.describePile(diff.before, pileFrom)
-                    val pileToDesc = describer.describePile(diff.after, pileTo)
                     reportLine("$cardTitle moved from $pileFromDesc into $pileToDesc.")
                 }
             }
