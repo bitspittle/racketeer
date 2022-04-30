@@ -13,6 +13,7 @@ import kotlin.math.max
 class GameState internal constructor(
     internal val random: CopyableRandom,
     val allCards: List<CardTemplate>,
+    val initialDeck: List<String>,
     private val cardQueue: CardQueue,
     private val onCardOwned: (CardTemplate) -> Unit,
     numTurns: Int,
@@ -33,6 +34,7 @@ class GameState internal constructor(
     constructor(data: GameData, cardQueue: CardQueue, random: CopyableRandom, onCardOwned: (CardTemplate) -> Unit) : this(
         random = random,
         allCards = data.cards,
+        initialDeck = data.initialDeck,
         cardQueue = cardQueue,
         onCardOwned = onCardOwned,
         numTurns = data.numTurns,
@@ -43,17 +45,7 @@ class GameState internal constructor(
         vp = 0,
         handSize = data.initialHandSize,
         shop = MutableShop(random, data.cards, data.shopSizes, data.tierFrequencies, data.rarities.map { it.frequency }),
-        deck = MutablePile(data.initialDeck
-            .flatMap {  entry ->
-                val cardName = entry.substringBeforeLast(' ')
-                val count = entry.substringAfterLast(' ', missingDelimiterValue = "").toIntOrNull() ?: 1
-
-                val card = data.cards.single { it.name == cardName }
-                List(count) { card.instantiate() }
-            }
-            .toMutableList()
-            .apply { shuffle(random()) }
-        ).also { pile -> pile.cards.forEach { onCardOwned(it.template) } },
+        deck = MutablePile(),
         hand = MutablePile(),
         street = MutablePile(),
         discard = MutablePile(),
@@ -245,6 +237,20 @@ class GameState internal constructor(
     }
 
     fun draw(count: Int = handSize) {
+        if (allPiles.asSequence().flatMap { pile -> pile.cards.asSequence() }.none()) {
+            // The very first time we ever draw, we need to initialize our deck
+            moveNow(initialDeck
+                .flatMap {  entry ->
+                    val cardName = entry.substringBeforeLast(' ')
+                    val initialCount = entry.substringAfterLast(' ', missingDelimiterValue = "").toIntOrNull() ?: 1
+
+                    val card = allCards.single { it.name == cardName }
+                    List(initialCount) { card.instantiate() }
+                },
+                deck, listStrategy = ListStrategy.RANDOM
+            )
+        }
+
         var remainingCount = count.coerceAtMost(deck.cards.size + discard.cards.size)
         if (remainingCount == 0) return
 
@@ -306,6 +312,7 @@ class GameState internal constructor(
         return GameState(
             random,
             allCards,
+            initialDeck,
             cardQueue,
             onCardOwned,
             numTurns,

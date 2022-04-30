@@ -145,6 +145,7 @@ class GameSnapshot(
         val gs = GameState(
             random,
             data.cards,
+            data.initialDeck,
             cardQueue,
             onCardOwned,
             numTurns,
