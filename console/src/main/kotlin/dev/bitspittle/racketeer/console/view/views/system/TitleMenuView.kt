@@ -8,6 +8,7 @@ import com.varabyte.kotterx.decorations.BorderCharacters
 import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.racketeer.console.command.Command
+import dev.bitspittle.racketeer.console.command.commands.system.BrowseAllCardsCommand
 import dev.bitspittle.racketeer.console.command.commands.system.LoadGameCommand
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport.QUICKSAVE_SLOT
@@ -97,6 +98,7 @@ class TitleMenuView(
                     return true
                 }
             },
+            BrowseAllCardsCommand(ctx),
             object : Command(ctx) {
                 override val title = "Quit"
                 override val description = "Actually, I'm feeling scared. Maybe this crime stuff isn't for me..."

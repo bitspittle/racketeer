@@ -12,8 +12,13 @@ import dev.bitspittle.racketeer.console.view.views.system.OptionsMenuView
 abstract class GameView(protected val ctx: GameContext) : View(ctx.viewStack, ctx.app) {
     protected open val allowEsc: Boolean = true
     protected open val allowBrowseCards: Boolean = true
+
     private fun allowAdminAccess(): Boolean {
         return ctx.settings.enableAdminFeatures && !(ctx.viewStack.contains { view -> view is AdminMenuView })
+    }
+
+    private fun allowBrowsingCards(): Boolean {
+        return allowBrowseCards && ctx.viewStack.contains { view -> (view is PreDrawView || view is PlayCardsView) } && !ctx.viewStack.contains { view -> view is BrowsePilesView }
     }
 
     final override suspend fun doHandleKeys(key: Key): Boolean {
@@ -38,7 +43,7 @@ abstract class GameView(protected val ctx: GameContext) : View(ctx.viewStack, ct
                 } else false
             }
             Keys.BACKSLASH -> {
-                if (allowBrowseCards && !(ctx.viewStack.contains { view -> view is BrowsePilesView })) {
+                if (allowBrowsingCards()) {
                     ctx.viewStack.pushView(BrowsePilesView(ctx))
                     true
                 } else false
@@ -83,7 +88,7 @@ abstract class GameView(protected val ctx: GameContext) : View(ctx.viewStack, ct
     final override fun RenderScope.renderFooter() {
         renderUpperFooter()
 
-        if (allowBrowseCards && !ctx.viewStack.contains { view -> view is BrowsePilesView }) {
+        if (allowBrowsingCards()) {
             text("Press "); cyan { text("\\") }; textLine(" to browse all card piles.")
         }
         if (allowAdminAccess()) {
