@@ -27,11 +27,8 @@ import dev.bitspittle.racketeer.scripting.types.GameService
 import dev.bitspittle.racketeer.scripting.utils.installGameLogic
 import kotlinx.coroutines.*
 import net.mamoe.yamlkt.Yaml
-import java.nio.file.OpenOption
 import kotlin.coroutines.suspendCoroutine
-import kotlin.io.path.createDirectories
 import kotlin.io.path.readText
-import kotlin.io.path.writeText
 
 class GameSession(
     private val gameData: GameData

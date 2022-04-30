@@ -56,6 +56,8 @@ abstract class GameView(protected val ctx: GameContext) : View(ctx.viewStack, ct
     protected open suspend fun handleAdditionalKeys(key: Key): Boolean = false
 
     override fun RenderScope.renderHeader() {
+        textLine() // Give the top line some breathing space from the prompt
+
         val state = ctx.state
         textLine(
             "${ctx.describer.describeCash(state.cash)} ${ctx.describer.describeInfluence(state.influence)} ${
