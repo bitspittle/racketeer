@@ -158,13 +158,8 @@ private class GameStateDiffReporter(
     @Suppress("NAME_SHADOWING")
     private fun StringBuilder.reportMovedCards() {
         val reshuffleTransfer = diff.before.discard to diff.after.deck
-        var reshuffleHappened = false
-        // Report discard reshuffling in aggregate, since it's not very interesting to see 20 "X moved from discard
-        // to your deck" notifications when you draw cards in the late game
-        diff.movedCards[reshuffleTransfer]?.let {
-            reportLine("Your discard pile (${diff.before.discard.cards.size}) was reshuffled into your deck to refill it.")
-            reshuffleHappened = true
-        }
+        val drawTransfer = diff.before.deck to diff.after.hand
+        val reshuffleHappened = diff.movedCards.contains(reshuffleTransfer) && diff.movedCards.contains(drawTransfer)
 
         val movedCards = if (reshuffleHappened) {
             // In the early game, your deck is so small that when you draw cards on the second round, you will
@@ -177,10 +172,10 @@ private class GameStateDiffReporter(
 
             val movedCardsCopy = diff.movedCards.toMutableMap()
             val reshuffledCards = movedCardsCopy.remove(diff.before.discard to diff.after.hand) ?: emptyList()
-            // We already reported the reshuffling above, so no need to mention it again below
-            movedCardsCopy.remove(diff.before.discard to diff.after.deck)
             val newTransfer = diff.before.deck to diff.after.hand
             movedCardsCopy[newTransfer] = (movedCardsCopy[newTransfer] ?: emptyList()) + reshuffledCards
+            check(movedCardsCopy.getValue(newTransfer).isNotEmpty())
+
             movedCardsCopy
         } else {
             diff.movedCards
