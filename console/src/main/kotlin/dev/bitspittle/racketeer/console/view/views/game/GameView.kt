@@ -19,7 +19,7 @@ abstract class GameView(protected val ctx: GameContext) : View(ctx.viewStack, ct
     }
 
     private fun allowBrowsingCards(): Boolean {
-        return allowBrowseCards && ctx.viewStack.contains { view -> (view is PreDrawView || view is PlayCardsView) } && !ctx.viewStack.contains { view -> view is BrowsePilesView }
+        return allowBrowseCards && ctx.viewStack.contains { view -> (view is PreDrawView || view is PlayCardsView || view is GameSummaryView) } && !ctx.viewStack.contains { view -> view is BrowsePilesView }
     }
 
     final override suspend fun doHandleKeys(key: Key): Boolean {
