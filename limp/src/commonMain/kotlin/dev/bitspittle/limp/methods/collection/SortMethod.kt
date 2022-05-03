@@ -41,7 +41,7 @@ class SortMethod : Method("sort!", 1) {
                 while (true) {
                     val i = binarySearch.mid
                     val currItem = sorted[i]
-                    val compare = env.expectConvert<Int>(
+                    var compare = env.expectConvert<Int>(
                         env.scoped { // Don't let values defined during the lambda escape
                             eval.extend(
                                 mapOf(
@@ -52,9 +52,13 @@ class SortMethod : Method("sort!", 1) {
                         }
                     )
                     if (compare == 0) {
-                        sorted.add(binarySearch.mid, toInsert)
-                        break
-                    } else if (compare < 0) {
+                        // If these values resolve to the same using the current comparator, just preserve the original
+                        // sort order
+                        compare = toSort.indexOf(toInsert).compareTo(toSort.indexOf(currItem))
+                    }
+
+                    check(compare != 0)
+                    if (compare < 0) {
                         if (!binarySearch.goLower()) {
                             sorted.add(binarySearch.mid, toInsert)
                             break
