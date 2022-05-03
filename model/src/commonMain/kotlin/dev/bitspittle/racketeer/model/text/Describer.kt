@@ -75,7 +75,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
 
     fun describeRange(range: IntRange): String {
         return when {
-            range.first == range.last -> range.first.toString()
+            range.first == range.last -> "exactly ${range.first}"
             range.first <= 0 -> {
                 when (range.last) {
                     Int.MAX_VALUE -> "any number of"
