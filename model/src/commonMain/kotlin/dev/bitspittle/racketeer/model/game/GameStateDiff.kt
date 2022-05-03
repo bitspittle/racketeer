@@ -157,9 +157,15 @@ private class GameStateDiffReporter(
 
     @Suppress("NAME_SHADOWING")
     private fun StringBuilder.reportMovedCards() {
+        // A reshuffle is an interesting event. It (likely) happened if cards moved from the discard pile into the
+        // deck and some cards also ended up in your hand on the same turn. I saw likely because we may end up creating
+        // a card that causes this to happen as well, which will be really confusing.
+        // TODO: Refactor GameState into a series of events instead of us guessing like this
         val reshuffleTransfer = diff.before.discard to diff.after.deck
-        val drawTransfer = diff.before.deck to diff.after.hand
-        val reshuffleHappened = diff.movedCards.contains(reshuffleTransfer) && diff.movedCards.contains(drawTransfer)
+        val deckToHand = diff.before.deck to diff.after.hand
+        val discardToHand = diff.before.discard to diff.after.hand
+        val reshuffleHappened = diff.movedCards.contains(reshuffleTransfer)
+                && (diff.movedCards.contains(discardToHand) || diff.movedCards.contains(deckToHand))
 
         val movedCards = if (reshuffleHappened) {
             // In the early game, your deck is so small that when you draw cards on the second round, you will
@@ -171,10 +177,15 @@ private class GameStateDiffReporter(
             // effect is to recover a card from the discard pile.
 
             val movedCardsCopy = diff.movedCards.toMutableMap()
-            val reshuffledCards = movedCardsCopy.remove(diff.before.discard to diff.after.hand) ?: emptyList()
-            val newTransfer = diff.before.deck to diff.after.hand
-            movedCardsCopy[newTransfer] = (movedCardsCopy[newTransfer] ?: emptyList()) + reshuffledCards
-            check(movedCardsCopy.getValue(newTransfer).isNotEmpty())
+
+            // Let's report the discard shuffle as a custom message, so it shows up first and reads
+            reportLine("Your discard pile (${diff.before.discard.cards.size}) was reshuffled into your deck to refill it.")
+            movedCardsCopy.remove(reshuffleTransfer) // Don't report it again, below.
+
+            val discardToHandCards = movedCardsCopy.remove(diff.before.discard to diff.after.hand) ?: emptyList()
+            val reframedTransfer = diff.before.deck to diff.after.hand
+            movedCardsCopy[reframedTransfer] = (movedCardsCopy[reframedTransfer] ?: emptyList()) + discardToHandCards
+            check(movedCardsCopy.getValue(reframedTransfer).isNotEmpty())
 
             movedCardsCopy
         } else {
