@@ -153,7 +153,7 @@ class GameState internal constructor(
 
     private val cardPiles = mutableMapOf<Uuid, MutablePile>()
     init {
-        listOf(_deck, _street, _hand, _discard, _jail).forEach { pile ->
+        _allPiles.forEach { pile ->
             pile.cards.forEach { card -> cardPiles[card.id] = pile }
         }
     }
