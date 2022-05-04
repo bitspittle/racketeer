@@ -37,8 +37,8 @@ class GameSummaryView(ctx: GameContext) : GameView(ctx) {
 
         // We need a semi-permanent ID that won't change across playruns. Online resources recommend MAC addresses but
         // no guarantee that won't crash the user if they're offline or some other reason (it crashed me!). So, just
-        // use the current working directory. Should be good enough for our needs!
-        val machineHash = Paths.get(".").absolutePathString().hashCode().toUInt()
+        // use the current user data directory. Should be good enough for our needs!
+        val machineHash = ctx.app.userData.path.absolutePathString().hashCode().toUInt()
         ctx.app.uploadService.upload("users:$machineHash:endstates:${endstate.name}", endstate)
     }
 
