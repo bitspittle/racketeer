@@ -10,7 +10,7 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.CardListCommand
 import dev.bitspittle.racketeer.console.command.commands.system.ConfirmLoadCommand
-import dev.bitspittle.racketeer.console.command.commands.system.UserData
+import dev.bitspittle.racketeer.console.command.commands.system.UserDataCommand
 import dev.bitspittle.racketeer.console.command.commands.system.UserData.Companion.QUICKSAVE_SLOT
 import dev.bitspittle.racketeer.console.game.App
 import dev.bitspittle.racketeer.console.game.GameContext
@@ -108,6 +108,7 @@ class TitleMenuView(
                 }
             },
             CardListCommand(ctx),
+            UserDataCommand(ctx),
             object : Command(ctx) {
                 override val title = "Quit"
                 override val description = "Actually, I'm feeling scared. Maybe this crime stuff isn't for me..."
