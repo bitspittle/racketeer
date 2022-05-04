@@ -486,7 +486,7 @@ cards:
     vp: 1
     flavor: This card gains +**.
     playActions:
-     - card-set! $this 'vp '(+ 2 $it)
+     - card-add! $this 'vp 2
 
   - name: Crime Wave
     tier: 2
@@ -539,7 +539,7 @@ cards:
     playActions:
       - game-add! 'cash 2
       - game-add! 'influence 2
-      - card-set! $this 'counter - card-get $this 'counter 1
+      - card-sub! $this 'counter 1
       - stop-if! gt? (card-get $this 'counter) 0
       - pile-move-to! $jail $this
 
@@ -773,7 +773,7 @@ cards:
       - set '$convert (ask?! "Would you like to spend 4& to give this card 4*?")
       - stop-if! ! $convert
       - game-add! 'influence -4
-      - card-set! $this 'vp '(+ 4 $it)
+      - card-add! $this 'vp 4
 
   - name: Hattie the Finder
     tier: 2
