@@ -1,5 +1,7 @@
 package dev.bitspittle.racketeer.console.view.views.system
 
+import com.varabyte.kotter.foundation.text.textLine
+import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.views.game.GameView
@@ -11,7 +13,7 @@ class UserDataView(ctx: GameContext) : GameView(ctx) {
         object : Command(ctx) {
             override val title = "Show user data"
             override val description: String =
-                "Open a file browser window to the root folder containing your user data: ${ctx.app.userData.path.absolutePathString()}"
+                "Open a file browser window to the root folder containing your user data."
 
             override suspend fun invoke(): Boolean {
                 Desktop.getDesktop().browse(ctx.app.userData.path.toUri())
@@ -27,7 +29,11 @@ class UserDataView(ctx: GameContext) : GameView(ctx) {
                 ctx.viewStack.pushView(ConfirmDeleteUserDataView(ctx))
                 return true
             }
-
         }
     )
+
+    override fun RenderScope.renderUpperFooter() {
+        textLine("Your user data is located at: ${ctx.app.userData.path.absolutePathString()}")
+        textLine()
+    }
 }
