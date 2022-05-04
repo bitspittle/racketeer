@@ -38,7 +38,7 @@ class GameSession(
     private val gameData: GameData
 ) {
     fun start() = session {
-        val userData = UserData(".${gameData.title.lowercase().replace(Regex("""\s"""), "")}")
+        val userData = UserData(gameData.title.lowercase().replace(Regex("""\s"""), ""))
         val settings = try {
             Yaml.decodeFromString(Settings.serializer(), userData.pathForSettings().readText())
         } catch (ex: Exception) {

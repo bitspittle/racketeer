@@ -14,6 +14,7 @@ dependencies {
     implementation(libs.kotter)
     implementation(libs.yamlkt)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.appdirs)
     implementation(project(":model"))
     implementation(project(":scripting"))
 
