@@ -7,7 +7,7 @@ import dev.bitspittle.racketeer.console.view.ViewStack
 import dev.bitspittle.racketeer.model.card.CardQueue
 import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.game.GameData
-import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.game.MutableGameState
 import dev.bitspittle.racketeer.model.text.Describer
 
 fun MutableMap<String, CardStats>.notifyOwnership(card: CardTemplate) {
@@ -23,7 +23,7 @@ class GameContext(
     val settings: Settings,
     val cardStats: MutableMap<String, CardStats>,
     val describer: Describer,
-    var state: GameState,
+    var state: MutableGameState,
     val env: Environment,
     val cardQueue: CardQueue,
     val viewStack: ViewStack,

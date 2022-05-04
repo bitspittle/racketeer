@@ -8,11 +8,11 @@ import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.vpTotal
-import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.game.MutableGameState
 import dev.bitspittle.racketeer.scripting.converters.CardTemplateToCardConverter
 import dev.bitspittle.racketeer.scripting.types.CardProperty
 
-class CardPileMethod(private val getGameState: () -> GameState) : Method("card-pile", 1) {
+class CardPileMethod(private val getGameState: () -> MutableGameState) : Method("card-pile", 1) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,

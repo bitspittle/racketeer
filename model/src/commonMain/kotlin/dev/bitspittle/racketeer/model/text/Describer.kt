@@ -3,7 +3,7 @@ package dev.bitspittle.racketeer.model.text
 import com.benasher44.uuid.uuid4
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.game.GameData
-import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.game.MutableGameState
 import dev.bitspittle.racketeer.model.pile.Pile
 
 private fun GameData.iconMappings() = mapOf(
@@ -215,7 +215,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
     }
 
-    fun describePileTitle(state: GameState, pile: Pile, withSize: Boolean = false): String {
+    fun describePileTitle(state: MutableGameState, pile: Pile, withSize: Boolean = false): String {
         return when (pile.id) {
             state.hand.id -> "Hand"
             state.deck.id -> "Deck"
@@ -226,7 +226,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         } + if (withSize) " (${pile.cards.size})" else ""
     }
 
-    fun describePile(state: GameState, pile: Pile): String {
+    fun describePile(state: MutableGameState, pile: Pile): String {
         return when (pile.id) {
             state.hand.id -> "your hand"
             state.deck.id -> "your deck"

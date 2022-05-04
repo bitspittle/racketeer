@@ -7,10 +7,10 @@ import dev.bitspittle.limp.converters.ValueToExprConverter
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.utils.toEnum
-import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.game.MutableGameState
 import dev.bitspittle.racketeer.scripting.types.GameProperty
 
-class GameSetMethod(private val getGameState: () -> GameState) : Method("game-set!", 2) {
+class GameSetMethod(private val getGameState: () -> MutableGameState) : Method("game-set!", 2) {
     override suspend fun invoke(env: Environment, eval: Evaluator, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
         val identifier = env.expectConvert<Expr.Identifier>(params[0])
         val property = identifier.toEnum(GameProperty.values())

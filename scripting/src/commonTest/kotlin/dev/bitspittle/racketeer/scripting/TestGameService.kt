@@ -4,7 +4,7 @@ import dev.bitspittle.limp.types.DelegatingLogger
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardQueue
 import dev.bitspittle.racketeer.model.game.GameData
-import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.game.MutableGameState
 import dev.bitspittle.racketeer.model.random.CopyableRandom
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
@@ -169,7 +169,7 @@ class StubCardQueue : CardQueue {
     override fun clear() {
     }
 
-    override suspend fun runEnqueuedActions(gameState: GameState) {
+    override suspend fun runEnqueuedActions(gameState: MutableGameState) {
     }
 }
 
@@ -192,7 +192,7 @@ class TestGameService(
     val random: Random get() = copyableRandom()
 
     override val describer: Describer = Describer(gameData, showDebugInfo = { true })
-    override val gameState = GameState(gameData, cardQueue, copyableRandom)
+    override val gameState = MutableGameState(gameData, cardQueue, copyableRandom)
     private val _logs = mutableListOf<String>()
     val logs: List<String> = _logs
 

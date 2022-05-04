@@ -8,7 +8,7 @@ import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.game.Effect
 import dev.bitspittle.racketeer.model.game.GameData
-import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.game.MutableGameState
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.random.CopyableRandom
@@ -125,7 +125,7 @@ class GameSnapshot(
     val streetEffects: List<EffectSnapshot>,
 ) {
     companion object {
-        fun from(gameState: GameState, isPreDraw: Boolean) = GameSnapshot(
+        fun from(gameState: MutableGameState, isPreDraw: Boolean) = GameSnapshot(
             gameState.random,
             isPreDraw,
             gameState.numTurns,
@@ -145,8 +145,8 @@ class GameSnapshot(
         )
     }
 
-    suspend fun create(data: GameData, env: Environment, cardQueue: CardQueue, onCardOwned: (CardTemplate) -> Unit, setGameState: (GameState) -> Unit) {
-        val gs = GameState(
+    suspend fun create(data: GameData, env: Environment, cardQueue: CardQueue, onCardOwned: (CardTemplate) -> Unit, setGameState: (MutableGameState) -> Unit) {
+        val gs = MutableGameState(
             random,
             data.cards,
             data.initialDeck,

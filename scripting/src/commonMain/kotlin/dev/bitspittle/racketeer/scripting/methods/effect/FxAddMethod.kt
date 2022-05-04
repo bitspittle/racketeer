@@ -4,9 +4,9 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.types.Expr
-import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.game.MutableGameState
 
-class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!", 1) {
+class FxAddMethod(private val getGameState: () -> MutableGameState) : Method("fx-add!", 1) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,

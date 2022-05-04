@@ -10,7 +10,7 @@ import dev.bitspittle.racketeer.model.shop.MutableShop
 import dev.bitspittle.racketeer.model.shop.Shop
 import kotlin.math.max
 
-class GameState internal constructor(
+class MutableGameState internal constructor(
     internal val random: CopyableRandom,
     val allCards: List<CardTemplate>,
     val initialDeck: List<String>,
@@ -186,7 +186,7 @@ class GameState internal constructor(
     suspend fun updateVictoryPoints() {
         val owned = getOwnedCards()
         owned.forEach { cardQueue.enqueuePassiveActions(it) }
-        cardQueue.runEnqueuedActions(this@GameState)
+        cardQueue.runEnqueuedActions(this@MutableGameState)
 
         vp = owned.sumOf { card -> card.vpTotal } + jail.cards.filter { card -> card.isJailbird() }.sumOf { card -> card.vpTotal }
     }
@@ -307,9 +307,9 @@ class GameState internal constructor(
         return true
     }
 
-    fun copy(): GameState {
+    fun copy(): MutableGameState {
         val random = random.copy()
-        return GameState(
+        return MutableGameState(
             random,
             allCards,
             initialDeck,

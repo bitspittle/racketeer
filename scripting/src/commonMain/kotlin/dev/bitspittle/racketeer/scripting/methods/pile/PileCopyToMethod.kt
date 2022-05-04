@@ -12,11 +12,11 @@ import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.pile.Pile
-import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.game.MutableGameState
 import dev.bitspittle.racketeer.scripting.converters.CardTemplateToCardConverter
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 
-class PileCopyToMethod(private val getGameState: () -> GameState) : Method("pile-copy-to!", 2) {
+class PileCopyToMethod(private val getGameState: () -> MutableGameState) : Method("pile-copy-to!", 2) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,

@@ -8,9 +8,9 @@ import dev.bitspittle.racketeer.model.text.Describer
 
 /** Create a diff between two snapshots of a game state in time, useful for reporting changes to the user */
 @Suppress("JoinDeclarationAndAssignment")
-class GameStateDiff(val before: GameState, val after: GameState) {
+class GameStateDiff(val before: MutableGameState, val after: MutableGameState) {
     companion object {
-        fun areEquivalent(before: GameState, after: GameState): Boolean {
+        fun areEquivalent(before: MutableGameState, after: MutableGameState): Boolean {
             return GameStateDiff(before, after).hasNoChanges()
         }
     }

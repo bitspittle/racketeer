@@ -16,7 +16,7 @@ import dev.bitspittle.racketeer.console.view.views.game.GameView
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.pile.Pile
-import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.game.MutableGameState
 import dev.bitspittle.racketeer.model.game.GameStateDiff
 import dev.bitspittle.racketeer.model.game.reportTo
 import dev.bitspittle.racketeer.model.text.Describer
@@ -266,7 +266,7 @@ class ScriptingView(ctx: GameContext) : GameView(ctx) {
     }
 }
 
-private class Stringifier(private val describer: Describer, private val gameState: GameState) {
+private class Stringifier(private val describer: Describer, private val gameState: MutableGameState) {
     fun <T: Any?> toString(value: T): String {
         return when (value) {
             is Iterable<*> -> value.joinToString(prefix = "[", postfix = "]") { toString(it) }

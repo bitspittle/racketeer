@@ -22,7 +22,7 @@ import dev.bitspittle.racketeer.console.view.ViewStack
 import dev.bitspittle.racketeer.console.view.views.game.PreDrawView
 import dev.bitspittle.racketeer.model.card.CardQueue
 import dev.bitspittle.racketeer.model.game.GameData
-import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.game.MutableGameState
 import dev.bitspittle.racketeer.model.random.CopyableRandom
 import dev.bitspittle.racketeer.model.text.Describer
 import kotlin.io.path.deleteIfExists
@@ -47,7 +47,7 @@ class TitleMenuView(
             settings,
             cardStats,
             Describer(data, showDebugInfo = { settings.showDebugInfo }),
-            GameState(data, cardQueue, random, onCardOwned = { cardStats.notifyOwnership(it) }),
+            MutableGameState(data, cardQueue, random, onCardOwned = { cardStats.notifyOwnership(it) }),
             env,
             cardQueue,
             viewStack,

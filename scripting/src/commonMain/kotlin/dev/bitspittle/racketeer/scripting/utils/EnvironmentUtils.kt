@@ -4,7 +4,7 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.game.MutableGameState
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.converters.MutablePileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.card.*
@@ -72,7 +72,7 @@ fun Environment.installGameLogic(service: GameService) {
  * You probably want to do this within an [Environment.scoped] block, to avoid ever accidentally referring to stale game
  * state from previous turns.
  */
-fun GameState.addVariablesInto(env: Environment) {
+fun MutableGameState.addVariablesInto(env: Environment) {
     env.storeValue("\$all-cards", allCards, allowOverwrite = true)
     env.storeValue("\$shop-tier", shop.tier, allowOverwrite = true)
 
