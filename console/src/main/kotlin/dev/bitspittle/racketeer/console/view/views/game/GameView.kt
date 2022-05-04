@@ -14,11 +14,15 @@ abstract class GameView(protected val ctx: GameContext) : View(ctx.viewStack, ct
     protected open val allowEsc: Boolean = true
     protected open val allowBrowseCards: Boolean = true
 
+    private fun hasGameStarted() = ctx.state.allPiles.any { it.cards.isNotEmpty() }
+
     private fun allowAdminAccess(): Boolean {
+        if (!hasGameStarted()) return false
         return ctx.settings.enableAdminFeatures && !(ctx.viewStack.contains { view -> view is AdminMenuView })
     }
 
     private fun allowBrowsingCards(): Boolean {
+        if (!hasGameStarted()) return false
         return allowBrowseCards && ctx.viewStack.contains { view -> (view is PreDrawView || view is PlayCardsView || view is GameSummaryView) } && !ctx.viewStack.contains { view -> view is BrowsePilesView }
     }
 
