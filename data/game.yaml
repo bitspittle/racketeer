@@ -113,6 +113,11 @@ globalActions:
   - def 'card-upgrade-count '$card '(count (list (card-has-upgrade? $card 'cash) (card-has-upgrade? $card 'influence) (card-has-upgrade? $card 'luck) (card-has-upgrade? $card 'undercover)) '(= $it true))
   - def 'card-has-any-upgrade? '$card '(gt? (card-upgrade-count $card) 0)
   - def 'card-named '$name '(single (filter $all-cards '(= card-get $it 'name $name)) _)
+  - def 'compare-by-index '$list '$a '$b '(compare index-of $list $a index-of $list $b)
+  - def 'pile-compare '$pileA '$pileB '(compare-by-index (list $hand $deck $discard $street $jail) $pileA $pileB)
+  - def '_choose-across-piles '$required '$prompt '$cards '$count '(choose --format $fmt-card-with-pile --required $required --prompt $prompt (sorted --with '(pile-compare card-pile $a card-pile $b) (sorted $cards)) $count)
+  - def 'choose-across-piles '$prompt '$cards '$count '(_choose-across-piles false $prompt $cards $count)
+  - def 'choose-across-piles! '$prompt '$cards '$count '(_choose-across-piles true $prompt $cards $count)
   - set '$fmt-card-with-pile '(join-to-string --separator "" (list ";(" (pile-get (card-pile $it) 'name) ")"))
 
 cards:
@@ -176,8 +181,7 @@ cards:
     initActions:
       - pile-move-to! $jail $this
       - set '$ownednoncops filter $owned '(! (card-has-type? $it 'cop))
-      - pile-move-to! $jail (choose --format $fmt-card-with-pile --required _ --prompt "Choose two cards to jail." $ownednoncops 2)
-
+      - pile-move-to! $jail choose-across-piles! "Choose two cards to jail." $ownednoncops 2
 
   - name: Burglar
     tier: 0
@@ -278,7 +282,7 @@ cards:
       - set '$some-spies filter $all-spies '(! (card-has-upgrade? $it 'influence))
       - set '$spies filter $some-spies '(!= $it $this)
       - stop-if! empty? $spies
-      - card-upgrade! (choose --format $fmt-card-with-pile --prompt "Choose a Spy to upgrade." $spies 1) 'influence
+      - card-upgrade! (choose-across-piles "Choose a Spy to upgrade." $spies 1) 'influence
 
   - name: Cat the Burglar
     tier: 1
@@ -293,7 +297,7 @@ cards:
       - set '$some-thieves filter $all-thieves '(! (card-has-upgrade? $it 'cash))
       - set '$thieves filter $some-thieves '(!= $it $this)
       - stop-if! empty? $thieves
-      - card-upgrade! (choose --format $fmt-card-with-pile --prompt "Choose a Thief to upgrade." $thieves 1) 'cash
+      - card-upgrade! (choose-across-piles "Choose a Thief to upgrade." $thieves 1) 'cash
 
   - name: Roving Gambler
     tier: 1
@@ -375,7 +379,7 @@ cards:
       - set '$all-thieves filter $owned '(card-has-type? $it 'thief)
       - set '$thieves filter $all-thieves '(! (card-has-upgrade? $it 'cash))
       - stop-if! empty? $thieves
-      - card-upgrade! (choose --required _ --format $fmt-card-with-pile --prompt "Choose up to three Thieves to upgrade." $thieves .. 0 3) 'cash
+      - card-upgrade! (choose-across-piles! "Choose up to three Thieves to upgrade." $thieves .. 0 3) 'cash
 
   - name: Grifter
     tier: 1
@@ -577,7 +581,7 @@ cards:
       - set '$some-tricksters filter $all-tricksters '(! (card-has-upgrade? $it 'luck))
       - set '$tricksters filter $some-tricksters '(!= $it $this)
       - stop-if! empty? $tricksters
-      - card-upgrade! (choose --format $fmt-card-with-pile --prompt "Choose a Trickster to upgrade." $tricksters 1) 'luck
+      - card-upgrade! (choose-across-piles "Choose a Trickster to upgrade." $tricksters 1) 'luck
 
   - name: Ruthven Catsby, Esq.
     tier: 2
@@ -624,7 +628,7 @@ cards:
 #    flavor: Gain $$. Choose up to two cards you own to jail.
 #    playActions:
 #      - game-add! 'cash 2
-#      - pile-move-to! $jail (choose --format $fmt-card-with-pile --prompt "Choose up to two cards to jail." $owned .. 0 2)
+#      - pile-move-to! $jail choose-across-piles "Choose up to two cards to jail." $owned .. 0 2)
 
   - name: High Roller
     tier: 1
@@ -734,7 +738,7 @@ cards:
      - game-add! 'cash 2
      - set '$treasures-to-jail (filter $owned '(card-has-type? $it 'treasure))
      - stop-if! empty? $treasures-to-jail
-     - set '$maybe-card-to-jail (choose --format $fmt-card-with-pile --prompt "Choose up to one treasure to jail." $treasures-to-jail .. 0 1)
+     - set '$maybe-card-to-jail (choose-across-piles "Choose up to one treasure to jail." $treasures-to-jail .. 0 1)
      - stop-if! empty? $maybe-card-to-jail
      - set '$card-to-jail single $maybe-card-to-jail _
      - card-add! $this 'vp (card-get $card-to-jail 'vp-total)
@@ -778,7 +782,7 @@ cards:
     cost: 6
     flavor: Choose a card from your deck or discard pile to put into your hand.
     playActions:
-      - pile-move-to! $hand (choose --format $fmt-card-with-pile --prompt "Choose a card to put into your hand." (union $deck $discard) 1)
+      - pile-move-to! $hand (choose-across-piles "Choose a card to put into your hand." (union $deck $discard) 1)
 
   - name: Mr. Big
     tier: 2
