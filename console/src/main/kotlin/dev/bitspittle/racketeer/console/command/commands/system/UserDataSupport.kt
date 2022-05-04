@@ -22,6 +22,7 @@ object UserDataSupport {
 
     fun pathForCardStats() = Path(USERDATA_BASE, "cardstats.yaml")
     fun pathForSettings() = Path(USERDATA_BASE, "settings.yaml")
+    fun pathForEndStates() = Path(USERDATA_BASE, "endstates")
 
     fun modifiedTime(slot: Int): String {
         val path = pathForSlot(slot).takeIf { it.exists() }

@@ -17,6 +17,8 @@ import dev.bitspittle.limp.utils.installDefaults
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport
 import dev.bitspittle.racketeer.console.user.CardStats
 import dev.bitspittle.racketeer.console.user.Settings
+import dev.bitspittle.racketeer.console.utils.DriveUploadService
+import dev.bitspittle.racketeer.console.utils.UploadService
 import dev.bitspittle.racketeer.console.view.ViewStackImpl
 import dev.bitspittle.racketeer.console.view.views.game.ChooseItemsView
 import dev.bitspittle.racketeer.console.view.views.game.PickItemView
@@ -68,6 +70,8 @@ class GameSession(
                     }
                 }
             }
+
+            override val uploadService: UploadService = DriveUploadService(gameData.title)
         }
 
         val random = CopyableRandom()

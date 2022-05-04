@@ -1,4 +1,6 @@
 [versions]
+google-api-client = "1.33.0"
+google-api-services-drive = "v3-rev20211107-1.32.1"
 jetbrains-compose = "1.0.1"
 junit = "4.13.2"
 kobweb = "0.9.10"
@@ -10,6 +12,8 @@ uuid = "0.4.0"
 yamlkt = "0.10.2"
 
 [libraries]
+google-api-client = { module = "com.google.api-client:google-api-client", version.ref = "google-api-client" }
+google-api-services-drive = { module = "com.google.apis:google-api-services-drive", version.ref = "google-api-services-drive" }
 junit = { module = "junit:junit", version.ref = "junit" }
 kobweb-api = { module = "com.varabyte.kobweb:kobweb-api", version.ref = "kobweb" }
 kobweb-core = { module = "com.varabyte.kobweb:kobweb-core ", version.ref = "kobweb" }

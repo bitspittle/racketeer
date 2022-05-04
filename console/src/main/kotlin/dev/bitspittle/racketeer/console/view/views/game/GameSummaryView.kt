@@ -11,12 +11,36 @@ import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.user.save
 import dev.bitspittle.racketeer.model.game.from
+import dev.bitspittle.racketeer.model.snapshot.GameSnapshot
+import net.mamoe.yamlkt.Yaml
+import java.nio.file.Paths
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
+import kotlin.io.path.name
 import kotlin.io.path.writeText
 
 class GameSummaryView(ctx: GameContext) : GameView(ctx) {
     init {
         ctx.cardStats.values.save()
+
+        val endstates = UserDataSupport.pathForEndStates().also { it.createDirectories() }
+        val endstate = endstates.resolve("${System.currentTimeMillis()}.yaml")
+        val payload = Yaml.encodeToString(
+            GameSnapshot.from(
+                ctx.state,
+                isPreDraw = false
+            )
+        )
+
+        // Write it to disk so the user can see what we're doing / they can send files to us as a backup if
+        // auto-uploading files
+        endstate.writeText(payload)
+
+        // We need a semi-permanent ID that won't change across playruns. Online resources recommend MAC addresses but
+        // no guarantee that won't crash the user if they're offline or some other reason (it crashed me!). So, just
+        // use the current working directory. Should be good enough for our needs!
+        val machineHash = Paths.get(".").absolutePathString().hashCode().toUInt()
+        ctx.app.uploadService.upload("users:$machineHash:endstates:${endstate.name}", endstate)
     }
 
     override fun createCommands(): List<Command> =

@@ -109,6 +109,9 @@ class GameSnapshot(
     val isPreDraw: Boolean,
     val numTurns: Int,
     val turn: Int,
+    // Note: We technically don't need to save "vp", as we don't read it back. But it's useful for humans reading the
+    // file to know how many points were earned at this point.
+    val vp: Int,
     val cash: Int,
     val influence: Int,
     val luck: Int,
@@ -127,6 +130,7 @@ class GameSnapshot(
             isPreDraw,
             gameState.numTurns,
             gameState.turn,
+            gameState.vp,
             gameState.cash,
             gameState.influence,
             gameState.luck,

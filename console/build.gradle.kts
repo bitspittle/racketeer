@@ -13,6 +13,12 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(project(":model"))
     implementation(project(":scripting"))
+
+    // For uploading data from playtesters.
+    // Note: API key must be defined in a secrets.properties file or these dependencies are USELESS!
+    implementation(libs.google.api.client)
+    implementation(libs.google.api.services.drive)
+
     testImplementation(libs.junit)
     testImplementation(libs.truthish.jvm)
 }
