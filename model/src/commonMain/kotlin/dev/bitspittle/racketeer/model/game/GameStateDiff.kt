@@ -136,7 +136,7 @@ private class GameStateDiffReporter(
 
         when {
             diff.influence > 0 -> reportLine("You earned ${describer.describeInfluence(diff.influence)}.")
-            diff.influence < 0 -> reportLine("You spent ${describer.describeInfluence(-diff.luck)}.")
+            diff.influence < 0 -> reportLine("You spent ${describer.describeInfluence(-diff.influence)}.")
         }
 
         when {
