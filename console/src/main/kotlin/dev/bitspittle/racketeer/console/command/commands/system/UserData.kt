@@ -1,14 +1,17 @@
 package dev.bitspittle.racketeer.console.command.commands.system
 
+import java.nio.file.Paths
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.io.path.getLastModifiedTime
 
-object UserDataSupport {
-    private const val USERDATA_BASE = "userdata/"
-    const val QUICKSAVE_SLOT = -1
+class UserData(folder: String) {
+    companion object {
+        const val QUICKSAVE_SLOT = -1
+    }
+
+    val path = Paths.get(System.getProperty("user.home"), folder)
 
     fun firstFreeSlot(): Int {
         var slot = 0
@@ -18,11 +21,11 @@ object UserDataSupport {
         return slot
     }
 
-    fun pathForSlot(slot: Int) = Path(USERDATA_BASE, if (slot >= 0) "savegame.$slot.yaml" else "quicksave.yaml")
+    fun pathForSlot(slot: Int) = path.resolve(if (slot >= 0) "savegame.$slot.yaml" else "quicksave.yaml")
 
-    fun pathForCardStats() = Path(USERDATA_BASE, "cardstats.yaml")
-    fun pathForSettings() = Path(USERDATA_BASE, "settings.yaml")
-    fun pathForEndStates() = Path(USERDATA_BASE, "endstates")
+    fun pathForCardStats() = path.resolve("cardstats.yaml")
+    fun pathForSettings() = path.resolve("settings.yaml")
+    fun pathForEndStates() = path.resolve("endstates")
 
     fun modifiedTime(slot: Int): String {
         val path = pathForSlot(slot).takeIf { it.exists() }

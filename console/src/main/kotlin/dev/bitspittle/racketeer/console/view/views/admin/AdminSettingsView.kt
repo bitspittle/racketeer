@@ -66,7 +66,7 @@ class AdminSettingsView(ctx: GameContext) : GameView(ctx) {
 
             override suspend fun invoke(): Boolean {
                 ctx.settings.setFrom(createNewSettings())
-                ctx.settings.save()
+                ctx.settings.save(ctx.app.userData)
                 ctx.app.logger.info("User settings updated and saved!")
                 ctx.viewStack.popView()
                 return true

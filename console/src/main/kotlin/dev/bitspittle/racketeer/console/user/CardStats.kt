@@ -1,6 +1,6 @@
 package dev.bitspittle.racketeer.console.user
 
-import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport
+import dev.bitspittle.racketeer.console.command.commands.system.UserData
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import net.mamoe.yamlkt.Yaml
@@ -15,9 +15,9 @@ class CardStats(
     var ownedCount: Long = 0,
 ) {
     companion object {
-        fun load(): Iterable<CardStats>? {
+        fun load(userData: UserData): Iterable<CardStats>? {
             return try {
-                UserDataSupport.pathForCardStats()
+                userData.pathForCardStats()
                     .takeIf { it.exists() }
                     ?.let { path -> Yaml.decodeFromString<List<CardStats>>(path.readText()) }
             } catch (ex: Exception) {
@@ -27,9 +27,9 @@ class CardStats(
     }
 }
 
-fun Iterable<CardStats>.save() {
+fun Iterable<CardStats>.save(userData: UserData) {
     val self = this
-    UserDataSupport.pathForCardStats().apply {
+    userData.pathForCardStats().apply {
         parent.createDirectories()
         writeText(Yaml.encodeToString(self.toList()))
     }

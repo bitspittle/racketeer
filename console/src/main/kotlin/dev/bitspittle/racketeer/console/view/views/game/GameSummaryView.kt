@@ -7,7 +7,6 @@ import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.runtime.MainRenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.NewGameCommand
-import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.user.save
 import dev.bitspittle.racketeer.model.game.from
@@ -21,9 +20,9 @@ import kotlin.io.path.writeText
 
 class GameSummaryView(ctx: GameContext) : GameView(ctx) {
     init {
-        ctx.cardStats.values.save()
+        ctx.cardStats.values.save(ctx.app.userData)
 
-        val endstates = UserDataSupport.pathForEndStates().also { it.createDirectories() }
+        val endstates = ctx.app.userData.pathForEndStates().also { it.createDirectories() }
         val endstate = endstates.resolve("${System.currentTimeMillis()}.yaml")
         val payload = Yaml.encodeToString(
             GameSnapshot.from(

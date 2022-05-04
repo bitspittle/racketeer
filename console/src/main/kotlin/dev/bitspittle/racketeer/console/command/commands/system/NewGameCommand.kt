@@ -15,7 +15,7 @@ class NewGameCommand(ctx: GameContext) : Command(ctx) {
     override val title = "New Game"
 
     override suspend fun invoke(): Boolean {
-        UserDataSupport.pathForSlot(UserDataSupport.QUICKSAVE_SLOT).deleteIfExists()
+        ctx.app.userData.pathForSlot(UserData.QUICKSAVE_SLOT).deleteIfExists()
         ctx.state = GameState(ctx.data, ctx.cardQueue, CopyableRandom(), onCardOwned = { ctx.cardStats.notifyOwnership(it) })
         ctx.viewStack.popAll()
         ctx.viewStack.replaceView(PreDrawView(ctx))

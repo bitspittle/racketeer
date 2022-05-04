@@ -14,7 +14,7 @@ import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.LangService
 import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.limp.utils.installDefaults
-import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport
+import dev.bitspittle.racketeer.console.command.commands.system.UserData
 import dev.bitspittle.racketeer.console.user.CardStats
 import dev.bitspittle.racketeer.console.user.Settings
 import dev.bitspittle.racketeer.console.utils.DriveUploadService
@@ -38,8 +38,9 @@ class GameSession(
     private val gameData: GameData
 ) {
     fun start() = session {
+        val userData = UserData(".${gameData.title.lowercase().replace(Regex("""\s"""), "")}")
         val settings = try {
-            Yaml.decodeFromString(Settings.serializer(), UserDataSupport.pathForSettings().readText())
+            Yaml.decodeFromString(Settings.serializer(), userData.pathForSettings().readText())
         } catch (ex: Exception) {
             Settings()
         }
@@ -71,6 +72,7 @@ class GameSession(
                 }
             }
 
+            override val userData = userData
             override val uploadService: UploadService = DriveUploadService(gameData.title)
         }
 
@@ -95,7 +97,7 @@ class GameSession(
         gameData.cards.flatMap { it.playActions }.forEach { Expr.parse(it) }
         val cardQueue = CardQueueImpl(env)
 
-        val cardStats = CardStats.load() ?: emptyList()
+        val cardStats = CardStats.load(userData) ?: emptyList()
 
         val titleView = TitleMenuView(gameData, settings, cardStats, app, viewStack, env, cardQueue, random)
 

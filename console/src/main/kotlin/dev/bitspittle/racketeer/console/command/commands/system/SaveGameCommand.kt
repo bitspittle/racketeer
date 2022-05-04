@@ -11,14 +11,14 @@ import kotlin.io.path.exists
 import kotlin.io.path.writeText
 
 class SaveGameCommand(ctx: GameContext, private val slot: Int) : Command(ctx) {
-    override val type: Type get() = if (UserDataSupport.pathForSlot(slot).exists()) Type.Warning else Type.Normal
+    override val type: Type get() = if (ctx.app.userData.pathForSlot(slot).exists()) Type.Warning else Type.Normal
     override val title = "Save #${slot + 1}:"
-    override val extra: String get() = UserDataSupport.modifiedTime(slot)
+    override val extra: String get() = ctx.app.userData.modifiedTime(slot)
 
     override suspend fun invoke(): Boolean {
-        val path = UserDataSupport.pathForSlot(slot)
+        val path = ctx.app.userData.pathForSlot(slot)
         val overwritten = path.exists()
-        UserDataSupport.pathForSlot(slot).apply {
+        ctx.app.userData.pathForSlot(slot).apply {
             parent.createDirectories()
             writeText(
                 Yaml.encodeToString(
@@ -29,7 +29,7 @@ class SaveGameCommand(ctx: GameContext, private val slot: Int) : Command(ctx) {
             )
         }
         // While we're here, save card stats too
-        ctx.cardStats.values.save()
+        ctx.cardStats.values.save(ctx.app.userData)
 
         if (slot >= 0) {
             ctx.app.logger.info("Slot #${slot + 1} successfully " + (if (overwritten) "overwritten" else "saved") + "!")

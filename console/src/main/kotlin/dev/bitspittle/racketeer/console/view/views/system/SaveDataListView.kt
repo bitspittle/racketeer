@@ -6,7 +6,6 @@ import com.varabyte.kotter.foundation.text.text
 import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.foundation.text.yellow
 import com.varabyte.kotter.runtime.render.RenderScope
-import dev.bitspittle.racketeer.console.command.commands.system.UserDataSupport
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.views.game.GameView
 import kotlin.io.path.exists
@@ -21,7 +20,7 @@ abstract class SaveDataListView(ctx: GameContext) : GameView(ctx) {
     }
 
     override fun RenderScope.renderUpperFooter() {
-        if (UserDataSupport.pathForSlot(currIndex).exists()) {
+        if (ctx.app.userData.pathForSlot(currIndex).exists()) {
             text("Press "); yellow { text("DELETE") }; textLine(" to delete save slot #${currIndex + 1}.")
         }
     }
