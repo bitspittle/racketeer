@@ -1,6 +1,9 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.shadow)
     application
 }
 
@@ -21,6 +24,16 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.truthish.jvm)
+}
+
+tasks {
+    named<ShadowJar>("shadowJar") {
+        minimize()
+    }
+
+    build {
+        dependsOn(shadowJar)
+    }
 }
 
 application {
