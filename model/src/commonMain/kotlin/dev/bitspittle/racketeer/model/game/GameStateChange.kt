@@ -53,6 +53,8 @@ sealed class GameStateChange {
             cardQueue.enqueuePlayActions(card)
             cardQueue.runEnqueuedActions(this)
             streetEffectsCopy.forEach { streetEffect -> streetEffect.invoke(card) }
+
+            updateVictoryPoints()
         }
     }
 
@@ -146,7 +148,7 @@ sealed class GameStateChange {
             cash = 0
 
             streetEffects.clear()
-            move(street, discard)
+            move(street.cards, discard)
             move(hand.cards.filter { !it.isUndercover() }, discard)
             shop.restock()
         }

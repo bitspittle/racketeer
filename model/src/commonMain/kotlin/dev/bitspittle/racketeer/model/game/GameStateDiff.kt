@@ -96,8 +96,8 @@ private class GameStateDiffReporter(
             }
             CardProperty.VP_PASSIVE -> {
                 when {
-                    amount > 0 -> reportLine("${card.template.name} grew by $amount victory point(s).")
-                    amount < 0 -> reportLine("${card.template.name} shrunk by ${-amount} victory point(s).")
+                    amount > 0 -> reportLine("${card.template.name} increased by $amount victory point(s).")
+                    amount < 0 -> reportLine("${card.template.name} decreased by ${-amount} victory point(s).")
                 }
             }
             else -> error("Unexpected card property: ${property}.")

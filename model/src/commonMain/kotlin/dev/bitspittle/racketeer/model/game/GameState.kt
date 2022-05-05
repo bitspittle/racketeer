@@ -211,23 +211,11 @@ class MutableGameState internal constructor(
         }
     }
 
-    @Suppress("NAME_SHADOWING")
-    fun move(pileFrom: Pile, pileTo: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
-        val pileFrom = _allPiles.single { it.id == pileFrom.id }
-        val pileTo = _allPiles.single { it.id == pileTo.id }
-        if (pileFrom === pileTo) {
-            throw GameException("Attempting to move a pile of cards into itself")
-        }
-
-        pileFrom.cards.forEach { card -> cardPiles[card.id] = pileTo }
-        pileTo.cards.insert(pileFrom.cards, listStrategy, random)
-        pileFrom.cards.clear()
-    }
-
-    fun remove(cards: List<Card>) {
+    suspend fun remove(cards: List<Card>) {
         // Make a copy of the list of cards, as modifying the files below may inadvertently change the list as well,
         // due to some internal, aggressive casting between piles and mutable piles
         cards.toList().forEach(::remove)
+        updateVictoryPoints()
     }
 
     private fun remove(card: Card) {
@@ -279,9 +267,6 @@ class MutableGameState internal constructor(
             changes.add(changes.indexOf(insertBefore), change)
         }
         change.applyTo(this)
-
-        updateVictoryPoints()
-
         check(hasGameStarted)
     }
 }
