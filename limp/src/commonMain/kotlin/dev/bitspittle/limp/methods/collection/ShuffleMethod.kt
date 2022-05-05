@@ -20,6 +20,6 @@ class ShuffleMethod(private val random: () -> Random) : Method("shuffle!", 1) {
     ): Any {
         val list = env.expectConvert<MutableList<*>>(params[0])
         list.shuffle(random())
-        return list
+        return Unit
     }
 }

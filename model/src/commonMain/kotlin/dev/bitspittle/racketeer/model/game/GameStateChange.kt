@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.model.game
 
 import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.racketeer.model.card.*
+import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.shop.Exclusion
 
@@ -66,6 +67,12 @@ sealed class GameStateChange {
         GameStateChange() {
         override suspend fun MutableGameState.apply() {
             move(cards, intoPile, listStrategy)
+        }
+    }
+
+    class Shuffle(val pile: Pile) : GameStateChange() {
+        override suspend fun MutableGameState.apply() {
+            (pile as MutablePile).cards.shuffle(random())
         }
     }
 

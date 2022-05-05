@@ -19,7 +19,9 @@ private class GameStateDiffReporter(
     private val diff: GameStateDiff
 ) {
     private fun StringBuilder.report(change: GameStateChange.ShuffleDiscardIntoDeck) = change.apply {
-        reportLine("Your discard pile (${diff.before.discard.cards.size}) was reshuffled into your deck to refill it.")
+        val discardDesc = describer.describePile(diff.before, diff.before.discard)
+        val deckDesc = describer.describePile(diff.after, diff.after.deck)
+        reportLine("${discardDesc.capitalize()} (${diff.before.discard.cards.size}) was reshuffled into $deckDesc to refill it.")
     }
 
     private fun StringBuilder.report(change: GameStateChange.Draw) = change.apply {
@@ -45,10 +47,10 @@ private class GameStateDiffReporter(
     }
 
     private fun StringBuilder.report(change: GameStateChange.MoveCard) = change.apply {
-        val cardTitle = change.card.template.name
-        val pileToDesc = describer.describePile(diff.after, change.intoPile)
+        val cardTitle = card.template.name
+        val pileToDesc = describer.describePile(diff.after, intoPile)
 
-        val pileFrom = diff.before.pileFor(change.card)
+        val pileFrom = diff.before.pileFor(card)
         if (pileFrom != null) {
             val pileFromDesc = describer.describePile(diff.before, pileFrom)
             reportLine("$cardTitle was moved from $pileFromDesc into $pileToDesc.")
@@ -57,8 +59,13 @@ private class GameStateDiffReporter(
         }
     }
 
+    private fun StringBuilder.report(change: GameStateChange.Shuffle) = change.apply {
+        val pileDesc = describer.describePile(diff.after, pile)
+        reportLine("${pileDesc.capitalize()} was shuffled.")
+    }
+
     private fun StringBuilder.report(change: GameStateChange.RemoveCards) = change.apply {
-        change.cards.forEach { card ->
+        cards.forEach { card ->
             val cardTitle = card.template.name
             reportLine("$cardTitle was removed from the game.")
         }
@@ -155,9 +162,10 @@ private class GameStateDiffReporter(
                     is GameStateChange.GameStarted -> Unit // Marker game state, no need to report
                     is GameStateChange.ShuffleDiscardIntoDeck -> report(change)
                     is GameStateChange.Draw -> report(change)
-                    is GameStateChange.MoveCards -> report(change)
                     is GameStateChange.Play -> {} // No need to report, obvious from user actions
+                    is GameStateChange.MoveCards -> report(change)
                     is GameStateChange.MoveCard -> report(change)
+                    is GameStateChange.Shuffle -> report(change)
                     is GameStateChange.RemoveCards -> report(change)
                     is GameStateChange.AddCardAmount -> report(change)
                     is GameStateChange.UpgradeCard -> report(change)
