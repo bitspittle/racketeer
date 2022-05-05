@@ -1,4 +1,4 @@
-package dev.bitspittle.racketeer.scripting.types
+package dev.bitspittle.racketeer.model.game
 
 enum class GameProperty {
     CASH,

@@ -27,6 +27,11 @@ interface GameState {
     val jail: Pile
     val streetEffects: List<Effect>
     val history: List<GameStateDelta>
+
+    suspend fun apply(delta: GameStateDelta)
+    fun copy(): GameState
+
+    fun pileFor(card: Card): Pile?
 }
 
 val GameState.lastTurnIndex get() = numTurns - 1
@@ -36,7 +41,7 @@ fun GameState.getOwnedCards() = allPiles.flatMap { it.cards }
 
 class MutableGameState internal constructor(
     override val random: CopyableRandom,
-    private val cardQueue: CardQueue,
+    val cardQueue: CardQueue,
     private val onCardOwned: (CardTemplate) -> Unit,
     numTurns: Int,
     turn: Int,
@@ -156,6 +161,17 @@ class MutableGameState internal constructor(
         }
     }
 
+    private fun MutableList<MutableCard>.insert(cards: List<MutableCard>, listStrategy: ListStrategy, random: CopyableRandom) {
+        when (listStrategy) {
+            ListStrategy.FRONT -> cards.forEachIndexed { i, card -> this.add(i, card) }
+            ListStrategy.BACK -> cards.forEach { card -> this.add(card) }
+            ListStrategy.RANDOM -> cards.forEach { card ->
+                val index = random.nextInt(this.size + 1)
+                this.add(index, card)
+            }
+        }
+    }
+
     private fun moveNow(card: Card, toPile: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
         moveNow(listOf(card), toPile, listStrategy)
     }
@@ -171,10 +187,10 @@ class MutableGameState internal constructor(
             remove(card)
             cardPiles[card.id] = pileTo
         }
-        pileTo.cards.insert(cards, listStrategy, random)
+        pileTo.cards.insert(cards.map { it as MutableCard }, listStrategy, random)
     }
 
-    fun pileFor(card: Card): Pile? = cardPiles[card.id]
+    override fun pileFor(card: Card): Pile? = cardPiles[card.id]
 
     // Needs to be suspend because it might trigger init actions
     suspend fun move(card: Card, pileTo: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
@@ -226,36 +242,32 @@ class MutableGameState internal constructor(
         cards.toList().forEach(::remove)
     }
 
-    fun installStreetEffect(expr: String, desc: String, effect: suspend (Card) -> Unit) {
-        streetEffects.add(Effect(expr, desc, effect))
-    }
-
     private fun remove(card: Card) {
         cardPiles.remove(card.id)?.also { pileFrom -> pileFrom.cards.removeAll { it.id == card.id }}
         shop.remove(card.id)
     }
 
-    suspend fun play(handIndex: Int) {
-        require(handIndex in hand.cards.indices) { "Attempt to play card with an invalid hand index $handIndex, when hand is size ${hand.cards.size}"}
-        val card = hand.cards[handIndex]
+//    suspend fun play(handIndex: Int) {
+//        require(handIndex in hand.cards.indices) { "Attempt to play card with an invalid hand index $handIndex, when hand is size ${hand.cards.size}"}
+//        val card = hand.cards[handIndex]
+//
+//        moveNow(card, street)
+//
+//        // Apply upgrades *first*, as otherwise, playing a card may add an upgrade which shouldn't take affect until
+//        // a later turn.
+//        if (card.isDexterous()) cash++
+//        if (card.isArtful()) influence++
+//        if (card.isLucky()) luck++
+//
+//        // Playing this card might install an effect, but that shouldn't take effect until the next card is played
+//        val streetEffectsCopy = streetEffects.toList()
+//        cardQueue.enqueuePlayActions(card)
+//        cardQueue.runEnqueuedActions(this)
+//        streetEffectsCopy.forEach { streetEffect -> streetEffect.invoke(card) }
+//        updateVictoryPoints()
+//    }
 
-        moveNow(card, street)
-
-        // Apply upgrades *first*, as otherwise, playing a card may add an upgrade which shouldn't take affect until
-        // a later turn.
-        if (card.isDexterous()) cash++
-        if (card.isArtful()) influence++
-        if (card.isLucky()) luck++
-
-        // Playing this card might install an effect, but that shouldn't take effect until the next card is played
-        val streetEffectsCopy = streetEffects.toList()
-        cardQueue.enqueuePlayActions(card)
-        cardQueue.runEnqueuedActions(this)
-        streetEffectsCopy.forEach { streetEffect -> streetEffect.invoke(card) }
-        updateVictoryPoints()
-    }
-
-    fun copy(): MutableGameState {
+    override fun copy(): MutableGameState {
         val random = random.copy()
         return MutableGameState(
             random,
@@ -279,7 +291,7 @@ class MutableGameState internal constructor(
         )
     }
 
-    suspend fun apply(delta: GameStateDelta) {
+    override suspend fun apply(delta: GameStateDelta) {
         if (history.last() is GameStateDelta.GameOver) return
 
         // We postpone applying the init delta because when we first construct this game state, we're not in a

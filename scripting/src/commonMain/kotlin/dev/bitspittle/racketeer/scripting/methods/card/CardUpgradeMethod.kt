@@ -9,8 +9,10 @@ import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.UpgradeType
+import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.game.GameStateDelta
 
-class CardUpgradeMethod : Method("card-upgrade!", 2) {
+class CardUpgradeMethod(private val getGameState: () -> GameState) : Method("card-upgrade!", 2) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
@@ -27,7 +29,8 @@ class CardUpgradeMethod : Method("card-upgrade!", 2) {
         val identifier = env.expectConvert<Expr.Identifier>(params[1])
         val upgradeType = identifier.toEnum(UpgradeType.values())
 
-        cards.forEach { card -> card.upgrades.add(upgradeType) }
+        val gameState = getGameState()
+        cards.forEach { card -> gameState.apply(GameStateDelta.UpgradeCard(card, upgradeType)) }
 
         return Unit
     }

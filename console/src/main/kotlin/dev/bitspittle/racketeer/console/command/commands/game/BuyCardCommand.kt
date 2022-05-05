@@ -7,6 +7,8 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.utils.runStateChangingAction
 import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.game.GameProperty
+import dev.bitspittle.racketeer.model.game.GameStateDelta
 
 class BuyCardCommand(ctx: GameContext, private val card: Card) : Command(ctx) {
     private val shouldMarkNew get() = ctx.settings.highlightNewCards && !ctx.cardStats.contains(card.template.name)
@@ -20,8 +22,8 @@ class BuyCardCommand(ctx: GameContext, private val card: Card) : Command(ctx) {
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {
-            ctx.state.cash -= card.template.cost
-            ctx.state.move(card, ctx.state.discard)
+            ctx.state.apply(GameStateDelta.AddGameAmount(GameProperty.CASH, -card.template.cost))
+            ctx.state.apply(GameStateDelta.MoveCard(card, ctx.state.discard))
         }
         return true
     }

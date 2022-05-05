@@ -7,10 +7,11 @@ import dev.bitspittle.limp.converters.ValueToExprConverter
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.utils.toEnum
-import dev.bitspittle.racketeer.model.game.MutableGameState
-import dev.bitspittle.racketeer.scripting.types.GameProperty
+import dev.bitspittle.racketeer.model.game.GameProperty
+import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.game.GameStateDelta
 
-class GameSetMethod(private val getGameState: () -> MutableGameState) : Method("game-set!", 2) {
+class GameSetMethod(private val getGameState: () -> GameState) : Method("game-set!", 2) {
     override suspend fun invoke(env: Environment, eval: Evaluator, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
         val identifier = env.expectConvert<Expr.Identifier>(params[0])
         val property = identifier.toEnum(GameProperty.values())
@@ -36,13 +37,7 @@ class GameSetMethod(private val getGameState: () -> MutableGameState) : Method("
             val evaluator = eval.extend(mapOf("\$it" to currValue))
             env.expectConvert<Int>(evaluator.evaluate(env, setExpr))
         }
-        when (property) {
-            GameProperty.CASH -> gameState.cash = newValue
-            GameProperty.INFLUENCE -> gameState.influence = newValue
-            GameProperty.LUCK -> gameState.luck = newValue
-            GameProperty.HAND_SIZE -> gameState.handSize = newValue
-            else -> error("Unhandled game-set case: ${property.name}")
-        }
+        gameState.apply(GameStateDelta.AddGameAmount(property, newValue - currValue))
 
         return Unit
     }

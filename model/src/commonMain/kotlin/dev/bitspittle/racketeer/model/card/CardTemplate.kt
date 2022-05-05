@@ -27,7 +27,7 @@ data class CardTemplate(
 ): Comparable<CardTemplate> {
     val isPriceless get() = cost == 0
 
-    fun instantiate() = Card(this)
+    fun instantiate() = MutableCard(this)
 
     override fun compareTo(other: CardTemplate): Int = this.name.compareTo(other.name)
 }

@@ -3,6 +3,7 @@ package dev.bitspittle.racketeer.model.pile
 import com.benasher44.uuid.Uuid
 import com.benasher44.uuid.uuid4
 import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.card.MutableCard
 
 /**
  * A meaningful group of cards, with a particular purpose (as opposed to just a random collection of cards)
@@ -15,8 +16,8 @@ interface Pile {
 }
 
 class MutablePile private constructor(
-    override val id: Uuid, override val cards: MutableList<Card>
+    override val id: Uuid, override val cards: MutableList<MutableCard>
 ) : Pile {
-    constructor(cards: MutableList<Card> = mutableListOf()) : this(uuid4(), cards)
+    constructor(cards: MutableList<MutableCard> = mutableListOf()) : this(uuid4(), cards)
     fun copy() = MutablePile(id, cards.map { it.copy() }.toMutableList())
 }

@@ -9,11 +9,12 @@ import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.game.GameStateDelta
 import dev.bitspittle.racketeer.model.pile.Pile
-import dev.bitspittle.racketeer.model.game.MutableGameState
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 
-class PileMoveToMethod(private val getGameState: () -> MutableGameState) : Method("pile-move-to!", 2) {
+class PileMoveToMethod(private val getGameState: () -> GameState) : Method("pile-move-to!", 2) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
@@ -34,6 +35,6 @@ class PileMoveToMethod(private val getGameState: () -> MutableGameState) : Metho
         } ?: ListStrategy.BACK
 
         val gameState = getGameState()
-        return gameState.move(cards, toPile, strategy)
+        return gameState.apply(GameStateDelta.MoveCards(cards, toPile, strategy))
     }
 }

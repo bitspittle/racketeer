@@ -5,12 +5,12 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.utils.toEnum
-import dev.bitspittle.racketeer.model.game.MutableGameState
+import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.types.PileProperty
 
-class PileGetMethod(private val describer: Describer, private val getGameState: () -> MutableGameState) : Method("pile-get", 2) {
+class PileGetMethod(private val describer: Describer, private val getGameState: () -> GameState) : Method("pile-get", 2) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,

@@ -4,9 +4,9 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.game.MutableGameState
+import dev.bitspittle.racketeer.model.game.GameState
 
-class CardPileMethod(private val getGameState: () -> MutableGameState) : Method("card-pile", 1) {
+class CardPileMethod(private val getGameState: () -> GameState) : Method("card-pile", 1) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,

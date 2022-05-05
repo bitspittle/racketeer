@@ -8,7 +8,7 @@ import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.vpTotal
 import dev.bitspittle.racketeer.scripting.converters.CardTemplateToCardConverter
-import dev.bitspittle.racketeer.scripting.types.CardProperty
+import dev.bitspittle.racketeer.model.card.CardProperty
 
 class CardGetMethod : Method("card-get", 2) {
     override suspend fun invoke(
@@ -32,7 +32,7 @@ class CardGetMethod : Method("card-get", 2) {
             CardProperty.ID -> card.id
             CardProperty.TIER -> card.template.tier
             CardProperty.TYPES -> card.template.types
-            CardProperty.VP -> card.vp
+            CardProperty.VP -> card.vpBase
             CardProperty.VP_PASSIVE -> card.vpPassive
             CardProperty.VP_TOTAL -> card.vpTotal
         }

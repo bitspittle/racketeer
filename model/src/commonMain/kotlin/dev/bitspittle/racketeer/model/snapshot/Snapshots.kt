@@ -2,12 +2,10 @@ package dev.bitspittle.racketeer.model.snapshot
 
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
-import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.card.CardQueue
-import dev.bitspittle.racketeer.model.card.CardTemplate
-import dev.bitspittle.racketeer.model.card.UpgradeType
+import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.game.Effect
 import dev.bitspittle.racketeer.model.game.GameData
+import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.MutableGameState
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
@@ -22,23 +20,23 @@ class CardSnapshot(
     val name: String,
     val vp: Int,
     val counter: Int,
-    val upgrades: MutableSet<UpgradeType>
+    val upgrades: Set<UpgradeType>
 ) {
     companion object {
         fun from(card: Card) = CardSnapshot(
             card.template.name,
-            card.vp,
+            card.vpBase,
             card.counter,
             card.upgrades,
         )
     }
 
-    fun create(data: GameData) = Card(
+    fun create(data: GameData) = MutableCard(
         data.cards.single { it.name == name },
         vp,
-        vpBonus = 0,
+        vpPassive = 0,
         counter,
-        upgrades)
+        upgrades.toMutableSet())
 }
 
 @Serializable
@@ -125,7 +123,7 @@ class GameSnapshot(
     val streetEffects: List<EffectSnapshot>,
 ) {
     companion object {
-        fun from(gameState: MutableGameState, isPreDraw: Boolean) = GameSnapshot(
+        fun from(gameState: GameState, isPreDraw: Boolean) = GameSnapshot(
             gameState.random,
             isPreDraw,
             gameState.numTurns,

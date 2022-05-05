@@ -40,8 +40,8 @@ fun Environment.installGameLogic(service: GameService) {
 
     // Card
     addMethod(CardGetMethod())
-    addMethod(CardSetMethod())
-    addMethod(CardUpgradeMethod())
+    addMethod(CardSetMethod(service::gameState))
+    addMethod(CardUpgradeMethod(service::gameState))
     addMethod(CardHasUpgradeMethod())
     addMethod(CardHasTypeMethod(service.gameData.cardTypes))
     addMethod(CardRemoveMethod(service::gameState))
@@ -60,8 +60,8 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(FxAddMethod(service::gameState))
 
     // Shop
-    addMethod(ShopRerollMethod { service.gameState.shop })
-    addMethod(ShopExcludeMethod { service.gameState.shop })
+    addMethod(ShopRerollMethod(service::gameState))
+    addMethod(ShopExcludeMethod(service::gameState))
     (0..4).forEach { i -> storeValue("\$tier${i + 1}", i) }
 
     // Text

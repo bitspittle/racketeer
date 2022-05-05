@@ -4,6 +4,8 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.utils.runStateChangingAction
 import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.model.game.GameProperty
+import dev.bitspittle.racketeer.model.game.GameStateDelta
 
 private const val TINY_RESOURCE_INCREMENT = 1
 private const val MINOR_RESOURCE_INCREMENT = 5
@@ -19,7 +21,7 @@ class AddResourcesView(ctx: GameContext) : GameView(ctx) {
 
                 override suspend fun invoke(): Boolean {
                     ctx.runStateChangingAction {
-                        ctx.state.cash += MINOR_RESOURCE_INCREMENT
+                        ctx.state.apply(GameStateDelta.AddGameAmount(GameProperty.CASH, MINOR_RESOURCE_INCREMENT))
                     }
                     return true
                 }
@@ -30,7 +32,7 @@ class AddResourcesView(ctx: GameContext) : GameView(ctx) {
                 override val description = "Increase game resources (influence)."
                 override suspend fun invoke(): Boolean {
                     ctx.runStateChangingAction {
-                        ctx.state.influence += MINOR_RESOURCE_INCREMENT
+                        ctx.state.apply(GameStateDelta.AddGameAmount(GameProperty.INFLUENCE, MINOR_RESOURCE_INCREMENT))
                     }
                     return true
                 }
@@ -41,7 +43,7 @@ class AddResourcesView(ctx: GameContext) : GameView(ctx) {
                 override val description = "Increase game resources (luck)."
                 override suspend fun invoke(): Boolean {
                     ctx.runStateChangingAction {
-                        ctx.state.luck += TINY_RESOURCE_INCREMENT
+                        ctx.state.apply(GameStateDelta.AddGameAmount(GameProperty.LUCK, TINY_RESOURCE_INCREMENT))
                     }
                     return true
                 }
@@ -53,9 +55,9 @@ class AddResourcesView(ctx: GameContext) : GameView(ctx) {
 
                 override suspend fun invoke(): Boolean {
                     ctx.runStateChangingAction {
-                        ctx.state.cash += MAJOR_RESOURCE_INCREMENT
-                        ctx.state.influence += MAJOR_RESOURCE_INCREMENT
-                        ctx.state.luck += MAJOR_RESOURCE_INCREMENT
+                        ctx.state.apply(GameStateDelta.AddGameAmount(GameProperty.CASH, MAJOR_RESOURCE_INCREMENT))
+                        ctx.state.apply(GameStateDelta.AddGameAmount(GameProperty.INFLUENCE, MAJOR_RESOURCE_INCREMENT))
+                        ctx.state.apply(GameStateDelta.AddGameAmount(GameProperty.LUCK, MAJOR_RESOURCE_INCREMENT))
                     }
                     return true
                 }

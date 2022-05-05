@@ -1,4 +1,4 @@
-package dev.bitspittle.racketeer.scripting.types
+package dev.bitspittle.racketeer.model.card
 
 enum class CardProperty {
     COST,

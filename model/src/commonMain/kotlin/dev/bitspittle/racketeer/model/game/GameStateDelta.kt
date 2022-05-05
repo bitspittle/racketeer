@@ -1,10 +1,9 @@
 package dev.bitspittle.racketeer.model.game
 
 import dev.bitspittle.limp.types.ListStrategy
-import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.card.CardTemplate
-import dev.bitspittle.racketeer.model.card.isUndercover
-import dev.bitspittle.racketeer.model.pile.MutablePile
+import dev.bitspittle.racketeer.model.card.*
+import dev.bitspittle.racketeer.model.pile.Pile
+import dev.bitspittle.racketeer.model.shop.Exclusion
 
 sealed class GameStateDelta {
     suspend fun applyTo(state: MutableGameState) = state.apply()
@@ -50,9 +49,98 @@ sealed class GameStateDelta {
         }
     }
 
-    class MoveCards(val cards: List<Card>, val intoPile: MutablePile) : GameStateDelta() {
+    class Play(val handIndex: Int) : GameStateDelta() {
         override suspend fun MutableGameState.apply() {
-            move(cards, intoPile)
+            require(handIndex in hand.cards.indices) { "Attempt to play card with an invalid hand index $handIndex, when hand is size ${hand.cards.size}" }
+            val card = hand.cards[handIndex]
+
+            apply(MoveCard(card, street))
+
+            // Apply upgrades *first*, as otherwise, playing a card may add an upgrade which shouldn't take affect until
+            // a later turn.
+            if (card.isDexterous()) apply(AddGameAmount(GameProperty.CASH, 1))
+            if (card.isArtful()) apply(AddGameAmount(GameProperty.INFLUENCE, 1))
+            if (card.isLucky()) apply(AddGameAmount(GameProperty.LUCK, 1))
+
+            // Playing this card might install an effect, but that shouldn't take effect until the next card is played
+            val streetEffectsCopy = streetEffects.toList()
+            cardQueue.enqueuePlayActions(card)
+            cardQueue.runEnqueuedActions(this)
+            streetEffectsCopy.forEach { streetEffect -> streetEffect.invoke(card) }
+            updateVictoryPoints()
+        }
+    }
+
+    class MoveCard(val card: Card, val intoPile: Pile, val listStrategy: ListStrategy = ListStrategy.BACK) :
+        GameStateDelta() {
+        override suspend fun MutableGameState.apply() {
+            move(card, intoPile, listStrategy)
+        }
+    }
+
+    class MoveCards(val cards: List<Card>, val intoPile: Pile, val listStrategy: ListStrategy = ListStrategy.BACK) :
+        GameStateDelta() {
+        override suspend fun MutableGameState.apply() {
+            move(cards, intoPile, listStrategy)
+        }
+    }
+
+    class RemoveCards(val cards: List<Card>) : GameStateDelta() {
+        override suspend fun MutableGameState.apply() {
+            remove(cards)
+        }
+    }
+
+    class AddCardAmount(val property: CardProperty, val card: Card, val amount: Int) : GameStateDelta() {
+        override suspend fun MutableGameState.apply() {
+            when (property) {
+                CardProperty.COUNTER -> (card as MutableCard).counter += amount
+                CardProperty.VP -> (card as MutableCard).vpBase += amount
+                CardProperty.VP_PASSIVE -> (card as MutableCard).vpPassive += amount
+                else -> error("Can't change read-only card property $property")
+            }
+        }
+    }
+
+    class UpgradeCard(val card: Card, val upgradeType: UpgradeType) : GameStateDelta() {
+        override suspend fun MutableGameState.apply() {
+            (card as MutableCard).upgrades.add(upgradeType)
+        }
+    }
+
+    class AddGameAmount(val property: GameProperty, val amount: Int) : GameStateDelta() {
+        override suspend fun MutableGameState.apply() {
+            when (property) {
+                GameProperty.CASH -> cash += amount
+                GameProperty.INFLUENCE -> influence += amount
+                GameProperty.LUCK -> luck += amount
+                GameProperty.HAND_SIZE -> handSize += amount
+                else -> error("Can't change read-only game property $property")
+            }
+        }
+    }
+
+    class AddStreetEffect(val effect: Effect) : GameStateDelta() {
+        override suspend fun MutableGameState.apply() {
+            streetEffects.add(effect)
+        }
+    }
+
+    class AddShopExclusion(private val exclusion: Exclusion) : GameStateDelta() {
+        override suspend fun MutableGameState.apply() {
+            shop.addExclusion(exclusion)
+        }
+    }
+
+    class RestockShop(private val additionalFilter: suspend (CardTemplate) -> Boolean = { true }) : GameStateDelta() {
+        override suspend fun MutableGameState.apply() {
+            shop.restock(additionalFilter = additionalFilter)
+        }
+    }
+
+    class UpgradeShop() : GameStateDelta() {
+        override suspend fun MutableGameState.apply() {
+            shop.upgrade()
         }
     }
 

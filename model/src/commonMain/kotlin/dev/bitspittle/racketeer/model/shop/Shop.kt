@@ -9,9 +9,6 @@ interface Shop {
     val tier: Int
     val stock: List<Card?>
     val exclusions: List<Exclusion>
-    fun addExclusion(exclusion: Exclusion)
-    suspend fun upgrade(): Boolean
-    suspend fun restock(restockAll: Boolean = true, additionalFilter: suspend (CardTemplate) -> Boolean = { true }): Boolean
 }
 
 class MutableShop internal constructor(
@@ -86,13 +83,13 @@ class MutableShop internal constructor(
             .filter { card -> card.cost > 0 && card.tier <= this.tier && additionalFilter(card) }
     }
 
-    override suspend fun restock(restockAll: Boolean, additionalFilter: suspend (CardTemplate) -> Boolean): Boolean {
+    suspend fun restock(restockAll: Boolean = true, additionalFilter: suspend (CardTemplate) -> Boolean = { true }): Boolean {
         return handleRestock(
             restockAll,
             filterAllCards { card -> additionalFilter(card) && exclusions.none { exclude -> exclude(card) } })
     }
 
-    override fun addExclusion(exclusion: Exclusion) { exclusions.add(exclusion) }
+    fun addExclusion(exclusion: Exclusion) { exclusions.add(exclusion) }
 
     fun remove(cardId: Uuid) {
         for (i in stock.indices) {
@@ -104,7 +101,7 @@ class MutableShop internal constructor(
         }
     }
 
-    override suspend fun upgrade(): Boolean {
+    suspend fun upgrade(): Boolean {
         if (tier >= shopSizes.size - 1) return false
 
         ++tier

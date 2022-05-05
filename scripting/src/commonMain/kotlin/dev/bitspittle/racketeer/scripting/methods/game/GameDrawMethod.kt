@@ -3,10 +3,10 @@ package dev.bitspittle.racketeer.scripting.methods.game
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
+import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.GameStateDelta
-import dev.bitspittle.racketeer.model.game.MutableGameState
 
-class GameDrawMethod(private val getGameState: () -> MutableGameState) : Method("game-draw!", 1) {
+class GameDrawMethod(private val getGameState: () -> GameState) : Method("game-draw!", 1) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,

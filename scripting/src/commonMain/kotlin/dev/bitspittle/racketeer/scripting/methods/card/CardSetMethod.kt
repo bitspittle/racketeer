@@ -10,9 +10,11 @@ import dev.bitspittle.limp.listTypeOf
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.scripting.types.CardProperty
+import dev.bitspittle.racketeer.model.card.CardProperty
+import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.game.GameStateDelta
 
-class CardSetMethod : Method("card-set!", 3) {
+class CardSetMethod(private val getGameState: () -> GameState) : Method("card-set!", 3) {
     override suspend fun invoke(env: Environment, eval: Evaluator, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
         val cards = env.scoped {
             env.addConverter(ItemToSingletonListConverter(Card::class))
@@ -29,7 +31,7 @@ class CardSetMethod : Method("card-set!", 3) {
         cards.forEach { card ->
             val currValue = when (property) {
                 CardProperty.COUNTER -> card.counter
-                CardProperty.VP -> card.vp
+                CardProperty.VP -> card.vpBase
                 CardProperty.VP_PASSIVE -> card.vpPassive
                 CardProperty.COST, CardProperty.TIER, CardProperty.TYPES, CardProperty.NAME, CardProperty.ID, CardProperty.VP_TOTAL  -> throw EvaluationException(
                     identifier.ctx, "Cannot set this card's property as it is read-only."
@@ -40,12 +42,8 @@ class CardSetMethod : Method("card-set!", 3) {
                 val evaluator = eval.extend(mapOf("\$it" to currValue))
                 env.expectConvert<Int>(evaluator.evaluate(env, setExpr))
             }
-            when (property) {
-                CardProperty.COUNTER -> card.counter = newValue
-                CardProperty.VP -> card.vp = newValue
-                CardProperty.VP_PASSIVE -> card.vpPassive = newValue
-                else -> error("Unhandled card-set case: ${property.name}")
-            }
+
+            getGameState().apply(GameStateDelta.AddCardAmount(property, card, newValue - currValue))
         }
 
         return Unit

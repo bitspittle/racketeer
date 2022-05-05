@@ -5,10 +5,10 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.utils.toEnum
-import dev.bitspittle.racketeer.model.game.MutableGameState
-import dev.bitspittle.racketeer.scripting.types.GameProperty
+import dev.bitspittle.racketeer.model.game.GameProperty
+import dev.bitspittle.racketeer.model.game.GameState
 
-class GameGetMethod(private val getGameState: () -> MutableGameState) : Method("game-get", 1) {
+class GameGetMethod(private val getGameState: () -> GameState) : Method("game-get", 1) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,

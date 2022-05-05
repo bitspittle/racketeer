@@ -15,13 +15,13 @@ import dev.bitspittle.racketeer.console.trie.intoWordTree
 import dev.bitspittle.racketeer.console.view.views.game.GameView
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
+import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.pile.Pile
-import dev.bitspittle.racketeer.model.game.MutableGameState
 import dev.bitspittle.racketeer.model.game.GameStateDiff
 import dev.bitspittle.racketeer.model.game.reportTo
 import dev.bitspittle.racketeer.model.text.Describer
-import dev.bitspittle.racketeer.scripting.types.CardProperty
-import dev.bitspittle.racketeer.scripting.types.GameProperty
+import dev.bitspittle.racketeer.model.card.CardProperty
+import dev.bitspittle.racketeer.model.game.GameProperty
 import dev.bitspittle.racketeer.scripting.types.PileProperty
 import dev.bitspittle.racketeer.scripting.utils.setValuesFrom
 
@@ -98,7 +98,6 @@ class ScriptingView(ctx: GameContext) : GameView(ctx) {
             "Make a backup snapshot of the current game that you can restore to if you screw something up.",
             isDisabled = { latestDiff.hasNoChanges() },
         ) {
-            ctx.state.updateVictoryPoints()
             stateSnapshot = ctx.state.copy()
             latestDiff = GameStateDiff(ctx.state, stateSnapshot)
         },
@@ -109,7 +108,6 @@ class ScriptingView(ctx: GameContext) : GameView(ctx) {
             "Return to the last snapshot that you took.",
             isDisabled = { latestDiff.hasNoChanges() },
         ) {
-            ctx.state.updateVictoryPoints()
             ctx.state = stateSnapshot.copy()
             latestDiff = GameStateDiff(ctx.state, stateSnapshot)
         },
@@ -207,7 +205,6 @@ class ScriptingView(ctx: GameContext) : GameView(ctx) {
 
         val evaluator = Evaluator()
         val result = evaluator.evaluate(ctx.env, input)
-        ctx.state.updateVictoryPoints()
         latestDiff = GameStateDiff(stateSnapshot, ctx.state)
 
         previousActions.add(input)
@@ -266,7 +263,7 @@ class ScriptingView(ctx: GameContext) : GameView(ctx) {
     }
 }
 
-private class Stringifier(private val describer: Describer, private val gameState: MutableGameState) {
+private class Stringifier(private val describer: Describer, private val gameState: GameState) {
     fun <T: Any?> toString(value: T): String {
         return when (value) {
             is Iterable<*> -> value.joinToString(prefix = "[", postfix = "]") { toString(it) }

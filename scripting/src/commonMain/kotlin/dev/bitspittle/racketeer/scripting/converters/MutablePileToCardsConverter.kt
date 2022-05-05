@@ -10,6 +10,6 @@ import kotlin.reflect.KClass
 // Note: Must define before PileToCardsConverter, or else that one will always win
 class MutablePileToCardsConverter : Converter<MutableList<Card>>(MutableList::class as KClass<MutableList<Card>>) {
     override fun convert(value: Any): MutableList<Card>? {
-        return (value as? MutablePile)?.cards
+        return (value as? MutablePile)?.cards as? MutableList<Card>
     }
 }
