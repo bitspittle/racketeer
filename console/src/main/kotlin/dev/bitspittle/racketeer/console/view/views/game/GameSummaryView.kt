@@ -13,6 +13,9 @@ import dev.bitspittle.racketeer.console.user.save
 import dev.bitspittle.racketeer.model.game.from
 import dev.bitspittle.racketeer.model.snapshot.GameSnapshot
 import net.mamoe.yamlkt.Yaml
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import kotlin.io.path.createDirectories
 import kotlin.io.path.name
 import kotlin.io.path.writeText
@@ -22,7 +25,7 @@ class GameSummaryView(ctx: GameContext) : GameView(ctx) {
         ctx.cardStats.values.save(ctx.app.userData)
 
         val endstates = ctx.app.userData.pathForEndStates().also { it.createDirectories() }
-        val endstate = endstates.resolve("${System.currentTimeMillis()}.yaml")
+        val endstate = endstates.resolve("${Instant.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("MM-dd-yyyy|HH:mm:ss"))}.yaml")
         val payload = Yaml.encodeToString(
             GameSnapshot.from(
                 ctx.state,
@@ -31,7 +34,7 @@ class GameSummaryView(ctx: GameContext) : GameView(ctx) {
         )
 
         // Write it to disk so the user can see what we're doing / they can send files to us as a backup if
-        // auto-uploading files
+        // auto-uploading fails
         endstate.writeText(payload)
 
         ctx.app.uploadService.upload("users:${ctx.app.userData.playtestId}:endstates:${endstate.name}", endstate)
