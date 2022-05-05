@@ -6,7 +6,7 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.methods.collection.FirstMethod
 import dev.bitspittle.limp.methods.collection.TakeMethod
 import dev.bitspittle.limp.types.Placeholder
-import dev.bitspittle.racketeer.model.game.GameStateDelta
+import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.scripting.TestGameService
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.pile.PileCopyToMethod
@@ -36,7 +36,7 @@ class PileMethodsTest {
             assertThat(cardTemplates.map { it.name }).containsExactly("Fool's Gold", "Croupier").inOrder()
         })
 
-        gameState.apply(GameStateDelta.Draw(4))
+        gameState.apply(GameStateChange.Draw(4))
         env.storeValue("\$discard", gameState.discard)
         env.storeValue("\$deck", gameState.deck)
         env.storeValue("\$hand", gameState.hand)
@@ -96,7 +96,7 @@ class PileMethodsTest {
         env.addConverter(PileToCardsConverter())
         env.storeValue("_", Placeholder)
 
-        gameState.apply(GameStateDelta.Draw(4))
+        gameState.apply(GameStateChange.Draw(4))
         env.storeValue("\$discard", gameState.discard)
         env.storeValue("\$deck", gameState.deck)
         env.storeValue("\$hand", gameState.hand)

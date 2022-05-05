@@ -3,7 +3,7 @@ package dev.bitspittle.racketeer.console.command.commands.game
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.utils.runStateChangingAction
-import dev.bitspittle.racketeer.model.game.GameStateDelta
+import dev.bitspittle.racketeer.model.game.GameStateChange
 
 class PlayCardCommand(ctx: GameContext, private val handIndex: Int) : Command(ctx) {
     override val type = Type.Emphasized
@@ -15,7 +15,7 @@ class PlayCardCommand(ctx: GameContext, private val handIndex: Int) : Command(ct
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {
-            ctx.state.apply(GameStateDelta.Play(handIndex))
+            ctx.state.apply(GameStateChange.Play(handIndex))
         }
 
         return true

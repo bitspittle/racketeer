@@ -6,7 +6,7 @@ import dev.bitspittle.racketeer.console.utils.runStateChangingAction
 import dev.bitspittle.racketeer.console.view.popPast
 import dev.bitspittle.racketeer.console.view.views.admin.AdminMenuView
 import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.game.GameStateDelta
+import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.pile.Pile
 
 class ChoosePileToCommand(
@@ -20,7 +20,7 @@ class ChoosePileToCommand(
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {
-            ctx.state.apply(GameStateDelta.MoveCards(cards, pile))
+            ctx.state.apply(GameStateChange.MoveCards(cards, pile))
             ctx.viewStack.popPast { view -> view is AdminMenuView }
         }
         return true

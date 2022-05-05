@@ -7,7 +7,7 @@ import dev.bitspittle.racketeer.console.utils.runStateChangingAction
 import dev.bitspittle.racketeer.console.view.popPast
 import dev.bitspittle.racketeer.console.view.views.admin.AdminMenuView
 import dev.bitspittle.racketeer.model.card.CardTemplate
-import dev.bitspittle.racketeer.model.game.GameStateDelta
+import dev.bitspittle.racketeer.model.game.GameStateChange
 
 class CreateCardCommand(ctx: GameContext, private val card: CardTemplate) : Command(ctx) {
     override val type = Type.Warning
@@ -16,7 +16,7 @@ class CreateCardCommand(ctx: GameContext, private val card: CardTemplate) : Comm
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {
-            ctx.state.apply(GameStateDelta.MoveCard(card.instantiate(), ctx.state.hand, ListStrategy.FRONT))
+            ctx.state.apply(GameStateChange.MoveCard(card.instantiate(), ctx.state.hand, ListStrategy.FRONT))
             ctx.viewStack.popPast { view -> view is AdminMenuView }
         }
         return true

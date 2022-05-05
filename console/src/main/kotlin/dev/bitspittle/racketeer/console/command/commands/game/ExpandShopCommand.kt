@@ -4,7 +4,7 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.utils.runStateChangingAction
 import dev.bitspittle.racketeer.model.game.GameProperty
-import dev.bitspittle.racketeer.model.game.GameStateDelta
+import dev.bitspittle.racketeer.model.game.GameStateChange
 
 class ExpandShopCommand(ctx: GameContext) : Command(ctx) {
     init {
@@ -21,8 +21,8 @@ class ExpandShopCommand(ctx: GameContext) : Command(ctx) {
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {
-            ctx.state.apply(GameStateDelta.UpgradeShop())
-            ctx.state.apply(GameStateDelta.AddGameAmount(GameProperty.INFLUENCE, -influenceCost))
+            ctx.state.apply(GameStateChange.UpgradeShop())
+            ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, -influenceCost))
         }
         return true
     }

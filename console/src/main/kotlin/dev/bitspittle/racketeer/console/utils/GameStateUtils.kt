@@ -3,7 +3,7 @@ package dev.bitspittle.racketeer.console.utils
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.notifyOwnership
-import dev.bitspittle.racketeer.model.game.GameStateDelta
+import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.game.GameStateDiff
 import dev.bitspittle.racketeer.model.game.getOwnedCards
 import dev.bitspittle.racketeer.model.game.reportTo
@@ -25,15 +25,15 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
 
             state.changes.forEach { change ->
                 when (change) {
-                    is GameStateDelta.GameStarted -> {
+                    is GameStateChange.GameStarted -> {
                         state.getOwnedCards().forEach { card -> cardStats.notifyOwnership(card) }
                     }
-                    is GameStateDelta.MoveCard -> {
+                    is GameStateChange.MoveCard -> {
                         if (state.pileFor(change.card) == null) {
                             cardStats.notifyOwnership(change.card)
                         }
                     }
-                    is GameStateDelta.MoveCards -> {
+                    is GameStateChange.MoveCards -> {
                         change.cards.forEach { card ->
                             if (state.pileFor(card) == null) {
                                 cardStats.notifyOwnership(card)

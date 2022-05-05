@@ -10,7 +10,7 @@ import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.game.GameState
-import dev.bitspittle.racketeer.model.game.GameStateDelta
+import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 
@@ -35,6 +35,6 @@ class PileMoveToMethod(private val getGameState: () -> GameState) : Method("pile
         } ?: ListStrategy.BACK
 
         val gameState = getGameState()
-        return gameState.apply(GameStateDelta.MoveCards(cards, toPile, strategy))
+        return gameState.apply(GameStateChange.MoveCards(cards, toPile, strategy))
     }
 }

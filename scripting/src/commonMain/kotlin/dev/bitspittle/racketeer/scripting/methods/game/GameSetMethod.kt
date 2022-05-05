@@ -9,7 +9,7 @@ import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.racketeer.model.game.GameProperty
 import dev.bitspittle.racketeer.model.game.GameState
-import dev.bitspittle.racketeer.model.game.GameStateDelta
+import dev.bitspittle.racketeer.model.game.GameStateChange
 
 class GameSetMethod(private val getGameState: () -> GameState) : Method("game-set!", 2) {
     override suspend fun invoke(env: Environment, eval: Evaluator, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
@@ -37,7 +37,7 @@ class GameSetMethod(private val getGameState: () -> GameState) : Method("game-se
             val evaluator = eval.extend(mapOf("\$it" to currValue))
             env.expectConvert<Int>(evaluator.evaluate(env, setExpr))
         }
-        gameState.apply(GameStateDelta.AddGameAmount(property, newValue - currValue))
+        gameState.apply(GameStateChange.AddGameAmount(property, newValue - currValue))
 
         return Unit
     }

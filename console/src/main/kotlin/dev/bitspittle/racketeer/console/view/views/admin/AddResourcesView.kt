@@ -5,7 +5,7 @@ import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.utils.runStateChangingAction
 import dev.bitspittle.racketeer.console.view.views.game.GameView
 import dev.bitspittle.racketeer.model.game.GameProperty
-import dev.bitspittle.racketeer.model.game.GameStateDelta
+import dev.bitspittle.racketeer.model.game.GameStateChange
 
 private const val TINY_RESOURCE_INCREMENT = 1
 private const val MINOR_RESOURCE_INCREMENT = 5
@@ -21,7 +21,7 @@ class AddResourcesView(ctx: GameContext) : GameView(ctx) {
 
                 override suspend fun invoke(): Boolean {
                     ctx.runStateChangingAction {
-                        ctx.state.apply(GameStateDelta.AddGameAmount(GameProperty.CASH, MINOR_RESOURCE_INCREMENT))
+                        ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.CASH, MINOR_RESOURCE_INCREMENT))
                     }
                     return true
                 }
@@ -32,7 +32,7 @@ class AddResourcesView(ctx: GameContext) : GameView(ctx) {
                 override val description = "Increase game resources (influence)."
                 override suspend fun invoke(): Boolean {
                     ctx.runStateChangingAction {
-                        ctx.state.apply(GameStateDelta.AddGameAmount(GameProperty.INFLUENCE, MINOR_RESOURCE_INCREMENT))
+                        ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, MINOR_RESOURCE_INCREMENT))
                     }
                     return true
                 }
@@ -43,7 +43,7 @@ class AddResourcesView(ctx: GameContext) : GameView(ctx) {
                 override val description = "Increase game resources (luck)."
                 override suspend fun invoke(): Boolean {
                     ctx.runStateChangingAction {
-                        ctx.state.apply(GameStateDelta.AddGameAmount(GameProperty.LUCK, TINY_RESOURCE_INCREMENT))
+                        ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.LUCK, TINY_RESOURCE_INCREMENT))
                     }
                     return true
                 }
@@ -55,9 +55,9 @@ class AddResourcesView(ctx: GameContext) : GameView(ctx) {
 
                 override suspend fun invoke(): Boolean {
                     ctx.runStateChangingAction {
-                        ctx.state.apply(GameStateDelta.AddGameAmount(GameProperty.CASH, MAJOR_RESOURCE_INCREMENT))
-                        ctx.state.apply(GameStateDelta.AddGameAmount(GameProperty.INFLUENCE, MAJOR_RESOURCE_INCREMENT))
-                        ctx.state.apply(GameStateDelta.AddGameAmount(GameProperty.LUCK, MAJOR_RESOURCE_INCREMENT))
+                        ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.CASH, MAJOR_RESOURCE_INCREMENT))
+                        ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, MAJOR_RESOURCE_INCREMENT))
+                        ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.LUCK, MAJOR_RESOURCE_INCREMENT))
                     }
                     return true
                 }

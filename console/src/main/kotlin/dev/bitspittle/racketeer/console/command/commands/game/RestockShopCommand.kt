@@ -4,7 +4,7 @@ import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.utils.runStateChangingAction
 import dev.bitspittle.racketeer.model.game.GameProperty
-import dev.bitspittle.racketeer.model.game.GameStateDelta
+import dev.bitspittle.racketeer.model.game.GameStateChange
 
 class RestockShopCommand(ctx: GameContext) : Command(ctx) {
     override val type = if (ctx.state.luck >= 1) Type.Emphasized else Type.Disabled
@@ -16,8 +16,8 @@ class RestockShopCommand(ctx: GameContext) : Command(ctx) {
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {
-            ctx.state.apply(GameStateDelta.RestockShop())
-            ctx.state.apply(GameStateDelta.AddGameAmount(GameProperty.LUCK, -1))
+            ctx.state.apply(GameStateChange.RestockShop())
+            ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.LUCK, -1))
         }
         return true
     }

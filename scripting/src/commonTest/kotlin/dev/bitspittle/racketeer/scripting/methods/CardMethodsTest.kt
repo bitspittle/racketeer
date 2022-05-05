@@ -14,7 +14,7 @@ import dev.bitspittle.limp.methods.system.RunMethod
 import dev.bitspittle.limp.methods.system.SetMethod
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
-import dev.bitspittle.racketeer.model.game.GameStateDelta
+import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.game.getOwnedCards
 import dev.bitspittle.racketeer.model.random.CopyableRandom
 import dev.bitspittle.racketeer.scripting.TestGameService
@@ -109,7 +109,7 @@ class CardMethodsTest {
         env.addMethod(TakeMethod(service::random))
         env.addMethod(ListGetMethod())
 
-        gameState.apply(GameStateDelta.Draw(4))
+        gameState.apply(GameStateChange.Draw(4))
         val evaluator = Evaluator()
 
         val ownedCount = env.scoped {

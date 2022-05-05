@@ -12,7 +12,7 @@ import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardProperty
 import dev.bitspittle.racketeer.model.game.GameState
-import dev.bitspittle.racketeer.model.game.GameStateDelta
+import dev.bitspittle.racketeer.model.game.GameStateChange
 
 class CardSetMethod(private val getGameState: () -> GameState) : Method("card-set!", 3) {
     override suspend fun invoke(env: Environment, eval: Evaluator, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
@@ -43,7 +43,7 @@ class CardSetMethod(private val getGameState: () -> GameState) : Method("card-se
                 env.expectConvert<Int>(evaluator.evaluate(env, setExpr))
             }
 
-            getGameState().apply(GameStateDelta.AddCardAmount(property, card, newValue - currValue))
+            getGameState().apply(GameStateChange.AddCardAmount(property, card, newValue - currValue))
         }
 
         return Unit

@@ -7,7 +7,7 @@ import dev.bitspittle.limp.converters.ItemToSingletonListConverter
 import dev.bitspittle.limp.listTypeOf
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.game.GameState
-import dev.bitspittle.racketeer.model.game.GameStateDelta
+import dev.bitspittle.racketeer.model.game.GameStateChange
 
 class CardRemoveMethod(private val getGameState: () -> GameState) : Method("card-remove!", 1) {
     override suspend fun invoke(
@@ -22,7 +22,7 @@ class CardRemoveMethod(private val getGameState: () -> GameState) : Method("card
             env.expectConvert<List<Card>>(params[0], listTypeOf())
         }
 
-        getGameState().apply(GameStateDelta.RemoveCards(cards))
+        getGameState().apply(GameStateChange.RemoveCards(cards))
 
         return Unit
     }

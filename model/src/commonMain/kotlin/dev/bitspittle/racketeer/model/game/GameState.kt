@@ -26,9 +26,9 @@ interface GameState {
     val discard: Pile
     val jail: Pile
     val streetEffects: List<Effect>
-    val changes: List<GameStateDelta>
+    val changes: List<GameStateChange>
 
-    suspend fun apply(delta: GameStateDelta)
+    suspend fun apply(change: GameStateChange)
     fun copy(): GameState
 
     fun pileFor(card: Card): Pile?
@@ -36,7 +36,7 @@ interface GameState {
 
 val GameState.lastTurnIndex get() = numTurns - 1
 val GameState.hasGameStarted get() = !(turn == 0 && changes.isEmpty() && getOwnedCards().all { pileFor(it) == deck })
-val GameState.isGameOver get() = changes.last() is GameStateDelta.GameOver
+val GameState.isGameOver get() = changes.last() is GameStateChange.GameOver
 val GameState.isGameInProgress get() = hasGameStarted && !isGameOver
 val GameState.allPiles: List<Pile> get() = listOf(hand, deck, discard, street, jail)
 fun GameState.getOwnedCards() = (allPiles - jail).flatMap { it.cards }
@@ -87,7 +87,7 @@ class MutableGameState internal constructor(
         streetEffects = mutableListOf(),
     )
 
-    override val changes: MutableList<GameStateDelta> = mutableListOf()
+    override val changes: MutableList<GameStateChange> = mutableListOf()
 
     /**
      * How many turns are in a game.
@@ -257,17 +257,17 @@ class MutableGameState internal constructor(
         )
     }
 
-    override suspend fun apply(delta: GameStateDelta) {
-        if (changes.lastOrNull() is GameStateDelta.GameOver) return
+    override suspend fun apply(change: GameStateChange) {
+        if (changes.lastOrNull() is GameStateChange.GameOver) return
 
         // We postpone applying the init delta because when we first construct this game state, we're not in a
         // suspend fun context
         if (!hasGameStarted) {
-            changes.add(GameStateDelta.GameStarted())
+            changes.add(GameStateChange.GameStarted())
         }
 
-        changes.add(delta)
-        delta.applyTo(this)
+        changes.add(change)
+        change.applyTo(this)
 
         updateVictoryPoints()
 

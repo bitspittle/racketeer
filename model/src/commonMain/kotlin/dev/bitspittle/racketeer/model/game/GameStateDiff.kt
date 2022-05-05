@@ -18,11 +18,11 @@ private class GameStateDiffReporter(
     private val describer: Describer,
     private val diff: GameStateDiff
 ) {
-    private fun StringBuilder.report(delta: GameStateDelta.ShuffleDiscardIntoDeck) = delta.apply {
+    private fun StringBuilder.report(change: GameStateChange.ShuffleDiscardIntoDeck) = change.apply {
         reportLine("Your discard pile (${diff.before.discard.cards.size}) was reshuffled into your deck to refill it.")
     }
 
-    private fun StringBuilder.report(delta: GameStateDelta.MoveCards) = delta.apply {
+    private fun StringBuilder.report(change: GameStateChange.MoveCards) = change.apply {
         val pileToDesc = describer.describePile(diff.after, intoPile)
         if (cards.size > 1) {
             cards
@@ -36,15 +36,15 @@ private class GameStateDiffReporter(
                     }
                 }
         } else {
-            report(GameStateDelta.MoveCard(cards.first(), intoPile, listStrategy))
+            report(GameStateChange.MoveCard(cards.first(), intoPile, listStrategy))
         }
     }
 
-    private fun StringBuilder.report(delta: GameStateDelta.MoveCard) = delta.apply {
-        val cardTitle = delta.card.template.name
-        val pileToDesc = describer.describePile(diff.after, delta.intoPile)
+    private fun StringBuilder.report(change: GameStateChange.MoveCard) = change.apply {
+        val cardTitle = change.card.template.name
+        val pileToDesc = describer.describePile(diff.after, change.intoPile)
 
-        val pileFrom = diff.before.pileFor(delta.card)
+        val pileFrom = diff.before.pileFor(change.card)
         if (pileFrom != null) {
             val pileFromDesc = describer.describePile(diff.before, pileFrom)
             reportLine("$cardTitle was moved from $pileFromDesc into $pileToDesc.")
@@ -53,14 +53,14 @@ private class GameStateDiffReporter(
         }
     }
 
-    private fun StringBuilder.report(delta: GameStateDelta.RemoveCards) = delta.apply {
-        delta.cards.forEach { card ->
+    private fun StringBuilder.report(change: GameStateChange.RemoveCards) = change.apply {
+        change.cards.forEach { card ->
             val cardTitle = card.template.name
             reportLine("$cardTitle was removed from the game.")
         }
     }
 
-    private fun StringBuilder.report(delta: GameStateDelta.AddCardAmount) = delta.apply {
+    private fun StringBuilder.report(change: GameStateChange.AddCardAmount) = change.apply {
         when (property) {
             CardProperty.COUNTER -> {
                 when {
@@ -84,11 +84,11 @@ private class GameStateDiffReporter(
         }
     }
 
-    private fun StringBuilder.report(delta: GameStateDelta.UpgradeCard) = delta.apply {
+    private fun StringBuilder.report(change: GameStateChange.UpgradeCard) = change.apply {
         reportLine("${card.template.name} was upgraded, adding: ${upgradeType}.")
     }
 
-    private fun StringBuilder.report(delta: GameStateDelta.AddGameAmount) = delta.apply {
+    private fun StringBuilder.report(change: GameStateChange.AddGameAmount) = change.apply {
         when (property) {
             GameProperty.CASH -> {
                 when {
@@ -112,15 +112,15 @@ private class GameStateDiffReporter(
         }
     }
 
-    private fun StringBuilder.report(delta: GameStateDelta.AddStreetEffect) = delta.apply {
+    private fun StringBuilder.report(change: GameStateChange.AddStreetEffect) = change.apply {
         reportLine("You added the following effect onto the street: ${effect.desc}.")
     }
 
-    private fun StringBuilder.report(delta: GameStateDelta.RestockShop) = delta.apply {
+    private fun StringBuilder.report(change: GameStateChange.RestockShop) = change.apply {
         reportLine("The shop was restocked.")
     }
 
-    private fun StringBuilder.report(delta: GameStateDelta.UpgradeShop) = delta.apply {
+    private fun StringBuilder.report(change: GameStateChange.UpgradeShop) = change.apply {
         reportLine("The shop was upgraded.")
     }
 
@@ -128,22 +128,22 @@ private class GameStateDiffReporter(
         val report = buildString {
             diff.after.changes.forEach { change ->
                 when (change) {
-                    is GameStateDelta.GameStarted -> Unit // Marker game state, no need to report
-                    is GameStateDelta.ShuffleDiscardIntoDeck -> report(change)
-                    is GameStateDelta.Draw -> Unit // No need to report, it will be handled by MoveCards
-                    is GameStateDelta.MoveCards -> report(change)
-                    is GameStateDelta.Play -> {} // No need to report, obvious from user actions
-                    is GameStateDelta.MoveCard -> report(change)
-                    is GameStateDelta.RemoveCards -> report(change)
-                    is GameStateDelta.AddCardAmount -> report(change)
-                    is GameStateDelta.UpgradeCard -> report(change)
-                    is GameStateDelta.AddGameAmount -> report(change)
-                    is GameStateDelta.AddStreetEffect -> report(change)
-                    is GameStateDelta.AddShopExclusion -> Unit // Background magic, should be invisible to the user
-                    is GameStateDelta.RestockShop -> report(change)
-                    is GameStateDelta.UpgradeShop -> report(change)
-                    is GameStateDelta.EndTurn -> Unit // No need to report, obvious from user actions
-                    is GameStateDelta.GameOver -> Unit // Marker game state, no need to report
+                    is GameStateChange.GameStarted -> Unit // Marker game state, no need to report
+                    is GameStateChange.ShuffleDiscardIntoDeck -> report(change)
+                    is GameStateChange.Draw -> Unit // No need to report, it will be handled by MoveCards
+                    is GameStateChange.MoveCards -> report(change)
+                    is GameStateChange.Play -> {} // No need to report, obvious from user actions
+                    is GameStateChange.MoveCard -> report(change)
+                    is GameStateChange.RemoveCards -> report(change)
+                    is GameStateChange.AddCardAmount -> report(change)
+                    is GameStateChange.UpgradeCard -> report(change)
+                    is GameStateChange.AddGameAmount -> report(change)
+                    is GameStateChange.AddStreetEffect -> report(change)
+                    is GameStateChange.AddShopExclusion -> Unit // Background magic, should be invisible to the user
+                    is GameStateChange.RestockShop -> report(change)
+                    is GameStateChange.UpgradeShop -> report(change)
+                    is GameStateChange.EndTurn -> Unit // No need to report, obvious from user actions
+                    is GameStateChange.GameOver -> Unit // Marker game state, no need to report
                 }
             }
 

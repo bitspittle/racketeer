@@ -6,7 +6,7 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.racketeer.model.game.Effect
 import dev.bitspittle.racketeer.model.game.GameState
-import dev.bitspittle.racketeer.model.game.GameStateDelta
+import dev.bitspittle.racketeer.model.game.GameStateChange
 
 class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!", 1) {
     override suspend fun invoke(
@@ -18,7 +18,7 @@ class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!",
     ): Any {
         val effectExpr = env.expectConvert<Expr>(params[0])
         val desc = options["desc"]?.let { env.expectConvert(it) } ?: effectExpr.ctx.text
-        getGameState().apply(GameStateDelta.AddStreetEffect(Effect(effectExpr.ctx.text, desc) { card ->
+        getGameState().apply(GameStateChange.AddStreetEffect(Effect(effectExpr.ctx.text, desc) { card ->
             eval.extend(mapOf("\$card" to card)).evaluate(env, effectExpr)
         }))
 
