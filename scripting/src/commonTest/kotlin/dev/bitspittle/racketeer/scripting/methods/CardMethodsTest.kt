@@ -14,6 +14,8 @@ import dev.bitspittle.limp.methods.system.RunMethod
 import dev.bitspittle.limp.methods.system.SetMethod
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
+import dev.bitspittle.racketeer.model.game.GameStateDelta
+import dev.bitspittle.racketeer.model.game.getOwnedCards
 import dev.bitspittle.racketeer.model.random.CopyableRandom
 import dev.bitspittle.racketeer.scripting.TestGameService
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
@@ -28,7 +30,8 @@ class CardMethodsTest {
     @Test
     fun testCardSetMethod() = runTest {
         val env = Environment()
-        env.addMethod(CardSetMethod())
+        val service = TestGameService()
+        env.addMethod(CardSetMethod(service::gameState))
         env.addMethod(MulMethod())
         env.addMethod(ListMethod())
 
@@ -38,21 +41,21 @@ class CardMethodsTest {
         env.storeValue("card2", card2)
 
         val evaluator = Evaluator()
-        assertThat(card.vp).isEqualTo(0)
+        assertThat(card.vpBase).isEqualTo(0)
         evaluator.evaluate(env, "card-set! card 'vp 3")
-        assertThat(card.vp).isEqualTo(3)
+        assertThat(card.vpBase).isEqualTo(3)
 
         evaluator.evaluate(env, "card-set! card 'vp '(* \$it \$it)")
-        assertThat(card.vp).isEqualTo(9)
+        assertThat(card.vpBase).isEqualTo(9)
 
         // Negative numbers are clamped
         evaluator.evaluate(env, "card-set! card 'vp -5")
-        assertThat(card.vp).isEqualTo(0)
+        assertThat(card.vpBase).isEqualTo(0)
 
         // Can set multiple cards at the same time
         evaluator.evaluate(env, "card-set! (list card card2) 'vp 9")
-        assertThat(card.vp).isEqualTo(9)
-        assertThat(card2.vp).isEqualTo(9)
+        assertThat(card.vpBase).isEqualTo(9)
+        assertThat(card2.vpBase).isEqualTo(9)
 
         assertThrows<EvaluationException> {
             evaluator.evaluate(env, "card-set! 'invalid-property 1")
@@ -106,7 +109,7 @@ class CardMethodsTest {
         env.addMethod(TakeMethod(service::random))
         env.addMethod(ListGetMethod())
 
-        gameState.draw(4)
+        gameState.apply(GameStateDelta.Draw(4))
         val evaluator = Evaluator()
 
         val ownedCount = env.scoped {
@@ -145,7 +148,7 @@ class CardMethodsTest {
         val service = TestGameService()
 
         val gameState = service.gameState
-        env.addMethod(CardUpgradeMethod())
+        env.addMethod(CardUpgradeMethod { gameState })
         env.addMethod(CardHasUpgradeMethod())
         env.addMethod(SetMethod(service.logger))
         env.addMethod(ListGetMethod())
@@ -156,8 +159,6 @@ class CardMethodsTest {
 
         val evaluator = Evaluator()
         env.storeValue("\$deck", gameState.deck)
-
-        gameState.draw(0) // Do a fake draw to force the game to initialize
 
         evaluator.evaluate(env, "set '\$card list-get \$deck 0")
         evaluator.evaluate(env, "set '\$cards take (drop \$deck 1) 2")

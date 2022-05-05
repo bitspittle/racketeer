@@ -18,7 +18,7 @@ class ShopMethodsTest {
         val env = Environment()
         val service = TestGameService()
         val shop = service.gameState.shop
-        env.addMethod(ShopRerollMethod { shop })
+        env.addMethod(ShopRerollMethod { service.gameState })
         env.addMethod(CardHasTypeMethod(service.gameData.cardTypes))
         env.addMethod(EqualsMethod())
         env.addMethod(CardGetMethod())

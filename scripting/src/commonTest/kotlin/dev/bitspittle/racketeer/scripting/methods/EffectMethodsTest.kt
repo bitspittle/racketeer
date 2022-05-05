@@ -7,6 +7,7 @@ import dev.bitspittle.limp.methods.collection.SingleMethod
 import dev.bitspittle.limp.methods.compare.EqualsMethod
 import dev.bitspittle.limp.methods.math.AddMethod
 import dev.bitspittle.limp.methods.system.SetMethod
+import dev.bitspittle.racketeer.model.game.GameStateDelta
 import dev.bitspittle.racketeer.scripting.TestGameService
 import dev.bitspittle.racketeer.scripting.methods.card.CardGetMethod
 import dev.bitspittle.racketeer.scripting.methods.card.CardSetMethod
@@ -29,7 +30,7 @@ class EffectMethodsTest {
         env.addMethod(AddMethod())
         env.addMethod(EqualsMethod())
         env.addMethod(SetMethod(service.logger))
-        env.addMethod(CardSetMethod())
+        env.addMethod(CardSetMethod { gameState })
         env.addMethod(CardGetMethod())
         env.addMethod(SingleMethod())
 
@@ -45,8 +46,8 @@ class EffectMethodsTest {
             "Add 3&",
         ).inOrder()
 
-        gameState.draw()
         var expectedHandSize = gameState.handSize
+        gameState.apply(GameStateDelta.Draw(gameState.handSize))
         assertThat(gameState.hand.cards.size).isEqualTo(expectedHandSize)
 
         env.scoped {
@@ -64,36 +65,36 @@ class EffectMethodsTest {
 
         assertThat(gameState.cash).isEqualTo(0)
         assertThat(gameState.influence).isEqualTo(0)
-        assertThat(card1.vp).isEqualTo(0)
-        assertThat(card2.vp).isEqualTo(0)
-        assertThat(card3.vp).isEqualTo(0)
+        assertThat(card1.vpBase).isEqualTo(0)
+        assertThat(card2.vpBase).isEqualTo(0)
+        assertThat(card3.vpBase).isEqualTo(0)
 
         // First, play the card with an effect. It should install an effect that happens on the NEXT CARD but not
         // itself (adding cash)
         assertThat(gameState.streetEffects).hasSize(3)
-        gameState.play(0); --expectedHandSize
+        gameState.apply(GameStateDelta.Play(handIndex = 0)); --expectedHandSize
         assertThat(gameState.streetEffects).hasSize(4)
         assertThat(gameState.hand.cards.size).isEqualTo(expectedHandSize)
         assertThat(gameState.cash).isEqualTo(0) // Cash effect just installed but won't start until the next card
         assertThat(gameState.influence).isEqualTo(3) // Already installed effect affects game
-        assertThat(card1.vp).isEqualTo(2) // Already installed effect affects this card
-        assertThat(card2.vp).isEqualTo(0)
-        assertThat(card3.vp).isEqualTo(0)
+        assertThat(card1.vpBase).isEqualTo(2) // Already installed effect affects this card
+        assertThat(card2.vpBase).isEqualTo(0)
+        assertThat(card3.vpBase).isEqualTo(0)
 
-        gameState.play(0); --expectedHandSize
+        gameState.apply(GameStateDelta.Play(handIndex = 0)); --expectedHandSize
         assertThat(gameState.hand.cards.size).isEqualTo(expectedHandSize)
         assertThat(gameState.cash).isEqualTo(1) // Cash effect starts taking effect
         assertThat(gameState.influence).isEqualTo(6)
-        assertThat(card1.vp).isEqualTo(2) // Previous card not affected
-        assertThat(card2.vp).isEqualTo(2) // Card just played affected
-        assertThat(card3.vp).isEqualTo(0)
+        assertThat(card1.vpBase).isEqualTo(2) // Previous card not affected
+        assertThat(card2.vpBase).isEqualTo(2) // Card just played affected
+        assertThat(card3.vpBase).isEqualTo(0)
 
-        gameState.play(0); --expectedHandSize
+        gameState.apply(GameStateDelta.Play(handIndex = 0)); --expectedHandSize
         assertThat(gameState.hand.cards.size).isEqualTo(expectedHandSize)
         assertThat(gameState.cash).isEqualTo(2)
         assertThat(gameState.influence).isEqualTo(9)
-        assertThat(card1.vp).isEqualTo(2)
-        assertThat(card2.vp).isEqualTo(2)
-        assertThat(card3.vp).isEqualTo(2)
+        assertThat(card1.vpBase).isEqualTo(2)
+        assertThat(card2.vpBase).isEqualTo(2)
+        assertThat(card3.vpBase).isEqualTo(2)
     }
 }

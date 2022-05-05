@@ -7,6 +7,7 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.math.PowMethod
 import dev.bitspittle.racketeer.model.card.CardTemplate
+import dev.bitspittle.racketeer.model.game.GameStateDelta
 import dev.bitspittle.racketeer.scripting.TestGameService
 import dev.bitspittle.racketeer.scripting.methods.game.GameDrawMethod
 import dev.bitspittle.racketeer.scripting.methods.game.GameGetMethod
@@ -86,7 +87,7 @@ class GameMethodsTest {
 
         val evaluator = Evaluator()
 
-        assertThat(gameState.deck.cards).hasSize(0) // Game isn't initialized until the first draw
+        assertThat(gameState.deck.cards).hasSize(8)
         assertThat(gameState.hand.cards).hasSize(0)
         assertThat(gameState.discard.cards).hasSize(0)
         evaluator.evaluate(env, "game-draw! 3")
@@ -95,7 +96,7 @@ class GameMethodsTest {
         assertThat(gameState.hand.cards).hasSize(3)
         assertThat(gameState.discard.cards).hasSize(0)
 
-        gameState.endTurn()
+        gameState.apply(GameStateDelta.EndTurn())
         assertThat(gameState.deck.cards).hasSize(5)
         assertThat(gameState.hand.cards).hasSize(0)
         assertThat(gameState.discard.cards).hasSize(3)
@@ -111,7 +112,7 @@ class GameMethodsTest {
         assertThat(gameState.hand.cards).hasSize(6)
         assertThat(gameState.discard.cards).hasSize(0)
 
-        gameState.endTurn()
+        gameState.apply(GameStateDelta.EndTurn())
         assertThat(gameState.deck.cards).hasSize(2)
         assertThat(gameState.hand.cards).hasSize(0)
         assertThat(gameState.discard.cards).hasSize(6)
@@ -122,7 +123,7 @@ class GameMethodsTest {
         assertThat(gameState.hand.cards).hasSize(6)
         assertThat(gameState.discard.cards).hasSize(0)
 
-        gameState.endTurn()
+        gameState.apply(GameStateDelta.EndTurn())
         assertThat(gameState.deck.cards).hasSize(2)
         assertThat(gameState.hand.cards).hasSize(0)
         assertThat(gameState.discard.cards).hasSize(6)
@@ -133,7 +134,7 @@ class GameMethodsTest {
         assertThat(gameState.hand.cards).hasSize(8)
         assertThat(gameState.discard.cards).hasSize(0)
 
-        gameState.endTurn()
+        gameState.apply(GameStateDelta.EndTurn())
         assertThat(gameState.deck.cards).hasSize(0)
         assertThat(gameState.hand.cards).hasSize(0)
         assertThat(gameState.discard.cards).hasSize(8)
