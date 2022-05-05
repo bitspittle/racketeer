@@ -86,7 +86,7 @@ class GameMethodsTest {
 
         val evaluator = Evaluator()
 
-        assertThat(gameState.deck.cards).hasSize(8)
+        assertThat(gameState.deck.cards).hasSize(0) // Game isn't initialized until the first draw
         assertThat(gameState.hand.cards).hasSize(0)
         assertThat(gameState.discard.cards).hasSize(0)
         evaluator.evaluate(env, "game-draw! 3")

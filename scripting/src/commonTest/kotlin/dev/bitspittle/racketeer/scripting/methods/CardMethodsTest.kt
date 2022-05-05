@@ -157,6 +157,8 @@ class CardMethodsTest {
         val evaluator = Evaluator()
         env.storeValue("\$deck", gameState.deck)
 
+        gameState.draw(0) // Do a fake draw to force the game to initialize
+
         evaluator.evaluate(env, "set '\$card list-get \$deck 0")
         evaluator.evaluate(env, "set '\$cards take (drop \$deck 1) 2")
         assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'cash") as Boolean).isFalse()
