@@ -6,13 +6,9 @@ import dev.bitspittle.racketeer.model.text.Describer
 
 /** Create a diff between two snapshots of a game state in time, useful for reporting changes to the user */
 @Suppress("JoinDeclarationAndAssignment")
-class GameStateDiff(val before: GameState, val after: GameState) {
-    fun hasNoChanges(): Boolean {
-        return before.history.size == after.history.size
-    }
+class GameStateDiff(val before: GameState, val after: GameState)
 
-    val changes = after.history.drop(before.history.size)
-}
+fun GameStateDiff.hasNoChanges() = after.changes.isEmpty()
 
 fun GameStateDiff.reportTo(describer: Describer, logger: Logger) {
     GameStateDiffReporter(describer, this).reportTo(logger)
@@ -130,9 +126,9 @@ private class GameStateDiffReporter(
 
     fun reportTo(logger: Logger) {
         val report = buildString {
-            diff.changes.forEach { change ->
+            diff.after.changes.forEach { change ->
                 when (change) {
-                    is GameStateDelta.Init -> Unit // Background magic, should be invisible to the user
+                    is GameStateDelta.GameStarted -> Unit // Marker game state, no need to report
                     is GameStateDelta.ShuffleDiscardIntoDeck -> report(change)
                     is GameStateDelta.Draw -> Unit // No need to report, it will be handled by MoveCards
                     is GameStateDelta.MoveCards -> report(change)
@@ -147,7 +143,7 @@ private class GameStateDiffReporter(
                     is GameStateDelta.RestockShop -> report(change)
                     is GameStateDelta.UpgradeShop -> report(change)
                     is GameStateDelta.EndTurn -> Unit // No need to report, obvious from user actions
-                    is GameStateDelta.GameOver -> Unit // No need to report, just a marker change
+                    is GameStateDelta.GameOver -> Unit // Marker game state, no need to report
                 }
             }
 

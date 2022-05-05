@@ -5,27 +5,14 @@ import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.shop.Exclusion
 
+@Suppress("CanSealedSubClassBeObject") // All subclasses not objects, for consistency / future proofing
 sealed class GameStateDelta {
     suspend fun applyTo(state: MutableGameState) = state.apply()
     protected abstract suspend fun MutableGameState.apply()
 
-    class Init(val allCards: List<CardTemplate>, val initialDeck: List<String>) : GameStateDelta() {
-        override suspend fun MutableGameState.apply() {
-            check(history.size == 1 && deck.cards.isEmpty()) { "Error: initializing a game that is already initialized" }
-            // Convert "somecard 5" to 5 instances of "somecard"
-            move(
-                initialDeck
-                    .flatMap { entry ->
-                        val cardName = entry.substringBeforeLast(' ')
-                        val initialCount = entry.substringAfterLast(' ', missingDelimiterValue = "").toIntOrNull() ?: 1
-
-                        val card = allCards.single { it.name == cardName }
-                        List(initialCount) { card.instantiate() }
-                    },
-                deck,
-                listStrategy = ListStrategy.RANDOM
-            )
-        }
+    class GameStarted : GameStateDelta() {
+        // Do nothing, this is just a marker game state
+        override suspend fun MutableGameState.apply() = Unit
     }
 
     class ShuffleDiscardIntoDeck : GameStateDelta() {

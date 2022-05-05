@@ -2,7 +2,10 @@ package dev.bitspittle.racketeer.console.utils
 
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.game.notifyOwnership
+import dev.bitspittle.racketeer.model.game.GameStateDelta
 import dev.bitspittle.racketeer.model.game.GameStateDiff
+import dev.bitspittle.racketeer.model.game.getOwnedCards
 import dev.bitspittle.racketeer.model.game.reportTo
 import dev.bitspittle.racketeer.scripting.types.CancelPlayException
 
@@ -19,6 +22,27 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
         try {
             state = nextState
             block().also { GameStateDiff(prevState, nextState).reportTo(describer, app.logger) }
+
+            state.changes.forEach { change ->
+                when (change) {
+                    is GameStateDelta.GameStarted -> {
+                        state.getOwnedCards().forEach { card -> cardStats.notifyOwnership(card) }
+                    }
+                    is GameStateDelta.MoveCard -> {
+                        if (state.pileFor(change.card) == null) {
+                            cardStats.notifyOwnership(change.card)
+                        }
+                    }
+                    is GameStateDelta.MoveCards -> {
+                        change.cards.forEach { card ->
+                            if (state.pileFor(card) == null) {
+                                cardStats.notifyOwnership(card)
+                            }
+                        }
+                    }
+                    else -> Unit // Doesn't affect card stats
+                }
+            }
         } catch (ex: Exception) {
             state = prevState
             @Suppress("KotlinConstantConditions") // IntelliJ's warning is wrong here

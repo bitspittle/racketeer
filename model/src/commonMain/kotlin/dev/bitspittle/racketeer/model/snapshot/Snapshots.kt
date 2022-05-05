@@ -143,11 +143,15 @@ class GameSnapshot(
         )
     }
 
-    suspend fun create(data: GameData, env: Environment, cardQueue: CardQueue, onCardOwned: (CardTemplate) -> Unit, setGameState: (MutableGameState) -> Unit) {
+    /**
+     * @param onGameStateCreated A callback that is triggered after the game state was created but before we run some
+     *   initialition on it that requires it be hooked up into the scripting system. This is kind of a hack since it
+     *   couples this method with awareness of the scripting system, but it's isolated at least and not terrible.
+     */
+    suspend fun create(data: GameData, env: Environment, cardQueue: CardQueue, onGameStateCreated: (MutableGameState) -> Unit) {
         val gs = MutableGameState(
             random,
             cardQueue,
-            onCardOwned,
             numTurns,
             turn,
             cash,
@@ -162,13 +166,9 @@ class GameSnapshot(
             discard.create(data),
             jail.create(data),
             streetEffects = mutableListOf(), // Populated shortly
-            // History is lost when you save, which is currently fine; we only use history for reporting updates between
-            // user actions as the player plays. We can revisit this in the future by making GameStateDelta classes
-            // serialization friendly.
-            history = mutableListOf(),
         )
 
-        setGameState(gs)
+        onGameStateCreated(gs)
 
         env.scoped {
             val evaluator = Evaluator()

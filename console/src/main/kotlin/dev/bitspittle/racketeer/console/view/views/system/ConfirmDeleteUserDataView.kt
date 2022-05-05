@@ -15,6 +15,7 @@ class ConfirmDeleteUserDataView(ctx: GameContext) : GameView(ctx) {
             override val description = "Press ENTER if you're sure you want to delete ALL your user data (i.e. quick saves and card history)! Otherwise, go back!"
 
             override suspend fun invoke(): Boolean {
+                ctx.cardStats.clear()
                 ctx.app.userData.path.toFile().deleteRecursively()
                 ctx.viewStack.popAll()
                 ctx.viewStack.currentView.refreshCommands() // Ensure we hide "User data" if it was showing before

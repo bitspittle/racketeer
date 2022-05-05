@@ -47,7 +47,7 @@ class TitleMenuView(
             settings,
             cardStats,
             Describer(data, showDebugInfo = { settings.showDebugInfo }),
-            MutableGameState(data, cardQueue, random, onCardOwned = { cardStats.notifyOwnership(it) }),
+            MutableGameState(data, cardQueue, random),
             env,
             cardQueue,
             viewStack,

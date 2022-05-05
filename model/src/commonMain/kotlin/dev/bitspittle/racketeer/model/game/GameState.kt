@@ -26,7 +26,7 @@ interface GameState {
     val discard: Pile
     val jail: Pile
     val streetEffects: List<Effect>
-    val history: List<GameStateDelta>
+    val changes: List<GameStateDelta>
 
     suspend fun apply(delta: GameStateDelta)
     fun copy(): GameState
@@ -35,14 +35,15 @@ interface GameState {
 }
 
 val GameState.lastTurnIndex get() = numTurns - 1
-val GameState.isGameOver get() = history.last() is GameStateDelta.GameOver
+val GameState.hasGameStarted get() = !(turn == 0 && changes.isEmpty() && getOwnedCards().all { pileFor(it) == deck })
+val GameState.isGameOver get() = changes.last() is GameStateDelta.GameOver
+val GameState.isGameInProgress get() = hasGameStarted && !isGameOver
 val GameState.allPiles: List<Pile> get() = listOf(hand, deck, discard, street, jail)
 fun GameState.getOwnedCards() = allPiles.flatMap { it.cards }
 
 class MutableGameState internal constructor(
     override val random: CopyableRandom,
     val cardQueue: CardQueue,
-    private val onCardOwned: (CardTemplate) -> Unit,
     numTurns: Int,
     turn: Int,
     cash: Int,
@@ -57,12 +58,10 @@ class MutableGameState internal constructor(
     override val discard: MutablePile,
     override val jail: MutablePile,
     override val streetEffects: MutableList<Effect>,
-    override val history: MutableList<GameStateDelta>
 ): GameState {
-    constructor(data: GameData, cardQueue: CardQueue, random: CopyableRandom, onCardOwned: (CardTemplate) -> Unit) : this(
+    constructor(data: GameData, cardQueue: CardQueue, random: CopyableRandom) : this(
         random = random,
         cardQueue = cardQueue,
-        onCardOwned = onCardOwned,
         numTurns = data.numTurns,
         turn = 0,
         cash = 0,
@@ -71,26 +70,24 @@ class MutableGameState internal constructor(
         vp = 0,
         handSize = data.initialHandSize,
         shop = MutableShop(random, data.cards, data.shopSizes, data.tierFrequencies, data.rarities.map { it.frequency }),
-        deck = MutablePile(),
+        deck = MutablePile(data.initialDeck
+            .flatMap { entry ->
+                val cardName = entry.substringBeforeLast(' ')
+                val initialCount = entry.substringAfterLast(' ', missingDelimiterValue = "").toIntOrNull() ?: 1
+
+                val card = data.cards.single { it.name == cardName }
+                List(initialCount) { card.instantiate() }
+            }.shuffled(random())
+            .toMutableList(),
+        ),
         hand = MutablePile(),
         street = MutablePile(),
         discard = MutablePile(),
         jail = MutablePile(),
         streetEffects = mutableListOf(),
-        history = mutableListOf()
-    ) {
-        // Since we create the game state before the scripting system, it's best not to have initialization / passive
-        // logic in cards that are installed from the beginning. If it becomes important to support this later, we can
-        // refactor the code to not set up the deck until AFTER the scripting system is up and running.
-        require(deck.cards.all { it.template.initActions.isEmpty() }) { "Initial actions on starting cards are not supported" }
-        require(deck.cards.all { it.template.passiveActions.isEmpty() }) { "Passive actions on starting cards are not supported" }
+    )
 
-        // Will probably be 0 anyway but just in case
-        vp = deck.cards.sumOf { it.vpTotal }
-
-        // Run the first time [apply] is called
-        history.add(GameStateDelta.Init(data.cards, data.initialDeck))
-    }
+    override val changes: MutableList<GameStateDelta> = mutableListOf()
 
     /**
      * How many turns are in a game.
@@ -174,7 +171,6 @@ class MutableGameState internal constructor(
 
     override fun pileFor(card: Card): Pile? = cardPiles[card.id]
 
-    // Needs to be suspend because it might trigger init actions
     suspend fun move(card: Card, pileTo: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
         move(listOf(card), pileTo, listStrategy)
     }
@@ -188,11 +184,9 @@ class MutableGameState internal constructor(
         vp = owned.sumOf { card -> card.vpTotal } + jail.cards.filter { card -> card.isJailbird() }.sumOf { card -> card.vpTotal }
     }
 
-    // Needs to be suspend because it might trigger init actions
     @Suppress("NAME_SHADOWING")
     suspend fun move(cards: List<Card>, toPile: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
         // Any cards that go from being unowned to owned should be initialized; including cards from the jail
-        val newlyOwnedCards = cards.filter { card -> !cardPiles.contains(card.id) }
         val cardsToInit = cards
             .filter { card -> card.template.initActions.isNotEmpty() && cardPiles[card.id].let { it == null || it == jail} }
 
@@ -214,13 +208,9 @@ class MutableGameState internal constructor(
             cardsToInit.forEach { cardQueue.enqueueInitActions(it) }
             cardQueue.runEnqueuedActions(this)
             updateVictoryPoints()
-
-            newlyOwnedCards.forEach { onCardOwned(it.template) }
         }
     }
 
-    // Guaranteed owned card to owned card - it's not necessary to worry about running init actions (so no need to be
-    // suspend)
     @Suppress("NAME_SHADOWING")
     fun move(pileFrom: Pile, pileTo: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
         val pileFrom = _allPiles.single { it.id == pileFrom.id }
@@ -250,7 +240,6 @@ class MutableGameState internal constructor(
         return MutableGameState(
             random,
             cardQueue,
-            onCardOwned,
             numTurns,
             turn,
             cash,
@@ -265,23 +254,23 @@ class MutableGameState internal constructor(
             discard.copy(),
             jail.copy(),
             streetEffects.toMutableList(),
-            history.toMutableList(),
         )
     }
 
     override suspend fun apply(delta: GameStateDelta) {
-        if (history.last() is GameStateDelta.GameOver) return
+        if (changes.lastOrNull() is GameStateDelta.GameOver) return
 
         // We postpone applying the init delta because when we first construct this game state, we're not in a
         // suspend fun context
-        if (history.size == 1) {
-            check(history[0] is GameStateDelta.Init)
-            history[0].applyTo(this)
+        if (!hasGameStarted) {
+            changes.add(GameStateDelta.GameStarted())
         }
 
-        history.add(delta)
+        changes.add(delta)
         delta.applyTo(this)
 
         updateVictoryPoints()
+
+        check(hasGameStarted)
     }
 }

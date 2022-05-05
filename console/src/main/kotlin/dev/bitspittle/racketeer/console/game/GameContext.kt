@@ -4,6 +4,7 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.racketeer.console.user.CardStats
 import dev.bitspittle.racketeer.console.user.Settings
 import dev.bitspittle.racketeer.console.view.ViewStack
+import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardQueue
 import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.game.GameData
@@ -17,6 +18,7 @@ fun MutableMap<String, CardStats>.notifyOwnership(card: CardTemplate) {
         stats
     }
 }
+fun MutableMap<String, CardStats>.notifyOwnership(card: Card) = notifyOwnership(card.template)
 
 class GameContext(
     val data: GameData,
