@@ -57,11 +57,7 @@ class DriveUploadService(title: String) : UploadService {
                 fileMetadata.name = fileName
                 fileMetadata.parents = listOf(UPLOAD_FOLDER_ID)
                 val mediaContent = FileContent("text/yaml", path.toFile())
-                val result = driveService.files().create(fileMetadata, mediaContent)
-                    .setFields("id, parents")
-                    .execute()
-
-                println("Created ${result.id}")
+                driveService.files().create(fileMetadata, mediaContent).execute()
             }
         }
 
