@@ -120,6 +120,7 @@ class GameSnapshot(
     val street: PileSnapshot,
     val discard: PileSnapshot,
     val jail: PileSnapshot,
+    val graveyard: PileSnapshot,
     val streetEffects: List<EffectSnapshot>,
 ) {
     companion object {
@@ -139,6 +140,7 @@ class GameSnapshot(
             PileSnapshot.from(gameState.street),
             PileSnapshot.from(gameState.discard),
             PileSnapshot.from(gameState.jail),
+            PileSnapshot.from(gameState.graveyard),
             gameState.streetEffects.map { EffectSnapshot.from(it) },
         )
     }
@@ -165,6 +167,7 @@ class GameSnapshot(
             street.create(data),
             discard.create(data),
             jail.create(data),
+            graveyard.create(data),
             streetEffects = mutableListOf(), // Populated shortly
         )
 

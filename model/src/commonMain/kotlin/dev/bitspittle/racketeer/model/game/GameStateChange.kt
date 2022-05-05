@@ -78,12 +78,6 @@ sealed class GameStateChange {
         }
     }
 
-    class RemoveCards(val cards: List<Card>) : GameStateChange() {
-        override suspend fun MutableGameState.apply() {
-            remove(cards)
-        }
-    }
-
     class AddCardAmount(val property: CardProperty, val card: Card, val amount: Int) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             when (property) {

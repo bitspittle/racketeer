@@ -42,42 +42,44 @@ private class GameStateDiffReporter(
     }
 
     private fun StringBuilder.report(change: GameStateChange.MoveCards) = change.apply {
-        val pileToDesc = describer.describePile(diff.after, intoPile)
-        cards
-            .groupBy { card -> diff.before.pileFor(card) }
-            .forEach { (pile, cards) ->
-                if (pile != null) {
-                    val pileFromDesc = describer.describePile(diff.before, pile)
-                    reportLine("${cards.size} cards moved from $pileFromDesc ${listStrategy.toDesc()} $pileToDesc.")
-                } else {
-                    reportLine("${cards.size} cards were created and moved ${listStrategy.toDesc()} $pileToDesc.")
+        if (intoPile == diff.after.graveyard) {
+            reportLine("${cards.size} cards were removed from the game.")
+        } else {
+            val pileToDesc = describer.describePile(diff.after, intoPile)
+            cards
+                .groupBy { card -> diff.before.pileFor(card) }
+                .forEach { (pile, cards) ->
+                    if (pile != null) {
+                        val pileFromDesc = describer.describePile(diff.before, pile)
+                        reportLine("${cards.size} cards moved from $pileFromDesc ${listStrategy.toDesc()} $pileToDesc.")
+                    } else {
+                        reportLine("${cards.size} cards were created and moved ${listStrategy.toDesc()} $pileToDesc.")
+                    }
                 }
-            }
+        }
     }
 
     private fun StringBuilder.report(change: GameStateChange.MoveCard) = change.apply {
         val cardTitle = card.template.name
-        val pileToDesc = describer.describePile(diff.after, intoPile)
 
-        val pileFrom = diff.before.pileFor(card)
-        if (pileFrom != null) {
-            val pileFromDesc = describer.describePile(diff.before, pileFrom)
-            reportLine("$cardTitle was moved from $pileFromDesc ${listStrategy.toDesc()} $pileToDesc.")
+        if (intoPile == diff.after.graveyard) {
+            reportLine("$cardTitle was removed from the game.")
         } else {
-            reportLine("$cardTitle was created and moved ${listStrategy.toDesc()} $pileToDesc.")
+            val pileToDesc = describer.describePile(diff.after, intoPile)
+
+            val pileFrom = diff.before.pileFor(card)
+            if (pileFrom != null) {
+                val pileFromDesc = describer.describePile(diff.before, pileFrom)
+                reportLine("$cardTitle was moved from $pileFromDesc ${listStrategy.toDesc()} $pileToDesc.")
+            } else {
+                reportLine("$cardTitle was created and moved ${listStrategy.toDesc()} $pileToDesc.")
+            }
         }
     }
 
     private fun StringBuilder.report(change: GameStateChange.Shuffle) = change.apply {
         val pileDesc = describer.describePile(diff.after, pile)
         reportLine("${pileDesc.capitalize()} was shuffled.")
-    }
-
-    private fun StringBuilder.report(change: GameStateChange.RemoveCards) = change.apply {
-        cards.forEach { card ->
-            val cardTitle = card.template.name
-            reportLine("$cardTitle was removed from the game.")
-        }
     }
 
     private fun StringBuilder.report(change: GameStateChange.AddCardAmount) = change.apply {
@@ -151,7 +153,6 @@ private class GameStateDiffReporter(
                     is GameStateChange.MoveCards -> report(change)
                     is GameStateChange.MoveCard -> report(change)
                     is GameStateChange.Shuffle -> report(change)
-                    is GameStateChange.RemoveCards -> report(change)
                     is GameStateChange.AddCardAmount -> report(change)
                     is GameStateChange.UpgradeCard -> report(change)
                     is GameStateChange.AddGameAmount -> Unit // Reported below, in aggregate

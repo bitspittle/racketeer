@@ -222,6 +222,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             state.street.id -> "Street"
             state.discard.id -> "Discard"
             state.jail.id -> "Jail"
+            state.graveyard.id -> "Graveyard"
             else -> error("Unknown pile")
         } + if (withSize) " (${pile.cards.size})" else ""
     }
@@ -233,6 +234,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             state.street.id -> "the street"
             state.discard.id -> "the discard pile"
             state.jail.id -> "jail"
+            state.graveyard.id -> "the graveyard"
             else -> error("Unknown pile")
         }
     }

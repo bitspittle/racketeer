@@ -25,6 +25,7 @@ interface GameState {
     val street: Pile
     val discard: Pile
     val jail: Pile
+    val graveyard: Pile
     val streetEffects: List<Effect>
     val changes: List<GameStateChange>
 
@@ -38,8 +39,8 @@ val GameState.lastTurnIndex get() = numTurns - 1
 val GameState.hasGameStarted get() = !(turn == 0 && changes.isEmpty() && getOwnedCards().all { pileFor(it) == deck })
 val GameState.isGameOver get() = changes.last() is GameStateChange.GameOver
 val GameState.isGameInProgress get() = hasGameStarted && !isGameOver
-val GameState.allPiles: List<Pile> get() = listOf(hand, deck, discard, street, jail)
-fun GameState.getOwnedCards() = (allPiles - jail).flatMap { it.cards }
+val GameState.allPiles: List<Pile> get() = listOf(hand, deck, discard, street, jail, graveyard)
+fun GameState.getOwnedCards() = (allPiles - jail - graveyard).flatMap { it.cards }
 
 class MutableGameState internal constructor(
     override val random: CopyableRandom,
@@ -57,6 +58,7 @@ class MutableGameState internal constructor(
     override val street: MutablePile,
     override val discard: MutablePile,
     override val jail: MutablePile,
+    override val graveyard: MutablePile,
     override val streetEffects: MutableList<Effect>,
 ): GameState {
     constructor(data: GameData, cardQueue: CardQueue, random: CopyableRandom) : this(
@@ -84,6 +86,7 @@ class MutableGameState internal constructor(
         street = MutablePile(),
         discard = MutablePile(),
         jail = MutablePile(),
+        graveyard = MutablePile(),
         streetEffects = mutableListOf(),
     )
 
@@ -149,7 +152,7 @@ class MutableGameState internal constructor(
             field = value.coerceAtLeast(max(1, field))
         }
 
-    private val _allPiles = listOf(hand, deck, discard, street, jail)
+    private val _allPiles = listOf(hand, deck, discard, street, jail, graveyard)
 
     private val cardPiles = mutableMapOf<Uuid, MutablePile>()
     init {
@@ -211,13 +214,6 @@ class MutableGameState internal constructor(
         }
     }
 
-    suspend fun remove(cards: List<Card>) {
-        // Make a copy of the list of cards, as modifying the files below may inadvertently change the list as well,
-        // due to some internal, aggressive casting between piles and mutable piles
-        cards.toList().forEach(::remove)
-        updateVictoryPoints()
-    }
-
     private fun remove(card: Card) {
         cardPiles.remove(card.id)?.also { pileFrom -> pileFrom.cards.removeAll { it.id == card.id }}
         shop.remove(card.id)
@@ -241,6 +237,7 @@ class MutableGameState internal constructor(
             street.copy(),
             discard.copy(),
             jail.copy(),
+            graveyard.copy(),
             streetEffects.toMutableList(),
         )
     }

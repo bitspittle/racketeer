@@ -22,7 +22,8 @@ class CardRemoveMethod(private val getGameState: () -> GameState) : Method("card
             env.expectConvert<List<Card>>(params[0], listTypeOf())
         }
 
-        getGameState().apply(GameStateChange.RemoveCards(cards))
+        val gameState = getGameState()
+        gameState.apply(GameStateChange.MoveCards(cards, gameState.graveyard))
 
         return Unit
     }
