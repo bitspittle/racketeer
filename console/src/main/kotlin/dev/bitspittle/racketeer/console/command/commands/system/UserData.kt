@@ -4,6 +4,7 @@ import net.harawata.appdirs.AppDirsFactory
 import java.nio.file.Paths
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 import kotlin.io.path.getLastModifiedTime
 
@@ -40,3 +41,8 @@ class UserData(appName: String) {
 
     }
 }
+
+// We need a semi-permanent ID that won't change across playruns. Online resources recommend MAC addresses but
+// no guarantee that won't crash the user if they're offline or some other reason (it crashed me!). So, just
+// use the current user data directory. Should be good enough for our needs!
+val UserData.playtestId get() = path.absolutePathString().hashCode().toUInt()

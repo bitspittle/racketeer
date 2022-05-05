@@ -7,13 +7,12 @@ import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.runtime.MainRenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.NewGameCommand
+import dev.bitspittle.racketeer.console.command.commands.system.playtestId
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.user.save
 import dev.bitspittle.racketeer.model.game.from
 import dev.bitspittle.racketeer.model.snapshot.GameSnapshot
 import net.mamoe.yamlkt.Yaml
-import java.nio.file.Paths
-import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
 import kotlin.io.path.name
 import kotlin.io.path.writeText
@@ -35,11 +34,7 @@ class GameSummaryView(ctx: GameContext) : GameView(ctx) {
         // auto-uploading files
         endstate.writeText(payload)
 
-        // We need a semi-permanent ID that won't change across playruns. Online resources recommend MAC addresses but
-        // no guarantee that won't crash the user if they're offline or some other reason (it crashed me!). So, just
-        // use the current user data directory. Should be good enough for our needs!
-        val machineHash = ctx.app.userData.path.absolutePathString().hashCode().toUInt()
-        ctx.app.uploadService.upload("users:$machineHash:endstates:${endstate.name}", endstate)
+        ctx.app.uploadService.upload("users:${ctx.app.userData.playtestId}:endstates:${endstate.name}", endstate)
     }
 
     override fun createCommands(): List<Command> =
