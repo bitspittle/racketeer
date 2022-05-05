@@ -39,7 +39,7 @@ val GameState.hasGameStarted get() = !(turn == 0 && changes.isEmpty() && getOwne
 val GameState.isGameOver get() = changes.last() is GameStateDelta.GameOver
 val GameState.isGameInProgress get() = hasGameStarted && !isGameOver
 val GameState.allPiles: List<Pile> get() = listOf(hand, deck, discard, street, jail)
-fun GameState.getOwnedCards() = allPiles.flatMap { it.cards }
+fun GameState.getOwnedCards() = (allPiles - jail).flatMap { it.cards }
 
 class MutableGameState internal constructor(
     override val random: CopyableRandom,
