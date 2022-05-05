@@ -67,7 +67,6 @@ sealed class GameStateDelta {
             cardQueue.enqueuePlayActions(card)
             cardQueue.runEnqueuedActions(this)
             streetEffectsCopy.forEach { streetEffect -> streetEffect.invoke(card) }
-            updateVictoryPoints()
         }
     }
 

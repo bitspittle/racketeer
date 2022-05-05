@@ -172,24 +172,6 @@ class MutableGameState internal constructor(
         }
     }
 
-    private fun moveNow(card: Card, toPile: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
-        moveNow(listOf(card), toPile, listStrategy)
-    }
-
-    // Call move without triggering card initialization, which means it doesn't need to be suspend
-    @Suppress("NAME_SHADOWING")
-    private fun moveNow(cards: List<Card>, toPile: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
-        val pileTo = _allPiles.single { it.id == toPile.id }
-        // Make a copy of the list of cards, as modifying the files below may inadvertently change the list as well,
-        // due to some internal, aggressive casting between piles and mutable piles
-        val cards = cards.toList()
-        cards.forEach { card ->
-            remove(card)
-            cardPiles[card.id] = pileTo
-        }
-        pileTo.cards.insert(cards.map { it as MutableCard }, listStrategy, random)
-    }
-
     override fun pileFor(card: Card): Pile? = cardPiles[card.id]
 
     // Needs to be suspend because it might trigger init actions
@@ -197,7 +179,7 @@ class MutableGameState internal constructor(
         move(listOf(card), pileTo, listStrategy)
     }
 
-    // TODO: MAKE PRIVATE
+    // TODO: Audit where we call this -- we can probably be smarter and call it way less
     suspend fun updateVictoryPoints() {
         val owned = getOwnedCards()
         owned.forEach { cardQueue.enqueuePassiveActions(it) }
@@ -207,18 +189,34 @@ class MutableGameState internal constructor(
     }
 
     // Needs to be suspend because it might trigger init actions
+    @Suppress("NAME_SHADOWING")
     suspend fun move(cards: List<Card>, toPile: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
         // Any cards that go from being unowned to owned should be initialized; including cards from the jail
         val newlyOwnedCards = cards.filter { card -> !cardPiles.contains(card.id) }
         val cardsToInit = cards
             .filter { card -> card.template.initActions.isNotEmpty() && cardPiles[card.id].let { it == null || it == jail} }
-        moveNow(cards, toPile, listStrategy)
 
-        cardsToInit.forEach { cardQueue.enqueueInitActions(it) }
-        cardQueue.runEnqueuedActions(this)
-        updateVictoryPoints()
+        // Move the cards
+        run {
+            val pileTo = _allPiles.single { it.id == toPile.id }
+            // Make a copy of the list of cards, as modifying the piles below may inadvertently change the list as well,
+            // due to some internal, aggressive casting between piles and mutable piles
+            val cards = cards.toList()
+            cards.forEach { card ->
+                remove(card)
+                cardPiles[card.id] = pileTo
+            }
+            pileTo.cards.insert(cards.map { it as MutableCard }, listStrategy, random)
+        }
 
-        newlyOwnedCards.forEach { onCardOwned(it.template) }
+        // ... then execute their actions
+        run {
+            cardsToInit.forEach { cardQueue.enqueueInitActions(it) }
+            cardQueue.runEnqueuedActions(this)
+            updateVictoryPoints()
+
+            newlyOwnedCards.forEach { onCardOwned(it.template) }
+        }
     }
 
     // Guaranteed owned card to owned card - it's not necessary to worry about running init actions (so no need to be
@@ -246,26 +244,6 @@ class MutableGameState internal constructor(
         cardPiles.remove(card.id)?.also { pileFrom -> pileFrom.cards.removeAll { it.id == card.id }}
         shop.remove(card.id)
     }
-
-//    suspend fun play(handIndex: Int) {
-//        require(handIndex in hand.cards.indices) { "Attempt to play card with an invalid hand index $handIndex, when hand is size ${hand.cards.size}"}
-//        val card = hand.cards[handIndex]
-//
-//        moveNow(card, street)
-//
-//        // Apply upgrades *first*, as otherwise, playing a card may add an upgrade which shouldn't take affect until
-//        // a later turn.
-//        if (card.isDexterous()) cash++
-//        if (card.isArtful()) influence++
-//        if (card.isLucky()) luck++
-//
-//        // Playing this card might install an effect, but that shouldn't take effect until the next card is played
-//        val streetEffectsCopy = streetEffects.toList()
-//        cardQueue.enqueuePlayActions(card)
-//        cardQueue.runEnqueuedActions(this)
-//        streetEffectsCopy.forEach { streetEffect -> streetEffect.invoke(card) }
-//        updateVictoryPoints()
-//    }
 
     override fun copy(): MutableGameState {
         val random = random.copy()
