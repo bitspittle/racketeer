@@ -21,17 +21,15 @@ sealed class GameStateChange {
         }
     }
 
-    class Draw(val count: Int) : GameStateChange() {
+    class Draw(var count: Int) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             if (deck.cards.size < count && discard.cards.isNotEmpty()) {
-                apply(ShuffleDiscardIntoDeck())
+                apply(ShuffleDiscardIntoDeck(), insertBefore = this@Draw)
             }
 
-            val remainingCount = count.coerceAtMost(deck.cards.size)
-            if (remainingCount == 0) return
-
-            deck.cards.take(remainingCount).let { cards ->
-                apply(MoveCards(cards, hand))
+            count = count.coerceAtMost(deck.cards.size)
+            deck.cards.take(count).let { cards ->
+                move(cards, hand)
             }
         }
     }

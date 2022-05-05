@@ -257,7 +257,14 @@ class MutableGameState internal constructor(
         )
     }
 
-    override suspend fun apply(change: GameStateChange) {
+    override suspend fun apply(change: GameStateChange) = apply(change, null)
+
+    /**
+     * @param insertBefore Sometimes it's useful for a change to delegate to another change, which should technically
+     *   happen before it does. This results in better reporting the game state to the user, but it should be relatively
+     *   rare.
+     */
+    suspend fun apply(change: GameStateChange, insertBefore: GameStateChange?) {
         if (changes.lastOrNull() is GameStateChange.GameOver) return
 
         // We postpone applying the init delta because when we first construct this game state, we're not in a
@@ -266,7 +273,11 @@ class MutableGameState internal constructor(
             changes.add(GameStateChange.GameStarted())
         }
 
-        changes.add(change)
+        if (insertBefore == null) {
+            changes.add(change)
+        } else {
+            changes.add(changes.indexOf(insertBefore), change)
+        }
         change.applyTo(this)
 
         updateVictoryPoints()

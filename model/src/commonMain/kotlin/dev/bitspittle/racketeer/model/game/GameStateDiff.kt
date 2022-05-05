@@ -22,6 +22,14 @@ private class GameStateDiffReporter(
         reportLine("Your discard pile (${diff.before.discard.cards.size}) was reshuffled into your deck to refill it.")
     }
 
+    private fun StringBuilder.report(change: GameStateChange.Draw) = change.apply {
+        if (count > 0) {
+            val deckDesc = describer.describePile(diff.before, diff.before.deck)
+            val handDesc = describer.describePile(diff.after, diff.after.hand)
+            reportLine("$count card(s) were drawn from $deckDesc into $handDesc.")
+        }
+    }
+
     private fun StringBuilder.report(change: GameStateChange.MoveCards) = change.apply {
         val pileToDesc = describer.describePile(diff.after, intoPile)
         if (cards.size > 1) {
@@ -130,7 +138,7 @@ private class GameStateDiffReporter(
                 when (change) {
                     is GameStateChange.GameStarted -> Unit // Marker game state, no need to report
                     is GameStateChange.ShuffleDiscardIntoDeck -> report(change)
-                    is GameStateChange.Draw -> Unit // No need to report, it will be handled by MoveCards
+                    is GameStateChange.Draw -> report(change)
                     is GameStateChange.MoveCards -> report(change)
                     is GameStateChange.Play -> {} // No need to report, obvious from user actions
                     is GameStateChange.MoveCard -> report(change)
