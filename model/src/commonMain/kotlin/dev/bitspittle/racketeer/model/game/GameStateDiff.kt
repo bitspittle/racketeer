@@ -105,31 +105,7 @@ private class GameStateDiffReporter(
     }
 
     private fun StringBuilder.report(change: GameStateChange.UpgradeCard) = change.apply {
-        reportLine("${card.template.name} was upgraded, adding: ${upgradeType}.")
-    }
-
-    private fun StringBuilder.report(change: GameStateChange.AddGameAmount) = change.apply {
-        when (property) {
-            GameProperty.CASH -> {
-                when {
-                    amount > 0 -> reportLine("You earned ${describer.describeCash(amount)}.")
-                    amount < 0 -> reportLine("You spent ${describer.describeCash(-amount)}.")
-                }
-            }
-            GameProperty.INFLUENCE -> {
-                when {
-                    amount > 0 -> reportLine("You earned ${describer.describeInfluence(amount)}.")
-                    amount < 0 -> reportLine("You spent ${describer.describeInfluence(-amount)}.")
-                }
-            }
-            GameProperty.LUCK -> {
-                when {
-                    amount > 0 -> reportLine("You earned ${describer.describeLuck(amount)}.")
-                    amount < 0 -> reportLine("You spent ${describer.describeLuck(-amount)}.")
-                }
-            }
-            else -> error("Unexpected game property: ${property}.")
-        }
+        reportLine("${card.template.name} was upgraded, adding: ${describer.describeUpgradeTitle(upgradeType, icons = false)}.")
     }
 
     private fun StringBuilder.report(change: GameStateChange.AddStreetEffect) = change.apply {
@@ -171,14 +147,14 @@ private class GameStateDiffReporter(
                     is GameStateChange.GameStarted -> Unit // Marker game state, no need to report
                     is GameStateChange.ShuffleDiscardIntoDeck -> report(change)
                     is GameStateChange.Draw -> report(change)
-                    is GameStateChange.Play -> {} // No need to report, obvious from user actions
+                    is GameStateChange.Play -> Unit // No need to report, obvious from user actions
                     is GameStateChange.MoveCards -> report(change)
                     is GameStateChange.MoveCard -> report(change)
                     is GameStateChange.Shuffle -> report(change)
                     is GameStateChange.RemoveCards -> report(change)
                     is GameStateChange.AddCardAmount -> report(change)
                     is GameStateChange.UpgradeCard -> report(change)
-                    is GameStateChange.AddGameAmount -> report(change)
+                    is GameStateChange.AddGameAmount -> Unit // Reported below, in aggregate
                     is GameStateChange.AddStreetEffect -> report(change)
                     is GameStateChange.AddShopExclusion -> Unit // Background magic, should be invisible to the user
                     is GameStateChange.RestockShop -> report(change)
@@ -188,11 +164,34 @@ private class GameStateDiffReporter(
                 }
             }
 
+            // Game resource changes feel better reported in aggregate
+
             // Hand size message looks better when presented as a diff (absolute is more interesting than relative):
             (diff.after.handSize - diff.before.handSize).let { handSizeDiff ->
                 when {
                     handSizeDiff > 0 -> reportLine("Your hand size grew from ${diff.before.handSize} to ${diff.after.handSize} cards.")
                     handSizeDiff < 0 -> reportLine("Your hand size shrunk from ${diff.before.handSize} to ${diff.after.handSize} cards.")
+                }
+            }
+
+            (diff.after.cash - diff.before.cash).let { amount ->
+                when {
+                    amount > 0 -> reportLine("You earned ${describer.describeCash(amount)}.")
+                    amount < 0 -> reportLine("You spent ${describer.describeCash(-amount)}.")
+                }
+            }
+
+            (diff.after.influence - diff.before.influence).let { amount ->
+                when {
+                    amount > 0 -> reportLine("You earned ${describer.describeInfluence(amount)}.")
+                    amount < 0 -> reportLine("You spent ${describer.describeInfluence(-amount)}.")
+                }
+            }
+
+            (diff.after.luck - diff.before.luck).let { amount ->
+                when {
+                    amount > 0 -> reportLine("You earned ${describer.describeLuck(amount)}.")
+                    amount < 0 -> reportLine("You spent ${describer.describeLuck(-amount)}.")
                 }
             }
 
