@@ -33,16 +33,27 @@ private class GameStateDiffReporter(
                     is GameStateDelta.Draw -> Unit // No need to report, it will be handled by MoveCards
                     is GameStateDelta.MoveCards -> {
                         val pileToDesc = describer.describePile(diff.after, change.intoPile)
-                        change.cards
-                            .groupBy { card -> diff.after.pileFor(card) }
-                            .forEach { (pile, cards) ->
-                                if (pile != null) {
-                                    val pileFromDesc = describer.describePile(diff.after, diff.after.deck)
-                                    reportLine("${cards.size} card(s) moved from $pileFromDesc into $pileToDesc.")
-                                } else {
-                                    reportLine("${cards.size} card(s) were created and moved into $pileToDesc.")
+                        if (change.cards.size > 1) {
+                            change.cards
+                                .groupBy { card -> diff.after.pileFor(card) }
+                                .forEach { (pile, cards) ->
+                                    if (pile != null) {
+                                        val pileFromDesc = describer.describePile(diff.after, diff.after.deck)
+                                        reportLine("${cards.size} cards moved from $pileFromDesc into $pileToDesc.")
+                                    } else {
+                                        reportLine("${cards.size} cards were created and moved into $pileToDesc.")
+                                    }
                                 }
+                        } else {
+                            val card = change.cards.first()
+                            val pile = diff.before.pileFor(card)
+                            if (pile != null) {
+                                val pileFromDesc = describer.describePile(diff.after, diff.after.deck)
+                                reportLine("${card.template.name} moved from $pileFromDesc into $pileToDesc.")
+                            } else {
+                                reportLine("${card.template.name} was created and moved into $pileToDesc.")
                             }
+                        }
                     }
                     is GameStateDelta.Play -> {} // No need to report
                     is GameStateDelta.MoveCard -> {

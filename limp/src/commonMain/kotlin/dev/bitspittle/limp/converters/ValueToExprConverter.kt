@@ -12,6 +12,6 @@ import kotlin.reflect.KClass
 @Suppress("UNCHECKED_CAST")
 class ValueToExprConverter<T: Any>(private val fromClass: KClass<T>) : Converter<Expr>(Expr::class) {
     override fun convert(value: Any): Expr? {
-        return (value::class == fromClass).ifTrue { Expr.Stub(value) }
+        return (fromClass.isInstance(value)).ifTrue { Expr.Stub(value) }
     }
 }
