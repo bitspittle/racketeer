@@ -32,20 +32,16 @@ private class GameStateDiffReporter(
 
     private fun StringBuilder.report(change: GameStateChange.MoveCards) = change.apply {
         val pileToDesc = describer.describePile(diff.after, intoPile)
-        if (cards.size > 1) {
-            cards
-                .groupBy { card -> diff.before.pileFor(card) }
-                .forEach { (pile, cards) ->
-                    if (pile != null) {
-                        val pileFromDesc = describer.describePile(diff.before, pile)
-                        reportLine("${cards.size} cards moved from $pileFromDesc into $pileToDesc.")
-                    } else {
-                        reportLine("${cards.size} cards were created and moved into $pileToDesc.")
-                    }
+        cards
+            .groupBy { card -> diff.before.pileFor(card) }
+            .forEach { (pile, cards) ->
+                if (pile != null) {
+                    val pileFromDesc = describer.describePile(diff.before, pile)
+                    reportLine("${cards.size} cards moved from $pileFromDesc into $pileToDesc.")
+                } else {
+                    reportLine("${cards.size} cards were created and moved into $pileToDesc.")
                 }
-        } else {
-            report(GameStateChange.MoveCard(cards.first(), intoPile, listStrategy))
-        }
+            }
     }
 
     private fun StringBuilder.report(change: GameStateChange.MoveCard) = change.apply {
@@ -134,7 +130,27 @@ private class GameStateDiffReporter(
 
     fun reportTo(logger: Logger) {
         val report = buildString {
-            diff.after.changes.forEach { change ->
+            val changes = diff.after.changes.toMutableList()
+
+            // Convert "MoveCards" to "MoveCard" when possible, it reads better
+            for (i in changes.indices) {
+                val change = changes[i]
+                if (change is GameStateChange.MoveCards && change.cards.size == 1) {
+                    changes[i] = GameStateChange.MoveCard(change.cards[0], change.intoPile, change.listStrategy)
+                }
+            }
+
+            // Sometimes cards can bounce around quickly due to init actions. Lets marge those together...
+            changes
+                .filterIsInstance<GameStateChange.MoveCard>()
+                .groupBy { it.card }
+                .filter { (_, cardMoves) -> cardMoves.size > 1 }
+                .forEach { (_, cardMoves) ->
+                    val transientMoves = cardMoves.dropLast(1)
+                    changes.removeAll { transientMoves.contains(it) }
+                }
+
+            changes.forEach { change ->
                 when (change) {
                     is GameStateChange.GameStarted -> Unit // Marker game state, no need to report
                     is GameStateChange.ShuffleDiscardIntoDeck -> report(change)
