@@ -369,20 +369,6 @@ class CollectionMethodsTest {
     }
 
     @Test
-    fun testSortMethod() = runTest {
-        val env = Environment()
-        env.addMethod(SortMethod())
-        // Limp does not (at the moment) support creating mutable lists, but they can be passed in via code
-        env.storeValue("ints", mutableListOf(3, 1, 4, 5, 2))
-
-        val evaluator = Evaluator()
-
-        evaluator.evaluate(env, "sort! ints")
-        assertThat(evaluator.evaluate(env, "ints") as List<Int>)
-            .containsExactly(1, 2, 3, 4, 5).inOrder()
-    }
-
-    @Test
     fun testUnionMethod() = runTest {
         val env = Environment()
         env.addMethod(UnionMethod())
