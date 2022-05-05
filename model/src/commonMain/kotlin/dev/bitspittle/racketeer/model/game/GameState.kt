@@ -12,7 +12,6 @@ import kotlin.math.max
 
 interface GameState {
     val random: CopyableRandom
-    val allCards: List<CardTemplate>
     val numTurns: Int
     val turn: Int
     val cash: Int
@@ -27,12 +26,14 @@ interface GameState {
     val discard: Pile
     val jail: Pile
     val streetEffects: List<Effect>
+    val history: List<GameStateDelta>
 }
+
+val GameState.allPiles: List<Pile> get() = listOf(hand, deck, discard, street, jail)
+fun GameState.getOwnedCards() = allPiles.flatMap { it.cards }
 
 class MutableGameState internal constructor(
     override val random: CopyableRandom,
-    override val allCards: List<CardTemplate>,
-    val initialDeck: List<String>,
     private val cardQueue: CardQueue,
     private val onCardOwned: (CardTemplate) -> Unit,
     numTurns: Int,
@@ -49,11 +50,10 @@ class MutableGameState internal constructor(
     override val discard: MutablePile,
     override val jail: MutablePile,
     override val streetEffects: MutableList<Effect>,
+    override val history: MutableList<GameStateDelta>
 ): GameState {
     constructor(data: GameData, cardQueue: CardQueue, random: CopyableRandom, onCardOwned: (CardTemplate) -> Unit) : this(
         random = random,
-        allCards = data.cards,
-        initialDeck = data.initialDeck,
         cardQueue = cardQueue,
         onCardOwned = onCardOwned,
         numTurns = data.numTurns,
@@ -69,7 +69,8 @@ class MutableGameState internal constructor(
         street = MutablePile(),
         discard = MutablePile(),
         jail = MutablePile(),
-        streetEffects = mutableListOf()
+        streetEffects = mutableListOf(),
+        history = mutableListOf()
     ) {
         // Since we create the game state before the scripting system, it's best not to have initialization / passive
         // logic in cards that are installed from the beginning. If it becomes important to support this later, we can
@@ -79,6 +80,9 @@ class MutableGameState internal constructor(
 
         // Will probably be 0 anyway but just in case
         vp = deck.cards.sumOf { it.vpTotal }
+
+        // Run the first time [apply] is called
+        history.add(GameStateDelta.Init(data.cards, data.initialDeck))
     }
 
     var isGameOver = false
@@ -145,8 +149,6 @@ class MutableGameState internal constructor(
         }
 
     private val _allPiles = listOf(hand, deck, discard, street, jail)
-    val allPiles: List<Pile> = _allPiles
-    fun getOwnedCards() = (allPiles - jail).flatMap { it.cards }
 
     private val cardPiles = mutableMapOf<Uuid, MutablePile>()
     init {
@@ -180,6 +182,7 @@ class MutableGameState internal constructor(
         move(listOf(card), pileTo, listStrategy)
     }
 
+    // TODO: MAKE PRIVATE
     suspend fun updateVictoryPoints() {
         val owned = getOwnedCards()
         owned.forEach { cardQueue.enqueuePassiveActions(it) }
@@ -233,40 +236,6 @@ class MutableGameState internal constructor(
         shop.remove(card.id)
     }
 
-    fun draw(count: Int = handSize) {
-        if (allPiles.asSequence().flatMap { pile -> pile.cards.asSequence() }.none()) {
-            // The very first time we ever draw, we need to initialize our deck
-            moveNow(initialDeck
-                .flatMap {  entry ->
-                    val cardName = entry.substringBeforeLast(' ')
-                    val initialCount = entry.substringAfterLast(' ', missingDelimiterValue = "").toIntOrNull() ?: 1
-
-                    val card = allCards.single { it.name == cardName }
-                    List(initialCount) { card.instantiate() }
-                },
-                deck, listStrategy = ListStrategy.RANDOM
-            )
-        }
-
-        var remainingCount = count.coerceAtMost(deck.cards.size + discard.cards.size)
-        if (remainingCount == 0) return
-
-        deck.cards.take(remainingCount).let { cards ->
-            remainingCount -= cards.size
-            moveNow(cards, hand)
-        }
-
-        if (remainingCount > 0) {
-            // Shuffle the discard pile and move it to the back of the deck!
-            moveNow(discard.cards.shuffled(random()), deck)
-        }
-
-        deck.cards.take(remainingCount).let { cards ->
-            check(cards.size == remainingCount) // Should be guaranteed by our coerce line at the top
-            moveNow(cards, hand)
-        }
-    }
-
     suspend fun play(handIndex: Int) {
         require(handIndex in hand.cards.indices) { "Attempt to play card with an invalid hand index $handIndex, when hand is size ${hand.cards.size}"}
         val card = hand.cards[handIndex]
@@ -308,8 +277,6 @@ class MutableGameState internal constructor(
         val random = random.copy()
         return MutableGameState(
             random,
-            allCards,
-            initialDeck,
             cardQueue,
             onCardOwned,
             numTurns,
@@ -325,7 +292,20 @@ class MutableGameState internal constructor(
             street.copy(),
             discard.copy(),
             jail.copy(),
-            streetEffects.toMutableList()
+            streetEffects.toMutableList(),
+            history.toMutableList(),
         )
+    }
+
+    suspend fun apply(delta: GameStateDelta) {
+        if (history.size == 1) {
+            check(history[0] is GameStateDelta.Init)
+            history[0].applyTo(this)
+        }
+
+        history.add(delta)
+        delta.applyTo(this)
+
+        updateVictoryPoints()
     }
 }

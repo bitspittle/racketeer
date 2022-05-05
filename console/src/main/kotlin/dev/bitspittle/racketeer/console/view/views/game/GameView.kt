@@ -9,6 +9,7 @@ import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.console.view.views.admin.AdminMenuView
 import dev.bitspittle.racketeer.console.view.views.system.OptionsMenuView
 import dev.bitspittle.racketeer.console.view.views.system.TitleMenuView
+import dev.bitspittle.racketeer.model.game.allPiles
 
 abstract class GameView(protected val ctx: GameContext) : View(ctx.viewStack, ctx.app) {
     protected open val allowEsc: Boolean = true

@@ -4,6 +4,7 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.admin.ChoosePileFromCommand
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.model.game.allPiles
 
 class ChoosePileFromView(ctx: GameContext) : GameView(ctx) {
     override val heading = "Choose a pile to move one or more cards from."

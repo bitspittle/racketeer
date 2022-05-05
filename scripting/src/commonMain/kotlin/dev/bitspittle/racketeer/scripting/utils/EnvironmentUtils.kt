@@ -4,7 +4,8 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.game.MutableGameState
+import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.game.getOwnedCards
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.converters.MutablePileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.card.*
@@ -46,6 +47,7 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(CardRemoveMethod(service::gameState))
     addMethod(CardTriggerMethod(service.cardQueue))
     addMethod(CardPileMethod(service::gameState))
+    storeValue("\$all-cards", service.gameData.cards)
 
     // Pile
     addConverter(MutablePileToCardsConverter())
@@ -72,19 +74,18 @@ fun Environment.installGameLogic(service: GameService) {
  * You probably want to do this within an [Environment.scoped] block, to avoid ever accidentally referring to stale game
  * state from previous turns.
  */
-fun MutableGameState.addVariablesInto(env: Environment) {
-    env.storeValue("\$all-cards", allCards, allowOverwrite = true)
-    env.storeValue("\$shop-tier", shop.tier, allowOverwrite = true)
+fun Environment.setValuesFrom(state: GameState) {
+    storeValue("\$shop-tier", state.shop.tier, allowOverwrite = true)
 
-    env.storeValue("\$deck", deck, allowOverwrite = true)
-    env.storeValue("\$hand", hand, allowOverwrite = true)
-    env.storeValue("\$street", street, allowOverwrite = true)
-    env.storeValue("\$discard", discard, allowOverwrite = true)
-    env.storeValue("\$jail", jail, allowOverwrite = true)
+    storeValue("\$deck", state.deck, allowOverwrite = true)
+    storeValue("\$hand", state.hand, allowOverwrite = true)
+    storeValue("\$street", state.street, allowOverwrite = true)
+    storeValue("\$discard", state.discard, allowOverwrite = true)
+    storeValue("\$jail", state.jail, allowOverwrite = true)
 
-    env.storeValue("\$shop", shop.stock.filterNotNull(), allowOverwrite = true)
+    storeValue("\$shop", state.shop.stock.filterNotNull(), allowOverwrite = true)
 
-    env.addMethod(object : Method("\$owned", 0) {
+    addMethod(object : Method("\$owned", 0) {
         override suspend fun invoke(
             env: Environment,
             eval: Evaluator,
@@ -92,7 +93,7 @@ fun MutableGameState.addVariablesInto(env: Environment) {
             options: Map<String, Any>,
             rest: List<Any>
         ): Any {
-            return getOwnedCards()
+            return state.getOwnedCards()
         }
     }, allowOverwrite = true)
 }
@@ -103,6 +104,6 @@ fun MutableGameState.addVariablesInto(env: Environment) {
  * You probably want to do this within an [Environment.scoped] block, tied to the lifetime of the current card being
  * played.
  */
-fun Card.addVariableTo(env: Environment) {
-    env.storeValue("\$this", this)
+fun Environment.setValuesFrom(card: Card) {
+    storeValue("\$this", card)
 }

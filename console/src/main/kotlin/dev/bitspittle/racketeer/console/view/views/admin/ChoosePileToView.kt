@@ -5,6 +5,7 @@ import dev.bitspittle.racketeer.console.command.commands.admin.ChoosePileToComma
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.views.game.GameView
 import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.game.allPiles
 import dev.bitspittle.racketeer.model.pile.Pile
 
 class ChoosePileToView(ctx: GameContext, private val cards: List<Card>, private val disallowedPile: Pile? = null) : GameView(ctx) {

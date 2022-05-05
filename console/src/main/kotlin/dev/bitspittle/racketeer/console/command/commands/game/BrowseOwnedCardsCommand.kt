@@ -3,6 +3,7 @@ package dev.bitspittle.racketeer.console.command.commands.game
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.view.views.game.BrowseManyCardsView
+import dev.bitspittle.racketeer.model.game.getOwnedCards
 
 class BrowseOwnedCardsCommand(ctx: GameContext) : Command(ctx) {
     private val owned = ctx.state.getOwnedCards()

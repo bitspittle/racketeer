@@ -23,7 +23,7 @@ import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.types.CardProperty
 import dev.bitspittle.racketeer.scripting.types.GameProperty
 import dev.bitspittle.racketeer.scripting.types.PileProperty
-import dev.bitspittle.racketeer.scripting.utils.addVariablesInto
+import dev.bitspittle.racketeer.scripting.utils.setValuesFrom
 
 private class ScriptingCommand(
     ctx: GameContext,
@@ -202,7 +202,7 @@ class ScriptingView(ctx: GameContext) : GameView(ctx) {
     @Suppress("NAME_SHADOWING")
     override suspend fun doHandleInputEntered(input: String, clearInput: () -> Unit) {
         val input = input + inputSuffix
-        ctx.state.addVariablesInto(ctx.env)
+        ctx.env.setValuesFrom(ctx.state)
         val prevState = ctx.state.copy()
 
         val evaluator = Evaluator()
@@ -256,7 +256,7 @@ class ScriptingView(ctx: GameContext) : GameView(ctx) {
         ctx.env.pushScope() // Push scope with special scripting methods added to it
         defineSpecialMethods()
         ctx.env.pushScope() // Push new scope for user
-        ctx.state.addVariablesInto(ctx.env)
+        ctx.env.setValuesFrom(ctx.state)
         // See: onEscRequested for teardown
     }
 
