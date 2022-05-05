@@ -5,6 +5,7 @@ import dev.bitspittle.racketeer.console.command.commands.system.CardListCommand
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataCommand
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.model.game.isGameOver
 
 class OptionsMenuView(ctx: GameContext) : GameView(ctx) {
     override val title: String = "Options"
@@ -14,7 +15,7 @@ class OptionsMenuView(ctx: GameContext) : GameView(ctx) {
             CardListCommand(ctx),
             UserDataCommand(ctx),
             object : Command(ctx) {
-                override val type = Type.Warning
+                override val type = if (!ctx.state.isGameOver) Type.Warning else Type.Hidden
                 override val title = "Restart"
                 override val description: String = "End this game and start a new one. You will have one last chance to confirm."
                 override suspend fun invoke(): Boolean {
@@ -23,7 +24,7 @@ class OptionsMenuView(ctx: GameContext) : GameView(ctx) {
                 }
             },
             object : Command(ctx) {
-                override val type = Type.Normal
+                override val type = if (!ctx.state.isGameOver) Type.Normal else Type.Hidden
                 override val title = "Quick save & exit"
                 override val description: String = "End this game and quit the program. You will have one last chance to confirm."
                 override suspend fun invoke(): Boolean {
