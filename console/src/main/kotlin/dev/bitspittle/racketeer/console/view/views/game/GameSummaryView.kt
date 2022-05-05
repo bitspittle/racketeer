@@ -45,7 +45,7 @@ class GameSummaryView(ctx: GameContext) : GameView(ctx) {
             NewGameCommand(ctx),
             object : Command(ctx) {
                 override val type = Type.Normal
-
+                override val description = "Thank you for playing!"
                 override val title = "Exit"
                 override suspend fun invoke(): Boolean {
                     ctx.app.quit()
