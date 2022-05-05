@@ -10,9 +10,28 @@ import dev.bitspittle.racketeer.model.shop.MutableShop
 import dev.bitspittle.racketeer.model.shop.Shop
 import kotlin.math.max
 
+interface GameState {
+    val random: CopyableRandom
+    val allCards: List<CardTemplate>
+    val numTurns: Int
+    val turn: Int
+    val cash: Int
+    val influence: Int
+    val luck: Int
+    val vp: Int
+    val handSize: Int
+    val shop: Shop
+    val deck: Pile
+    val hand: Pile
+    val street: Pile
+    val discard: Pile
+    val jail: Pile
+    val streetEffects: List<Effect>
+}
+
 class MutableGameState internal constructor(
-    internal val random: CopyableRandom,
-    val allCards: List<CardTemplate>,
+    override val random: CopyableRandom,
+    override val allCards: List<CardTemplate>,
     val initialDeck: List<String>,
     private val cardQueue: CardQueue,
     private val onCardOwned: (CardTemplate) -> Unit,
@@ -23,14 +42,14 @@ class MutableGameState internal constructor(
     luck: Int,
     vp: Int,
     handSize: Int,
-    shop: MutableShop,
-    deck: MutablePile,
-    hand: MutablePile,
-    street: MutablePile,
-    discard: MutablePile,
-    jail: MutablePile,
-    streetEffects: MutableList<Effect>,
-) {
+    override val shop: MutableShop,
+    override val deck: MutablePile,
+    override val hand: MutablePile,
+    override val street: MutablePile,
+    override val discard: MutablePile,
+    override val jail: MutablePile,
+    override val streetEffects: MutableList<Effect>,
+): GameState {
     constructor(data: GameData, cardQueue: CardQueue, random: CopyableRandom, onCardOwned: (CardTemplate) -> Unit) : this(
         random = random,
         allCards = data.cards,
@@ -70,7 +89,7 @@ class MutableGameState internal constructor(
     /**
      * How many turns are in a game.
      */
-    var numTurns = numTurns
+    override var numTurns = numTurns
         set(value) {
             field = value.coerceAtLeast(turn + 1)
         }
@@ -78,7 +97,7 @@ class MutableGameState internal constructor(
     /**
      * 0-indexed turn
      */
-    var turn = turn
+    override var turn = turn
         private set
 
     /**
@@ -86,7 +105,7 @@ class MutableGameState internal constructor(
      *
      * Will be cleared at the end of the current turn.
      */
-    var cash = cash
+    override var cash = cash
         set(value) {
             field = value.coerceAtLeast(0)
         }
@@ -94,7 +113,7 @@ class MutableGameState internal constructor(
     /**
      * How much influence the player currently has.
      */
-    var influence = influence
+    override var influence = influence
         set(value) {
             field = value.coerceAtLeast(0)
         }
@@ -104,7 +123,7 @@ class MutableGameState internal constructor(
      *
      * Luck can be used to re-roll the shop.
      */
-    var luck = luck
+    override var luck = luck
         set(value) {
             field = value.coerceAtLeast(0)
         }
@@ -112,40 +131,18 @@ class MutableGameState internal constructor(
     /**
      * How many victory points the player currently has.
      *
-     * Luck can be used to re-roll the shop.
+     * See also: [updateVictoryPoints].
      */
-    var vp = vp
+    override var vp = vp
         private set
 
     /**
      * How many cards get drawn at the beginning of the turn.
      */
-    var handSize = handSize
+    override var handSize = handSize
         set(value) {
             field = value.coerceAtLeast(max(1, field))
         }
-
-    /**
-     * A list of 0 more effects that will be applied to each card that is played in the street this turn.
-     */
-    private val _streetEffects = streetEffects
-    val streetEffects get() = _streetEffects
-
-    private val _shop = shop
-
-    private val _deck = deck
-    private val _hand = hand
-    private val _street = street
-    private val _discard = discard
-    private val _jail = jail
-
-    val shop: Shop = _shop
-
-    val deck: Pile = _deck
-    val hand: Pile = _hand
-    val street: Pile = _street
-    val discard: Pile = _discard
-    val jail: Pile = _jail
 
     private val _allPiles = listOf(hand, deck, discard, street, jail)
     val allPiles: List<Pile> = _allPiles
@@ -196,7 +193,7 @@ class MutableGameState internal constructor(
         // Any cards that go from being unowned to owned should be initialized; including cards from the jail
         val newlyOwnedCards = cards.filter { card -> !cardPiles.contains(card.id) }
         val cardsToInit = cards
-            .filter { card -> card.template.initActions.isNotEmpty() && cardPiles[card.id].let { it == null || it == _jail} }
+            .filter { card -> card.template.initActions.isNotEmpty() && cardPiles[card.id].let { it == null || it == jail} }
         moveNow(cards, toPile, listStrategy)
 
         cardsToInit.forEach { cardQueue.enqueueInitActions(it) }
@@ -228,12 +225,12 @@ class MutableGameState internal constructor(
     }
 
     fun installStreetEffect(expr: String, desc: String, effect: suspend (Card) -> Unit) {
-        _streetEffects.add(Effect(expr, desc, effect))
+        streetEffects.add(Effect(expr, desc, effect))
     }
 
     private fun remove(card: Card) {
         cardPiles.remove(card.id)?.also { pileFrom -> pileFrom.cards.removeAll { it.id == card.id }}
-        _shop.remove(card.id)
+        shop.remove(card.id)
     }
 
     fun draw(count: Int = handSize) {
@@ -254,19 +251,19 @@ class MutableGameState internal constructor(
         var remainingCount = count.coerceAtMost(deck.cards.size + discard.cards.size)
         if (remainingCount == 0) return
 
-        _deck.cards.take(remainingCount).let { cards ->
+        deck.cards.take(remainingCount).let { cards ->
             remainingCount -= cards.size
-            moveNow(cards, _hand)
+            moveNow(cards, hand)
         }
 
         if (remainingCount > 0) {
             // Shuffle the discard pile and move it to the back of the deck!
-            moveNow(_discard.cards.shuffled(random()), _deck)
+            moveNow(discard.cards.shuffled(random()), deck)
         }
 
-        _deck.cards.take(remainingCount).let { cards ->
+        deck.cards.take(remainingCount).let { cards ->
             check(cards.size == remainingCount) // Should be guaranteed by our coerce line at the top
-            moveNow(cards, _hand)
+            moveNow(cards, hand)
         }
     }
 
@@ -283,7 +280,7 @@ class MutableGameState internal constructor(
         if (card.isLucky()) luck++
 
         // Playing this card might install an effect, but that shouldn't take effect until the next card is played
-        val streetEffectsCopy = _streetEffects.toList()
+        val streetEffectsCopy = streetEffects.toList()
         cardQueue.enqueuePlayActions(card)
         cardQueue.runEnqueuedActions(this)
         streetEffectsCopy.forEach { streetEffect -> streetEffect.invoke(card) }
@@ -299,9 +296,9 @@ class MutableGameState internal constructor(
         turn++
         cash = 0
 
-        _streetEffects.clear()
-        move(_street, _discard)
-        moveNow(_hand.cards.filter { !it.isUndercover() }, _discard)
+        streetEffects.clear()
+        move(street, discard)
+        moveNow(hand.cards.filter { !it.isUndercover() }, discard)
         shop.restock()
 
         return true
@@ -322,13 +319,13 @@ class MutableGameState internal constructor(
             luck,
             vp,
             handSize,
-            _shop.copy(random),
-            _deck.copy(),
-            _hand.copy(),
-            _street.copy(),
-            _discard.copy(),
-            _jail.copy(),
-            _streetEffects.toMutableList()
+            shop.copy(random),
+            deck.copy(),
+            hand.copy(),
+            street.copy(),
+            discard.copy(),
+            jail.copy(),
+            streetEffects.toMutableList()
         )
     }
 }
