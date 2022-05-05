@@ -1,5 +1,6 @@
 package dev.bitspittle.racketeer.model.game
 
+import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.racketeer.model.card.CardProperty
 import dev.bitspittle.racketeer.model.text.Describer
@@ -18,6 +19,14 @@ private class GameStateDiffReporter(
     private val describer: Describer,
     private val diff: GameStateDiff
 ) {
+    private fun ListStrategy.toDesc(): String {
+        return when (this) {
+            ListStrategy.FRONT -> "to the front of"
+            ListStrategy.BACK -> "into"
+            ListStrategy.RANDOM -> "randomly into"
+        }
+    }
+
     private fun StringBuilder.report(change: GameStateChange.ShuffleDiscardIntoDeck) = change.apply {
         val discardDesc = describer.describePile(diff.before, diff.before.discard)
         val deckDesc = describer.describePile(diff.after, diff.after.deck)
@@ -39,9 +48,9 @@ private class GameStateDiffReporter(
             .forEach { (pile, cards) ->
                 if (pile != null) {
                     val pileFromDesc = describer.describePile(diff.before, pile)
-                    reportLine("${cards.size} cards moved from $pileFromDesc into $pileToDesc.")
+                    reportLine("${cards.size} cards moved from $pileFromDesc ${listStrategy.toDesc()} $pileToDesc.")
                 } else {
-                    reportLine("${cards.size} cards were created and moved into $pileToDesc.")
+                    reportLine("${cards.size} cards were created and moved ${listStrategy.toDesc()} $pileToDesc.")
                 }
             }
     }
@@ -53,9 +62,9 @@ private class GameStateDiffReporter(
         val pileFrom = diff.before.pileFor(card)
         if (pileFrom != null) {
             val pileFromDesc = describer.describePile(diff.before, pileFrom)
-            reportLine("$cardTitle was moved from $pileFromDesc into $pileToDesc.")
+            reportLine("$cardTitle was moved from $pileFromDesc ${listStrategy.toDesc()} $pileToDesc.")
         } else {
-            reportLine("$cardTitle was created and moved into $pileToDesc.")
+            reportLine("$cardTitle was created and moved ${listStrategy.toDesc()} $pileToDesc.")
         }
     }
 
