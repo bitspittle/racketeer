@@ -8,7 +8,6 @@ import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.game.Effect
 import dev.bitspittle.racketeer.model.game.GameData
-import dev.bitspittle.racketeer.model.game.GameStateDelta
 import dev.bitspittle.racketeer.model.game.MutableGameState
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
@@ -124,7 +123,6 @@ class GameSnapshot(
     val discard: PileSnapshot,
     val jail: PileSnapshot,
     val streetEffects: List<EffectSnapshot>,
-    val history: List<GameStateDelta>,
 ) {
     companion object {
         fun from(gameState: MutableGameState, isPreDraw: Boolean) = GameSnapshot(
@@ -144,7 +142,6 @@ class GameSnapshot(
             PileSnapshot.from(gameState.discard),
             PileSnapshot.from(gameState.jail),
             gameState.streetEffects.map { EffectSnapshot.from(it) },
-            gameState.history,
         )
     }
 
@@ -167,7 +164,10 @@ class GameSnapshot(
             discard.create(data),
             jail.create(data),
             streetEffects = mutableListOf(), // Populated shortly
-            history.toMutableList(),
+            // History is lost when you save, which is currently fine; we only use history for reporting updates between
+            // user actions as the player plays. We can revisit this in the future by making GameStateDelta classes
+            // serialization friendly.
+            history = mutableListOf(),
         )
 
         setGameState(gs)

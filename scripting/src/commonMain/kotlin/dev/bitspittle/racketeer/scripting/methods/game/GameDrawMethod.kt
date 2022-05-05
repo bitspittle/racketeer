@@ -16,9 +16,6 @@ class GameDrawMethod(private val getGameState: () -> MutableGameState) : Method(
     ): Any {
         val count = env.expectConvert<Int>(params[0])
         val state = getGameState()
-        if (state.deck.cards.size < count && state.discard.cards.isNotEmpty()) {
-            state.apply(GameStateDelta.ShuffleDiscardIntoDeck())
-        }
         state.apply(GameStateDelta.Draw(count))
         return Unit
     }

@@ -29,6 +29,8 @@ interface GameState {
     val history: List<GameStateDelta>
 }
 
+val GameState.lastTurnIndex get() = numTurns - 1
+val GameState.isGameOver get() = history.last() is GameStateDelta.GameOver
 val GameState.allPiles: List<Pile> get() = listOf(hand, deck, discard, street, jail)
 fun GameState.getOwnedCards() = allPiles.flatMap { it.cards }
 
@@ -85,11 +87,6 @@ class MutableGameState internal constructor(
         history.add(GameStateDelta.Init(data.cards, data.initialDeck))
     }
 
-    var isGameOver = false
-        private set
-
-    private val lastTurnIndex get() = numTurns - 1
-
     /**
      * How many turns are in a game.
      */
@@ -102,7 +99,9 @@ class MutableGameState internal constructor(
      * 0-indexed turn
      */
     override var turn = turn
-        private set
+        set(value) {
+            field = value.coerceAtMost(lastTurnIndex)
+        }
 
     /**
      * How much cash the player currently has.
@@ -256,23 +255,6 @@ class MutableGameState internal constructor(
         updateVictoryPoints()
     }
 
-    suspend fun endTurn(): Boolean {
-        if (turn >= lastTurnIndex) {
-            isGameOver = true
-            return false
-        }
-
-        turn++
-        cash = 0
-
-        streetEffects.clear()
-        move(street, discard)
-        moveNow(hand.cards.filter { !it.isUndercover() }, discard)
-        shop.restock()
-
-        return true
-    }
-
     fun copy(): MutableGameState {
         val random = random.copy()
         return MutableGameState(
@@ -298,6 +280,10 @@ class MutableGameState internal constructor(
     }
 
     suspend fun apply(delta: GameStateDelta) {
+        if (history.last() is GameStateDelta.GameOver) return
+
+        // We postpone applying the init delta because when we first construct this game state, we're not in a
+        // suspend fun context
         if (history.size == 1) {
             check(history[0] is GameStateDelta.Init)
             history[0].applyTo(this)

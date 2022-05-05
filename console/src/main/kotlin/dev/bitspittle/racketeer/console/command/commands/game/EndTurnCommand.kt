@@ -6,6 +6,8 @@ import dev.bitspittle.racketeer.console.utils.runStateChangingAction
 import dev.bitspittle.racketeer.console.view.views.game.ConfirmEndTurnView
 import dev.bitspittle.racketeer.console.view.views.game.GameSummaryView
 import dev.bitspittle.racketeer.console.view.views.game.PreDrawView
+import dev.bitspittle.racketeer.model.game.GameStateDelta
+import dev.bitspittle.racketeer.model.game.isGameOver
 
 class EndTurnCommand(ctx: GameContext, private val showConfirmationIfNecessary: Boolean = true) : Command(ctx) {
     override val type = Type.Accented
@@ -25,7 +27,8 @@ class EndTurnCommand(ctx: GameContext, private val showConfirmationIfNecessary: 
             ctx.viewStack.pushView(ConfirmEndTurnView(ctx))
         } else {
             ctx.runStateChangingAction {
-                if (ctx.state.endTurn()) {
+                ctx.state.apply(GameStateDelta.EndTurn())
+                if (!ctx.state.isGameOver) {
                     ctx.viewStack.replaceView(PreDrawView(ctx))
                 } else {
                     ctx.viewStack.replaceView(GameSummaryView(ctx))
