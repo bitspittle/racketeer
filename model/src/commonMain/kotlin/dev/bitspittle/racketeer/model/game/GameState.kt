@@ -37,7 +37,7 @@ interface GameState {
 
 val GameState.lastTurnIndex get() = numTurns - 1
 val GameState.hasGameStarted get() = !(turn == 0 && changes.isEmpty() && getOwnedCards().all { pileFor(it) == deck })
-val GameState.isGameOver get() = changes.last() is GameStateChange.GameOver
+val GameState.isGameOver get() = changes.lastOrNull() is GameStateChange.GameOver
 val GameState.isGameInProgress get() = hasGameStarted && !isGameOver
 val GameState.allPiles: List<Pile> get() = listOf(hand, deck, discard, street, jail, graveyard)
 fun GameState.getOwnedCards() = (allPiles - jail - graveyard).flatMap { it.cards }
