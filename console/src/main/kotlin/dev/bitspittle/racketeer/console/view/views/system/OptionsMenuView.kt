@@ -37,6 +37,15 @@ class OptionsMenuView(ctx: GameContext) : GameView(ctx) {
                     ctx.viewStack.pushView(ConfirmQuitView(ctx))
                     return true
                 }
+            },
+            object : Command(ctx) {
+                override val type = if (!ctx.state.isGameInProgress) Type.Normal else Type.Hidden
+                override val title = "Quit"
+                override val description: String = "Quit the program. It is safe to do at this moment because no game is currently in session."
+                override suspend fun invoke(): Boolean {
+                    ctx.app.quit()
+                    return true
+                }
             }
         )
 
