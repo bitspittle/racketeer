@@ -12,7 +12,7 @@ import dev.bitspittle.racketeer.scripting.utils.setValuesFrom
 class CardQueueImpl(private val env: Environment) : CardQueue {
     private val actionsToRun = mutableListOf<Expr>()
     private val cardsToRun = mutableMapOf<Card, MutableList<Expr>>()
-    private var isRunning = false
+    override var isRunning = false
 
     private val compiledActions: MutableMap<String, Expr> = mutableMapOf()
 

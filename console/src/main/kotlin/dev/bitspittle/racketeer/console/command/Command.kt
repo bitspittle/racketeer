@@ -12,6 +12,8 @@ abstract class Command(protected val ctx: GameContext) {
         Normal,
         /** A command which can't currently be invoked. */
         Disabled,
+        /** Similar to disabled, but the view should still refresh if this command is executed. */
+        Blocked,
         /** A command which represents a normal game action that modifies the game state somehow, e.g. playing a card. */
         Emphasized,
         /**
@@ -45,7 +47,7 @@ abstract class Command(protected val ctx: GameContext) {
                 when (type) {
                     Type.Normal, Type.Hidden -> {}
                     Type.Emphasized -> { bold() }
-                    Type.Disabled -> black(isBright = true)
+                    Type.Blocked, Type.Disabled -> black(isBright = true)
                     Type.Accented -> cyan()
                     Type.Warning -> yellow()
                     Type.Danger -> red()

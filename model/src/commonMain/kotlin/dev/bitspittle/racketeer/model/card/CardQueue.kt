@@ -8,4 +8,5 @@ interface CardQueue {
     fun enqueuePassiveActions(card: Card)
     fun clear()
     suspend fun runEnqueuedActions(gameState: MutableGameState)
+    val isRunning: Boolean
 }

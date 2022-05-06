@@ -74,11 +74,12 @@ abstract class View(
     suspend fun handleKey(key: Key): Boolean {
         return when (key) {
             Keys.ENTER -> {
-                if (currCommand.type != Command.Type.Disabled) {
+                if (currCommand.type !in listOf(Command.Type.Disabled, Command.Type.Blocked)) {
                     runUnsafeCode { currCommand.invoke() }
                     true
                 } else {
-                    false
+                    // Blocked should still consider the key handled; disabled does not
+                    return currCommand.type == Command.Type.Blocked
                 }
             }
 
