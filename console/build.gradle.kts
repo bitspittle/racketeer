@@ -33,7 +33,10 @@ tasks {
         archiveBaseName.set(rootFolder)
         archiveClassifier.set("")
         archiveVersion.set("")
-        minimize()
+        minimize {
+            // Leave this jar in or else Windows always shows the virtual terminal
+            exclude(dependency("org.jline:jline-terminal-jansi:.*"))
+        }
     }
 
     named<Zip>("distZip") {
