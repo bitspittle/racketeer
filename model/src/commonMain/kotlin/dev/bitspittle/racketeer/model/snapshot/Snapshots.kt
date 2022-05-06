@@ -179,7 +179,7 @@ class GameSnapshot(
                 evaluator.evaluate(env, "shop-exclude! '${exclusion.expr}")
             }
             streetEffects.forEach { effect ->
-                evaluator.evaluate(env, "fx-add! --desc ${effect.desc} '${effect.expr}")
+                evaluator.evaluate(env, "fx-add! --desc \"${effect.desc}\" '${effect.expr}")
             }
         }
         gs.updateVictoryPoints()
