@@ -49,11 +49,15 @@ private class GameStateDiffReporter(
             cards
                 .groupBy { card -> diff.before.pileFor(card) }
                 .forEach { (pile, cards) ->
-                    if (pile != null) {
-                        val pileFromDesc = describer.describePile(diff.before, pile)
-                        reportLine("${cards.size} cards moved from $pileFromDesc ${listStrategy.toDesc()} $pileToDesc.")
+                    if (cards.size > 1) {
+                        if (pile != null) {
+                            val pileFromDesc = describer.describePile(diff.before, pile)
+                            reportLine("${cards.size} cards moved from $pileFromDesc ${listStrategy.toDesc()} $pileToDesc.")
+                        } else {
+                            reportLine("${cards.size} cards were created and moved ${listStrategy.toDesc()} $pileToDesc.")
+                        }
                     } else {
-                        reportLine("${cards.size} cards were created and moved ${listStrategy.toDesc()} $pileToDesc.")
+                        report(GameStateChange.MoveCard(cards[0], intoPile, listStrategy))
                     }
                 }
         }
@@ -92,14 +96,14 @@ private class GameStateDiffReporter(
             }
             CardProperty.VP -> {
                 when {
-                    amount > 0 -> reportLine("${card.template.name} added $amount victory point(s).")
-                    amount < 0 -> reportLine("${card.template.name} lost ${-amount} victory point(s).")
+                    amount > 0 -> reportLine("${card.template.name} added ${describer.describeVictoryPoints(amount)}.")
+                    amount < 0 -> reportLine("${card.template.name} lost ${describer.describeVictoryPoints(-amount)}.")
                 }
             }
             CardProperty.VP_PASSIVE -> {
                 when {
-                    amount > 0 -> reportLine("${card.template.name} increased by $amount victory point(s).")
-                    amount < 0 -> reportLine("${card.template.name} decreased by ${-amount} victory point(s).")
+                    amount > 0 -> reportLine("${card.template.name} increased by ${describer.describeVictoryPoints(amount)}.")
+                    amount < 0 -> reportLine("${card.template.name} decreased by ${describer.describeVictoryPoints(-amount)}.")
                 }
             }
             else -> error("Unexpected card property: ${property}.")
