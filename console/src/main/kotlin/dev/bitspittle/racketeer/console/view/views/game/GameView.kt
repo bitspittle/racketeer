@@ -110,8 +110,11 @@ abstract class GameView(protected val ctx: GameContext) : View(ctx.viewStack, ct
             text("Press "); cyan { text("ESC") }
             if (ctx.viewStack.canGoBack) textLine(" to go back.") else textLine(" to open options.")
         }
+
+        renderLowerFooter()
     }
 
     protected open fun RenderScope.renderUpperFooter() = Unit
+    protected open fun RenderScope.renderLowerFooter() = Unit
     protected open fun onEscRequested() = Unit
 }

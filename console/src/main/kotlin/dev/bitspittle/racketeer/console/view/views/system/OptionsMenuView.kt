@@ -1,8 +1,12 @@
 package dev.bitspittle.racketeer.console.view.views.system
 
+import com.varabyte.kotter.foundation.text.magenta
+import com.varabyte.kotter.foundation.text.textLine
+import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.CardListCommand
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataCommand
+import dev.bitspittle.racketeer.console.command.commands.system.playtestId
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.views.game.GameView
 import dev.bitspittle.racketeer.model.game.hasGameStarted
@@ -35,4 +39,9 @@ class OptionsMenuView(ctx: GameContext) : GameView(ctx) {
                 }
             }
         )
+
+    override fun RenderScope.renderLowerFooter() {
+        textLine()
+        magenta { textLine("Playtest ID: ${ctx.app.userData.playtestId}") }
+    }
 }
