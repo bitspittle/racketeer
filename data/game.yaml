@@ -17,10 +17,10 @@ cardTypes:
   # Ordered by how they should show up on a card, NOT alphabetically necessarily
   - Action
   - Treasure
+  - Cop
   - Thief
   - Spy
   - Trickster
-  - Cop
   - Legend
 
 upgradeNames:
@@ -54,8 +54,8 @@ shopSizes:
 shopPrices:
   - 5
   - 8
-  - 11
-  - 14
+  - 12
+  - 15
 
 rankings:
       - name: "D   Pickpocket"
@@ -115,7 +115,7 @@ globalActions:
   - def 'card-named '$name '(single (filter $all-cards '(= card-get $it 'name $name)) _)
   - def 'compare-by-index '$list '$a '$b '(compare index-of $list $a index-of $list $b)
   - def 'pile-compare '$pileA '$pileB '(compare-by-index (list $hand $deck $discard $street $jail) $pileA $pileB)
-  - def '_choose-across-piles '$required '$prompt '$cards '$count '(choose --format $fmt-card-with-pile --required $required --prompt $prompt (sorted --with '(pile-compare card-pile $a card-pile $b) (sorted $cards)) $count)
+  - def '_choose-across-piles '$required '$prompt '$cards '$count '(run '(cancel-if! empty? $cards) '(choose --format $fmt-card-with-pile --required $required --prompt $prompt (sorted --with '(pile-compare card-pile $a card-pile $b) (sorted $cards)) $count))
   - def 'choose-across-piles '$prompt '$cards '$count '(_choose-across-piles false $prompt $cards $count)
   - def 'choose-across-piles! '$prompt '$cards '$count '(_choose-across-piles true $prompt $cards $count)
   - set '$fmt-card-with-pile '(join-to-string --separator "" (list ";(" (pile-get (card-pile $it) 'name) ")"))
@@ -177,7 +177,7 @@ cards:
     rarity: 1
     types: [action]
     cost: 2
-    flavor: When you get this, jail it and two other non-Cop cards you own.
+    flavor: When you get this, jail two non-Cop cards you own. Burn this card.
     initActions:
       - pile-move-to! $jail $this
       - set '$ownednoncops filter $owned '(! (card-has-type? $it 'cop))
@@ -358,16 +358,17 @@ cards:
       - game-draw! 3
       - pile-move-to! $jail $this
 
-  - name: Clumsy Mugger
+  - name: Art Forger
     tier: 1
     rarity: 1
-    types: [thief]
+    types: [thief, trickster]
     cost: 3
-    flavor: Gain $$$. When you get this, add a Constable to your hand.
-    initActions: 
-      - pile-copy-to! $hand (single (filter $all-cards '(= card-get $it 'name "Constable")) _ )
+    flavor: Gain $$. You may reroll your shop with cards you own.
     playActions:
-      - game-add! 'cash 3
+      - game-add! 'cash 2
+      - stop-if! (! (ask? "Reroll your shop with cards you own?" ))
+      - set '$cardnames (map $owned '(card-get $it 'name))
+      - shop-reroll! '(in? $cardnames (card-get $card 'name))
 
   - name: Beat Cop
     tier: 1
@@ -418,13 +419,13 @@ cards:
   - name: Mickey the Mouth
     tier: 1
     rarity: 2
-    types: [thief, trickster, legend]
+    types: [trickster, legend]
     cost: 5
-    flavor: Gain $$. When you get this, gain %%%%%.
+    flavor: Draw a card. When you get this, gain %%%%%.
     initActions:
       - game-add! 'luck 5
     playActions:
-      - game-add! 'cash 2
+      - game-draw! 1
 
   - name: Swindler
     tier: 1
@@ -512,20 +513,12 @@ cards:
       - pile-move-to! $hand (choose --prompt "Choose a card to get out of jail." $jail 1)
       - pile-copy-to! $hand (single (filter $all-cards '(= card-get $it 'name "Constable")) _ )
 
-  - name: Patrolman's Badge
-    tier: 3
-    rarity: 1
-    types: [treasure]
-    cost: 3
-    flavor: This is worth * for every Cop you own.
-    passiveVp: count $owned '(card-has-type? $it 'cop)
-
   - name: Opal
     tier: 2
     rarity: 0
     types: [treasure]
     cost: 4
-    vp: 4
+    vp: 5
     flavor: A luminous, iridescent stone.
 
   - name: The Talented Mr. Tezuka
@@ -548,7 +541,7 @@ cards:
     rarity: 1
     types: [trickster]
     cost: 4
-    flavor: When you play this, it becomes a copy of a card in your hand.
+    flavor: When you play this, it becomes an exact copy of a card in your hand.
     playActions:
       - cancel-if! empty? $hand
       - set '$copied-card (choose --prompt "Choose a card to copy." $hand 1)
@@ -596,15 +589,15 @@ cards:
       - game-add! 'cash game-get 'influence
       - game-set! 'influence 0
 
-
-  - name: Run the Numbers
+  - name: Racketeer
     tier: 2
     rarity: 1
-    types: [action]
+    types: [thief, trickster]
     cost: 4
-    flavor: Draw a card, plus one card for every twenty cards you own.
+    flavor: Gain $$. Gain %% if you own 20 or more cards.
     playActions:
-      - game-draw! + 1 / (size $owned) 20
+      - game-add! 'cash 2
+      - if-true (gte? (size $owned) 20) '(game-add! 'luck 2)
 
   - name: Baby Teeth Nelson
     tier: 2
@@ -617,18 +610,6 @@ cards:
       - pile-move-to! $jail $owned-cops
       - pile-move-to! $jail $this
       - game-draw! + 1 (size $owned-cops)
-
-# High friction, low excitement. No real function that's not served by other cards.
-#
-#  - name: Bounty Hunter
-#    tier: 2
-#    rarity: 1
-#    types: [thief]
-#    cost: 5
-#    flavor: Gain $$. Choose up to two cards you own to jail.
-#    playActions:
-#      - game-add! 'cash 2
-#      - pile-move-to! $jail choose-across-piles "Choose up to two cards to jail." $owned .. 0 2)
 
   - name: High Roller
     tier: 1
@@ -684,6 +665,14 @@ cards:
 
 # TIER 4
 
+  - name: Patrolman's Badge
+    tier: 3
+    rarity: 1
+    types: [treasure]
+    cost: 3
+    flavor: This is worth * for every Cop you own.
+    passiveVp: count $owned '(card-has-type? $it 'cop)
+
   - name: Gilded Cage
     tier: 3
     rarity: 1
@@ -716,6 +705,7 @@ cards:
       - stop-if! empty? $shop
       - pile-move-to! $discard (choose --prompt "Choose a card to add to your discard pile." $shop 1)
       - pile-copy-to! $hand (single (filter $all-cards '(= card-get $it 'name "Constable")) _ )
+
 
   - name: Dirty Sergeant
     tier: 3
@@ -797,7 +787,7 @@ cards:
     tier: 3
     rarity: 1
     types: [trickster]
-    cost: 6
+    cost: 7
     flavor: Draw three cards, then discard one.
     playActions:
       - game-draw! 3
@@ -884,13 +874,13 @@ cards:
     types: [treasure]
     cost: 7
     vp: 12
-    flavor: Comes as a set of two Sapphire Earrings worth 6 VP each.
+    flavor: Comes as a set of two Pearl Earrings worth 6 VP each.
     initActions:
-      - pile-copy-to! $discard card-named "Sapphire Earring"
-      - pile-copy-to! $discard card-named "Sapphire Earring"
+      - pile-copy-to! $discard card-named "Pearl Earring"
+      - pile-copy-to! $discard card-named "Pearl Earring"
       - card-remove! $this
 
-  - name: Sapphire Earring
+  - name: Pearl Earring
     tier: 4
     rarity: 1
     types: [treasure]
@@ -911,7 +901,7 @@ cards:
     tier: 4
     rarity: 1
     types: [action]
-    cost: 9
+    cost: 10
     flavor: Draw three cards.
     playActions: 
       - game-draw! 3
