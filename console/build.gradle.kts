@@ -7,8 +7,9 @@ plugins {
     application
 }
 
+val rootFolder = "do-crimes"
 group = "dev.bitspittle.racketeer.console"
-version = "1.0-SNAPSHOT"
+version = "1.0.0"
 
 dependencies {
     implementation(libs.kotter)
@@ -29,7 +30,18 @@ dependencies {
 
 tasks {
     named<ShadowJar>("shadowJar") {
+        archiveBaseName.set(rootFolder)
+        archiveClassifier.set("")
+        archiveVersion.set("")
         minimize()
+    }
+
+    named<Zip>("distZip") {
+        archiveFileName.set("${rootFolder}.zip")
+    }
+
+    named<Zip>("shadowDistZip") {
+        archiveFileName.set("${rootFolder}.zip")
     }
 
     build {
@@ -38,5 +50,6 @@ tasks {
 }
 
 application {
+    applicationName = rootFolder
     mainClass.set("MainKt")
 }
