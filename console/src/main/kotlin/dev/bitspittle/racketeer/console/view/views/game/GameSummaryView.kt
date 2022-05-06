@@ -25,7 +25,9 @@ class GameSummaryView(ctx: GameContext) : GameView(ctx) {
         ctx.cardStats.values.save(ctx.app.userData)
 
         val endstates = ctx.app.userData.pathForEndStates().also { it.createDirectories() }
-        val endstate = endstates.resolve("${Instant.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("MM-dd-yyyy|HH:mm:ss"))}.yaml")
+        // Just use a simple filename for now as a way to ensure that no OSes will crash on invalid filenames
+        // (looking at you, windows). We'll send a nicer name up to Google Drive.
+        val endstate = endstates.resolve("endstate-${System.currentTimeMillis()}.yaml")
         val payload = Yaml.encodeToString(
             GameSnapshot.from(
                 ctx.state,
@@ -37,7 +39,9 @@ class GameSummaryView(ctx: GameContext) : GameView(ctx) {
         // auto-uploading fails
         endstate.writeText(payload)
 
-        ctx.app.uploadService.upload("users:${ctx.app.userData.playtestId}:endstates:${endstate.name}", endstate)
+        ctx.app.uploadService.upload("users:${ctx.app.userData.playtestId}:endstates:${
+            Instant.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("MM-dd-yyyy|HH:mm:ss"))
+        }.yaml", endstate)
     }
 
     override fun createCommands(): List<Command> =
