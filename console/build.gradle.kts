@@ -9,7 +9,7 @@ plugins {
 
 val rootFolder = "do-crimes"
 group = "dev.bitspittle.racketeer.console"
-version = "0.3.0"
+version = "0.3.1"
 
 dependencies {
     implementation(libs.kotter)
