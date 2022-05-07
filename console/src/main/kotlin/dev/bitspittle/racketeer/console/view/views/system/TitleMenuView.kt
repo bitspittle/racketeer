@@ -59,10 +59,10 @@ class TitleMenuView(
         textLine()
 
         bold {
-            red(isBright = true) {
+            red {
                 bordered(borderCharacters = BorderCharacters.CURVED, paddingLeftRight = 1) {
                     textLine(ctx.data.title)
-                    red { textLine("v" + ctx.app.version) }
+                    rgb(150, 0, 0) { textLine("v" + ctx.app.version) }
                 }
             }
         }
