@@ -56,10 +56,10 @@ class BrowseManyCardsView(ctx: GameContext, cards: List<Card>) : GameView(ctx) {
     }
 
     override fun RenderScope.renderUpperFooter() {
-        text("Press "); cyan { text("1") }; textLine( " to sort by name")
-        text("Press "); cyan { text("2") }; textLine( " to sort by tier")
-        text("Press "); cyan { text("3") }; textLine( " to sort by pile")
-        text("Press "); cyan { text("LEFT") }; text(" and "); cyan { text("RIGHT") }; textLine( " to change the current type filter")
+        text("Press "); cyan { text("1") }; textLine( " to sort by name.")
+        text("Press "); cyan { text("2") }; textLine( " to sort by tier.")
+        text("Press "); cyan { text("3") }; textLine( " to sort by pile.")
+        text("Press "); cyan { text("LEFT") }; text(" and "); cyan { text("RIGHT") }; textLine( " to change the current type filter.")
     }
 
     override suspend fun handleAdditionalKeys(key: Key): Boolean {
