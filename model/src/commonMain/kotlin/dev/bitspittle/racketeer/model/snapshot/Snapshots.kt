@@ -40,12 +40,9 @@ class CardSnapshot(
 }
 
 @Serializable
-class ExclusionSnapshot(val expr: String, val desc: String) {
+class ExclusionSnapshot(val expr: String) {
     companion object {
-        fun from(exclusion: Exclusion) = ExclusionSnapshot(
-            exclusion.expr,
-            exclusion.desc,
-        )
+        fun from(exclusion: Exclusion) = ExclusionSnapshot(exclusion.expr)
     }
 }
 
