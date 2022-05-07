@@ -21,7 +21,10 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
     env.scoped {
         try {
             state = nextState
-            block().also { GameStateDiff(prevState, nextState).reportTo(describer, app.logger) }
+            block().also {
+                nextState.updateVictoryPoints()
+                GameStateDiff(prevState, nextState).reportTo(describer, app.logger)
+            }
 
             // Notify ownership if a card ever goes from being unowned (in the previous state of the game) to
             // owned now, by checking relevant game state changes that move cards into the game

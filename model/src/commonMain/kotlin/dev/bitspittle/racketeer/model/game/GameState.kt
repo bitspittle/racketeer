@@ -29,6 +29,13 @@ interface GameState {
     val streetEffects: List<Effect>
     val changes: List<GameStateChange>
 
+    /**
+     * Inform this state that something changed and you'd like to recalculate the VP amount.
+     */
+    // It would be nice if this could be done automatically, but with the current architecture, this has to be done
+    // in a suspend context, so it requires a parent suspend function calling it right now. Maybe this can be revisited
+    // later.
+    suspend fun updateVictoryPoints()
     suspend fun apply(change: GameStateChange)
     fun copy(): GameState
 
@@ -178,8 +185,7 @@ class MutableGameState internal constructor(
         move(listOf(card), pileTo, listStrategy)
     }
 
-    // TODO: Audit where we call this -- we can probably be smarter and call it way less
-    suspend fun updateVictoryPoints() {
+    override suspend fun updateVictoryPoints() {
         val owned = getOwnedCards()
         owned.forEach { cardQueue.enqueuePassiveActions(it) }
         cardQueue.runEnqueuedActions(this@MutableGameState)
@@ -210,7 +216,6 @@ class MutableGameState internal constructor(
         run {
             cardsToInit.forEach { cardQueue.enqueueInitActions(it) }
             cardQueue.runEnqueuedActions(this)
-            updateVictoryPoints()
         }
     }
 
