@@ -5,6 +5,7 @@ import com.varabyte.kotter.runtime.MainRenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.ViewCardCommand
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.user.inAdminModeAndShowDebugInfo
 
 class BrowseStreetView(ctx: GameContext) : GameView(ctx) {
     init {
@@ -21,7 +22,7 @@ class BrowseStreetView(ctx: GameContext) : GameView(ctx) {
             textLine("Active effects:")
             ctx.state.streetEffects.forEach { effect ->
                 textLine("- ${effect.desc}")
-                if (ctx.settings.showDebugInfo && effect.desc != effect.expr) {
+                if (ctx.settings.inAdminModeAndShowDebugInfo && effect.desc != effect.expr) {
                     textLine("  ${effect.expr}")
                 }
             }

@@ -5,6 +5,7 @@ import com.varabyte.kotter.runtime.MainRenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.*
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.user.inAdminModeAndShowDebugInfo
 
 class VisitShopView(ctx: GameContext) : GameView(ctx) {
     override val subtitle get() = "Shop (Tier ${ctx.state.shop.tier + 1})"
@@ -25,7 +26,7 @@ class VisitShopView(ctx: GameContext) : GameView(ctx) {
     }
 
     override fun MainRenderScope.renderContentUpper() {
-        if (ctx.settings.showDebugInfo && ctx.state.shop.exclusions.isNotEmpty()) {
+        if (ctx.settings.inAdminModeAndShowDebugInfo && ctx.state.shop.exclusions.isNotEmpty()) {
             textLine("Exclusions:")
             ctx.state.shop.exclusions.forEach { exclusion ->
                 textLine("- ${exclusion.expr}")

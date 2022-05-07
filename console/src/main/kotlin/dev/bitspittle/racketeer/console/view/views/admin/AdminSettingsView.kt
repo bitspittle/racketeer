@@ -32,7 +32,15 @@ class AdminSettingsView(ctx: GameContext) : GameView(ctx) {
         ctx,
         "Show debug info",
         ctx.settings.showDebugInfo,
-        "Set true to surface things like game code inside the UI"
+        "Set true to surface things like game code inside the UI",
+    )
+
+    private val enableAdminSetting = SelectItemCommand(
+        ctx,
+        "Enable admin features",
+        ctx.settings.enableAdminFeatures,
+        "Uncheck this to disable access to the admin menu and clear other admin-specific features.\n\nYou can restore them by going into the options mode and typing \"admin\"",
+        type = Command.Type.Warning,
     )
 
     override suspend fun handleAdditionalKeys(key: Key): Boolean {
@@ -53,12 +61,14 @@ class AdminSettingsView(ctx: GameContext) : GameView(ctx) {
         this.maskCards = maskCardsSetting.selected
         this.highlightNewCards = highlightNewCardsSetting.selected
         this.showDebugInfo = debugInfoSetting.selected
+        this.enableAdminFeatures = enableAdminSetting.selected
     }
 
     override fun createCommands(): List<Command> = listOf(
         maskCardsSetting,
         highlightNewCardsSetting,
         debugInfoSetting,
+        enableAdminSetting,
         object : Command(ctx) {
             override val type get() = if (createNewSettings() != ctx.settings) Type.Normal else Type.Disabled
             override val title: String = "Confirm"

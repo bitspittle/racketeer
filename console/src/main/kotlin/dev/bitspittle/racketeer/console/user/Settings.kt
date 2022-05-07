@@ -24,6 +24,8 @@ data class Settings(
     }
 }
 
+val Settings.inAdminModeAndShowDebugInfo get() = enableAdminFeatures && showDebugInfo
+
 fun Settings.save(userData: UserData) {
     val self = this
     userData.pathForSettings().apply {

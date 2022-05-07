@@ -17,6 +17,7 @@ import dev.bitspittle.racketeer.console.game.notifyOwnership
 import dev.bitspittle.racketeer.console.game.version
 import dev.bitspittle.racketeer.console.user.CardStats
 import dev.bitspittle.racketeer.console.user.Settings
+import dev.bitspittle.racketeer.console.user.inAdminModeAndShowDebugInfo
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.console.view.ViewStack
 import dev.bitspittle.racketeer.console.view.views.game.PreDrawView
@@ -46,7 +47,7 @@ class TitleMenuView(
             data,
             settings,
             cardStats,
-            Describer(data, showDebugInfo = { settings.showDebugInfo }),
+            Describer(data, showDebugInfo = { settings.inAdminModeAndShowDebugInfo }),
             MutableGameState(data, cardQueue, random),
             env,
             cardQueue,

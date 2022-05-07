@@ -17,6 +17,7 @@ import dev.bitspittle.limp.utils.installDefaults
 import dev.bitspittle.racketeer.console.command.commands.system.UserData
 import dev.bitspittle.racketeer.console.user.CardStats
 import dev.bitspittle.racketeer.console.user.Settings
+import dev.bitspittle.racketeer.console.user.inAdminModeAndShowDebugInfo
 import dev.bitspittle.racketeer.console.utils.DriveUploadService
 import dev.bitspittle.racketeer.console.utils.UploadService
 import dev.bitspittle.racketeer.console.view.ViewStackImpl
@@ -72,7 +73,7 @@ class GameSession(
                 }
 
                 override fun debug(message: String) {
-                    if (settings.showDebugInfo) {
+                    if (settings.inAdminModeAndShowDebugInfo) {
                         logRenderers.add { magenta { textLine(message) } }
                     }
                 }

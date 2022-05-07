@@ -1,5 +1,7 @@
 package dev.bitspittle.racketeer.console.view.views.system
 
+import com.varabyte.kotter.foundation.input.CharKey
+import com.varabyte.kotter.foundation.input.Key
 import com.varabyte.kotter.foundation.text.magenta
 import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.runtime.render.RenderScope
@@ -8,6 +10,7 @@ import dev.bitspittle.racketeer.console.command.commands.system.CardListCommand
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataCommand
 import dev.bitspittle.racketeer.console.command.commands.system.playtestId
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.user.save
 import dev.bitspittle.racketeer.console.view.views.game.GameView
 import dev.bitspittle.racketeer.model.game.hasGameStarted
 import dev.bitspittle.racketeer.model.game.isGameInProgress
@@ -15,6 +18,8 @@ import dev.bitspittle.racketeer.model.game.isGameOver
 
 class OptionsMenuView(ctx: GameContext) : GameView(ctx) {
     override val title: String = "Options"
+
+    private var secretCode = ""
 
     override fun createCommands(): List<Command> =
         listOf(
@@ -48,6 +53,34 @@ class OptionsMenuView(ctx: GameContext) : GameView(ctx) {
                 }
             }
         )
+
+    override suspend fun handleAdditionalKeys(key: Key): Boolean {
+        if (key is CharKey) {
+            secretCode += key.code
+
+            if (secretCode.equals("admin", ignoreCase = true)) {
+                if (!ctx.settings.enableAdminFeatures) {
+                    ctx.settings.enableAdminFeatures = true
+                    ctx.settings.save(ctx.app.userData)
+                    ctx.app.logger.info("You now have admin privileges!")
+                    secretCode = ""
+                    return true
+                }
+            }
+            else if (secretCode.equals("noadmin", ignoreCase = true)) {
+                if (ctx.settings.enableAdminFeatures) {
+                    ctx.settings.enableAdminFeatures = false
+                    ctx.settings.save(ctx.app.userData)
+                    ctx.app.logger.info("You have removed your admin privileges.")
+                    secretCode = ""
+                    return true
+                }
+            }
+        } else {
+            secretCode = ""
+        }
+        return false
+    }
 
     override fun RenderScope.renderLowerFooter() {
         textLine()
