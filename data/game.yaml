@@ -60,31 +60,31 @@ shopPrices:
 rankings:
       - name: "D   Pickpocket"
         score: 0
-      - name: "D+   Newsie"
+      - name: "D+  Newsie"
         score: 10
-      - name: "C-   Embezzler"
+      - name: "C-  Embezzler"
         score: 20
       - name: "C   Burglar"
         score: 30
-      - name: "C+   Croupier"
+      - name: "C+  Croupier"
         score: 40
-      - name: "B-   Smuggler"
+      - name: "B-  Smuggler"
         score: 50
       - name: "B   Grifter"
         score: 60
-      - name: "B+   Swindler"
+      - name: "B+  Swindler"
         score: 70
-      - name: "A-   Fence"
+      - name: "A-  Fence"
         score: 80
       - name: "A   Safecracker"
         score: 90
-      - name: "A+    Purse Snatcher"
+      - name: "A+  Purse Snatcher"
         score: 100
-      - name: "S-   Bank Robber"
+      - name: "S-  Bank Robber"
         score: 110
       - name: "S   Kingpin"
         score: 120
-      - name: "S+   Annie Doshen"
+      - name: "S+  Annie Doshen"
         score: 130
 
 globalActions:
