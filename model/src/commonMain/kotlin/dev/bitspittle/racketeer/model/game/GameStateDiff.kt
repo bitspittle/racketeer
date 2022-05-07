@@ -48,6 +48,9 @@ private class GameStateDiffReporter(
             val pileToDesc = describer.describePile(diff.after, intoPile)
             cards
                 .groupBy { card -> diff.before.pileFor(card) }
+                // Ignore requests which end up moving a card back into its own pile; it looks weird.
+                // This could happen as part of a bigger collection of cards across piles being moved.
+                .filter { (pile, _) -> pile == null || pile.id != intoPile.id }
                 .forEach { (pile, cards) ->
                     if (cards.size > 1) {
                         if (pile != null) {
@@ -73,8 +76,11 @@ private class GameStateDiffReporter(
 
             val pileFrom = diff.before.pileFor(card)
             if (pileFrom != null) {
-                val pileFromDesc = describer.describePile(diff.before, pileFrom)
-                reportLine("$cardTitle was moved from $pileFromDesc ${listStrategy.toDesc()} $pileToDesc.")
+                // Ignore requests which end up moving a card within its own pile; it looks weird
+                if (pileFrom.id != intoPile.id) {
+                    val pileFromDesc = describer.describePile(diff.before, pileFrom)
+                    reportLine("$cardTitle was moved from $pileFromDesc ${listStrategy.toDesc()} $pileToDesc.")
+                }
             } else {
                 reportLine("$cardTitle was created and moved ${listStrategy.toDesc()} $pileToDesc.")
             }
