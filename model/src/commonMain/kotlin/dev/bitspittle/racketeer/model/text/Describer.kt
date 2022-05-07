@@ -210,7 +210,8 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             }
 
             if (!concise) {
-                appendCardBody(card.template, card.upgrades, counter = card.counter)
+                // Don't re-report victory points, they were already reported as part of the name
+                appendCardBody(card.template, card.upgrades, counter = card.counter, vp = 0)
             }
         }
     }
