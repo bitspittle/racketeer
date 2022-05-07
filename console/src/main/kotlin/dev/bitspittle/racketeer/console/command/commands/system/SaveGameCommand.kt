@@ -4,7 +4,7 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.user.save
 import dev.bitspittle.racketeer.console.view.views.game.PreDrawView
-import dev.bitspittle.racketeer.model.snapshot.GameSnapshot
+import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import net.mamoe.yamlkt.Yaml
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists

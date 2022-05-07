@@ -1,4 +1,4 @@
-package dev.bitspittle.racketeer.model.snapshot
+package dev.bitspittle.racketeer.model.serialization
 
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator

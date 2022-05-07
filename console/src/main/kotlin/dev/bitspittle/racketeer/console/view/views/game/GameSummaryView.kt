@@ -12,13 +12,12 @@ import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.version
 import dev.bitspittle.racketeer.console.user.save
 import dev.bitspittle.racketeer.model.game.from
-import dev.bitspittle.racketeer.model.snapshot.GameSnapshot
+import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import net.mamoe.yamlkt.Yaml
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlin.io.path.createDirectories
-import kotlin.io.path.name
 import kotlin.io.path.writeText
 
 class GameSummaryView(ctx: GameContext) : GameView(ctx) {
