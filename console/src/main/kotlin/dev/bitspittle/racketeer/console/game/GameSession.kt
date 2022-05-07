@@ -31,6 +31,7 @@ import dev.bitspittle.racketeer.scripting.types.GameService
 import dev.bitspittle.racketeer.scripting.utils.installGameLogic
 import kotlinx.coroutines.*
 import net.mamoe.yamlkt.Yaml
+import java.util.*
 import kotlin.coroutines.suspendCoroutine
 import kotlin.io.path.readText
 
@@ -38,6 +39,7 @@ class GameSession(
     private val gameData: GameData
 ) {
     fun start() = session {
+
         val userData = UserData(gameData.title.lowercase().replace(Regex("""\s"""), ""))
         val settings = try {
             Yaml.decodeFromString(Settings.serializer(), userData.pathForSettings().readText())
@@ -50,6 +52,10 @@ class GameSession(
         val app = object : App {
             override fun quit() {
                 handleQuit()
+            }
+
+            override val properties = Properties().apply {
+                load(GameSession::class.java.getResourceAsStream("/project.properties")!!)
             }
 
             override val logger = object : Logger {

@@ -14,6 +14,7 @@ import dev.bitspittle.racketeer.console.command.commands.system.playtestId
 import dev.bitspittle.racketeer.console.game.App
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.notifyOwnership
+import dev.bitspittle.racketeer.console.game.version
 import dev.bitspittle.racketeer.console.user.CardStats
 import dev.bitspittle.racketeer.console.user.Settings
 import dev.bitspittle.racketeer.console.view.View
@@ -58,9 +59,10 @@ class TitleMenuView(
         textLine()
 
         bold {
-            red {
+            red(isBright = true) {
                 bordered(borderCharacters = BorderCharacters.CURVED, paddingLeftRight = 1) {
                     textLine(ctx.data.title)
+                    red { textLine("v" + ctx.app.version) }
                 }
             }
         }

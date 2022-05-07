@@ -9,6 +9,7 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.NewGameCommand
 import dev.bitspittle.racketeer.console.command.commands.system.playtestId
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.game.version
 import dev.bitspittle.racketeer.console.user.save
 import dev.bitspittle.racketeer.model.game.from
 import dev.bitspittle.racketeer.model.snapshot.GameSnapshot
@@ -39,7 +40,7 @@ class GameSummaryView(ctx: GameContext) : GameView(ctx) {
         // auto-uploading fails
         endstate.writeText(payload)
 
-        ctx.app.uploadService.upload("users:${ctx.app.userData.playtestId}:endstates:${
+        ctx.app.uploadService.upload("versions:${ctx.app.version}:users:${ctx.app.userData.playtestId}:endstates:${
             Instant.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("MM-dd-yyyy|HH:mm:ss"))
         }.yaml", endstate)
     }

@@ -9,7 +9,7 @@ plugins {
 
 val rootFolder = "do-crimes"
 group = "dev.bitspittle.racketeer.console"
-version = "1.0.0"
+version = "0.3.0"
 
 dependencies {
     implementation(libs.kotter)
@@ -49,6 +49,17 @@ tasks {
 
     build {
         dependsOn(shadowJar)
+    }
+
+    val projectProperties by registering(WriteProperties::class) {
+        outputFile = layout.buildDirectory.file("project.properties").get().asFile
+        encoding = "UTF-8"
+
+        property("version", project.version)
+    }
+
+    processResources {
+        from(projectProperties)
     }
 }
 
