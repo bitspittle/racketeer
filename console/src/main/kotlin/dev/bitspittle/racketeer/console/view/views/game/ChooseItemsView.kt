@@ -2,9 +2,12 @@ package dev.bitspittle.racketeer.console.view.views.game
 
 import com.varabyte.kotter.foundation.input.Key
 import com.varabyte.kotter.foundation.input.Keys
+import com.varabyte.kotter.foundation.text.cyan
+import com.varabyte.kotter.foundation.text.text
 import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.foundation.text.yellow
 import com.varabyte.kotter.runtime.MainRenderScope
+import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.SelectItemCommand
 import dev.bitspittle.racketeer.console.game.GameContext
@@ -55,6 +58,12 @@ class ChooseItemsView(
 
     override fun MainRenderScope.renderContentUpper() {
         if (requiredChoice) yellow { textLine("This choice is not optional, so you cannot back out of it."); textLine() }
+    }
+
+    override fun RenderScope.renderUpperFooter() {
+        if (currCommand is SelectItemCommand) {
+            text("Press "); cyan { text("SPACE") }; textLine(" to toggle the selected item.")
+        }
     }
 
     override fun onEscRequested() {
