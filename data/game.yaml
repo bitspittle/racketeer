@@ -819,7 +819,7 @@ cards:
     rarity: 2
     types: [thief, legend]
     cost: 5
-    flavor: Gain $$. Whenever you play a Pickpocket or Burglar this turn, this gains *.
+    flavor: Gain $$. Whenever you play a Pickpocket or Burglar this turn, it gains *.
     playActions:
       - game-add! 'cash 2
       - fx-add! --desc icon-convert "Gain * whenever you play a Pickpocket or Burglar." '(if or? (= card-get $card 'name "Pickpocket") (= card-get $card 'name "Burglar") '(card-add! $card 'vp 1) _)
