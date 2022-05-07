@@ -26,14 +26,14 @@ class PileCopyToMethod(private val getGameState: () -> GameState) : Method("pile
         rest: List<Any>
     ): Any {
         val toPile = env.expectConvert<Pile>(params[0])
-        val cards = env.scoped {
+        val cards: List<Card> = env.scoped {
             env.addConverter(CardTemplateToCardConverter() + ItemToSingletonListConverter(Card::class))
             env.addConverter(TransformListConverter(CardTemplateToCardConverter()))
             env.addConverter(ItemToSingletonListConverter(Card::class))
             env.addConverter(PileToCardsConverter())
 
             env.expectConvert(params[1], ListTypeChecker(Card::class))
-        }.map { origCard -> MutableCard(origCard) as Card }
+        }.map { origCard -> MutableCard(origCard) }
 
         val strategy = options["pos"]?.let {
             env.expectConvert<Expr.Identifier>(it).toEnum(ListStrategy.values())
