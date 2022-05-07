@@ -822,7 +822,7 @@ cards:
     flavor: Gain $$. Whenever you play a Pickpocket or Burglar this turn, this gains *.
     playActions:
       - game-add! 'cash 2
-      - fx-add! --desc "Gain * whenever you play a Pickpocket or Burglar." '(if or? (= card-get $card 'name "Pickpocket") (= card-get $card 'name "Burglar") '(card-add! $this 'vp 1) _)
+      - fx-add! --desc icon-convert "Gain * whenever you play a Pickpocket or Burglar." '(if or? (= card-get $card 'name "Pickpocket") (= card-get $card 'name "Burglar") '(card-add! $card 'vp 1) _)
 
   - name: Annie Doshen
     tier: 4
