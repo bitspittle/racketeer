@@ -9,7 +9,16 @@ import com.varabyte.kotter.runtime.render.RenderScope
 import com.varabyte.kotterx.decorations.BorderCharacters
 import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.racketeer.console.command.Command
+import dev.bitspittle.racketeer.console.command.commands.system.playtestId
 import dev.bitspittle.racketeer.console.game.App
+import dev.bitspittle.racketeer.console.game.version
+import dev.bitspittle.racketeer.console.utils.encodeToYaml
+import dev.bitspittle.racketeer.console.utils.upload
+import dev.bitspittle.racketeer.console.view.views.game.GameView
+import java.nio.file.Files
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.deleteExisting
+import kotlin.io.path.writeText
 
 private const val DESC_WRAP_WIDTH = 60
 
@@ -68,6 +77,27 @@ abstract class View(
             block()
         } catch (ex: Exception) {
             app.logger.error(ex.message ?: "Code threw exception without a message: ${ex::class.simpleName}")
+
+            // At this point, let's try to send an automatic crash report. We wrap it in an aggressive try/catch block
+            // though because there's nothing more fun than throwing an exception while trying to handle an exception
+            (viewStack.currentView as? GameView)?.ctx?.let { ctx ->
+                try {
+                    val viewName = this::class.simpleName!!.lowercase().removeSuffix("view")
+                    val command = currCommand.title
+                        .map { if (it.isLetterOrDigit()) it else '_' }
+                        .joinToString("")
+                        // Collapse all underscores and make sure any of them don't show up in weird places
+                        .replace(Regex("__+"), "_")
+                        .trim('_')
+                        .lowercase()
+                    val filename =
+                        "versions:${app.version}:users:${app.userData.playtestId}:crashes:$viewName-$command.yaml"
+                    val tmp = Files.createTempFile("docrimes-crash", ".yaml").apply {
+                        writeText(ctx.encodeToYaml())
+                    }
+                    app.uploadService.upload(filename, tmp) { tmp.deleteExisting() }
+                } catch (ignored: Throwable) { }
+            }
         }
     }
 

@@ -13,7 +13,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
 import java.nio.file.Path
-import kotlin.io.path.name
 
 interface UploadService {
     /**
@@ -21,9 +20,15 @@ interface UploadService {
      *
      * This method shouldn't block; instead, it should perform this action on a background thread and, if it fails,
      * just fail silently.
+     *
+     * This method takes in optional callbacks you can use to do followup work when it is finished. These callbacks
+     * will be triggered on the same background thread used to handle the upload.
      */
-    fun upload(fileName: String, path: Path)
+    fun upload(fileName: String, path: Path, onSuccess: () -> Unit = {}, onFailure: () -> Unit = {})
 }
+
+fun UploadService.upload(fileName: String, path: Path, onFinished: () -> Unit) =
+    upload(fileName, path, onFinished, onFinished)
 
 class DriveUploadService(title: String) : UploadService {
     private val UPLOAD_FOLDER_ID = "14bplvWMj-3qTuydASDz1LcBUzxDjz28U"
@@ -50,14 +55,19 @@ class DriveUploadService(title: String) : UploadService {
             .build()
     }
 
-    override fun upload(fileName: String, path: Path) {
+    override fun upload(fileName: String, path: Path, onSuccess: () -> Unit, onFailure: () -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {
             run {
-                val fileMetadata = File()
-                fileMetadata.name = fileName
-                fileMetadata.parents = listOf(UPLOAD_FOLDER_ID)
-                val mediaContent = FileContent("text/yaml", path.toFile())
-                driveService.files().create(fileMetadata, mediaContent).execute()
+                try {
+                    val fileMetadata = File()
+                    fileMetadata.name = fileName
+                    fileMetadata.parents = listOf(UPLOAD_FOLDER_ID)
+                    val mediaContent = FileContent("text/yaml", path.toFile())
+                    driveService.files().create(fileMetadata, mediaContent).execute()
+                    onSuccess()
+                } catch (ignored: Throwable) {
+                    onFailure()
+                }
             }
         }
 

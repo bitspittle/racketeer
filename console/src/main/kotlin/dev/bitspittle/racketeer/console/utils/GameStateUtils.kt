@@ -3,10 +3,12 @@ package dev.bitspittle.racketeer.console.utils
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.notifyOwnership
+import dev.bitspittle.racketeer.console.view.views.game.PreDrawView
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.game.GameStateDiff
 import dev.bitspittle.racketeer.model.game.getOwnedCards
 import dev.bitspittle.racketeer.model.game.reportTo
+import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import dev.bitspittle.racketeer.scripting.types.CancelPlayException
 
 /**
@@ -60,3 +62,9 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
         }
     }
 }
+
+fun GameContext.encodeToYaml() = GameSnapshot.from(
+    describer,
+    state,
+    isPreDraw = viewStack.contains { view -> view is PreDrawView }
+).encodeToYaml()

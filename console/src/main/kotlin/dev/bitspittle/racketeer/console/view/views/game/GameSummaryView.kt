@@ -13,26 +13,20 @@ import dev.bitspittle.racketeer.console.game.version
 import dev.bitspittle.racketeer.console.user.save
 import dev.bitspittle.racketeer.console.utils.encodeToYaml
 import dev.bitspittle.racketeer.model.game.from
-import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
-import kotlin.io.path.createDirectories
-import kotlin.io.path.writeText
+import kotlin.io.path.*
 
 class GameSummaryView(ctx: GameContext) : GameView(ctx) {
     init {
         ctx.cardStats.values.save(ctx.app.userData)
 
-        val endstates = ctx.app.userData.pathForEndStates().also { it.createDirectories() }
+        val endstatesRoot = ctx.app.userData.pathForEndStates().also { it.createDirectories() }
         // Just use a simple filename for now as a way to ensure that no OSes will crash on invalid filenames
         // (looking at you, windows). We'll send a nicer name up to Google Drive.
-        val endstate = endstates.resolve("endstate-${System.currentTimeMillis()}.yaml")
-        val payload = GameSnapshot.from(
-            ctx.describer,
-            ctx.state,
-            isPreDraw = false
-        ).encodeToYaml()
+        val endstate = endstatesRoot.resolve("endstate-${System.currentTimeMillis()}.yaml")
+        val payload = ctx.encodeToYaml()
 
         // Write it to disk so the user can see what we're doing / they can send files to us as a backup if
         // auto-uploading fails
@@ -40,7 +34,12 @@ class GameSummaryView(ctx: GameContext) : GameView(ctx) {
 
         ctx.app.uploadService.upload("versions:${ctx.app.version}:users:${ctx.app.userData.playtestId}:endstates:${
             Instant.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("MM-dd-yyyy|HH:mm:ss"))
-        }.yaml", endstate)
+        }.yaml", endstate, onSuccess = {
+            endstate.deleteIfExists()
+            if (endstatesRoot.listDirectoryEntries().isEmpty()) {
+                endstatesRoot.deleteExisting()
+            }
+        })
     }
 
     override fun createCommands(): List<Command> =
