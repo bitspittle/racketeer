@@ -153,7 +153,6 @@ class SystemMethodsTest {
     fun testAddAliases() = runTest {
         val env = Environment()
         env.addMethod(AliasMethod())
-        env.addMethod(AliasAlwaysMethod())
         env.storeValue("_", Placeholder)
 
         val evaluator = Evaluator()
@@ -188,11 +187,9 @@ class SystemMethodsTest {
 
         // ... unless you overwrite it
         evaluator.evaluate(env, "alias --overwrite _ 'lget2 'list")
-        // alias! works too
-        evaluator.evaluate(env, "alias! 'lget2 'list")
 
         // Aliases will always lose in precedence to existing methods and variables
-        evaluator.evaluate(env, "alias! 'list 'dummy")
+        evaluator.evaluate(env, "alias --overwrite _ 'list 'dummy")
         assertThat(evaluator.evaluate(env, "list 1 2 3 4 5") as List<Int>).containsExactly(1, 2, 3, 4, 5).inOrder()
 
         assertThrows<EvaluationException> {
