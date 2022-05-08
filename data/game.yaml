@@ -447,7 +447,8 @@ cards:
     playActions:
       - game-add! 'cash 3
       - set '$all-legend-cards (filter $all-cards '(card-has-type? $it 'legend))
-      - set '$random-legend (take --from 'random $all-legend-cards 1)
+      # Force a choose screen so that the player can see what card they got
+      - "set '$random-legend (choose --prompt \"Wanted: Dead or Alive\" --required _ (take --from 'random $all-legend-cards 1) 1)"
       - pile-copy-to! $discard $random-legend
       - pile-move-to! $jail $this
 
