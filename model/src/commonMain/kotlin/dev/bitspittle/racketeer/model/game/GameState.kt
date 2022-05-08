@@ -73,8 +73,8 @@ class MutableGameState internal constructor(
     override val streetEffects: MutableList<Effect>,
     override val history: MutableList<GameStateChange>,
 ): GameState {
-    constructor(data: GameData, cardQueue: CardQueue, random: CopyableRandom) : this(
-        random = random,
+    constructor(data: GameData, cardQueue: CardQueue, random: CopyableRandom = CopyableRandom()) : this(
+        random,
         cardQueue = cardQueue,
         numTurns = data.numTurns,
         turn = 0,

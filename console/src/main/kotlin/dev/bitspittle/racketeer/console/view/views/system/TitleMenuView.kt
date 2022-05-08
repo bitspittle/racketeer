@@ -37,7 +37,6 @@ class TitleMenuView(
     viewStack: ViewStack,
     env: Environment,
     cardQueue: CardQueue,
-    random: CopyableRandom
 ) : View(viewStack, app) {
     val ctx = run {
         @Suppress("NAME_SHADOWING")
@@ -48,7 +47,7 @@ class TitleMenuView(
             settings,
             cardStats,
             Describer(data, showDebugInfo = { settings.inAdminModeAndShowDebugInfo }),
-            MutableGameState(data, cardQueue, random),
+            MutableGameState(data, cardQueue),
             env,
             cardQueue,
             viewStack,

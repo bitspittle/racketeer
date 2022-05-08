@@ -25,7 +25,6 @@ import dev.bitspittle.racketeer.console.view.views.game.ChooseItemsView
 import dev.bitspittle.racketeer.console.view.views.game.PickItemView
 import dev.bitspittle.racketeer.console.view.views.system.TitleMenuView
 import dev.bitspittle.racketeer.model.game.GameData
-import dev.bitspittle.racketeer.model.random.CopyableRandom
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.types.CardQueueImpl
 import dev.bitspittle.racketeer.scripting.types.GameService
@@ -35,6 +34,7 @@ import net.mamoe.yamlkt.Yaml
 import java.util.*
 import kotlin.coroutines.suspendCoroutine
 import kotlin.io.path.readText
+import kotlin.random.Random
 
 class GameSession(
     private val gameData: GameData
@@ -83,11 +83,11 @@ class GameSession(
             override val uploadService: UploadService = DriveUploadService(gameData.title)
         }
 
-        val random = CopyableRandom()
+        lateinit var produceRandom: () -> Random
 
         val env = Environment()
         env.installDefaults(object : LangService {
-            override val random get() = random()
+            override val random get() = produceRandom()
             override val logger = app.logger
         })
         Evaluator().let { evaluator ->
@@ -106,7 +106,8 @@ class GameSession(
 
         val cardStats = CardStats.load(userData) ?: emptyList()
 
-        val titleView = TitleMenuView(gameData, settings, cardStats, app, viewStack, env, cardQueue, random)
+        val titleView = TitleMenuView(gameData, settings, cardStats, app, viewStack, env, cardQueue)
+        produceRandom = { titleView.ctx.state.random() }
 
         var handleRerender: () -> Unit = {}
         titleView.ctx.let { ctx ->
