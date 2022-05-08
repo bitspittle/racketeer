@@ -11,9 +11,9 @@ import dev.bitspittle.racketeer.console.command.commands.system.playtestId
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.version
 import dev.bitspittle.racketeer.console.user.save
+import dev.bitspittle.racketeer.console.utils.encodeToYaml
 import dev.bitspittle.racketeer.model.game.from
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
-import net.mamoe.yamlkt.Yaml
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -28,13 +28,11 @@ class GameSummaryView(ctx: GameContext) : GameView(ctx) {
         // Just use a simple filename for now as a way to ensure that no OSes will crash on invalid filenames
         // (looking at you, windows). We'll send a nicer name up to Google Drive.
         val endstate = endstates.resolve("endstate-${System.currentTimeMillis()}.yaml")
-        val payload = Yaml.encodeToString(
-            GameSnapshot.from(
-                ctx.describer,
-                ctx.state,
-                isPreDraw = false
-            )
-        )
+        val payload = GameSnapshot.from(
+            ctx.describer,
+            ctx.state,
+            isPreDraw = false
+        ).encodeToYaml()
 
         // Write it to disk so the user can see what we're doing / they can send files to us as a backup if
         // auto-uploading fails

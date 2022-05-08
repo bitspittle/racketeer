@@ -1,6 +1,7 @@
 package dev.bitspittle.racketeer.console.user
 
 import dev.bitspittle.racketeer.console.command.commands.system.UserData
+import dev.bitspittle.racketeer.console.utils.encodeToYaml
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import net.mamoe.yamlkt.Yaml
@@ -31,6 +32,6 @@ fun Iterable<CardStats>.save(userData: UserData) {
     val self = this
     userData.pathForCardStats().apply {
         parent.createDirectories()
-        writeText(Yaml.encodeToString(self.toList()))
+        writeText(self.toList().encodeToYaml())
     }
 }

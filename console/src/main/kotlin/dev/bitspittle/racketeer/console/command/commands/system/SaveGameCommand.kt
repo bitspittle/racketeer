@@ -3,9 +3,9 @@ package dev.bitspittle.racketeer.console.command.commands.system
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.user.save
+import dev.bitspittle.racketeer.console.utils.encodeToYaml
 import dev.bitspittle.racketeer.console.view.views.game.PreDrawView
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
-import net.mamoe.yamlkt.Yaml
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.writeText
@@ -21,12 +21,11 @@ class SaveGameCommand(ctx: GameContext, private val slot: Int) : Command(ctx) {
         ctx.app.userData.pathForSlot(slot).apply {
             parent.createDirectories()
             writeText(
-                Yaml.encodeToString(
-                    GameSnapshot.from(
-                        ctx.describer,
-                        ctx.state,
-                        isPreDraw = ctx.viewStack.contains { view -> view is PreDrawView })
-                )
+                GameSnapshot.from(
+                    ctx.describer,
+                    ctx.state,
+                    isPreDraw = ctx.viewStack.contains { view -> view is PreDrawView }
+                ).encodeToYaml()
             )
         }
         // While we're here, save card stats too

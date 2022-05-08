@@ -11,6 +11,7 @@ import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.shop.Exclusion
 import dev.bitspittle.racketeer.model.text.Describer
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 
@@ -62,6 +63,7 @@ sealed class GameChangeSnapshot {
     abstract fun create(state: GameState): GameStateChange
 
     @Serializable
+    @SerialName("GameStarted")
     class GameStarted : GameChangeSnapshot() {
         companion object {
             fun from(change: GameStateChange.GameStarted) = GameStarted()
@@ -70,6 +72,7 @@ sealed class GameChangeSnapshot {
     }
 
     @Serializable
+    @SerialName("ShuffleDiscardIntoDeck")
     class ShuffleDiscardIntoDeck : GameChangeSnapshot() {
         companion object {
             fun from(change: GameStateChange.ShuffleDiscardIntoDeck) = ShuffleDiscardIntoDeck()
@@ -78,6 +81,7 @@ sealed class GameChangeSnapshot {
     }
 
     @Serializable
+    @SerialName("Draw")
     class Draw(val count: Int) : GameChangeSnapshot() {
         companion object {
             fun from(change: GameStateChange.Draw) = Draw(change.count)
@@ -86,6 +90,7 @@ sealed class GameChangeSnapshot {
     }
 
     @Serializable
+    @SerialName("Play")
     class Play(val handIndex: Int) : GameChangeSnapshot() {
         companion object {
             fun from(change: GameStateChange.Play) = Play(change.handIndex)
@@ -94,6 +99,7 @@ sealed class GameChangeSnapshot {
     }
 
     @Serializable
+    @SerialName("MoveCard")
     class MoveCard(val cardPtr: CardPtr, val pilePtr: PilePtr, val listStrategy: ListStrategy = ListStrategy.BACK) : GameChangeSnapshot() {
         companion object {
             fun from(describer: Describer, state: GameState, change: GameStateChange.MoveCard) = MoveCard(
@@ -106,6 +112,7 @@ sealed class GameChangeSnapshot {
     }
 
     @Serializable
+    @SerialName("MoveCards")
     class MoveCards(val cardPtrs: List<CardPtr>, val pilePtr: PilePtr, val listStrategy: ListStrategy = ListStrategy.BACK) : GameChangeSnapshot() {
         companion object {
             fun from(describer: Describer, state: GameState, change: GameStateChange.MoveCards) = MoveCards(
@@ -121,6 +128,7 @@ sealed class GameChangeSnapshot {
     }
 
     @Serializable
+    @SerialName("Shuffle")
     class Shuffle(val pilePtr: PilePtr) : GameChangeSnapshot() {
         companion object {
             fun from(describer: Describer, state: GameState, change: GameStateChange.Shuffle) = Shuffle(PilePtr.from(describer, state, change.pile))
@@ -129,6 +137,7 @@ sealed class GameChangeSnapshot {
     }
 
     @Serializable
+    @SerialName("AddCardAmount")
     class AddCardAmount(val property: CardProperty, val cardPtr: CardPtr, val amount: Int) : GameChangeSnapshot() {
         companion object {
             fun from(change: GameStateChange.AddCardAmount) = AddCardAmount(
@@ -141,6 +150,7 @@ sealed class GameChangeSnapshot {
     }
 
     @Serializable
+    @SerialName("UpgradeCard")
     class UpgradeCard(val cardPtr: CardPtr, val upgradeType: UpgradeType) : GameChangeSnapshot() {
         companion object {
             fun from(change: GameStateChange.UpgradeCard) = UpgradeCard(CardPtr.from(change.card), change.upgradeType)
@@ -149,6 +159,7 @@ sealed class GameChangeSnapshot {
     }
 
     @Serializable
+    @SerialName("AddGameAmount")
     class AddGameAmount(val property: GameProperty, val amount: Int) : GameChangeSnapshot() {
         companion object {
             fun from(change: GameStateChange.AddGameAmount) = AddGameAmount(change.property, change.amount)
@@ -157,6 +168,7 @@ sealed class GameChangeSnapshot {
     }
 
     @Serializable
+    @SerialName("AddStreetEffect")
     class AddStreetEffect(val expr: String, val desc: String) : GameChangeSnapshot() {
         companion object {
             fun from(change: GameStateChange.AddStreetEffect) = AddStreetEffect(change.effect.expr, change.effect.desc)
@@ -165,6 +177,7 @@ sealed class GameChangeSnapshot {
     }
 
     @Serializable
+    @SerialName("AddShopExclusion")
     class AddShopExclusion(val expr: String) : GameChangeSnapshot() {
         companion object {
             fun from(change: GameStateChange.AddShopExclusion) = AddShopExclusion(change.exclusion.expr)
@@ -175,6 +188,7 @@ sealed class GameChangeSnapshot {
     }
 
     @Serializable
+    @SerialName("RestockShop")
     class RestockShop : GameChangeSnapshot() {
         companion object {
             fun from(change: GameStateChange.RestockShop) = RestockShop()
@@ -183,6 +197,7 @@ sealed class GameChangeSnapshot {
     }
 
     @Serializable
+    @SerialName("UpgradeShop")
     class UpgradeShop : GameChangeSnapshot() {
         companion object {
             fun from(change: GameStateChange.UpgradeShop) = UpgradeShop()
@@ -191,6 +206,7 @@ sealed class GameChangeSnapshot {
     }
 
     @Serializable
+    @SerialName("EndTurn")
     class EndTurn : GameChangeSnapshot() {
         companion object {
             fun from(change: GameStateChange.EndTurn) = EndTurn()
@@ -199,6 +215,7 @@ sealed class GameChangeSnapshot {
     }
 
     @Serializable
+    @SerialName("GameOver")
     class GameOver : GameChangeSnapshot() {
         companion object {
             fun from(change: GameStateChange.GameOver) = GameOver()

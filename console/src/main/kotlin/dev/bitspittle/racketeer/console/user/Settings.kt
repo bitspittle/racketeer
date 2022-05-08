@@ -1,8 +1,8 @@
 package dev.bitspittle.racketeer.console.user
 
 import dev.bitspittle.racketeer.console.command.commands.system.UserData
+import dev.bitspittle.racketeer.console.utils.encodeToYaml
 import kotlinx.serialization.Serializable
-import net.mamoe.yamlkt.Yaml
 import kotlin.io.path.createDirectories
 import kotlin.io.path.writeText
 
@@ -30,6 +30,6 @@ fun Settings.save(userData: UserData) {
     val self = this
     userData.pathForSettings().apply {
         parent.createDirectories()
-        writeText(Yaml.encodeToString(self))
+        writeText(self.encodeToYaml())
     }
 }
