@@ -27,7 +27,7 @@ interface GameState {
     val jail: Pile
     val graveyard: Pile
     val streetEffects: List<Effect>
-    val changes: List<GameStateChange>
+    val history: List<GameStateChange>
 
     /**
      * Inform this state that something changed and you'd like to recalculate the VP amount.
@@ -43,11 +43,15 @@ interface GameState {
 }
 
 val GameState.lastTurnIndex get() = numTurns - 1
-val GameState.hasGameStarted get() = !(turn == 0 && changes.isEmpty() && getOwnedCards().all { pileFor(it) == deck })
-val GameState.isGameOver get() = changes.lastOrNull() is GameStateChange.GameOver
+val GameState.hasGameStarted get() = !(turn == 0 && history.isEmpty() && getOwnedCards().all { pileFor(it) == deck })
+val GameState.isGameOver get() = history.lastOrNull() is GameStateChange.GameOver
 val GameState.isGameInProgress get() = hasGameStarted && !isGameOver
-val GameState.allPiles: List<Pile> get() = listOf(hand, deck, discard, street, jail, graveyard)
-fun GameState.getOwnedCards() = (allPiles - jail - graveyard).flatMap { it.cards }
+val GameState.allPiles: Sequence<Pile> get() = sequenceOf(hand, deck, discard, street, jail, graveyard)
+val GameState.allCards: Sequence<Card> get() = allPiles.flatMap { it.cards }
+fun GameState.getOwnedCards() = allPiles
+    .filter { it !== jail && it !== graveyard }
+    .flatMap { it.cards }
+
 
 class MutableGameState internal constructor(
     override val random: CopyableRandom,
@@ -67,6 +71,7 @@ class MutableGameState internal constructor(
     override val jail: MutablePile,
     override val graveyard: MutablePile,
     override val streetEffects: MutableList<Effect>,
+    override val history: MutableList<GameStateChange>,
 ): GameState {
     constructor(data: GameData, cardQueue: CardQueue, random: CopyableRandom) : this(
         random = random,
@@ -95,9 +100,8 @@ class MutableGameState internal constructor(
         jail = MutablePile(),
         graveyard = MutablePile(),
         streetEffects = mutableListOf(),
+        history = mutableListOf()
     )
-
-    override val changes: MutableList<GameStateChange> = mutableListOf()
 
     /**
      * How many turns are in a game.
@@ -244,6 +248,7 @@ class MutableGameState internal constructor(
             jail.copy(),
             graveyard.copy(),
             streetEffects.toMutableList(),
+            history.toMutableList(),
         )
     }
 
@@ -255,18 +260,18 @@ class MutableGameState internal constructor(
      *   rare.
      */
     suspend fun apply(change: GameStateChange, insertBefore: GameStateChange?) {
-        if (changes.lastOrNull() is GameStateChange.GameOver) return
+        if (history.lastOrNull() is GameStateChange.GameOver) return
 
         // We postpone applying the init delta because when we first construct this game state, we're not in a
         // suspend fun context
         if (!hasGameStarted) {
-            changes.add(GameStateChange.GameStarted())
+            history.add(GameStateChange.GameStarted())
         }
 
         if (insertBefore == null) {
-            changes.add(change)
+            history.add(change)
         } else {
-            changes.add(changes.indexOf(insertBefore), change)
+            history.add(history.indexOf(insertBefore), change)
         }
         change.applyTo(this)
         check(hasGameStarted)

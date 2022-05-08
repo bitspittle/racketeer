@@ -7,9 +7,11 @@ import dev.bitspittle.racketeer.model.text.Describer
 
 /** Create a diff between two snapshots of a game state in time, useful for reporting changes to the user */
 @Suppress("JoinDeclarationAndAssignment")
-class GameStateDiff(val before: GameState, val after: GameState)
+class GameStateDiff(val before: GameState, val after: GameState) {
+    val changes = after.history.drop(before.history.size)
+}
 
-fun GameStateDiff.hasNoChanges() = after.changes.isEmpty()
+fun GameStateDiff.hasNoChanges() = changes.isEmpty()
 
 fun GameStateDiff.reportTo(describer: Describer, logger: Logger) {
     GameStateDiffReporter(describer, this).reportTo(logger)
@@ -134,7 +136,7 @@ private class GameStateDiffReporter(
 
     fun reportTo(logger: Logger) {
         val report = buildString {
-            val changes = diff.after.changes.toMutableList()
+            val changes = diff.changes.toMutableList()
 
             // Convert "MoveCards" to "MoveCard" when possible, it reads better
             for (i in changes.indices) {

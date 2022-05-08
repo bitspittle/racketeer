@@ -96,7 +96,7 @@ fun Environment.setValuesFrom(state: GameState) {
             options: Map<String, Any>,
             rest: List<Any>
         ): Any {
-            return state.getOwnedCards()
+            return state.getOwnedCards().toList()
         }
     }, allowOverwrite = true)
 }

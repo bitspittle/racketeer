@@ -9,5 +9,5 @@ import dev.bitspittle.racketeer.model.game.allPiles
 class ChoosePileFromView(ctx: GameContext) : GameView(ctx) {
     override val heading = "Choose a pile to move one or more cards from."
 
-    override fun createCommands(): List<Command> = ctx.state.allPiles.map { pile -> ChoosePileFromCommand(ctx, pile) }
+    override fun createCommands(): List<Command> = ctx.state.allPiles.map { pile -> ChoosePileFromCommand(ctx, pile) }.toList()
 }

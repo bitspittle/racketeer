@@ -15,7 +15,7 @@ interface Pile {
     val cards: List<Card>
 }
 
-class MutablePile private constructor(
+class MutablePile internal constructor(
     override val id: Uuid, override val cards: MutableList<MutableCard>
 ) : Pile {
     constructor(cards: MutableList<MutableCard> = mutableListOf()) : this(uuid4(), cards)

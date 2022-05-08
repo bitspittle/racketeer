@@ -23,6 +23,7 @@ class SaveGameCommand(ctx: GameContext, private val slot: Int) : Command(ctx) {
             writeText(
                 Yaml.encodeToString(
                     GameSnapshot.from(
+                        ctx.describer,
                         ctx.state,
                         isPreDraw = ctx.viewStack.contains { view -> view is PreDrawView })
                 )

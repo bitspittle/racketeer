@@ -1,5 +1,10 @@
+@file:UseSerializers(UuidSerializer::class)
+
 package dev.bitspittle.racketeer.model.serialization
 
+import kotlinx.serialization.UseSerializers
+
+import com.benasher44.uuid.Uuid
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.racketeer.model.card.*
@@ -13,10 +18,12 @@ import dev.bitspittle.racketeer.model.random.CopyableRandom
 import dev.bitspittle.racketeer.model.shop.Exclusion
 import dev.bitspittle.racketeer.model.shop.MutableShop
 import dev.bitspittle.racketeer.model.shop.Shop
+import dev.bitspittle.racketeer.model.text.Describer
 import kotlinx.serialization.Serializable
 
 @Serializable
 class CardSnapshot(
+    val id: Uuid,
     val name: String,
     val vp: Int,
     val counter: Int,
@@ -24,6 +31,7 @@ class CardSnapshot(
 ) {
     companion object {
         fun from(card: Card) = CardSnapshot(
+            card.id,
             card.template.name,
             card.vpBase,
             card.counter,
@@ -36,7 +44,9 @@ class CardSnapshot(
         vp,
         vpPassive = 0,
         counter,
-        upgrades.toMutableSet())
+        upgrades.toMutableSet(),
+        id
+    )
 }
 
 @Serializable
@@ -69,21 +79,23 @@ class ShopSnapshot(
         tier,
         stock.map { it?.create(data) }.toMutableList(),
         exclusions = mutableListOf() // Populated by GameSnapshot
-
     )
 }
 
 @Serializable
 class PileSnapshot(
+    val id: Uuid,
     val cards: List<CardSnapshot>
 ) {
     companion object {
         fun from(pile: Pile) = PileSnapshot(
+            pile.id,
             pile.cards.map { CardSnapshot.from(it) }
         )
     }
 
     fun create(data: GameData) = MutablePile(
+        id,
         cards.map { it.create(data) }.toMutableList()
     )
 }
@@ -119,9 +131,10 @@ class GameSnapshot(
     val jail: PileSnapshot,
     val graveyard: PileSnapshot,
     val streetEffects: List<EffectSnapshot>,
+    val history: List<GameChangeSnapshot>,
 ) {
     companion object {
-        fun from(gameState: GameState, isPreDraw: Boolean) = GameSnapshot(
+        fun from(describer: Describer, gameState: GameState, isPreDraw: Boolean) = GameSnapshot(
             gameState.random,
             isPreDraw,
             gameState.numTurns,
@@ -139,12 +152,13 @@ class GameSnapshot(
             PileSnapshot.from(gameState.jail),
             PileSnapshot.from(gameState.graveyard),
             gameState.streetEffects.map { EffectSnapshot.from(it) },
+            gameState.history.map { change -> GameChangeSnapshot.from(describer, gameState, change) }
         )
     }
 
     /**
      * @param onGameStateCreated A callback that is triggered after the game state was created but before we run some
-     *   initialition on it that requires it be hooked up into the scripting system. This is kind of a hack since it
+     *   initialization on it that requires it be hooked up into the scripting system. This is kind of a hack since it
      *   couples this method with awareness of the scripting system, but it's isolated at least and not terrible.
      */
     suspend fun create(data: GameData, env: Environment, cardQueue: CardQueue, onGameStateCreated: (MutableGameState) -> Unit) {
@@ -166,7 +180,9 @@ class GameSnapshot(
             jail.create(data),
             graveyard.create(data),
             streetEffects = mutableListOf(), // Populated shortly
+            history = mutableListOf(), // Populated shortly
         )
+        gs.history.addAll(history.map { it.create(gs) })
 
         onGameStateCreated(gs)
 

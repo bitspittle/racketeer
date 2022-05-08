@@ -30,6 +30,7 @@ class GameSummaryView(ctx: GameContext) : GameView(ctx) {
         val endstate = endstates.resolve("endstate-${System.currentTimeMillis()}.yaml")
         val payload = Yaml.encodeToString(
             GameSnapshot.from(
+                ctx.describer,
                 ctx.state,
                 isPreDraw = false
             )

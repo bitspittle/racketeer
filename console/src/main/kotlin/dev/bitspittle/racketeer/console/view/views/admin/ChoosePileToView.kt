@@ -12,5 +12,5 @@ class ChoosePileToView(ctx: GameContext, private val cards: List<Card>, private 
     override val heading = "Choose a pile to move your selected cards to."
 
     override fun createCommands(): List<Command> =
-        ctx.state.allPiles.map { pile -> ChoosePileToCommand(ctx, pile, cards, forceDisabled = (pile == disallowedPile)) }
+        ctx.state.allPiles.map { pile -> ChoosePileToCommand(ctx, pile, cards, forceDisabled = (pile == disallowedPile)) }.toList()
 }

@@ -111,7 +111,7 @@ sealed class GameStateChange {
         }
     }
 
-    class AddShopExclusion(private val exclusion: Exclusion) : GameStateChange() {
+    class AddShopExclusion(val exclusion: Exclusion) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             shop.addExclusion(exclusion)
         }

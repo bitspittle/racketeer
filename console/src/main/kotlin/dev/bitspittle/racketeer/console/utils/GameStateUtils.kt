@@ -28,7 +28,7 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
 
             // Notify ownership if a card ever goes from being unowned (in the previous state of the game) to
             // owned now, by checking relevant game state changes that move cards into the game
-            state.changes.forEach { change ->
+            state.history.forEach { change ->
                 when (change) {
                     is GameStateChange.GameStarted -> {
                         state.getOwnedCards().forEach { card -> cardStats.notifyOwnership(card) }
