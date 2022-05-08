@@ -106,6 +106,7 @@ abstract class GameView(val ctx: GameContext) : View(ctx.viewStack, ctx.app) {
         if (allowAdminAccess()) {
             text("Press "); cyan { text("~") }; textLine(" to access the admin menu.")
         }
+        text("Press "); cyan { text("UP/DOWN") }; text(", "); cyan { text("HOME/END") }; text(", and "); cyan { text("PGUP/PGDN") }; textLine(" to navigate choices.")
         if (allowEsc) {
             text("Press "); cyan { text("ESC") }
             if (ctx.viewStack.canGoBack) textLine(" to go back.") else textLine(" to open options.")
