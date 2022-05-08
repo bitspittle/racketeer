@@ -171,6 +171,8 @@ class StubCardQueue : CardQueue {
 
     override suspend fun runEnqueuedActions(gameState: MutableGameState) {
     }
+
+    override val isRunning = false
 }
 
 // Create a random with a fixed seed so tests run consistently
