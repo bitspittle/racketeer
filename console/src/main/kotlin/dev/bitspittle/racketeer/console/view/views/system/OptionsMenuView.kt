@@ -10,6 +10,7 @@ import dev.bitspittle.racketeer.console.command.commands.system.CardListCommand
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataCommand
 import dev.bitspittle.racketeer.console.command.commands.system.playtestId
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.game.version
 import dev.bitspittle.racketeer.console.user.save
 import dev.bitspittle.racketeer.console.view.views.game.GameView
 import dev.bitspittle.racketeer.model.game.hasGameStarted
@@ -84,6 +85,9 @@ class OptionsMenuView(ctx: GameContext) : GameView(ctx) {
 
     override fun RenderScope.renderLowerFooter() {
         textLine()
-        magenta { textLine("Playtest ID: ${ctx.app.userData.playtestId}") }
+        magenta {
+            textLine("${ctx.data.title} v${ctx.app.version}")
+            textLine("Playtest ID: ${ctx.app.userData.playtestId}")
+        }
     }
 }
