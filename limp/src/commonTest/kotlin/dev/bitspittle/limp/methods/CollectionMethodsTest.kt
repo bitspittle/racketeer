@@ -402,4 +402,23 @@ class CollectionMethodsTest {
 
         assertThat(evaluator.evaluate(env, "union") as List<Int>).isEmpty()
     }
+
+    @Test
+    fun testRepeatMethod() = runTest {
+        val env = Environment()
+        env.addMethod(RepeatMethod())
+
+        val evaluator = Evaluator()
+
+        assertThat(evaluator.evaluate(env, "repeat 1 5")).isEqualTo(listOf(1, 1, 1, 1, 1))
+        assertThat(evaluator.evaluate(env, "repeat \"A\" 3")).isEqualTo(listOf("A", "A", "A"))
+        assertThat(evaluator.evaluate(env, "repeat 12345 0") as List<Int>).isEmpty()
+
+        // Negative counts are not supported
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "repeat 12345 -1")
+        }.also { ex ->
+            assertThat(ex.cause).isInstanceOf<IllegalArgumentException>()
+        }
+    }
 }
