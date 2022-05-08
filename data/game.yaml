@@ -115,9 +115,7 @@ globalActions:
   - def 'card-named '$name '(single (filter $all-cards '(= card-get $it 'name $name)) _)
   - def 'compare-by-index '$list '$a '$b '(compare index-of $list $a index-of $list $b)
   - def 'pile-compare '$pileA '$pileB '(compare-by-index (list $hand $deck $discard $street $jail) $pileA $pileB)
-  - def '_choose-across-piles '$required '$prompt '$cards '$count '(run '(cancel-if! empty? $cards) '(choose --format $fmt-card-with-pile --required $required --prompt $prompt (sorted --with '(pile-compare card-pile $a card-pile $b) (sorted $cards)) $count))
-  - def 'choose-across-piles '$prompt '$cards '$count '(_choose-across-piles false $prompt $cards $count)
-  - def 'choose-across-piles! '$prompt '$cards '$count '(_choose-across-piles true $prompt $cards $count)
+  - def 'choose-across-piles '$prompt '$cards '$count '(run '(cancel-if! empty? $cards) '(choose --format $fmt-card-with-pile --prompt $prompt (sorted --with '(pile-compare card-pile $a card-pile $b) (sorted $cards)) $count))
   - set '$fmt-card-with-pile '(join-to-string --separator "" (list ";(" (pile-get (card-pile $it) 'name) ")"))
   - set '$fmt-card-with-cash '(join-to-string --separator "" (list (card-get $it 'name) ";(" (card-get $it 'cost) (icon-convert "$") ")"))
 
@@ -182,7 +180,7 @@ cards:
     initActions:
       - pile-move-to! $jail $this
       - set '$ownednoncops filter $owned '(! (card-has-type? $it 'cop))
-      - pile-move-to! $jail choose-across-piles! "Choose two cards to jail." $ownednoncops 2
+      - pile-move-to! $jail choose-across-piles "Choose two cards to jail." $ownednoncops 2
 
   - name: Burglar
     tier: 0
@@ -381,7 +379,7 @@ cards:
       - set '$all-thieves filter $owned '(card-has-type? $it 'thief)
       - set '$thieves filter $all-thieves '(! (card-has-upgrade? $it 'cash))
       - stop-if! empty? $thieves
-      - card-upgrade! (choose-across-piles! "Choose up to three Thieves to upgrade." $thieves .. 0 3) 'cash
+      - card-upgrade! (choose-across-piles "Choose up to three Thieves to upgrade." $thieves .. 0 3) 'cash
 
   - name: Grifter
     tier: 1
