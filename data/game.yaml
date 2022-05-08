@@ -119,6 +119,7 @@ globalActions:
   - def 'choose-across-piles '$prompt '$cards '$count '(_choose-across-piles false $prompt $cards $count)
   - def 'choose-across-piles! '$prompt '$cards '$count '(_choose-across-piles true $prompt $cards $count)
   - set '$fmt-card-with-pile '(join-to-string --separator "" (list ";(" (pile-get (card-pile $it) 'name) ")"))
+  - set '$fmt-card-with-cash '(join-to-string --separator "" (list (card-get $it 'name) ";(" (card-get $it 'cost) (icon-convert "$") ")"))
 
 cards:
   # TIER 1
@@ -391,7 +392,7 @@ cards:
     playActions:
       - game-add! 'influence 3
       - stop-if! empty? $shop
-      - pile-move-to! --pos 'random $deck (choose --prompt "Choose a card to add to your deck." $shop 1)
+      - pile-move-to! --pos 'random $deck (choose --format $fmt-card-with-cash --prompt "Choose a card to add to your deck." $shop 1)
       - pile-move-to! $jail $this
 
   - name: Gentleman Gerald
@@ -703,7 +704,7 @@ cards:
     flavor: Add a card from the shop to your discard pile and a Constable to your hand.
     playActions:
       - stop-if! empty? $shop
-      - pile-move-to! $discard (choose --prompt "Choose a card to add to your discard pile." $shop 1)
+      - pile-move-to! $discard (choose --format $fmt-card-with-cash --prompt "Choose a card to add to your discard pile." $shop 1)
       - pile-copy-to! $hand (single (filter $all-cards '(= card-get $it 'name "Constable")) _ )
 
 
