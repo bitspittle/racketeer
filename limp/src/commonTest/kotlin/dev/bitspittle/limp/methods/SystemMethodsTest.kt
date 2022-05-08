@@ -234,6 +234,27 @@ class SystemMethodsTest {
         // You can chain debug statements
         service.clearLogs()
         evaluator.evaluate(env, "dbg + dbg 10 dbg 20")
-        assertThat(service.logs).containsExactly("[D] Debug: 20 # Int", "[D] Debug: 10 # Int", "[D] Debug: 30 # Int")
+        assertThat(service.logs)
+            .containsExactly("[D] Debug: 20 # Int", "[D] Debug: 10 # Int", "[D] Debug: 30 # Int")
+            .inOrder()
+    }
+
+    @Test
+    fun testLogMethod() = runTest {
+        val env = Environment()
+        val service = TestLangService()
+        env.addMethod(LogMethod(service.logger))
+
+        assertThat(service.logs.isEmpty())
+
+        val evaluator = Evaluator()
+
+        evaluator.evaluate(env, "log 123")
+        assertThat(service.logs).containsExactly("[I] 123")
+
+        service.clearLogs()
+        evaluator.evaluate(env, "log \"Hello\"")
+        evaluator.evaluate(env, "log \"World\"")
+        assertThat(service.logs).containsExactly("[I] Hello", "[I] World").inOrder()
     }
 }
