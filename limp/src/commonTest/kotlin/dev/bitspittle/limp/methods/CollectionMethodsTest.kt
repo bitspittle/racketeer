@@ -337,6 +337,25 @@ class CollectionMethodsTest {
     }
 
     @Test
+    fun testRandomMethod() = runTest {
+        val env = Environment()
+        val random = Random(123)
+        env.addMethod(RandomMethod { random })
+        env.storeValue("\$ints", listOf(1, 2, 3, 4, 5))
+        env.storeValue("\$strs", listOf("A", "B", "C"))
+
+        val evaluator = Evaluator()
+
+        assertThat(evaluator.evaluate(env, "random \$ints")).isEqualTo(2)
+        assertThat(evaluator.evaluate(env, "random \$ints")).isEqualTo(1)
+        assertThat(evaluator.evaluate(env, "random \$ints")).isEqualTo(4)
+
+        assertThat(evaluator.evaluate(env, "random \$strs")).isEqualTo("A")
+        assertThat(evaluator.evaluate(env, "random \$strs")).isEqualTo("A")
+        assertThat(evaluator.evaluate(env, "random \$strs")).isEqualTo("C")
+    }
+
+    @Test
     fun testSortedMethod() = runTest {
         val env = Environment()
 

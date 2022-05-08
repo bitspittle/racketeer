@@ -98,6 +98,7 @@ fun Environment.installDefaults(service: LangService = DefaultLangService()) {
     addMethod(TakeMethod(service::random))
     addMethod(ShuffleMethod(service::random))
     addMethod(ShuffledMethod(service::random))
+    addMethod(RandomMethod(service::random))
     addMethod(SortedMethod())
     addMethod(UnionMethod())
 
