@@ -13,8 +13,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
 import java.nio.file.Path
+import java.time.Duration
+
+private val DEFAULT_THROTTLE_DURATION = Duration.ofMinutes(1)
 
 interface UploadService {
+    val throttleDurations: Map<Any, Duration>
+
     /**
      * Upload some data file to a folder in the Cloud.
      *
@@ -23,16 +28,24 @@ interface UploadService {
      *
      * This method takes in optional callbacks you can use to do followup work when it is finished. These callbacks
      * will be triggered on the same background thread used to handle the upload.
+     *
+     * @param throttleKey If set, will be used as a key to check against another data payload with the same key having
+     *   been uploaded somewhat recently. Pass in `null` to not throttle. See also: [throttleDurations]
      */
-    fun upload(fileName: String, path: Path, onSuccess: () -> Unit = {}, onFailure: () -> Unit = {})
+    fun upload(fileName: String, path: Path, throttleKey: Any? = null, onSuccess: () -> Unit = {}, onFailure: () -> Unit = {})
 }
 
 fun UploadService.upload(fileName: String, path: Path, onFinished: () -> Unit) =
     upload(fileName, path, onFinished, onFinished)
 
-class DriveUploadService(title: String) : UploadService {
+enum class UploadThrottleCategory {
+    CRASH_REPORT
+}
+
+class DriveUploadService(title: String, override val throttleDurations: Map<Any, Duration> = mapOf()) : UploadService {
     private val UPLOAD_FOLDER_ID = "14bplvWMj-3qTuydASDz1LcBUzxDjz28U"
     private val JSON_FACTORY = GsonFactory.getDefaultInstance()
+    private val nextAllowedUpload = mutableMapOf<Any, Long>()
 
     private fun getCredentials(): Credential {
         val credentialsJson = DriveUploadService::class.java.getResourceAsStream("/credentials.json")
@@ -55,7 +68,13 @@ class DriveUploadService(title: String) : UploadService {
             .build()
     }
 
-    override fun upload(fileName: String, path: Path, onSuccess: () -> Unit, onFailure: () -> Unit) {
+    override fun upload(fileName: String, path: Path, throttleKey: Any?, onSuccess: () -> Unit, onFailure: () -> Unit) {
+        val now = System.currentTimeMillis()
+        if (throttleKey != null && nextAllowedUpload.getOrDefault(throttleKey, 0) > now) {
+            onFailure()
+            return
+        }
+
         CoroutineScope(Dispatchers.IO).launch {
             run {
                 try {
@@ -64,6 +83,10 @@ class DriveUploadService(title: String) : UploadService {
                     fileMetadata.parents = listOf(UPLOAD_FOLDER_ID)
                     val mediaContent = FileContent("text/yaml", path.toFile())
                     driveService.files().create(fileMetadata, mediaContent).execute()
+                    if (throttleKey != null) {
+                        nextAllowedUpload[throttleKey] = now + (throttleDurations[throttleKey] ?: DEFAULT_THROTTLE_DURATION).toMillis()
+                    }
+
                     onSuccess()
                 } catch (ignored: Throwable) {
                     onFailure()

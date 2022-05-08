@@ -12,11 +12,10 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.playtestId
 import dev.bitspittle.racketeer.console.game.App
 import dev.bitspittle.racketeer.console.game.version
+import dev.bitspittle.racketeer.console.utils.UploadThrottleCategory
 import dev.bitspittle.racketeer.console.utils.encodeToYaml
-import dev.bitspittle.racketeer.console.utils.upload
 import dev.bitspittle.racketeer.console.view.views.game.GameView
 import java.nio.file.Files
-import kotlin.io.path.absolutePathString
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.writeText
 
@@ -95,7 +94,7 @@ abstract class View(
                     val tmp = Files.createTempFile("docrimes-crash", ".yaml").apply {
                         writeText(ctx.encodeToYaml())
                     }
-                    app.uploadService.upload(filename, tmp) { tmp.deleteExisting() }
+                    app.uploadService.upload(filename, tmp, UploadThrottleCategory.CRASH_REPORT) { tmp.deleteExisting() }
                 } catch (ignored: Throwable) { }
             }
         }
