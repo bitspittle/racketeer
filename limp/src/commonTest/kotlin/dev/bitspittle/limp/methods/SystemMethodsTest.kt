@@ -10,7 +10,9 @@ import dev.bitspittle.limp.methods.collection.ListGetMethod
 import dev.bitspittle.limp.methods.collection.ListMethod
 import dev.bitspittle.limp.methods.compare.EqualsMethod
 import dev.bitspittle.limp.methods.compare.NotEqualsMethod
-import dev.bitspittle.limp.methods.math.*
+import dev.bitspittle.limp.methods.math.AddMethod
+import dev.bitspittle.limp.methods.math.MaxMethod
+import dev.bitspittle.limp.methods.math.MinMethod
 import dev.bitspittle.limp.methods.system.*
 import dev.bitspittle.limp.types.ConsoleLogger
 import dev.bitspittle.limp.types.Placeholder
@@ -24,7 +26,6 @@ class SystemMethodsTest {
         val env = Environment()
         val service = TestLangService()
         env.addMethod(SetMethod(service.logger))
-        env.addMethod(SetAlwaysMethod(service.logger))
         env.addMethod(AddMethod())
         env.addMethod(EqualsMethod())
         env.addMethod(NotEqualsMethod())
@@ -70,8 +71,6 @@ class SystemMethodsTest {
         assertThat(env.loadValue("\$set-multiple-times")).isEqualTo(123)
         evaluator.evaluate(env, "set --overwrite _ '\$set-multiple-times 456")
         assertThat(env.loadValue("\$set-multiple-times")).isEqualTo(456)
-        evaluator.evaluate(env, "set! '\$set-multiple-times 789")
-        assertThat(env.loadValue("\$set-multiple-times")).isEqualTo(789)
 
         assertThat(service.logs.isEmpty())
         assertThat(evaluator.evaluate(env, "set 'no-leading-dollar 123"))
@@ -84,7 +83,6 @@ class SystemMethodsTest {
         env.addMethod(MinMethod())
         env.addMethod(MaxMethod())
         env.addMethod(DefMethod())
-        env.addMethod(DefAlwaysMethod())
         env.storeValue("_", Placeholder)
 
         val evaluator = Evaluator()
@@ -149,10 +147,6 @@ class SystemMethodsTest {
         }
         evaluator.evaluate(env, "def --overwrite _ 'onetwothree '124")
         assertThat(evaluator.evaluate(env, "onetwothree")).isEqualTo(124)
-
-        // def! can overwrite, too
-        evaluator.evaluate(env, "def! 'onetwothree '123")
-        assertThat(evaluator.evaluate(env, "onetwothree")).isEqualTo(123)
     }
 
     @Test
