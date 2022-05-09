@@ -3,10 +3,7 @@ package dev.bitspittle.racketeer.console.view.views.game.cards
 import com.varabyte.kotter.foundation.input.CharKey
 import com.varabyte.kotter.foundation.input.Key
 import com.varabyte.kotter.foundation.input.Keys
-import com.varabyte.kotter.foundation.text.black
-import com.varabyte.kotter.foundation.text.cyan
-import com.varabyte.kotter.foundation.text.text
-import com.varabyte.kotter.foundation.text.textLine
+import com.varabyte.kotter.foundation.text.*
 import com.varabyte.kotter.runtime.MainRenderScope
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
@@ -59,7 +56,11 @@ class CardListView(ctx: GameContext, private var sortingOrder: SortingOrder = So
         }
     }
 
+    private val numCardsUsed = ctx.data.cards.count { ctx.cardStats.contains(it.name) }
     override fun MainRenderScope.renderContentUpper() {
+        yellow { textLine("You have discovered $numCardsUsed out of ${ctx.data.cards.size} cards.") }
+        textLine()
+
         textLine("Sorted by: ${sortingOrder.name.lowercase().capitalize()}")
         textLine()
 
