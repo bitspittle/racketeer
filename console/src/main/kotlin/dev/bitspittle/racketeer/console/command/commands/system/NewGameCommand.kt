@@ -2,9 +2,8 @@ package dev.bitspittle.racketeer.console.command.commands.system
 
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.game.notifyOwnership
 import dev.bitspittle.racketeer.console.view.popAll
-import dev.bitspittle.racketeer.console.view.views.game.PreDrawView
+import dev.bitspittle.racketeer.console.view.views.game.play.PreDrawView
 import dev.bitspittle.racketeer.model.game.MutableGameState
 import dev.bitspittle.racketeer.model.random.CopyableRandom
 import kotlin.io.path.deleteIfExists

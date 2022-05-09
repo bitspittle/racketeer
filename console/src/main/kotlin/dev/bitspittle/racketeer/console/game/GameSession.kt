@@ -21,8 +21,8 @@ import dev.bitspittle.racketeer.console.user.inAdminModeAndShowDebugInfo
 import dev.bitspittle.racketeer.console.utils.DriveUploadService
 import dev.bitspittle.racketeer.console.utils.UploadService
 import dev.bitspittle.racketeer.console.view.ViewStackImpl
-import dev.bitspittle.racketeer.console.view.views.game.ChooseItemsView
-import dev.bitspittle.racketeer.console.view.views.game.PickItemView
+import dev.bitspittle.racketeer.console.view.views.game.choose.ChooseItemsView
+import dev.bitspittle.racketeer.console.view.views.game.choose.PickItemView
 import dev.bitspittle.racketeer.console.view.views.system.TitleMenuView
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler

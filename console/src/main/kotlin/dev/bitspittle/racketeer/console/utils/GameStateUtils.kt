@@ -3,7 +3,7 @@ package dev.bitspittle.racketeer.console.utils
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.notifyOwnership
-import dev.bitspittle.racketeer.console.view.views.game.PreDrawView
+import dev.bitspittle.racketeer.console.view.views.game.play.PreDrawView
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.game.GameStateDiff
 import dev.bitspittle.racketeer.model.game.getOwnedCards

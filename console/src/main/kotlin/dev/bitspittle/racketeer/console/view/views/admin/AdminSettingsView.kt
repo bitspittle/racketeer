@@ -7,7 +7,7 @@ import com.varabyte.kotter.foundation.text.text
 import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
-import dev.bitspittle.racketeer.console.command.commands.game.SelectItemCommand
+import dev.bitspittle.racketeer.console.command.commands.game.choose.SelectItemCommand
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.user.Settings
 import dev.bitspittle.racketeer.console.user.save

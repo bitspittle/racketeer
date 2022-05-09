@@ -2,7 +2,7 @@ package dev.bitspittle.racketeer.console.command.commands.system
 
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.view.views.game.CardListView
+import dev.bitspittle.racketeer.console.view.views.game.cards.CardListView
 
 class CardListCommand(ctx: GameContext) : Command(ctx) {
     override val title = "Card list"

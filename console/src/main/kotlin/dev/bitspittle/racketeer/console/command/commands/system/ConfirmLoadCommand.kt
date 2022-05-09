@@ -3,8 +3,8 @@ package dev.bitspittle.racketeer.console.command.commands.system
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.popAll
-import dev.bitspittle.racketeer.console.view.views.game.PlayCardsView
-import dev.bitspittle.racketeer.console.view.views.game.PreDrawView
+import dev.bitspittle.racketeer.console.view.views.game.play.PlayCardsView
+import dev.bitspittle.racketeer.console.view.views.game.play.PreDrawView
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import net.mamoe.yamlkt.Yaml
 import kotlin.io.path.*
