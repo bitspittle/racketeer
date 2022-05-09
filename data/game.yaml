@@ -217,10 +217,10 @@ cards:
     rarity: 2
     types: [action]
     cost: 3
-    flavor: Gain %. Create a Burglar on top of your deck.
+    flavor: Gain %. Create a Burglar (worth +2$) in your hand.
     playActions:
       - game-add! 'luck 1
-      - pile-copy-to! --pos 'front $deck (single (filter $all-cards '(= card-get $it 'name "Burglar")) _ )
+      - pile-copy-to! $hand (single (filter $all-cards '(= card-get $it 'name "Burglar")) _ )
 
   - name: Croupier
     tier: 0
@@ -249,7 +249,7 @@ cards:
     rarity: 1
     types: [spy]
     cost: 2
-    flavor: Gain &&. Upgrades after one use.
+    flavor: Gain &&. Gets another +& after one use.
     playActions:
       - game-add! 'influence 2
       - stop-if! card-has-upgrade? $this 'influence
@@ -272,7 +272,7 @@ cards:
     rarity: 2
     types: [spy, legend]
     cost: 3
-    flavor: When you get or play this, give a Spy you own +&.
+    flavor: When you get or play this, give another Spy you own +&.
     initActions:
       - card-trigger! $this
     playActions:
@@ -287,7 +287,7 @@ cards:
     rarity: 2
     types: [thief, legend]
     cost: 3
-    flavor: When you get or play this, give a Thief you own +$.
+    flavor: When you get or play this, give another Thief you own +$.
     initActions:
       - card-trigger! $this
     playActions:
@@ -326,7 +326,7 @@ cards:
     rarity: 1
     types: [thief]
     cost: 3
-    flavor: Gain $$. Upgrades after one use.
+    flavor: Gain $$. Gets another +$ after one use.
     playActions:
       - game-add! 'cash 2
       - stop-if! card-has-upgrade? $this 'cash
@@ -397,9 +397,9 @@ cards:
     rarity: 2
     types: [cop, legend]
     cost: 4
-    flavor: When you get this, gain seven &.
+    flavor: When you get this, gain nine &.
     initActions:
-      - game-add! 'influence 7
+      - game-add! 'influence 9
 
   - name: Big Bill Murphy
     tier: 1
@@ -484,7 +484,7 @@ cards:
     types: [treasure]
     cost: 3
     vp: 1
-    flavor: This card gains +**.
+    flavor: When you play this card, it gains +**.
     playActions:
      - card-add! $this 'vp 2
 
@@ -493,9 +493,9 @@ cards:
     rarity: 2
     types: [action]
     cost: 3
-    flavor: Discard your hand. Create that many Burglars in your hand.
+    flavor: Discard your hand. Create that many plus one Burglars (worth +2$) in your hand.
     playActions:
-      - set '$num-burglars size $hand
+      - set '$num-burglars + 1 (size $hand)
       - pile-move-to! $discard $hand
       - set '$burglarlist map (.. 1 $num-burglars) '(card-named "Burglar")
       - pile-copy-to! $hand $burglarlist
@@ -518,7 +518,7 @@ cards:
     types: [treasure]
     cost: 4
     vp: 5
-    flavor: A luminous, iridescent stone.
+    flavor: Do nothing.
 
   - name: The Talented Mr. Tezuka
     tier: 2
@@ -549,7 +549,7 @@ cards:
 
   - name: Fence
     tier: 2
-    rarity: 1
+    rarity: 2
     types: [trickster]
     cost: 3
     flavor: When you get or play this, shuffle the discard pile into the deck, then discard all Treasures in it.
@@ -566,7 +566,7 @@ cards:
     rarity: 2
     types: [trickster, legend]
     cost: 4
-    flavor: Draw a card. Give a Trickster you own +%.
+    flavor: Draw a card. Give another Trickster you own +%.
     playActions:
       - game-draw! 1
       - set '$all-tricksters filter $owned '(card-has-type? $it 'trickster)
@@ -823,6 +823,16 @@ cards:
       - game-add! 'cash 2
       - fx-add! --desc icon-convert "Gain * whenever you play a Pickpocket or Burglar." '(if or? (= card-get $card 'name "Pickpocket") (= card-get $card 'name "Burglar") '(card-add! $card 'vp 1) _)
 
+  - name: Covert Spotter
+    tier: 4
+    rarity: 2
+    types: [trickster]
+    cost: 4
+    flavor: Gain %%. Whenever you play a Cop this turn, draw a card.
+    playActions:
+      - game-add! 'luck 2
+      - fx-add! --desc icon-convert "Draw a card when you play a Cop." '(if (card-has-type? $card 'cop) '(game-draw! 1) _)
+
   - name: Annie Doshen
     tier: 4
     rarity: 2
@@ -885,7 +895,7 @@ cards:
     types: [treasure]
     cost: 0
     vp: 6
-    flavor: It looks a lot like the other one.
+    flavor: Do nothing.
 
   - name: Diamond
     tier: 4
@@ -893,7 +903,7 @@ cards:
     types: [treasure]
     cost: 8
     vp: 10
-    flavor: It ain't for playin' baseball, that's for sure.
+    flavor: Do nothing.
 
 
   - name: Ultimate Heist
