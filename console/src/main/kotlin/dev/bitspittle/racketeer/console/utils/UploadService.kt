@@ -12,12 +12,18 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
-import java.nio.file.Path
+import java.nio.file.Files
 import java.time.Duration
+import kotlin.io.path.deleteExisting
+import kotlin.io.path.writeText
 
 private val DEFAULT_THROTTLE_DURATION = Duration.ofMinutes(1)
 
 interface UploadService {
+    object MimeTypes {
+        const val YAML = "text/yaml"
+    }
+
     val throttleDurations: Map<Any, Duration>
 
     /**
@@ -29,14 +35,14 @@ interface UploadService {
      * This method takes in optional callbacks you can use to do followup work when it is finished. These callbacks
      * will be triggered on the same background thread used to handle the upload.
      *
+     * @param mimeType The content type of this data. See something like:
+     *   https://www.freeformatter.com/mime-types-list.html
+     *
      * @param throttleKey If set, will be used as a key to check against another data payload with the same key having
      *   been uploaded somewhat recently. Pass in `null` to not throttle. See also: [throttleDurations]
      */
-    fun upload(fileName: String, path: Path, throttleKey: Any? = null, onSuccess: () -> Unit = {}, onFailure: () -> Unit = {})
+    fun upload(fileName: String, mimeType: String, throttleKey: Any? = null, produceData: () -> String)
 }
-
-fun UploadService.upload(fileName: String, path: Path, onFinished: () -> Unit) =
-    upload(fileName, path, onFinished, onFinished)
 
 enum class UploadThrottleCategory {
     CRASH_REPORT
@@ -68,29 +74,29 @@ class DriveUploadService(title: String, override val throttleDurations: Map<Any,
             .build()
     }
 
-    override fun upload(fileName: String, path: Path, throttleKey: Any?, onSuccess: () -> Unit, onFailure: () -> Unit) {
+    override fun upload(fileName: String, mimeType: String, throttleKey: Any?, produceData: () -> String) {
         val now = System.currentTimeMillis()
         if (throttleKey != null && nextAllowedUpload.getOrDefault(throttleKey, 0) > now) {
-            onFailure()
             return
         }
 
         CoroutineScope(Dispatchers.IO).launch {
             run {
+                val tmp = Files.createTempFile("docrimes-upload-", ".txt").apply {
+                    writeText(produceData())
+                }
+
                 try {
                     val fileMetadata = File()
                     fileMetadata.name = fileName
                     fileMetadata.parents = listOf(UPLOAD_FOLDER_ID)
-                    val mediaContent = FileContent("text/yaml", path.toFile())
+                    val mediaContent = FileContent(mimeType, tmp.toFile())
                     driveService.files().create(fileMetadata, mediaContent).execute()
                     if (throttleKey != null) {
                         nextAllowedUpload[throttleKey] = now + (throttleDurations[throttleKey] ?: DEFAULT_THROTTLE_DURATION).toMillis()
                     }
-
-                    onSuccess()
-                } catch (ignored: Throwable) {
-                    onFailure()
-                }
+                } catch (ignored: Throwable) { }
+                finally { tmp.deleteExisting() }
             }
         }
 

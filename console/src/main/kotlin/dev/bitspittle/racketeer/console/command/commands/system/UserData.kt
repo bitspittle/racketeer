@@ -27,7 +27,6 @@ class UserData(appName: String) {
 
     fun pathForCardStats() = path.resolve("cardstats.yaml")
     fun pathForSettings() = path.resolve("settings.yaml")
-    fun pathForEndStates() = path.resolve("endstates")
 
     fun modifiedTime(slot: Int): String {
         val path = pathForSlot(slot).takeIf { it.exists() }

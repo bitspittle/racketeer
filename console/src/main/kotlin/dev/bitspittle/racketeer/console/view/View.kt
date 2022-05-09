@@ -12,6 +12,7 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.playtestId
 import dev.bitspittle.racketeer.console.game.App
 import dev.bitspittle.racketeer.console.game.version
+import dev.bitspittle.racketeer.console.utils.UploadService
 import dev.bitspittle.racketeer.console.utils.UploadThrottleCategory
 import dev.bitspittle.racketeer.console.utils.encodeToYaml
 import dev.bitspittle.racketeer.console.view.views.game.GameView
@@ -81,20 +82,22 @@ abstract class View(
             // though because there's nothing more fun than throwing an exception while trying to handle an exception
             (viewStack.currentView as? GameView)?.ctx?.let { ctx ->
                 try {
-                    val viewName = this::class.simpleName!!.lowercase().removeSuffix("view")
-                    val command = currCommand.title
-                        .map { if (it.isLetterOrDigit()) it else '_' }
-                        .joinToString("")
-                        // Collapse all underscores and make sure any of them don't show up in weird places
-                        .replace(Regex("__+"), "_")
-                        .trim('_')
-                        .lowercase()
-                    val filename =
+                    val filename = run {
+                        val viewName = this::class.simpleName!!.lowercase().removeSuffix("view")
+                        val command = currCommand.title
+                            .map { if (it.isLetterOrDigit()) it else '_' }
+                            .joinToString("")
+                            // Collapse all underscores and make sure any of them don't show up in weird places
+                            .replace(Regex("__+"), "_")
+                            .trim('_')
+                            .lowercase()
                         "versions:${app.version}:users:${app.userData.playtestId}:crashes:$viewName-$command.yaml"
-                    val tmp = Files.createTempFile("docrimes-crash", ".yaml").apply {
-                        writeText(ctx.encodeToYaml())
                     }
-                    app.uploadService.upload(filename, tmp, UploadThrottleCategory.CRASH_REPORT) { tmp.deleteExisting() }
+                    app.uploadService.upload(
+                        filename,
+                        UploadService.MimeTypes.YAML,
+                        throttleKey = UploadThrottleCategory.CRASH_REPORT,
+                    ) { ctx.encodeToYaml() }
                 } catch (ignored: Throwable) { }
             }
         }
