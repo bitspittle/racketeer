@@ -89,14 +89,14 @@ rankings:
 globalActions:
   # yaml freaks out a bit about some characters (e.g. | or >, which it tries to interpret), so define non-symbol
   # versions of everything in case that helps avoid those cases without needing to wrap things in quotes
-  - "alias '&& 'and?"
-  - "alias '|| 'or?"
-  - "alias '= 'eq?"
-  - "alias '!= 'ne?"
-  - "alias '< 'lt?"
-  - "alias '<= 'lte?"
-  - "alias '> 'gt?"
-  - "alias '>= 'gte?"
+  - "alias 'and? '&&"
+  - "alias 'or? '||"
+  - "alias 'eq? '="
+  - "alias 'ne? '!="
+  - "alias 'lt? '<"
+  - "alias 'lte? '<="
+  - "alias 'gt? '>"
+  - "alias 'gte? '>="
   - def 'game-add! '$property '$amount '(game-set! $property '(+ $it $amount))
   - def 'game-sub! '$property '$amount '(game-set! $property '(- $it $amount))
   - def 'card-add! '$card '$property '$amount '(card-set! $card $property '(+ $it $amount))
