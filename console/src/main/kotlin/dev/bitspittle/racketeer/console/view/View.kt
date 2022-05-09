@@ -12,17 +12,16 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.playtestId
 import dev.bitspittle.racketeer.console.game.App
 import dev.bitspittle.racketeer.console.game.version
+import dev.bitspittle.racketeer.console.user.Settings
 import dev.bitspittle.racketeer.console.utils.UploadService
 import dev.bitspittle.racketeer.console.utils.UploadThrottleCategory
 import dev.bitspittle.racketeer.console.utils.encodeToYaml
 import dev.bitspittle.racketeer.console.view.views.game.GameView
-import java.nio.file.Files
-import kotlin.io.path.deleteExisting
-import kotlin.io.path.writeText
 
 private const val DESC_WRAP_WIDTH = 60
 
 abstract class View(
+    private val settings: Settings,
     private val viewStack: ViewStack,
     private val app: App
 ) {
@@ -80,25 +79,30 @@ abstract class View(
 
             // At this point, let's try to send an automatic crash report. We wrap it in an aggressive try/catch block
             // though because there's nothing more fun than throwing an exception while trying to handle an exception
-            (viewStack.currentView as? GameView)?.ctx?.let { ctx ->
-                try {
-                    val filename = run {
-                        val viewName = this::class.simpleName!!.lowercase().removeSuffix("view")
-                        val command = currCommand.title
-                            .map { if (it.isLetterOrDigit()) it else '_' }
-                            .joinToString("")
-                            // Collapse all underscores and make sure any of them don't show up in weird places
-                            .replace(Regex("__+"), "_")
-                            .trim('_')
-                            .lowercase()
-                        "versions:${app.version}:users:${app.userData.playtestId}:crashes:$viewName-$command.yaml"
+            // NOTE: Admin players are probably messing with the game and their crashes are probably just distractions
+            // as they experiment with cards, so only send data for regular players
+            if (!settings.enableAdminFeatures) {
+                (viewStack.currentView as? GameView)?.ctx?.let { ctx ->
+                    try {
+                        val filename = run {
+                            val viewName = this::class.simpleName!!.lowercase().removeSuffix("view")
+                            val command = currCommand.title
+                                .map { if (it.isLetterOrDigit()) it else '_' }
+                                .joinToString("")
+                                // Collapse all underscores and make sure any of them don't show up in weird places
+                                .replace(Regex("__+"), "_")
+                                .trim('_')
+                                .lowercase()
+                            "versions:${app.version}:users:${app.userData.playtestId}:crashes:$viewName-$command.yaml"
+                        }
+                        app.uploadService.upload(
+                            filename,
+                            UploadService.MimeTypes.YAML,
+                            throttleKey = UploadThrottleCategory.CRASH_REPORT,
+                        ) { ctx.encodeToYaml() }
+                    } catch (ignored: Throwable) {
                     }
-                    app.uploadService.upload(
-                        filename,
-                        UploadService.MimeTypes.YAML,
-                        throttleKey = UploadThrottleCategory.CRASH_REPORT,
-                    ) { ctx.encodeToYaml() }
-                } catch (ignored: Throwable) { }
+                }
             }
         }
     }

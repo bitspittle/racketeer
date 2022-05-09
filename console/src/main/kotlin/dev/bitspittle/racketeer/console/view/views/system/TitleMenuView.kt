@@ -35,7 +35,7 @@ class TitleMenuView(
     viewStack: ViewStack,
     env: Environment,
     cardQueue: CardQueue,
-) : View(viewStack, app) {
+) : View(settings, viewStack, app) {
     val ctx = run {
         @Suppress("NAME_SHADOWING")
         val cardStats = cardStats.associateBy { it.name }.toMutableMap()
