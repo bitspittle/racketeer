@@ -240,21 +240,21 @@ class SystemMethodsTest {
     }
 
     @Test
-    fun testLogMethod() = runTest {
+    fun testInfoMethod() = runTest {
         val env = Environment()
         val service = TestLangService()
-        env.addMethod(LogMethod(service.logger))
+        env.addMethod(InfoMethod(service.logger))
 
         assertThat(service.logs.isEmpty())
 
         val evaluator = Evaluator()
 
-        evaluator.evaluate(env, "log 123")
+        evaluator.evaluate(env, "info 123")
         assertThat(service.logs).containsExactly("[I] 123")
 
         service.clearLogs()
-        evaluator.evaluate(env, "log \"Hello\"")
-        evaluator.evaluate(env, "log \"World\"")
+        evaluator.evaluate(env, "info \"Hello\"")
+        evaluator.evaluate(env, "info \"World\"")
         assertThat(service.logs).containsExactly("[I] Hello", "[I] World").inOrder()
     }
 }

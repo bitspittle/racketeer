@@ -6,11 +6,11 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.types.Logger
 
 /**
- * log (Any)
+ * info (Any)
  *
  * Print a value out to the console.
  */
-class LogMethod(private val logger: Logger) : Method("log", 1) {
+class InfoMethod(private val logger: Logger) : Method("info", 1) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
