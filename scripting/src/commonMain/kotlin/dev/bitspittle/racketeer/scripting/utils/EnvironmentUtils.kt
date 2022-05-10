@@ -45,6 +45,7 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(CardGetMethod())
     addMethod(CardSetMethod(service::gameState))
     addMethod(CardUpgradeMethod(service::gameState))
+    addMethod(CardUpgradesMethod())
     addMethod(CardHasUpgradeMethod())
     addMethod(CardHasTypeMethod(service.gameData.cardTypes))
     addMethod(CardRemoveMethod(service::gameState))

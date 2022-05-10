@@ -14,6 +14,7 @@ import dev.bitspittle.limp.methods.system.RunMethod
 import dev.bitspittle.limp.methods.system.SetMethod
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
+import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.game.getOwnedCards
 import dev.bitspittle.racketeer.model.random.CopyableRandom
@@ -149,6 +150,7 @@ class CardMethodsTest {
 
         val gameState = service.gameState
         env.addMethod(CardUpgradeMethod { gameState })
+        env.addMethod(CardUpgradesMethod())
         env.addMethod(CardHasUpgradeMethod())
         env.addMethod(SetMethod(service.logger))
         env.addMethod(ListGetMethod())
@@ -166,6 +168,7 @@ class CardMethodsTest {
         assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'influence") as Boolean).isFalse()
         assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'luck") as Boolean).isFalse()
         assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'veteran") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "card-upgrades \$card") as List<UpgradeType>).isEmpty()
 
         assertThrows<EvaluationException> {
             evaluator.evaluate(env, "card-has-upgrade? \$card 'invalid-property")
@@ -177,6 +180,8 @@ class CardMethodsTest {
         assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'influence") as Boolean).isTrue()
         assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'luck") as Boolean).isFalse()
         assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'veteran") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "card-upgrades \$card") as List<UpgradeType>)
+            .containsExactly(UpgradeType.INFLUENCE, UpgradeType.VETERAN)
 
         assertThat(evaluator.evaluate(env, "count \$cards '(card-has-upgrade? \$it 'cash)")).isEqualTo(0)
         assertThat(evaluator.evaluate(env, "count \$cards '(card-has-upgrade? \$it 'influence)")).isEqualTo(0)
