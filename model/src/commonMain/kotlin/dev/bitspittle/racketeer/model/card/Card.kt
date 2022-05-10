@@ -79,6 +79,4 @@ class MutableCard internal constructor(
 fun Card.isDexterous() = this.upgrades.contains(UpgradeType.CASH)
 fun Card.isArtful() = this.upgrades.contains(UpgradeType.INFLUENCE)
 fun Card.isLucky() = this.upgrades.contains(UpgradeType.LUCK)
-fun Card.isJailbird() = this.upgrades.contains(UpgradeType.JAILBIRD)
-fun Card.isUndercover() = this.upgrades.contains(UpgradeType.UNDERCOVER)
 val Card.vpTotal get() = vpBase + vpPassive

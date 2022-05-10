@@ -141,7 +141,7 @@ sealed class GameStateChange {
 
             streetEffects.clear()
             move(street.cards, discard)
-            move(hand.cards.filter { !it.isUndercover() }, discard)
+            move(hand.cards, discard)
             shop.restock()
         }
     }

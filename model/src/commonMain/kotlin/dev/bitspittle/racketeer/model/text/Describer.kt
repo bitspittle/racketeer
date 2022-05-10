@@ -46,8 +46,6 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             UpgradeType.CASH -> if (icons) data.icons.cash else data.upgradeNames.cash
             UpgradeType.INFLUENCE -> if (icons) data.icons.influence else data.upgradeNames.influence
             UpgradeType.LUCK -> if (icons) data.icons.luck else data.upgradeNames.luck
-            UpgradeType.JAILBIRD -> if (icons) null else data.upgradeNames.jailbird
-            UpgradeType.UNDERCOVER -> if (icons) null else data.upgradeNames.undercover
         }
     }
     fun describeUpgradeBody(upgrade: UpgradeType): String {
@@ -55,8 +53,6 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             UpgradeType.CASH -> "${data.upgradeNames.cash}: +1${data.icons.cash}"
             UpgradeType.INFLUENCE -> "${data.upgradeNames.influence}: +1${data.icons.influence}"
             UpgradeType.LUCK -> "${data.upgradeNames.luck}: +1${data.icons.luck}"
-            UpgradeType.JAILBIRD -> "${data.upgradeNames.jailbird}: Provides victory points even in jail."
-            UpgradeType.UNDERCOVER -> "${data.upgradeNames.undercover}: If still in hand, this isn't discard at end of turn."
         }
     }
 

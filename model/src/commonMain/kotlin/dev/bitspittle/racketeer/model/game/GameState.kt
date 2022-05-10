@@ -194,7 +194,7 @@ class MutableGameState internal constructor(
         owned.forEach { cardQueue.enqueuePassiveActions(it) }
         cardQueue.runEnqueuedActions(this@MutableGameState)
 
-        vp = owned.sumOf { card -> card.vpTotal } + jail.cards.filter { card -> card.isJailbird() }.sumOf { card -> card.vpTotal }
+        vp = owned.sumOf { card -> card.vpTotal }
     }
 
     @Suppress("NAME_SHADOWING")
