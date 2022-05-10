@@ -24,17 +24,21 @@ class GameSummaryView(ctx: GameContext) : GameView(ctx) {
     init {
         ctx.cardStats.values.save(ctx.app.userData)
 
-        ctx.app.uploadService.upload(
-            buildString {
-                append("versions:${ctx.app.version}:")
-                append("users:${ctx.app.userData.playtestId}:")
-                val utcNow =
-                    Instant.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("MM-dd-yyyy|HH:mm:ss"))
-                append("endstates:$utcNow")
-                append(".yaml")
-            },
-            UploadService.MimeTypes.YAML
-        ) { ctx.encodeToYaml() }
+        // Admins might be playing with broken in progress cards. Don't save their data!
+        if (!ctx.settings.enableAdminFeatures) {
+            ctx.app.uploadService.upload(
+                buildString {
+                    append("versions:${ctx.app.version}:")
+                    append("users:${ctx.app.userData.playtestId}:")
+                    val utcNow =
+                        Instant.now().atOffset(ZoneOffset.UTC)
+                            .format(DateTimeFormatter.ofPattern("MM-dd-yyyy|HH:mm:ss"))
+                    append("endstates:$utcNow")
+                    append(".yaml")
+                },
+                UploadService.MimeTypes.YAML
+            ) { ctx.encodeToYaml() }
+        }
     }
 
     override fun createCommands(): List<Command> =
