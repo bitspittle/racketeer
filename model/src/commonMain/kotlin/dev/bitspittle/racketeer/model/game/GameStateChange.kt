@@ -44,9 +44,9 @@ sealed class GameStateChange {
 
             // Apply upgrades *first*, as otherwise, playing a card may add an upgrade which shouldn't take affect until
             // a later turn.
-            if (card.isDexterous()) apply(AddGameAmount(GameProperty.CASH, 1))
-            if (card.isArtful()) apply(AddGameAmount(GameProperty.INFLUENCE, 1))
-            if (card.isLucky()) apply(AddGameAmount(GameProperty.LUCK, 1))
+            if (card.isDexterous) apply(AddGameAmount(GameProperty.CASH, 1))
+            if (card.isArtful) apply(AddGameAmount(GameProperty.INFLUENCE, 1))
+            if (card.isLucky) apply(AddGameAmount(GameProperty.LUCK, 1))
 
             // Playing this card might install an effect, but that shouldn't take effect until the next card is played
             val streetEffectsCopy = streetEffects.toList()
@@ -54,7 +54,7 @@ sealed class GameStateChange {
             cardQueue.runEnqueuedActions(this)
             streetEffectsCopy.forEach { streetEffect -> streetEffect.invoke(card) }
 
-            if (card.isVeteran()) apply(Draw(1))
+            if (card.isVeteran) apply(Draw(1))
         }
     }
 
