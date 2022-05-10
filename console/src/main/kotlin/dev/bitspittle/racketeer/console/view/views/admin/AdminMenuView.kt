@@ -6,6 +6,7 @@ import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.views.game.GameView
 import dev.bitspittle.racketeer.console.view.views.system.LoadGameView
 import dev.bitspittle.racketeer.console.view.views.system.SaveGameView
+import dev.bitspittle.racketeer.console.view.views.system.SettingsView
 
 class AdminMenuView(ctx: GameContext) : GameView(ctx) {
     override val title: String = "Admin"
@@ -44,7 +45,7 @@ class AdminMenuView(ctx: GameContext) : GameView(ctx) {
                 override val title = "Admin Settings"
                 override val description: String = "Modify admin settings"
                 override suspend fun invoke(): Boolean {
-                    ctx.viewStack.pushView(AdminSettingsView(ctx))
+                    ctx.viewStack.pushView(SettingsView(ctx, listOf(SettingsView.Category.ADMIN)))
                     return true
                 }
             },

@@ -13,8 +13,7 @@ data class Settings(
     @Serializable
     data class Admin(
         var maskCards: Boolean = true,
-        var highlightNewCards: Boolean = true,
-        var showDebugInfo: Boolean = false,
+        var showDebugInfo: Boolean = true,
         var enabled: Boolean = false,
     )
 
