@@ -3,6 +3,7 @@ icons:
   cash: "💰"
   influence: "🤝"
   luck: "🎲"
+  card: "🃏"
   vp: "🌟"
 numTurns: 20
 initialHandSize: 5
@@ -26,6 +27,7 @@ upgradeNames:
   cash: Dextrous
   influence: Artful
   luck: Lucky
+  veteran: Veteran
 
 rarities:
   - name: Common
@@ -108,7 +110,7 @@ globalActions:
   - def 'ask?! '$prompt '(= (single (choose --required _ --prompt icon-convert $prompt (list "Yes" "No") 1) _) "Yes")
   - def 'card-has-any-of-types? '$card '$types '(any? (card-get $card 'types) '(in? $types $it))
   - def 'card-has-all-types? '$card '$types '(all? (card-get $card 'types) '(in? $types $it))
-  - def 'card-upgrade-count '$card '(count (list (card-has-upgrade? $card 'cash) (card-has-upgrade? $card 'influence) (card-has-upgrade? $card 'luck) (card-has-upgrade? $card 'undercover)) '(= $it true))
+  - def 'card-upgrade-count '$card '(count (list (card-has-upgrade? $card 'cash) (card-has-upgrade? $card 'influence) (card-has-upgrade? $card 'luck) (card-has-upgrade? $card 'veteran)) '(= $it true))
   - def 'card-has-any-upgrade? '$card '(gt? (card-upgrade-count $card) 0)
   - def 'card-named '$name '(single (filter $all-cards '(= card-get $it 'name $name)) _)
   - def 'compare-by-index '$list '$a '$b '(compare index-of $list $a index-of $list $b)

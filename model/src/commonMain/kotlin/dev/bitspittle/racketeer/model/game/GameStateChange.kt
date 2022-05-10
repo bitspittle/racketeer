@@ -53,6 +53,8 @@ sealed class GameStateChange {
             cardQueue.enqueuePlayActions(card)
             cardQueue.runEnqueuedActions(this)
             streetEffectsCopy.forEach { streetEffect -> streetEffect.invoke(card) }
+
+            if (card.isVeteran()) apply(Draw(1))
         }
     }
 

@@ -1,6 +1,5 @@
 package dev.bitspittle.racketeer.model.text
 
-import com.benasher44.uuid.uuid4
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
@@ -46,13 +45,15 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             UpgradeType.CASH -> if (icons) data.icons.cash else data.upgradeNames.cash
             UpgradeType.INFLUENCE -> if (icons) data.icons.influence else data.upgradeNames.influence
             UpgradeType.LUCK -> if (icons) data.icons.luck else data.upgradeNames.luck
+            UpgradeType.VETERAN -> if (icons) data.icons.card else data.upgradeNames.veteran
         }
     }
     fun describeUpgradeBody(upgrade: UpgradeType): String {
         return when (upgrade) {
-            UpgradeType.CASH -> "${data.upgradeNames.cash}: +1${data.icons.cash}"
-            UpgradeType.INFLUENCE -> "${data.upgradeNames.influence}: +1${data.icons.influence}"
-            UpgradeType.LUCK -> "${data.upgradeNames.luck}: +1${data.icons.luck}"
+            UpgradeType.CASH -> "${data.upgradeNames.cash}: +1${data.icons.cash}."
+            UpgradeType.INFLUENCE -> "${data.upgradeNames.influence}: +1${data.icons.influence}."
+            UpgradeType.LUCK -> "${data.upgradeNames.luck}: +1${data.icons.luck}."
+            UpgradeType.VETERAN -> "${data.upgradeNames.veteran}: Draw an extra card."
         }
     }
 

@@ -165,18 +165,18 @@ class CardMethodsTest {
         assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'cash") as Boolean).isFalse()
         assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'influence") as Boolean).isFalse()
         assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'luck") as Boolean).isFalse()
-        assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'undercover") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'veteran") as Boolean).isFalse()
 
         assertThrows<EvaluationException> {
             evaluator.evaluate(env, "card-has-upgrade? \$card 'invalid-property")
         }
 
         evaluator.evaluate(env, "card-upgrade! \$card 'influence")
-        evaluator.evaluate(env, "card-upgrade! \$card 'undercover")
+        evaluator.evaluate(env, "card-upgrade! \$card 'veteran")
         assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'cash") as Boolean).isFalse()
         assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'influence") as Boolean).isTrue()
         assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'luck") as Boolean).isFalse()
-        assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'undercover") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "card-has-upgrade? \$card 'veteran") as Boolean).isTrue()
 
         assertThat(evaluator.evaluate(env, "count \$cards '(card-has-upgrade? \$it 'cash)")).isEqualTo(0)
         assertThat(evaluator.evaluate(env, "count \$cards '(card-has-upgrade? \$it 'influence)")).isEqualTo(0)

@@ -7,10 +7,12 @@ data class UpgradeNames(
     val cash: String,
     val influence: String,
     val luck: String,
+    val veteran: String,
 )
 
 enum class UpgradeType {
     CASH,
     INFLUENCE,
     LUCK,
+    VETERAN,
 }

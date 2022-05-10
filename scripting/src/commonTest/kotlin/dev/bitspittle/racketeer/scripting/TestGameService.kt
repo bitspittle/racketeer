@@ -17,8 +17,7 @@ private val FAKE_GAME_DATA_TEXT = """
       cash: "${'$'}"
       influence: "&"
       luck: "%"
-      undercover: "_"
-      counter: "+"
+      card: "▯"
       vp: "*"
     numTurns: 3
     initialHandSize: 4
@@ -40,7 +39,7 @@ private val FAKE_GAME_DATA_TEXT = """
       cash: Dextrous
       influence: Artful
       luck: Lucky
-      undercover: Undercover
+      veteran: Veteran
 
     rarities:
       - name: Common
