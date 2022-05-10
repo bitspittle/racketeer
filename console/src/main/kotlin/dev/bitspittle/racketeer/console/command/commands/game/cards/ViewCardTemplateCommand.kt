@@ -4,7 +4,7 @@ import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.model.card.CardTemplate
 
-fun CardTemplate.shouldMask(ctx: GameContext) = ctx.settings.maskCards && !ctx.cardStats.contains(this.name)
+fun CardTemplate.shouldMask(ctx: GameContext) = ctx.settings.admin.maskCards && !ctx.cardStats.contains(this.name)
 
 /**
  * A no-op command used when read-only viewing a card template

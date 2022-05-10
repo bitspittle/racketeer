@@ -17,28 +17,28 @@ class AdminSettingsView(ctx: GameContext) : GameView(ctx) {
     private val maskCardsSetting = SelectItemCommand(
         ctx,
         "Mask cards",
-        ctx.settings.maskCards,
+        ctx.settings.admin.maskCards,
         "If true, card list screens will hide card names and descriptions until the first time you buy one."
     )
 
     private val highlightNewCardsSetting = SelectItemCommand(
         ctx,
         "Highlight new cards",
-        ctx.settings.highlightNewCards,
+        ctx.settings.admin.highlightNewCards,
         "If true, cards in the shop you never bought before will be suffixed with a [NEW] tag."
     )
 
     private val debugInfoSetting = SelectItemCommand(
         ctx,
         "Show debug info",
-        ctx.settings.showDebugInfo,
+        ctx.settings.admin.showDebugInfo,
         "Set true to surface things like game code inside the UI",
     )
 
     private val enableAdminSetting = SelectItemCommand(
         ctx,
         "Enable admin features",
-        ctx.settings.enableAdminFeatures,
+        ctx.settings.admin.enabled,
         "Uncheck this to disable access to the admin menu and clear other admin-specific features.\n\nYou can restore them by going into the options mode and typing \"admin\"",
         type = Command.Type.Warning,
     )
@@ -58,10 +58,10 @@ class AdminSettingsView(ctx: GameContext) : GameView(ctx) {
 
     private fun createNewSettings() = Settings().apply {
         setFrom(ctx.settings)
-        this.maskCards = maskCardsSetting.selected
-        this.highlightNewCards = highlightNewCardsSetting.selected
-        this.showDebugInfo = debugInfoSetting.selected
-        this.enableAdminFeatures = enableAdminSetting.selected
+        this.admin.maskCards = maskCardsSetting.selected
+        this.admin.highlightNewCards = highlightNewCardsSetting.selected
+        this.admin.showDebugInfo = debugInfoSetting.selected
+        this.admin.enabled = enableAdminSetting.selected
     }
 
     override fun createCommands(): List<Command> = listOf(

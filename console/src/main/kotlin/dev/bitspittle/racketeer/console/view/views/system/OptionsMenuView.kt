@@ -60,8 +60,8 @@ class OptionsMenuView(ctx: GameContext) : GameView(ctx) {
             secretCode += key.code
 
             if (secretCode.equals("admin", ignoreCase = true)) {
-                if (!ctx.settings.enableAdminFeatures) {
-                    ctx.settings.enableAdminFeatures = true
+                if (!ctx.settings.admin.enabled) {
+                    ctx.settings.admin.enabled = true
                     ctx.settings.save(ctx.app.userData)
                     ctx.app.logger.info("You now have admin privileges!")
                     secretCode = ""
@@ -69,8 +69,8 @@ class OptionsMenuView(ctx: GameContext) : GameView(ctx) {
                 }
             }
             else if (secretCode.equals("noadmin", ignoreCase = true)) {
-                if (ctx.settings.enableAdminFeatures) {
-                    ctx.settings.enableAdminFeatures = false
+                if (ctx.settings.admin.enabled) {
+                    ctx.settings.admin.enabled = false
                     ctx.settings.save(ctx.app.userData)
                     ctx.app.logger.info("You have removed your admin privileges.")
                     secretCode = ""

@@ -23,7 +23,7 @@ abstract class GameView(val ctx: GameContext) : View(ctx.settings, ctx.viewStack
 
     private fun allowAdminAccess(): Boolean {
         if (!hasGameStarted()) return false
-        return ctx.settings.enableAdminFeatures && !(ctx.viewStack.contains { view -> view is AdminMenuView })
+        return ctx.settings.admin.enabled && !(ctx.viewStack.contains { view -> view is AdminMenuView })
     }
 
     private fun allowBrowsingCards(): Boolean {

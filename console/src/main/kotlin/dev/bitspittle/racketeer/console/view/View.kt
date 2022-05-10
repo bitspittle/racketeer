@@ -81,7 +81,7 @@ abstract class View(
             // though because there's nothing more fun than throwing an exception while trying to handle an exception
             // NOTE: Admin players are probably messing with the game and their crashes are probably just distractions
             // as they experiment with cards, so only send data for regular players
-            if (!settings.enableAdminFeatures) {
+            if (!settings.admin.enabled) {
                 (viewStack.currentView as? GameView)?.ctx?.let { ctx ->
                     try {
                         val filename = run {

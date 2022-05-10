@@ -8,23 +8,22 @@ import kotlin.io.path.writeText
 
 @Serializable
 data class Settings(
-    // Normal user settings
-
-    // Admin user settings
-    var maskCards: Boolean = true,
-    var highlightNewCards: Boolean = true,
-    var showDebugInfo: Boolean = false,
-    var enableAdminFeatures: Boolean = false,
+    var admin: Admin = Admin(),
 ) {
+    @Serializable
+    data class Admin(
+        var maskCards: Boolean = true,
+        var highlightNewCards: Boolean = true,
+        var showDebugInfo: Boolean = false,
+        var enabled: Boolean = false,
+    )
+
     fun setFrom(other: Settings) {
-        this.maskCards = other.maskCards
-        this.highlightNewCards = other.highlightNewCards
-        this.showDebugInfo = other.showDebugInfo
-        this.enableAdminFeatures = other.enableAdminFeatures
+       admin = other.admin.copy()
     }
 }
 
-val Settings.inAdminModeAndShowDebugInfo get() = enableAdminFeatures && showDebugInfo
+val Settings.inAdminModeAndShowDebugInfo get() = admin.enabled && admin.showDebugInfo
 
 fun Settings.save(userData: UserData) {
     val self = this

@@ -18,14 +18,13 @@ import dev.bitspittle.racketeer.model.game.from
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
-import kotlin.io.path.*
 
 class GameSummaryView(ctx: GameContext) : GameView(ctx) {
     init {
         ctx.cardStats.values.save(ctx.app.userData)
 
         // Admins might be playing with broken in progress cards. Don't save their data!
-        if (!ctx.settings.enableAdminFeatures) {
+        if (!ctx.settings.admin.enabled) {
             ctx.app.uploadService.upload(
                 buildString {
                     append("versions:${ctx.app.version}:")
