@@ -60,11 +60,9 @@ class DefMethod : Method("def", 0, consumeRest = true) {
                 options: Map<String, Any>,
                 rest: List<Any>
             ): Any {
-                return env.scoped {
-                    env.scoped { // Don't let values defined during the lambda escape
-                        val evaluator = eval.extend(params.mapIndexed { i, value -> argIds[i].name to value }.toMap())
-                        evaluator.evaluate(env, bodyExpr)
-                    }
+                return env.scoped { // Don't let values defined during the lambda escape
+                    val evaluator = eval.extend(params.mapIndexed { i, value -> argIds[i].name to value }.toMap())
+                    evaluator.evaluate(env, bodyExpr)
                 }
             }
         }, allowOverwrite)
