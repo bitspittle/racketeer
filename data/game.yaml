@@ -10,9 +10,11 @@ initialHandSize: 5
 initialCash: 0
 initialInfluence: 0
 initialLuck: 0
+initialBlueprintCount: 3
 initialDeck:
   - Pickpocket 5
   - Newsie 3
+
 cardTypes:
   # Ordered by how they should show up on a card, NOT alphabetically necessarily
   - Action
@@ -962,3 +964,34 @@ cards:
     flavor: Draw three cards.
     playActions:
       - game-draw! 3
+
+blueprints:
+  - name: David's Place
+    flavor: Gain 3%.
+    buildCost:
+      cash: 1
+      influence: 2
+    activationCost:
+      influence: 1
+    activateActions:
+      - game-add! 'luck 3
+
+  - name: Ari's Place
+    flavor: Gain 3&.
+    buildCost:
+      cash: 2
+      influence: 1
+    activationCost:
+      cash: 1
+    activateActions:
+      - game-add! 'influence 3
+
+  - name: Casino
+    flavor: Roll a die. Gain that much $.
+    buildCost:
+      cash: 5
+      influence: 2
+    activationCost:
+      luck: 2
+    activateActions:
+      - game-add! 'cash random .. 1 6

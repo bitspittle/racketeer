@@ -134,6 +134,34 @@ sealed class GameStateChange {
         }
     }
 
+    class Build(val blueprintIndex: Int) : GameStateChange() {
+        override suspend fun MutableGameState.apply() {
+            require(blueprintIndex in blueprints.indices) { "Attempt to build a blueprint with an invalid index $blueprintIndex, when blueprint count is ${blueprints.size}" }
+            val blueprint = blueprints[blueprintIndex]
+
+            blueprints.remove(blueprint)
+            val location = blueprint.build()
+            locations.add(location).also { locations.sort() }
+
+            enqueuers.location.enqueueInitActions(this, location)
+            enqueuers.actionQueue.runEnqueuedActions()
+        }
+    }
+
+   class Activate(val locationIndex: Int) : GameStateChange() {
+        override suspend fun MutableGameState.apply() {
+            require(locationIndex in locations.indices) { "Attempt to activate a location with an invalid index $locationIndex, when location count is ${locations.size}" }
+            val location = locations[locationIndex]
+            require(!location.isActivated) { "Attempt to activate an already active location" }
+            location.isActivated = true
+
+            // Run its activate actions.
+            enqueuers.location.enqueueActivateActions(this, location)
+            enqueuers.actionQueue.runEnqueuedActions()
+        }
+    }
+
+
     class EndTurn : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             if (turn == lastTurnIndex) {
@@ -148,6 +176,8 @@ sealed class GameStateChange {
             move(street.cards, discard)
             move(hand.cards, discard)
             shop.restock()
+
+            locations.forEach { it.isActivated = false }
         }
     }
 

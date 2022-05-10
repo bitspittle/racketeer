@@ -4,6 +4,8 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.play.EndTurnCommand
 import dev.bitspittle.racketeer.console.command.commands.game.play.PlayCardCommand
 import dev.bitspittle.racketeer.console.command.commands.game.play.VisitShopCommand
+import dev.bitspittle.racketeer.console.command.commands.locations.ActivateLocationCommand
+import dev.bitspittle.racketeer.console.command.commands.locations.BrowseBlueprintsCommand
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.views.game.GameView
 
@@ -18,8 +20,10 @@ class PlayCardsView(ctx: GameContext) : GameView(ctx) {
     }
 
     override fun createCommands(): List<Command> =
-        List(ctx.state.hand.cards.size) { i -> PlayCardCommand(ctx, i) } + listOf(
+        List(ctx.state.hand.cards.size) { i -> PlayCardCommand(ctx, i) } +
+        ctx.state.locations.map { location -> ActivateLocationCommand(ctx, location) } + listOf(
             VisitShopCommand(ctx),
+            BrowseBlueprintsCommand(ctx),
             EndTurnCommand(ctx),
         )
 }

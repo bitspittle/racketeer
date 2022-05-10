@@ -6,14 +6,14 @@ import com.benasher44.uuid.Uuid
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.utils.toIdentifierName
-import dev.bitspittle.racketeer.model.action.ActionQueue
 import dev.bitspittle.racketeer.model.action.Enqueuers
-import dev.bitspittle.racketeer.model.action.ExprCache
 import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.card.CardEnqueuer
 import dev.bitspittle.racketeer.model.card.MutableCard
 import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.game.*
+import dev.bitspittle.racketeer.model.location.Blueprint
+import dev.bitspittle.racketeer.model.location.Location
+import dev.bitspittle.racketeer.model.location.MutableLocation
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.random.CopyableRandom
@@ -50,6 +50,40 @@ class CardSnapshot(
         upgrades.toMutableSet(),
         id
     )
+}
+
+@Serializable
+class LocationSnapshot(
+    val id: Uuid,
+    val name: String,
+    val isActivated: Boolean,
+) {
+    companion object {
+        fun from(location: Location) = LocationSnapshot(
+            location.id,
+            location.blueprint.name,
+            location.isActivated
+        )
+    }
+
+    fun create(data: GameData) = MutableLocation(
+        BlueprintSnapshot(name).create(data),
+        id,
+        isActivated
+    )
+}
+
+@Serializable
+class BlueprintSnapshot(
+    val name: String,
+) {
+    companion object {
+        fun from(blueprint: Blueprint) = BlueprintSnapshot(
+            blueprint.name
+        )
+    }
+
+    fun create(data: GameData) = data.blueprints.single { it.name == name }
 }
 
 @Serializable
@@ -167,6 +201,8 @@ class GameSnapshot(
     val discard: PileSnapshot,
     val jail: PileSnapshot,
     val graveyard: PileSnapshot,
+    val blueprints: List<BlueprintSnapshot>,
+    val locations: List<LocationSnapshot>,
     val effects: List<EffectSnapshot>,
     val history: List<GameChangeSnapshot>,
 ) {
@@ -188,6 +224,8 @@ class GameSnapshot(
             PileSnapshot.from(gameState.discard),
             PileSnapshot.from(gameState.jail),
             PileSnapshot.from(gameState.graveyard),
+            gameState.blueprints.map { blueprint -> BlueprintSnapshot.from(blueprint) },
+            gameState.locations.map { location -> LocationSnapshot.from(location) },
             gameState.effects.items.map { effect -> EffectSnapshot.from(effect) },
             gameState.history.map { change -> GameChangeSnapshot.from(describer, gameState, change) }
         )
@@ -221,6 +259,8 @@ class GameSnapshot(
             discard.create(data),
             jail.create(data),
             graveyard.create(data),
+            blueprints.map { it.create(data) }.toMutableList(),
+            locations.map { it.create(data) }.toMutableList(),
             effects = MutableEffects(), // Populated shortly
             history = mutableListOf(), // Populated shortly
         )

@@ -55,6 +55,8 @@ sealed class GameChangeSnapshot {
             is GameStateChange.AddShopExclusion -> AddShopExclusion.from(change)
             is GameStateChange.RestockShop -> RestockShop.from(change)
             is GameStateChange.UpgradeShop -> UpgradeShop.from(change)
+            is GameStateChange.Build -> Build.from(change)
+            is GameStateChange.Activate -> Activate.from(change)
             is GameStateChange.EndTurn -> EndTurn.from(change)
             is GameStateChange.GameOver -> GameOver.from(change)
         }
@@ -219,6 +221,24 @@ sealed class GameChangeSnapshot {
             fun from(change: GameStateChange.UpgradeShop) = UpgradeShop()
         }
         override fun create(state: GameState) = GameStateChange.UpgradeShop()
+    }
+
+    @Serializable
+    @SerialName("Build")
+    class Build(val blueprintIndex: Int) : GameChangeSnapshot() {
+        companion object {
+            fun from(change: GameStateChange.Build) = Build(change.blueprintIndex)
+        }
+        override fun create(state: GameState) = GameStateChange.Build(blueprintIndex)
+    }
+
+    @Serializable
+    @SerialName("Activate")
+    class Activate(val locationIndex: Int) : GameChangeSnapshot() {
+        companion object {
+            fun from(change: GameStateChange.Activate) = Activate(change.locationIndex)
+        }
+        override fun create(state: GameState) = GameStateChange.Activate(locationIndex)
     }
 
     @Serializable

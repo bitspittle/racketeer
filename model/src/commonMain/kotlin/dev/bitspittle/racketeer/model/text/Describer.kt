@@ -3,6 +3,8 @@ package dev.bitspittle.racketeer.model.text
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.location.Blueprint
+import dev.bitspittle.racketeer.model.location.Location
 import dev.bitspittle.racketeer.model.pile.Pile
 
 private fun GameData.iconMappings() = mapOf(
@@ -234,6 +236,109 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             state.jail.id -> "jail"
             state.graveyard.id -> "the graveyard"
             else -> error("Unknown pile")
+        }
+    }
+
+    fun describeBuildCost(blueprint: Blueprint): String {
+        return buildString {
+            if (blueprint.buildCost.cash > 0) {
+                append(describeCash(blueprint.buildCost.cash))
+            }
+
+            if (blueprint.buildCost.influence > 0) {
+                if (this.isNotEmpty()) append(' ')
+                append(describeInfluence(blueprint.buildCost.influence))
+            }
+        }
+    }
+
+    private fun StringBuilder.appendBlueprintBody(blueprint: Blueprint) {
+        append(convertIcons(blueprint.flavor))
+
+        if (showDebugInfo()) {
+            if (blueprint.initActions.isNotEmpty()) {
+                appendLine() // Finish previous section
+                appendLine() // Newline
+                appendLine("When this location is first built:")
+                blueprint.initActions.forEachIndexed { i, action ->
+                    append("- $action")
+                    if (i < blueprint.initActions.lastIndex) {
+                        appendLine()
+                    }
+                }
+            }
+            if (blueprint.activateActions.isNotEmpty()) {
+                appendLine() // Finish previous section
+                appendLine() // Newline
+                appendLine("When this location is activated:")
+                blueprint.activateActions.forEachIndexed { i, action ->
+                    append("- $action")
+                    if (i < blueprint.activateActions.lastIndex) {
+                        appendLine()
+                    }
+                }
+            }
+            if (blueprint.passiveActions.isNotEmpty()) {
+                appendLine() // Finish previous section
+                appendLine() // Newline
+                appendLine("Passive actions:")
+                blueprint.passiveActions.forEachIndexed { i, action ->
+                    append("- $action")
+                    if (i < blueprint.passiveActions.lastIndex) {
+                        appendLine()
+                    }
+                }
+            }
+        }
+    }
+
+    fun describeBlueprint(blueprint: Blueprint, concise: Boolean = false): String {
+        return buildString {
+            append(blueprint.name)
+
+            if (!concise) {
+                appendLine() // Finish name row
+                appendLine() // Newline
+                appendBlueprintBody(blueprint)
+            }
+        }
+    }
+
+    fun describeActivationCost(location: Location): String {
+        return buildString {
+            location.blueprint.activationCost.let { cost ->
+                if (cost.cash > 0) {
+                    append(describeCash(cost.cash))
+                }
+
+                if (cost.influence > 0) {
+                    if (this.isNotEmpty()) append(' ')
+                    append(describeInfluence(cost.influence))
+                }
+
+                if (cost.luck > 0) {
+                    if (this.isNotEmpty()) append(' ')
+                    append(describeLuck(cost.luck))
+                }
+            }
+        }
+    }
+
+
+    fun describeLocation(location: Location, showActivated: Boolean = false, concise: Boolean = false): String {
+        return buildString {
+            append(location.blueprint.name)
+
+            if (!concise) {
+                append(describeActivationCost(location))
+                appendLine() // Finish name row
+                if (showActivated) {
+                    appendLine("Activated? " + if (location.isActivated) "Yes" else "No")
+                }
+                appendLine()
+
+                appendBlueprintBody(location.blueprint)
+            }
         }
     }
 }

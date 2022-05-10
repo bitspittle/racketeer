@@ -10,11 +10,14 @@ import dev.bitspittle.racketeer.model.card.CardEnqueuer
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.MutableGameState
+import dev.bitspittle.racketeer.model.location.Location
+import dev.bitspittle.racketeer.model.location.LocationEnqueuer
 import dev.bitspittle.racketeer.model.random.CopyableRandom
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.types.CardEnqueuerImpl
 import dev.bitspittle.racketeer.scripting.types.GameService
+import dev.bitspittle.racketeer.scripting.types.LocationEnqueuerImpl
 import kotlin.random.Random
 
 private val FAKE_GAME_DATA_TEXT = """
@@ -30,6 +33,7 @@ private val FAKE_GAME_DATA_TEXT = """
     initialCash: 0
     initialInfluence: 0
     initialLuck: 5
+    initialBlueprintCount: 0
     initialDeck:
       - Pickpocket 5
       - Rumormonger 3
@@ -157,6 +161,9 @@ private val FAKE_GAME_DATA_TEXT = """
         cost: 4
         flavor: ""
         playActions: - fx-add! '(game-set! 'cash '(+ ${'$'}it 1))
+        
+    # Disabled for now. Should add tests later...
+    blueprints: []
 """.trimIndent()
 
 fun createFakeGameData() = GameData.decodeFromString(FAKE_GAME_DATA_TEXT)
@@ -166,13 +173,22 @@ class StubCardEnqueuer : CardEnqueuer {
     override fun enqueuePlayActions(gameState: GameState, card: Card) { NotImplementedError() }
     override fun enqueuePassiveActions(gameState: GameState, card: Card) { NotImplementedError() }
 }
+class StubLocationEnqueuer : LocationEnqueuer {
+    override fun enqueueInitActions(gameState: GameState, location: Location) { NotImplementedError() }
+    override fun enqueueActivateActions(gameState: GameState, location: Location) { NotImplementedError() }
+    override fun enqueuePassiveActions(gameState: GameState, location: Location) { NotImplementedError() }
+}
 
 @Suppress("TestFunctionName") // Imitating a factory method
 fun TestEnqueuers(env: Environment): Enqueuers {
     val exprCache = ExprCache()
     val actionQueue = ActionQueue()
 
-    return Enqueuers(actionQueue, CardEnqueuerImpl(env, exprCache, actionQueue))
+    return Enqueuers(
+        actionQueue,
+        CardEnqueuerImpl(env, exprCache, actionQueue),
+        LocationEnqueuerImpl(env, exprCache, actionQueue)
+    )
 }
 
 // Create a random with a fixed seed so tests run consistently
@@ -183,6 +199,7 @@ class TestGameService(
     override val enqueuers: Enqueuers = Enqueuers(
         ActionQueue(),
         StubCardEnqueuer(),
+        StubLocationEnqueuer(),
     ),
     override val chooseHandler: ChooseHandler = object : ChooseHandler {
         override suspend fun query(

@@ -4,6 +4,7 @@ import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.card.Rarity
 import dev.bitspittle.racketeer.model.card.UpgradeNames
 import dev.bitspittle.racketeer.model.card.UpgradeType
+import dev.bitspittle.racketeer.model.location.Blueprint
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import net.mamoe.yamlkt.Yaml
@@ -23,6 +24,7 @@ data class GameData(
     val initialHandSize: Int,
     val initialInfluence: Int,
     val initialLuck: Int,
+    val initialBlueprintCount: Int,
     val initialDeck: List<String>,
     val cardTypes: List<String>,
     val upgradeNames: UpgradeNames,
@@ -32,6 +34,7 @@ data class GameData(
     val shopPrices: List<Int>,
     val rankings: List<Ranking>,
     val cards: List<CardTemplate>,
+    val blueprints: List<Blueprint>,
     val globalActions: List<String> = listOf()
 ) {
     companion object {
@@ -156,6 +159,8 @@ data class GameData(
                 }
             }
         }
+
+        require(initialBlueprintCount <= blueprints.size) { "Not enough blueprints to satisfy initialBlueprintCount" }
     }
 
     @Transient

@@ -6,6 +6,9 @@ import dev.bitspittle.racketeer.model.action.Enqueuers
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.MutableCard
 import dev.bitspittle.racketeer.model.card.vpTotal
+import dev.bitspittle.racketeer.model.location.Blueprint
+import dev.bitspittle.racketeer.model.location.Location
+import dev.bitspittle.racketeer.model.location.MutableLocation
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.random.CopyableRandom
@@ -29,6 +32,8 @@ interface GameState {
     val discard: Pile
     val jail: Pile
     val graveyard: Pile
+    val blueprints: List<Blueprint>
+    val locations: List<Location>
     val effects: Effects
     val history: List<GameStateChange>
 
@@ -72,6 +77,8 @@ class MutableGameState internal constructor(
     override val discard: MutablePile,
     override val jail: MutablePile,
     override val graveyard: MutablePile,
+    override val blueprints: MutableList<Blueprint>,
+    override val locations: MutableList<MutableLocation>,
     override val effects: MutableEffects,
     override val history: MutableList<GameStateChange>,
 ): GameState {
@@ -101,6 +108,8 @@ class MutableGameState internal constructor(
         discard = MutablePile(),
         jail = MutablePile(),
         graveyard = MutablePile(),
+        blueprints = data.blueprints.shuffled(random()).take(data.initialBlueprintCount).toMutableList().also { it.sort() },
+        locations = mutableListOf(),
         effects = MutableEffects(),
         history = mutableListOf()
     )
@@ -194,6 +203,7 @@ class MutableGameState internal constructor(
     override suspend fun updateVictoryPoints() {
         val owned = getOwnedCards()
         owned.forEach { card -> enqueuers.card.enqueuePassiveActions(this, card) }
+        locations.forEach { location -> enqueuers.location.enqueuePassiveActions(this, location) }
         enqueuers.actionQueue.runEnqueuedActions()
 
         vp = owned.sumOf { card -> card.vpTotal }
@@ -253,6 +263,8 @@ class MutableGameState internal constructor(
             discard.copy(),
             jail.copy(),
             graveyard.copy(),
+            blueprints.toMutableList(),
+            locations.map { it.copy() }.toMutableList(),
             effects.copy(),
             history.toMutableList(),
         )
