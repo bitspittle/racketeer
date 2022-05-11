@@ -110,7 +110,7 @@ globalActions:
   - def 'ask?! '$prompt '(= (single (choose --required _ --prompt icon-convert $prompt (list "Yes" "No") 1)) "Yes")
   - def 'card-has-any-of-types? '$card '$types '(any? (card-get $card 'types) '(in? $types $it))
   - def 'card-has-all-types? '$card '$types '(all? (card-get $card 'types) '(in? $types $it))
-  - def 'card-upgrade-count '$card '(count (list (card-has-upgrade? $card 'cash) (card-has-upgrade? $card 'influence) (card-has-upgrade? $card 'luck) (card-has-upgrade? $card 'veteran)) '(= $it true))
+  - def 'card-upgrade-count '$card '(size card-upgrades $card)
   - def 'card-has-any-upgrade? '$card '(gt? (card-upgrade-count $card) 0)
   - def 'card-named '$name '(single --matching '(= card-get $it 'name $name) $all-cards)
   - def 'compare-by-index '$list '$a '$b '(compare index-of $list $a index-of $list $b)
@@ -191,15 +191,21 @@ cards:
     playActions:
       - game-add! 'cash 2
 
-  - name: Squealer
+  - name: Graffiti Artist
     tier: 0
     rarity: 1
-    types: [spy, cop]
+    types: [trickster]
     cost: 3
-    flavor: Gain &&. You may jail a card on the Street.
+    flavor: Jail a card on the Street. Replace it with a random card of the next higher tier.
     playActions:
-      - game-add! 'influence 2
-      - pile-move-to! $jail (choose --prompt "Choose up to one card to jail." $street .. 0 1)
+      - set '$cardtoreplace (single (choose --prompt "Choose a card to jail." $street 1))
+      - set '$newtier (+ 1 (card-get $cardtoreplace 'tier))
+      - if-true (gt? $newtier $tier5) '(set --overwrite _ '$newtier $tier5)
+      - pile-move-to! $jail $cardtoreplace
+      - set '$all-tier-cards (filter $all-cards '(= $newtier (card-get $it 'tier)))
+      # Force a choose screen so that the player can see what card they got
+      - set '$random-tier-card (choose --required _ (take --from 'random $all-tier-cards 1) 1)
+      - pile-copy-to! $street $random-tier-card
 
 
   - name: Scrounger
@@ -368,6 +374,16 @@ cards:
       - stop-if! (! (ask? "Reroll your shop with cards you own?" ))
       - set '$cardnames (map $owned '(card-get $it 'name))
       - shop-reroll! '(in? $cardnames (card-get $card 'name))
+
+  - name: Squealer
+    tier: 1
+    rarity: 1
+    types: [spy, cop]
+    cost: 4
+    flavor: Gain &&. You may jail a card on the Street.
+    playActions:
+      - game-add! 'influence 2
+      - pile-move-to! $jail (choose --prompt "Choose up to one card to jail." $street .. 0 1)
 
   - name: Beat Cop
     tier: 1
@@ -756,14 +772,14 @@ cards:
     rarity: 1
     types: [spy, cop]
     cost: 6
-    flavor: Draw a card. You may spend &&&& to give this card ****.
+    flavor: Gain &&&. You may spend &&&&&& to give this card ******.
     playActions:
-      - game-draw! 1
-      - stop-if! < game-get 'influence 4
-      - set '$convert (ask?! "Would you like to spend 4& to give this card 4*?")
+      - game-add! 'influence 3
+      - stop-if! < game-get 'influence 6
+      - set '$convert (ask?! "Would you like to spend 6& to give this card 6*?")
       - stop-if! ! $convert
-      - game-add! 'influence -4
-      - card-add! $this 'vp 4
+      - game-add! 'influence -6
+      - card-add! $this 'vp 6
 
   - name: Hattie the Finder
     tier: 2
@@ -824,15 +840,20 @@ cards:
       - game-add! 'cash 2
       - fx-add! --desc icon-convert "Gain * whenever you play a Pickpocket or Burglar." '(if or? (= card-get $card 'name "Pickpocket") (= card-get $card 'name "Burglar") '(card-add! $card 'vp 1) _)
 
-  - name: Covert Spotter
+  - name: Police Trainer
     tier: 4
     rarity: 2
-    types: [trickster]
+    types: [cop]
     cost: 4
-    flavor: Gain %%. Whenever you play a Cop this turn, draw a card.
+    flavor: When you get or play this, give another Cop you own "Draw a card".
+    initActions:
+      - card-trigger! $this
     playActions:
-      - game-add! 'luck 2
-      - fx-add! --desc icon-convert "Draw a card when you play a Cop." '(if (card-has-type? $card 'cop) '(game-draw! 1) _)
+      - set '$all-cops filter $owned '(card-has-type? $it 'cop)
+      - set '$some-cops filter $all-cops '(! (card-has-upgrade? $it 'veteran))
+      - set '$cops filter $some-cops '(!= $it $this)
+      - stop-if! empty? $cops
+      - card-upgrade! (choose-across-piles "Choose a Cop to upgrade." $cops 1) 'veteran
 
   - name: Annie Doshen
     tier: 4
