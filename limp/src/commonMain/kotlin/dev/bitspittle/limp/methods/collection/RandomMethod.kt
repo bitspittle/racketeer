@@ -6,7 +6,7 @@ import dev.bitspittle.limp.Method
 import kotlin.random.Random
 
 /**
- * random (List)
+ * random (List) -> Any
  *
  * Take a random element out of a list
  */

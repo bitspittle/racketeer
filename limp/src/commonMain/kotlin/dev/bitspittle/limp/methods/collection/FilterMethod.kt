@@ -6,6 +6,8 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.types.Expr
 
 /**
+ * filter (List) ('Expr) -> List
+ *
  * Take a list and return a copy with some elements removed, based on some test expression.
  */
 class FilterMethod : Method("filter", 2) {

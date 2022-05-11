@@ -6,6 +6,8 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.types.Expr
 
 /**
+ * map (List) ('Expr) -> List
+ *
  * Take a list and an expression and return a new list with that expression applied on each element.
  */
 class MapMethod : Method("map", 2) {

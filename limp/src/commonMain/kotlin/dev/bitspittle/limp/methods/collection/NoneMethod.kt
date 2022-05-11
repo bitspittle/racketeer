@@ -6,6 +6,11 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.converters.ValueToExprConverter
 import dev.bitspittle.limp.types.Expr
 
+/**
+ * none? (List) ('Expr') -> Boolean
+ *
+ * Returns true if the expression returns false for all items in the list. Empty lists will always return true.
+ */
 class NoneMethod : Method("none?", 2) {
     override suspend fun invoke(
         env: Environment,

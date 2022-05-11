@@ -6,6 +6,8 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.types.Expr
 
 /**
+ * count (List) ('Expr) -> Int
+ *
  * Take a list and return a count of how many elements matched, based on some test expression.
  */
 class CountMethod : Method("count", 2) {

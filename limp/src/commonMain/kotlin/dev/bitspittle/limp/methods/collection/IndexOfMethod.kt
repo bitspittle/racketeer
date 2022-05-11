@@ -6,6 +6,12 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.converters.ValueToExprConverter
 import dev.bitspittle.limp.types.Expr
 
+/**
+ * index-of (List) ('Expr | Any) -> Int
+ *
+ * Take a list and either an expression OR a value, and return the first index that matches the expression / matches the
+ * item.
+ */
 class IndexOfMethod : Method("index-of", 2) {
     override suspend fun invoke(
         env: Environment,

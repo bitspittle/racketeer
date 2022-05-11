@@ -6,6 +6,11 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.converters.ValueToExprConverter
 import dev.bitspittle.limp.types.Expr
 
+/**
+ * all? (List) ('Expr) -> Boolean
+ *
+ * Returns true if the expression returns true for every item in the list.
+ */
 class AllMethod : Method("all?", 2) {
     override suspend fun invoke(
         env: Environment,

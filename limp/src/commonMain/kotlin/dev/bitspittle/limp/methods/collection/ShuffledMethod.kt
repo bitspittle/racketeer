@@ -5,6 +5,11 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 import kotlin.random.Random
 
+/**
+ * shuffled (List) -> List
+ *
+ * Return a shuffled copy of the list.
+ */
 class ShuffledMethod(private val random: () -> Random) : Method("shuffled", 1) {
     override suspend fun invoke(
         env: Environment,

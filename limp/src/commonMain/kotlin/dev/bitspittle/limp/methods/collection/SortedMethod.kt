@@ -9,6 +9,8 @@ import dev.bitspittle.limp.utils.BinarySearchHelper
 import dev.bitspittle.limp.utils.toEnum
 
 /**
+ * sorted (List) -> List
+ *
  * Take a list and return a sorted copy of it.
  */
 class SortedMethod : Method("sorted", 1) {

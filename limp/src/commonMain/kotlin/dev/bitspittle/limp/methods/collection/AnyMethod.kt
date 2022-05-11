@@ -6,6 +6,11 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.converters.ValueToExprConverter
 import dev.bitspittle.limp.types.Expr
 
+/**
+ * any? (List) ('Expr) -> Boolean
+ *
+ * Returns true if the expression returns true for any item in the list. Empty lists will always return false.
+ */
 class AnyMethod : Method("any?", 2) {
     override suspend fun invoke(
         env: Environment,

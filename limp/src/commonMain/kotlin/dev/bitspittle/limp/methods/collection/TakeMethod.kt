@@ -10,6 +10,8 @@ import dev.bitspittle.limp.utils.toEnum
 import kotlin.random.Random
 
 /**
+ * take --from ('pos) (List) (count: Int) -> List
+ *
  * Take some number of elements from a list, returning what was taken.
  */
 class TakeMethod(private val random: () -> Random) : Method("take", 2) {

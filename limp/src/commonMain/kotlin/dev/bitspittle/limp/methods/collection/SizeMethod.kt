@@ -6,6 +6,11 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.converters.PlaceholderConverter
 import dev.bitspittle.limp.types.Expr
 
+/**
+ * size (List) -> Int
+ *
+ * Take a list and return its size.
+ */
 class SizeMethod : Method("size", 1) {
     override suspend fun invoke(
         env: Environment,

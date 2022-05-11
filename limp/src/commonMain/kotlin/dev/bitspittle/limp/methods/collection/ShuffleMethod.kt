@@ -6,7 +6,7 @@ import dev.bitspittle.limp.Method
 import kotlin.random.Random
 
 /**
- * shuffle (MutableList)
+ * shuffle! (MutableList)
  *
  * Take a mutable list and randomize it in place.
  */

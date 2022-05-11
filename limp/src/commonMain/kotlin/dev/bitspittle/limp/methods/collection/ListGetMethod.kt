@@ -5,6 +5,8 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 
 /**
+ * list-get (List) (index: Int) -> Any
+ *
  * Take a list and a 0-based index and return the item at that index.
  */
 class ListGetMethod : Method("list-get", 2) {

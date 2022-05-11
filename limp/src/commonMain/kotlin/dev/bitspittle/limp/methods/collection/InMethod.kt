@@ -6,6 +6,11 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.converters.ValueToExprConverter
 import dev.bitspittle.limp.types.Expr
 
+/**
+ * in? (List) ('Expr | Any) -> Boolean
+ *
+ * Returns whether a passed in expression or item matches any in the list.
+ */
 class InMethod : Method("in?", 2) {
     override suspend fun invoke(
         env: Environment,

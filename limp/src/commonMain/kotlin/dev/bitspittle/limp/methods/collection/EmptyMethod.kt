@@ -4,6 +4,11 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 
+/**
+ * empty? (List) -> Boolean
+ *
+ * Returns true if the list has no elements in it
+ */
 class EmptyMethod : Method("empty?", 1) {
     override suspend fun invoke(
         env: Environment,

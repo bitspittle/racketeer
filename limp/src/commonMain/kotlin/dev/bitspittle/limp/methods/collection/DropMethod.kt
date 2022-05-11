@@ -9,6 +9,8 @@ import dev.bitspittle.limp.utils.toEnum
 import kotlin.random.Random
 
 /**
+ * drop --from 'pos (List) (count: Int) -> List
+ *
  * Drop some elements from a list, returning that list with those elements removed.
  */
 class DropMethod(private val random: () -> Random) : Method("drop", 2) {
