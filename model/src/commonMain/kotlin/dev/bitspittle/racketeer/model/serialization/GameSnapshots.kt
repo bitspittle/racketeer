@@ -130,7 +130,7 @@ class GameSnapshot(
     val discard: PileSnapshot,
     val jail: PileSnapshot,
     val graveyard: PileSnapshot,
-    val streetEffects: List<EffectSnapshot>,
+    val effects: List<EffectSnapshot>,
     val history: List<GameChangeSnapshot>,
 ) {
     companion object {
@@ -151,7 +151,7 @@ class GameSnapshot(
             PileSnapshot.from(gameState.discard),
             PileSnapshot.from(gameState.jail),
             PileSnapshot.from(gameState.graveyard),
-            gameState.streetEffects.map { EffectSnapshot.from(it) },
+            gameState.effects.map { EffectSnapshot.from(it) },
             gameState.history.map { change -> GameChangeSnapshot.from(describer, gameState, change) }
         )
     }
@@ -179,7 +179,7 @@ class GameSnapshot(
             discard.create(data),
             jail.create(data),
             graveyard.create(data),
-            streetEffects = mutableListOf(), // Populated shortly
+            effects = mutableListOf(), // Populated shortly
             history = mutableListOf(), // Populated shortly
         )
         gs.history.addAll(history.map { it.create(gs) })
@@ -191,7 +191,7 @@ class GameSnapshot(
             shop.exclusions.forEach { exclusion ->
                 evaluator.evaluate(env, "shop-exclude! '${exclusion.expr}")
             }
-            streetEffects.forEach { effect ->
+            effects.forEach { effect ->
                 evaluator.evaluate(env, "fx-add! --desc \"${effect.desc}\" '${effect.expr}")
             }
         }

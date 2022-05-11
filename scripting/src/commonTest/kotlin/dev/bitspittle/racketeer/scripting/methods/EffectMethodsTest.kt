@@ -40,7 +40,7 @@ class EffectMethodsTest {
         assertThat(evaluator.evaluate(env, "fx-add! --desc \"Add 2*\" '(card-set! \$card 'vp '(+ \$it 2))"))
         assertThat(evaluator.evaluate(env, "fx-add! --desc \"Add 3&\"'(game-set! 'influence '(+ \$it 3))"))
 
-        assertThat(gameState.streetEffects.map { it.desc }).containsExactly(
+        assertThat(gameState.effects.map { it.desc }).containsExactly(
             "(+ 123 456)",
             "Add 2*",
             "Add 3&",
@@ -71,9 +71,9 @@ class EffectMethodsTest {
 
         // First, play the card with an effect. It should install an effect that happens on the NEXT CARD but not
         // itself (adding cash)
-        assertThat(gameState.streetEffects).hasSize(3)
+        assertThat(gameState.effects).hasSize(3)
         gameState.apply(GameStateChange.Play(handIndex = 0)); --expectedHandSize
-        assertThat(gameState.streetEffects).hasSize(4)
+        assertThat(gameState.effects).hasSize(4)
         assertThat(gameState.hand.cards.size).isEqualTo(expectedHandSize)
         assertThat(gameState.cash).isEqualTo(0) // Cash effect just installed but won't start until the next card
         assertThat(gameState.influence).isEqualTo(3) // Already installed effect affects game

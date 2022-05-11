@@ -19,9 +19,9 @@ class BrowseStreetView(ctx: GameContext) : GameView(ctx) {
         ctx.state.street.cards.map { card -> ViewCardCommand(ctx, card) }
 
     override fun MainRenderScope.renderContentUpper() {
-        if (ctx.state.streetEffects.isNotEmpty()) {
+        if (ctx.state.effects.isNotEmpty()) {
             textLine("Active effects:")
-            ctx.state.streetEffects.forEach { effect ->
+            ctx.state.effects.forEach { effect ->
                 textLine("- ${effect.desc}")
                 if (ctx.settings.inAdminModeAndShowDebugInfo && effect.desc != effect.expr) {
                     textLine("  ${effect.expr}")

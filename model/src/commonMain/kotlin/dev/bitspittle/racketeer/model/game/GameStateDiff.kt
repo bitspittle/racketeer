@@ -122,7 +122,7 @@ private class GameStateDiffReporter(
         reportLine("${card.template.name} was upgraded, adding: ${describer.describeUpgradeTitle(upgradeType, icons = false)}.")
     }
 
-    private fun StringBuilder.report(change: GameStateChange.AddStreetEffect) = change.apply {
+    private fun StringBuilder.report(change: GameStateChange.AddEffect) = change.apply {
         reportLine("You added the following effect onto the street: ${effect.desc}.")
     }
 
@@ -168,7 +168,7 @@ private class GameStateDiffReporter(
                     is GameStateChange.AddCardAmount -> report(change)
                     is GameStateChange.UpgradeCard -> report(change)
                     is GameStateChange.AddGameAmount -> Unit // Reported below, in aggregate
-                    is GameStateChange.AddStreetEffect -> report(change)
+                    is GameStateChange.AddEffect -> report(change)
                     is GameStateChange.AddShopExclusion -> Unit // Background magic, should be invisible to the user
                     is GameStateChange.RestockShop -> report(change)
                     is GameStateChange.UpgradeShop -> report(change)

@@ -51,7 +51,7 @@ sealed class GameChangeSnapshot {
             is GameStateChange.AddCardAmount -> AddCardAmount.from(change)
             is GameStateChange.UpgradeCard -> UpgradeCard.from(change)
             is GameStateChange.AddGameAmount -> AddGameAmount.from(change)
-            is GameStateChange.AddStreetEffect -> AddStreetEffect.from(change)
+            is GameStateChange.AddEffect -> AddEffect.from(change)
             is GameStateChange.AddShopExclusion -> AddShopExclusion.from(change)
             is GameStateChange.RestockShop -> RestockShop.from(change)
             is GameStateChange.UpgradeShop -> UpgradeShop.from(change)
@@ -168,12 +168,12 @@ sealed class GameChangeSnapshot {
     }
 
     @Serializable
-    @SerialName("AddStreetEffect")
-    class AddStreetEffect(val expr: String, val desc: String) : GameChangeSnapshot() {
+    @SerialName("AddEffect")
+    class AddEffect(val expr: String, val desc: String) : GameChangeSnapshot() {
         companion object {
-            fun from(change: GameStateChange.AddStreetEffect) = AddStreetEffect(change.effect.expr, change.effect.desc)
+            fun from(change: GameStateChange.AddEffect) = AddEffect(change.effect.expr, change.effect.desc)
         }
-        override fun create(state: GameState) = GameStateChange.AddStreetEffect(Effect(expr, desc) { error("Not expected to get called") })
+        override fun create(state: GameState) = GameStateChange.AddEffect(Effect(expr, desc) { error("Not expected to get called") })
     }
 
     @Serializable
