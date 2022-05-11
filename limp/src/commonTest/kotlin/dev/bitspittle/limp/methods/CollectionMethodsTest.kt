@@ -265,15 +265,16 @@ class CollectionMethodsTest {
 
         val evaluator = Evaluator()
 
-        env.storeValue("ints", (1 .. 10).toList())
+        env.storeValue("\$ints", (1 .. 10).toList())
 
-        assertThat(evaluator.evaluate(env, "first ints '(> \$it 5)")).isEqualTo(6)
-        assertThat(evaluator.evaluate(env, "first ints '(= % \$it 2 0)")).isEqualTo(2)
-        // Placeholder just means get the very first item in the list (although you can use list-get 0 as well)
-        assertThat(evaluator.evaluate(env, "first ints _")).isEqualTo(1)
+        assertThat(evaluator.evaluate(env, "first --matching '(> \$it 5) \$ints")).isEqualTo(6)
+        assertThat(evaluator.evaluate(env, "first --matching '(= % \$it 2 0) \$ints")).isEqualTo(2)
+
+        // No "matching" just means get the very first item in the list (although you can use list-get 0 as well)
+        assertThat(evaluator.evaluate(env, "first \$ints")).isEqualTo(1)
 
         assertThrows<EvaluationException> {
-            evaluator.evaluate(env, "first ints 'false")
+            evaluator.evaluate(env, "first --matching 'false \$ints")
         }
     }
 
@@ -288,19 +289,24 @@ class CollectionMethodsTest {
 
         val evaluator = Evaluator()
 
-        env.storeValue("ints", (1 .. 10).toList())
+        env.storeValue("\$int", listOf(6))
+        env.storeValue("\$ints", (1 .. 10).toList())
 
-        assertThat(evaluator.evaluate(env, "single ints '(= \$it 8)")).isEqualTo(8)
-        assertThat(evaluator.evaluate(env, "single ints '(= % \$it 7 0)")).isEqualTo(7)
+        assertThat(evaluator.evaluate(env, "single \$int")).isEqualTo(6)
+
+        assertThat(evaluator.evaluate(env, "single --matching '(= \$it 8) \$ints")).isEqualTo(8)
+        assertThat(evaluator.evaluate(env, "single --matching '(= % \$it 7 0) \$ints")).isEqualTo(7)
+
+        assertThat(evaluator.evaluate(env, "single --matching '(= % \$it 7 0) \$ints")).isEqualTo(7)
 
         assertThrows<EvaluationException> {
             // Single must not return an empty list
-            evaluator.evaluate(env, "single ints 'false")
+            evaluator.evaluate(env, "single --matching 'false \$ints")
         }
 
         assertThrows<EvaluationException> {
             // Single must not return a list with 2+ elements
-            evaluator.evaluate(env, "single ints 'true")
+            evaluator.evaluate(env, "single \$ints")
         }
     }
 

@@ -106,13 +106,13 @@ globalActions:
   - def 'if-false '$cond '$expr '(if $cond _ $expr)
   - def 'stop-if! '$cond '(if $cond '(stop!) _)
   - def 'cancel-if! '$cond '(if $cond '(cancel!) _)
-  - def 'ask? '$prompt '(= (single (choose --prompt icon-convert $prompt (list "Yes" "No") 1) _) "Yes")
-  - def 'ask?! '$prompt '(= (single (choose --required _ --prompt icon-convert $prompt (list "Yes" "No") 1) _) "Yes")
+  - def 'ask? '$prompt '(= (single (choose --prompt icon-convert $prompt (list "Yes" "No") 1)) "Yes")
+  - def 'ask?! '$prompt '(= (single (choose --required _ --prompt icon-convert $prompt (list "Yes" "No") 1)) "Yes")
   - def 'card-has-any-of-types? '$card '$types '(any? (card-get $card 'types) '(in? $types $it))
   - def 'card-has-all-types? '$card '$types '(all? (card-get $card 'types) '(in? $types $it))
   - def 'card-upgrade-count '$card '(count (list (card-has-upgrade? $card 'cash) (card-has-upgrade? $card 'influence) (card-has-upgrade? $card 'luck) (card-has-upgrade? $card 'veteran)) '(= $it true))
   - def 'card-has-any-upgrade? '$card '(gt? (card-upgrade-count $card) 0)
-  - def 'card-named '$name '(single (filter $all-cards '(= card-get $it 'name $name)) _)
+  - def 'card-named '$name '(single --matching '(= card-get $it 'name $name) $all-cards)
   - def 'compare-by-index '$list '$a '$b '(compare index-of $list $a index-of $list $b)
   - def 'pile-compare '$pileA '$pileB '(compare-by-index (list $hand $deck $discard $street $jail) $pileA $pileB)
   - def 'choose-across-piles '$prompt '$cards '$count '(run '(cancel-if! empty? $cards) '(choose --format $fmt-card-with-pile --prompt $prompt (sorted --with '(pile-compare card-pile $a card-pile $b) (sorted $cards)) $count))
@@ -221,7 +221,7 @@ cards:
     flavor: Gain %. Create a Burglar (worth +2$) in your hand.
     playActions:
       - game-add! 'luck 1
-      - pile-copy-to! $hand (single (filter $all-cards '(= card-get $it 'name "Burglar")) _ )
+      - pile-copy-to! $hand (card-named "Burglar")
 
   - name: Croupier
     tier: 0
@@ -343,7 +343,7 @@ cards:
 #    flavor: "Choose one: Gain $$ or Gain &&."
 #    playActions:
 #      - set '$choices (map (list "Gain $$." "Gain &&.") '(icon-convert $it))
-#      - set '$chosen-index (index-of $choices single choose $choices 1 _)
+#      - set '$chosen-index (index-of $choices single choose $choices 1)
 #      - if-true (= $chosen-index 0) '(game-add! 'cash 2)
 #      - if-true (= $chosen-index 1) '(game-add! 'influence 2)
 
@@ -511,7 +511,7 @@ cards:
       - game-add! 'luck 2
       - stop-if! empty? $jail
       - pile-move-to! $hand (choose --prompt "Choose a card to get out of jail." $jail 1)
-      - pile-copy-to! $hand (single (filter $all-cards '(= card-get $it 'name "Constable")) _ )
+      - pile-copy-to! $hand (card-named "Constable")
 
   - name: Opal
     tier: 2
@@ -691,7 +691,7 @@ cards:
       - set '$maybe-card-to-jail (choose --prompt "Choose up to one card to jail." $street .. 0 1)
       - game-add! 'cash 2
       - stop-if! empty? $maybe-card-to-jail
-      - set '$card-to-jail single $maybe-card-to-jail _
+      - set '$card-to-jail single $maybe-card-to-jail
       - pile-move-to! $jail $card-to-jail
       - game-add! 'cash + 1 card-get $card-to-jail 'tier
 
@@ -704,7 +704,7 @@ cards:
     playActions:
       - stop-if! empty? $shop
       - pile-move-to! $discard (choose --format $fmt-card-with-cash --prompt "Choose a card to add to your discard pile." $shop 1)
-      - pile-copy-to! $hand (single (filter $all-cards '(= card-get $it 'name "Constable")) _ )
+      - pile-copy-to! $hand (card-named "Constable")
 
 
   - name: Dirty Sergeant
@@ -730,7 +730,7 @@ cards:
      - stop-if! empty? $treasures-to-jail
      - set '$maybe-card-to-jail (choose-across-piles "Choose up to one treasure to jail." $treasures-to-jail .. 0 1)
      - stop-if! empty? $maybe-card-to-jail
-     - set '$card-to-jail single $maybe-card-to-jail _
+     - set '$card-to-jail single $maybe-card-to-jail
      - card-add! $this 'vp (card-get $card-to-jail 'vp-total)
      - pile-move-to! $jail $card-to-jail
 
