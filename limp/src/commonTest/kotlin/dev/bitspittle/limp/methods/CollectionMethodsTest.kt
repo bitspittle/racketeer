@@ -394,6 +394,51 @@ class CollectionMethodsTest {
     }
 
     @Test
+    fun testReversedMethod() = runTest {
+        val env = Environment()
+
+        val evaluator = Evaluator()
+        env.addMethod(ReversedMethod())
+
+        env.storeValue("\$ints", listOf(1, 2, 3, 4, 5))
+        env.storeValue("\$strs", listOf("A", "B", "C"))
+
+        assertThat(evaluator.evaluate(env, "reversed \$ints") as List<Int>)
+            .containsExactly(5, 4, 3, 2, 1).inOrder()
+
+        assertThat(evaluator.evaluate(env, "reversed \$strs") as List<String>)
+            .containsExactly("C", "B", "A").inOrder()
+    }
+
+    @Test
+    fun testDistinctMethod() = runTest {
+        val env = Environment()
+
+        val evaluator = Evaluator()
+        val random = Random(123)
+        env.addMethod(DistinctMethod())
+        env.addMethod(ShuffledMethod { random })
+
+        env.storeValue("\$ints", listOf(1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5))
+        env.storeValue("\$strs", listOf("A", "B", "B", "C", "C", "C", "D", "D", "D", "D"))
+
+        assertThat(evaluator.evaluate(env, "distinct \$ints") as List<Int>)
+            .containsExactly(1, 2, 3, 4, 5).inOrder()
+
+        assertThat(evaluator.evaluate(env, "distinct \$strs") as List<String>)
+            .containsExactly("A", "B", "C", "D").inOrder()
+
+        // Even if we shuffle the list it will still be distinct-ified
+        run {
+            assertThat(evaluator.evaluate(env, "distinct shuffled \$ints") as List<Int>)
+                .containsExactly(1, 2, 3, 4, 5)
+
+            assertThat(evaluator.evaluate(env, "distinct shuffled \$strs") as List<String>)
+                .containsExactly("A", "B", "C", "D")
+        }
+    }
+
+    @Test
     fun testUnionMethod() = runTest {
         val env = Environment()
         env.addMethod(UnionMethod())
