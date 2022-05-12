@@ -13,47 +13,47 @@ import dev.bitspittle.racketeer.console.user.Settings
 import dev.bitspittle.racketeer.console.user.save
 import dev.bitspittle.racketeer.console.view.views.game.GameView
 
-private class SettingsEntry(
-    val ctx: GameContext,
-    val name: String,
-    val desc: String,
-    val get: Settings.() -> Boolean,
-    val set: Settings.(Boolean) -> Unit,
-    val type: Command.Type = Command.Type.Normal
-) {
-    val command = SelectItemCommand(
-        ctx,
-        name,
-        selected = ctx.settings.get(),
-        description = desc,
-        type = type
-    )
-}
-
-class SettingsView(ctx: GameContext, private val categories: List<Category>) : GameView(ctx) {
+class SettingsView(ctx: GameContext, categories: List<Category>) : GameView(ctx) {
     enum class Category {
         ADMIN,
     }
 
+    private class Entry(
+        ctx: GameContext,
+        name: String,
+        desc: String,
+        get: Settings.() -> Boolean,
+        val set: Settings.(Boolean) -> Unit,
+        type: Command.Type = Command.Type.Normal
+    ) {
+        val command = SelectItemCommand(
+            ctx,
+            name,
+            selected = ctx.settings.get(),
+            description = desc,
+            type = type
+        )
+    }
+
     private var category = categories.first()
 
-    private val entires = mutableMapOf(
+    private val entries = mutableMapOf(
         Category.ADMIN to listOf(
-            SettingsEntry(
+            Entry(
                 ctx,
                 "Mask cards",
                 "If true, card list screens will hide card names and descriptions until the first time you buy one.",
                 { admin.maskCards },
                 { value -> admin.maskCards = value },
             ),
-            SettingsEntry(
+            Entry(
                 ctx,
                 "Show debug info",
                 "Set true to surface things like game code inside the UI.",
                 { admin.showDebugInfo },
                 { value -> admin.showDebugInfo = value },
             ),
-            SettingsEntry(
+            Entry(
                 ctx,
                 "Enable admin features",
                 "Uncheck this to disable access to the admin menu and clear other admin-specific features.\n" +
@@ -80,13 +80,13 @@ class SettingsView(ctx: GameContext, private val categories: List<Category>) : G
 
     private fun createNewSettings() = Settings().apply {
         setFrom(ctx.settings)
-        entires.values.flatten().forEach { entry ->
+        entries.values.flatten().forEach { entry ->
             entry.set(this, entry.command.selected)
         }
     }
 
     override fun createCommands(): List<Command> =
-        entires.getValue(category).map { it.command } +
+        entries.getValue(category).map { it.command } +
                 object : Command(ctx) {
                     override val type get() = if (createNewSettings() != ctx.settings) Type.Normal else Type.Disabled
                     override val title: String = "Confirm"
