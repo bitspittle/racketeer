@@ -46,9 +46,10 @@ abstract class Command(protected val ctx: GameContext) {
         scope.apply {
             scopedState {
                 when (type) {
-                    Type.Normal, Type.Hidden -> {}
+                    Type.Normal -> {}
                     Type.Emphasized -> { bold() }
-                    Type.Blocked, Type.Disabled -> black(isBright = true)
+                    // Hidden commands shouldn't be shown, but just in case one leaks through, just treat it as disabled
+                    Type.Blocked, Type.Disabled, Type.Hidden -> black(isBright = true)
                     Type.Accented -> cyan()
                     Type.Warning -> yellow()
                     Type.Danger -> red()
