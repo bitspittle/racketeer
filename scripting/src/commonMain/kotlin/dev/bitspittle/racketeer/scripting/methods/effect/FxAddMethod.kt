@@ -8,6 +8,7 @@ import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.pile.Pile
+import dev.bitspittle.racketeer.scripting.utils.setValuesFrom
 
 /**
  * fx-add! --desc (String) --lifetime ('lifetime) --event ('event) --data (data: String) --if ('Expr) (effect: 'Expr)
@@ -59,6 +60,7 @@ class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!",
                 test = { card ->
                     if (testExpr != null) {
                         env.expectConvert(env.scoped {
+                            env.setValuesFrom(getGameState())
                             eval.extend(dataVariable + mapOf("\$card" to card)).evaluate(env, testExpr)
                         })
                     } else {
@@ -67,6 +69,7 @@ class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!",
                 },
                 action = { card ->
                     env.scoped {
+                        env.setValuesFrom(getGameState())
                         eval.extend(dataVariable + mapOf("\$card" to card)).evaluate(env, effectExpr)
                     }
                 }
@@ -75,6 +78,7 @@ class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!",
                 test = { card ->
                     if (testExpr != null) {
                         env.expectConvert(env.scoped {
+                            env.setValuesFrom(getGameState())
                             eval.extend(dataVariable + mapOf("\$card" to card)).evaluate(env, testExpr)
                         })
                     } else {
@@ -83,6 +87,7 @@ class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!",
                 },
                 action = { card ->
                     env.scoped {
+                        env.setValuesFrom(getGameState())
                         eval.extend(dataVariable + mapOf("\$card" to card)).evaluate(env, effectExpr)
                     }
                 }
@@ -91,6 +96,7 @@ class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!",
                 test = { pile ->
                     if (testExpr != null) {
                         env.expectConvert(env.scoped {
+                            env.setValuesFrom(getGameState())
                             eval.extend(dataVariable + mapOf("\$pile" to pile)).evaluate(env, testExpr)
                         })
                     } else {
@@ -99,6 +105,7 @@ class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!",
                 },
                 action = { pile ->
                     env.scoped {
+                        env.setValuesFrom(getGameState())
                         eval.extend(dataVariable + mapOf("\$pile" to pile)).evaluate(env, effectExpr)
                     }
                 }
@@ -107,6 +114,7 @@ class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!",
                 test = {
                     if (testExpr != null) {
                         env.expectConvert(env.scoped {
+                            env.setValuesFrom(getGameState())
                             eval.extend(dataVariable).evaluate(env, testExpr)
                         })
                     } else {
@@ -115,6 +123,7 @@ class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!",
                 },
                 action = {
                     env.scoped {
+                        env.setValuesFrom(getGameState())
                         eval.extend(dataVariable).evaluate(env, effectExpr)
                     }
                 }
@@ -123,6 +132,7 @@ class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!",
                 test = {
                     if (testExpr != null) {
                         env.expectConvert(env.scoped {
+                            env.setValuesFrom(getGameState())
                             eval.extend(dataVariable).evaluate(env, testExpr)
                         })
                     } else {
@@ -131,6 +141,7 @@ class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!",
                 },
                 action = {
                     env.scoped {
+                        env.setValuesFrom(getGameState())
                         eval.extend(dataVariable).evaluate(env, effectExpr)
                     }
                 }
