@@ -46,10 +46,10 @@ val GameState.lastTurnIndex get() = numTurns - 1
 val GameState.hasGameStarted get() = !(turn == 0 && history.isEmpty() && getOwnedCards().all { pileFor(it) == deck })
 val GameState.isGameOver get() = history.lastOrNull() is GameStateChange.GameOver
 val GameState.isGameInProgress get() = hasGameStarted && !isGameOver
-val GameState.allPiles: Sequence<Pile> get() = sequenceOf(hand, deck, discard, street, jail, graveyard)
+val GameState.ownedPiles: Sequence<Pile> get() = sequenceOf(hand, deck, discard, street)
+val GameState.allPiles: Sequence<Pile> get() = ownedPiles + sequenceOf(jail, graveyard)
 val GameState.allCards: Sequence<Card> get() = allPiles.flatMap { it.cards }
-fun GameState.getOwnedCards() = allPiles
-    .filter { it !== jail && it !== graveyard }
+fun GameState.getOwnedCards() = ownedPiles
     .flatMap { it.cards }
 
 
