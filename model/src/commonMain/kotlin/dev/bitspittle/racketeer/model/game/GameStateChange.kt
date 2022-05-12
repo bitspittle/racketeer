@@ -42,7 +42,7 @@ sealed class GameStateChange {
 
             apply(MoveCard(card, street))
 
-            // Apply upgrades *first*, as otherwise, playing a card may add an upgrade which shouldn't take affect until
+            // Apply upgrades *first*, as otherwise, playing a card may add an upgrade which shouldn't take effect until
             // a later turn.
             if (card.isDexterous) apply(AddGameAmount(GameProperty.CASH, 1))
             if (card.isArtful) apply(AddGameAmount(GameProperty.INFLUENCE, 1))
@@ -125,7 +125,7 @@ sealed class GameStateChange {
         }
     }
 
-    class UpgradeShop() : GameStateChange() {
+    class UpgradeShop : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             shop.upgrade()
         }
