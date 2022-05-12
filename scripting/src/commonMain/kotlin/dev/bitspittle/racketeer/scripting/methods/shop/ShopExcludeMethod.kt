@@ -12,8 +12,10 @@ class ShopExcludeMethod(private val getGameState: () -> GameState) : Method("sho
     override suspend fun invoke(env: Environment, eval: Evaluator, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
         val excludeExpr = env.expectConvert<Expr>(params[0])
         getGameState().apply(GameStateChange.AddShopExclusion(Exclusion(excludeExpr.ctx.text) { card ->
-            val evaluator = eval.extend(mapOf("\$card" to card.instantiate()))
-            env.expectConvert(evaluator.evaluate(env, excludeExpr))
+            env.scoped { // Don't let any values defined during the lambda call escape
+                val evaluator = eval.extend(mapOf("\$card" to card.instantiate()))
+                env.expectConvert(evaluator.evaluate(env, excludeExpr))
+            }
         }))
 
         return Unit

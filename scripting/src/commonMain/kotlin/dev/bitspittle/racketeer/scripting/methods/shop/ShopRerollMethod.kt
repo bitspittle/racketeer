@@ -16,8 +16,10 @@ class ShopRerollMethod(private val getGameState: () -> GameState) : Method("shop
         }
 
         getGameState().apply(GameStateChange.RestockShop { card ->
-            val evaluator = eval.extend(mapOf("\$card" to card.instantiate()))
-            env.expectConvert(evaluator.evaluate(env, cardFilterExpr))
+            env.scoped { // Don't let any values defined during the lambda call escape
+                val evaluator = eval.extend(mapOf("\$card" to card.instantiate()))
+                env.expectConvert(evaluator.evaluate(env, cardFilterExpr))
+            }
         })
 
         return Unit
