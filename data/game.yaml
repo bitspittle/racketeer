@@ -202,7 +202,8 @@ cards:
       - set '$newtier (card-get $cardtoreplace 'tier)
       - pile-move-to! $jail $cardtoreplace
       - set '$all-tier-cards (filter $all-cards '(= $newtier (card-get $it 'tier)))
-      - set '$most-tier-cards (filter $all-tier-cards '( ! ( = (card-get $cardtoreplace 'name) (card-get $it 'name))))
+      # We don't want to jail a card to simply replace it with itself, that doesn't feel fun
+      - set '$most-tier-cards (filter $all-tier-cards '(! (= (card-get $cardtoreplace 'name) (card-get $it 'name))))
       # Force a choose screen so that the player can see what card they got
       - "set '$random-tier-card (choose --prompt \"Your new card is:\" --required _ (take --from 'random $most-tier-cards 1) 1)"
       - pile-copy-to! $street $random-tier-card
