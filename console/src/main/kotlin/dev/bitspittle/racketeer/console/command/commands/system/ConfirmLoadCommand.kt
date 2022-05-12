@@ -18,7 +18,7 @@ class ConfirmLoadCommand(ctx: GameContext, private val slot: Int) : Command(ctx)
     override suspend fun invoke(): Boolean {
         val path = ctx.app.userData.pathForSlot(slot)
         val snapshot = Yaml.decodeFromString(GameSnapshot.serializer(), path.readText())
-        snapshot.create(ctx.data, ctx.env, ctx.cardQueue) { state ->
+        snapshot.create(ctx.data, ctx.env, ctx.exprCache, ctx.actionQueue, ctx.cardEnqueuer) { state ->
             ctx.state = state
         }
 

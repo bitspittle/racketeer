@@ -4,8 +4,10 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.racketeer.console.user.CardStats
 import dev.bitspittle.racketeer.console.user.Settings
 import dev.bitspittle.racketeer.console.view.ViewStack
+import dev.bitspittle.racketeer.model.action.ActionQueue
+import dev.bitspittle.racketeer.model.action.ExprCache
 import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.card.CardQueue
+import dev.bitspittle.racketeer.model.card.CardEnqueuer
 import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
@@ -27,7 +29,9 @@ class GameContext(
     val describer: Describer,
     var state: GameState,
     val env: Environment,
-    val cardQueue: CardQueue,
+    val exprCache: ExprCache,
+    val actionQueue: ActionQueue,
+    val cardEnqueuer: CardEnqueuer,
     val viewStack: ViewStack,
     val app: App
 )

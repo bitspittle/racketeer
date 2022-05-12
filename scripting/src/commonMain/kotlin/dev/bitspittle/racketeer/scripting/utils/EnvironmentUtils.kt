@@ -28,7 +28,7 @@ import dev.bitspittle.racketeer.scripting.types.GameService
  */
 fun Environment.installGameLogic(service: GameService) {
     // System
-    addMethod(StopMethod(service.cardQueue))
+    addMethod(StopMethod(service.actionQueue))
     addMethod(CancelMethod())
 
     // Collection
@@ -50,7 +50,7 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(CardHasUpgradeMethod())
     addMethod(CardHasTypeMethod(service.gameData.cardTypes))
     addMethod(CardRemoveMethod(service::gameState))
-    addMethod(CardTriggerMethod(service.cardQueue))
+    addMethod(CardTriggerMethod(service.cardEnqueuer, service::gameState))
     addMethod(CardPileMethod(service::gameState))
     storeValue("\$card-list", service.gameData.cards)
 

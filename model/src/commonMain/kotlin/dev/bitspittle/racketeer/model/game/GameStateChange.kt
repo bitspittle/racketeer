@@ -50,8 +50,8 @@ sealed class GameStateChange {
 
             // Playing this card might install an effect, but that shouldn't take effect until the next card is played
             val effectsCopy = effects.copy()
-            cardQueue.enqueuePlayActions(card)
-            cardQueue.runEnqueuedActions(this)
+            cardEnqueuer.enqueuePlayActions(this, card)
+            actionQueue.runEnqueuedActions()
             effectsCopy.processCardPlayed(card)
 
             if (card.isVeteran) apply(Draw(1))

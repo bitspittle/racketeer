@@ -20,34 +20,41 @@ import dev.bitspittle.racketeer.console.user.inAdminModeAndShowDebugInfo
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.console.view.ViewStack
 import dev.bitspittle.racketeer.console.view.views.game.play.PreDrawView
-import dev.bitspittle.racketeer.model.card.CardQueue
+import dev.bitspittle.racketeer.model.action.ActionQueue
+import dev.bitspittle.racketeer.model.action.ExprCache
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.MutableGameState
 import dev.bitspittle.racketeer.model.text.Describer
+import dev.bitspittle.racketeer.scripting.types.CardEnqueuerImpl
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 
 class TitleMenuView(
     data: GameData,
+    exprCache: ExprCache,
     settings: Settings,
     cardStats: Iterable<CardStats>,
     app: App,
     viewStack: ViewStack,
     env: Environment,
-    cardQueue: CardQueue,
 ) : View(settings, viewStack, app) {
     val ctx = run {
         @Suppress("NAME_SHADOWING")
         val cardStats = cardStats.associateBy { it.name }.toMutableMap()
+
+        val actionQueue = ActionQueue()
+        val cardEnqueuer = CardEnqueuerImpl(env, exprCache, actionQueue)
 
         GameContext(
             data,
             settings,
             cardStats,
             Describer(data, showDebugInfo = { settings.inAdminModeAndShowDebugInfo }),
-            MutableGameState(data, cardQueue),
+            MutableGameState(data, exprCache, actionQueue, cardEnqueuer),
             env,
-            cardQueue,
+            exprCache,
+            actionQueue,
+            cardEnqueuer,
             viewStack,
             app
         )

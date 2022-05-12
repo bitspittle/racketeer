@@ -15,7 +15,7 @@ class NewGameCommand(ctx: GameContext) : Command(ctx) {
 
     override suspend fun invoke(): Boolean {
         ctx.app.userData.pathForSlot(UserData.QUICKSAVE_SLOT).deleteIfExists()
-        ctx.state = MutableGameState(ctx.data, ctx.cardQueue, CopyableRandom())
+        ctx.state = MutableGameState(ctx.data, ctx.exprCache, ctx.actionQueue, ctx.cardEnqueuer, CopyableRandom())
         ctx.viewStack.popAll()
         ctx.viewStack.replaceView(PreDrawView(ctx))
         return true

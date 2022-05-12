@@ -24,9 +24,9 @@ import dev.bitspittle.racketeer.console.view.ViewStackImpl
 import dev.bitspittle.racketeer.console.view.views.game.choose.ChooseItemsView
 import dev.bitspittle.racketeer.console.view.views.game.choose.PickItemView
 import dev.bitspittle.racketeer.console.view.views.system.TitleMenuView
+import dev.bitspittle.racketeer.model.action.ExprCache
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
-import dev.bitspittle.racketeer.scripting.types.CardQueueImpl
 import dev.bitspittle.racketeer.scripting.types.GameService
 import dev.bitspittle.racketeer.scripting.utils.installGameLogic
 import kotlinx.coroutines.*
@@ -102,11 +102,11 @@ class GameSession(
         val viewStack = ViewStackImpl()
         // Compile early to suss out any syntax errors
         gameData.cards.flatMap { it.playActions }.forEach { Expr.parse(it) }
-        val cardQueue = CardQueueImpl(env)
 
         val cardStats = CardStats.load(userData) ?: emptyList()
 
-        val titleView = TitleMenuView(gameData, settings, cardStats, app, viewStack, env, cardQueue)
+        val exprCache = ExprCache()
+        val titleView = TitleMenuView(gameData, exprCache, settings, cardStats, app, viewStack, env)
         produceRandom = { titleView.ctx.state.random() }
 
         var handleRerender: () -> Unit = {}
@@ -115,7 +115,8 @@ class GameSession(
                 override val gameData = ctx.data
                 override val describer = ctx.describer
                 override val gameState get() = ctx.state
-                override val cardQueue get() = ctx.cardQueue
+                override val actionQueue = ctx.actionQueue
+                override val cardEnqueuer = ctx.cardEnqueuer
                 override val chooseHandler
                     get() = object : ChooseHandler {
                         override suspend fun query(

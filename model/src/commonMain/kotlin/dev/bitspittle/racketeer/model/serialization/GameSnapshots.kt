@@ -6,8 +6,10 @@ import com.benasher44.uuid.Uuid
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.utils.toIdentifierName
+import dev.bitspittle.racketeer.model.action.ActionQueue
+import dev.bitspittle.racketeer.model.action.ExprCache
 import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.card.CardQueue
+import dev.bitspittle.racketeer.model.card.CardEnqueuer
 import dev.bitspittle.racketeer.model.card.MutableCard
 import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.game.*
@@ -195,10 +197,19 @@ class GameSnapshot(
      *   initialization on it that requires it be hooked up into the scripting system. This is kind of a hack since it
      *   couples this method with awareness of the scripting system, but it's isolated at least and not terrible.
      */
-    suspend fun create(data: GameData, env: Environment, cardQueue: CardQueue, onGameStateCreated: (MutableGameState) -> Unit) {
+    suspend fun create(
+        data: GameData,
+        env: Environment,
+        exprCache: ExprCache,
+        actionQueue: ActionQueue,
+        cardEnqueuer: CardEnqueuer,
+        onGameStateCreated: (MutableGameState) -> Unit
+    ) {
         val gs = MutableGameState(
             random,
-            cardQueue,
+            exprCache,
+            actionQueue,
+            cardEnqueuer,
             numTurns,
             turn,
             cash,
