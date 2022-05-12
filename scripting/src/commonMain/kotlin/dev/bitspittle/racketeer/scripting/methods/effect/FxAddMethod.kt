@@ -74,7 +74,25 @@ class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!",
                     }
                 }
             )
-            GameEvent.OWN -> Effect<Card>(desc, lifetime, event, data, testExpr?.ctx?.text, effectExpr.ctx.text,
+            GameEvent.CREATE -> Effect<Card>(desc, lifetime, event, data, testExpr?.ctx?.text, effectExpr.ctx.text,
+                test = { card ->
+                    if (testExpr != null) {
+                        env.expectConvert(env.scoped {
+                            env.setValuesFrom(getGameState())
+                            eval.extend(dataVariable + mapOf("\$card" to card)).evaluate(env, testExpr)
+                        })
+                    } else {
+                        true
+                    }
+                },
+                action = { card ->
+                    env.scoped {
+                        env.setValuesFrom(getGameState())
+                        eval.extend(dataVariable + mapOf("\$card" to card)).evaluate(env, effectExpr)
+                    }
+                }
+            )
+            GameEvent.DESTROY -> Effect<Card>(desc, lifetime, event, data, testExpr?.ctx?.text, effectExpr.ctx.text,
                 test = { card ->
                     if (testExpr != null) {
                         env.expectConvert(env.scoped {

@@ -22,12 +22,21 @@ enum class GameEvent {
     SHUFFLE,
 
     /**
-     * An event fired just after a card becomes newly owned.
+     * An event fired just after a card becomes newly created.
      *
      * This happens when you buy a card from the store, jailbreak it, or a few other ways caused by card actions
      * (e.g. mimes creating a new card, or pair of earings splitting into two, etc.)
      *
-     * Owned events will include the newly owned card set to the variable `$card`.
+     * Create events will include the newly created card set to the variable `$card`.
      */
-    OWN,
+    CREATE,
+
+    /**
+     * An event fired just after a card is removed from the game.
+     *
+     * This happens when you jail a card or play a card which destroys other cards as a side effect.
+     *
+     * Destroy events will include the newly destroyed card set to the variable `$card`.
+     */
+    DESTROY,
 }
