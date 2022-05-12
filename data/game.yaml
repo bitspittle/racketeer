@@ -214,7 +214,7 @@ cards:
     types: [trickster]
     cost: 3
     flavor: Draw two cards, then discard one.
-    playActions: 
+    playActions:
       - game-draw! 2
       - stop-if! empty? $hand
       - pile-move-to! $discard (choose --required _ --prompt "Choose a card to discard." $hand 1)
@@ -532,7 +532,7 @@ cards:
     cost: 4
     flavor: Gain $$ and &&. Jail this after three uses.
     initActions:
-      - card-set! $this 'counter 3 
+      - card-set! $this 'counter 3
     playActions:
       - game-add! 'cash 2
       - game-add! 'influence 2
@@ -644,7 +644,7 @@ cards:
     types: [cop, legend]
     cost: 5
     flavor: When you get this, jail all Pickpockets and Newsies.
-    initActions: 
+    initActions:
       - pile-move-to! $jail filter $owned '(= card-get $it 'name "Pickpocket")
       - pile-move-to! $jail filter $owned '(= card-get $it 'name "Newsie")
 
@@ -771,7 +771,7 @@ cards:
     rarity: 0
     types: [treasure]
     cost: 6
-    flavor: Do nothing.	
+    flavor: Do nothing.
     vp: 7
 
   - name: Bank Robber
@@ -936,5 +936,5 @@ cards:
     types: [action]
     cost: 10
     flavor: Draw three cards.
-    playActions: 
+    playActions:
       - game-draw! 3
