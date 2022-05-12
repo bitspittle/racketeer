@@ -98,6 +98,7 @@ globalActions:
   - "alias 'lte? '<="
   - "alias 'gt? '>"
   - "alias 'gte? '>="
+  - def 'set! --inline _ '$name '$value '(set --overwrite _ $name $value)
   - def 'game-add! '$property '$amount '(game-set! $property '(+ $it $amount))
   - def 'game-sub! '$property '$amount '(game-set! $property '(- $it $amount))
   - def 'card-add! '$card '$property '$amount '(card-set! $card $property '(+ $it $amount))
@@ -112,7 +113,8 @@ globalActions:
   - def 'card-has-all-types? '$card '$types '(all? (card-get $card 'types) '(in? $types $it))
   - def 'card-upgrade-count '$card '(size card-upgrades $card)
   - def 'card-has-any-upgrade? '$card '(gt? (card-upgrade-count $card) 0)
-  - def 'card-named '$name '(single --matching '(= card-get $it 'name $name) $all-cards)
+  - def 'card-named '$name '(single --matching '(= card-get $it 'name $name) $card-list)
+  - def 'card-with-id '$id '(single --matching '(= card-get $it 'id $id) $all-cards)
   - def 'compare-by-index '$list '$a '$b '(compare index-of $list $a index-of $list $b)
   - def 'pile-compare '$pileA '$pileB '(compare-by-index (list $hand $deck $discard $street $jail) $pileA $pileB)
   - def 'choose-across-piles '$prompt '$cards '$count '(run '(cancel-if! empty? $cards) '(choose --format $fmt-card-with-pile --prompt $prompt (sorted --with '(pile-compare card-pile $a card-pile $b) (sorted $cards)) $count))
@@ -449,7 +451,7 @@ cards:
     flavor: Gain $$$. Add a random Legend to your discard pile. Jail this card.
     playActions:
       - game-add! 'cash 3
-      - set '$all-legend-cards (filter $all-cards '(card-has-type? $it 'legend))
+      - set '$all-legend-cards (filter $card-list '(card-has-type? $it 'legend))
       # Force a choose screen so that the player can see what card they got
       - "set '$random-legend (choose --prompt \"Wanted: Dead or Alive\" --required _ (take --from 'random $all-legend-cards 1) 1)"
       - pile-copy-to! $discard $random-legend
@@ -852,10 +854,10 @@ cards:
     rarity: 2
     types: [thief, legend]
     cost: 5
-    flavor: Gain $$. Whenever you play a Pickpocket or Burglar this turn, it gains *.
+    flavor: Gain $$. Gain * whenever you play a Pickpocket or Burglar this turn.
     playActions:
       - game-add! 'cash 2
-      - fx-add! --desc icon-convert "Gain * whenever you play a Pickpocket or Burglar." '(if or? (= card-get $card 'name "Pickpocket") (= card-get $card 'name "Burglar") '(card-add! $card 'vp 1) _)
+      - fx-add! --desc (icon-convert "Gain * whenever you play a Pickpocket or Burglar.") --data (card-get $this 'id) '(if-true or? (= card-get $card 'name "Pickpocket") (= card-get $card 'name "Burglar") '(card-add! card-with-id $data 'vp 1))
 
 
   - name: Annie Doshen

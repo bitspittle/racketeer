@@ -5,6 +5,7 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.game.allCards
 import dev.bitspittle.racketeer.model.game.getOwnedCards
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.converters.MutablePileToCardsConverter
@@ -51,7 +52,7 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(CardRemoveMethod(service::gameState))
     addMethod(CardTriggerMethod(service.cardQueue))
     addMethod(CardPileMethod(service::gameState))
-    storeValue("\$all-cards", service.gameData.cards)
+    storeValue("\$card-list", service.gameData.cards)
 
     // Pile
     addConverter(MutablePileToCardsConverter())
@@ -100,6 +101,18 @@ fun Environment.setValuesFrom(state: GameState) {
             rest: List<Any>
         ): Any {
             return state.getOwnedCards().toList()
+        }
+    }, allowOverwrite = true)
+
+    addMethod(object : Method("\$all-cards", 0) {
+        override suspend fun invoke(
+            env: Environment,
+            eval: Evaluator,
+            params: List<Any>,
+            options: Map<String, Any>,
+            rest: List<Any>
+        ): Any {
+            return state.allCards.toList()
         }
     }, allowOverwrite = true)
 }
