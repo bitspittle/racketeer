@@ -107,6 +107,7 @@ globalActions:
   - def 'if-false '$cond '$expr '(if $cond _ $expr)
   - def 'stop-if! '$cond '(if $cond '(stop!) _)
   - def 'cancel-if! '$cond '(if $cond '(cancel!) _)
+  - def 'concat-to-string '$strs '(join-to-string --separator "" $strs)
   - def 'ask? '$prompt '(= (single (choose --prompt icon-convert $prompt (list "Yes" "No") 1)) "Yes")
   - def 'ask?! '$prompt '(= (single (choose --required _ --prompt icon-convert $prompt (list "Yes" "No") 1)) "Yes")
   - def 'card-has-any-of-types? '$card '$types '(any? (card-get $card 'types) '(in? $types $it))
@@ -118,8 +119,8 @@ globalActions:
   - def 'compare-by-index '$list '$a '$b '(compare index-of $list $a index-of $list $b)
   - def 'pile-compare '$pileA '$pileB '(compare-by-index (list $hand $deck $discard $street $jail) $pileA $pileB)
   - def 'choose-across-piles '$prompt '$cards '$count '(run '(cancel-if! empty? $cards) '(choose --format $fmt-card-with-pile --prompt $prompt (sorted --with '(pile-compare card-pile $a card-pile $b) (sorted $cards)) $count))
-  - set '$fmt-card-with-pile '(join-to-string --separator "" (list ";(" (pile-get (card-pile $it) 'name) ")"))
-  - set '$fmt-card-with-cash '(join-to-string --separator "" (list (card-get $it 'name) ";(" (card-get $it 'cost) (icon-convert "$") ")"))
+  - set '$fmt-card-with-pile '(concat-to-string (list ";(" (pile-get (card-pile $it) 'name) ")"))
+  - set '$fmt-card-with-cash '(concat-to-string (list (card-get $it 'name) ";(" (card-get $it 'cost) (icon-convert "$") ")"))
 
 cards:
   # TIER 1
