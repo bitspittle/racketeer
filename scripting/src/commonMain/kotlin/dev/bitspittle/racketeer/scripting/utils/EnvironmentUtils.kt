@@ -89,6 +89,8 @@ fun Environment.setValuesFrom(state: GameState) {
 
     storeValue("\$shop", state.shop.stock.filterNotNull(), allowOverwrite = true)
 
+    // Make $owned a method instead of a variable because what's owned or not might change in the middle of a card's
+    // actions being executed.
     addMethod(object : Method("\$owned", 0) {
         override suspend fun invoke(
             env: Environment,
