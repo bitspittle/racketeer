@@ -196,15 +196,15 @@ cards:
     rarity: 1
     types: [trickster]
     cost: 3
-    flavor: Jail a card on the Street. Replace it with a random card of the next higher tier.
+    flavor: Jail a card on the Street. Replace it with a random card of the same tier.
     playActions:
       - set '$cardtoreplace (single (choose --prompt "Choose a card to jail." $street 1))
-      - set '$newtier (+ 1 (card-get $cardtoreplace 'tier))
-      - if-true (gt? $newtier $tier5) '(set --overwrite _ '$newtier $tier5)
+      - set '$newtier (card-get $cardtoreplace 'tier)
       - pile-move-to! $jail $cardtoreplace
       - set '$all-tier-cards (filter $all-cards '(= $newtier (card-get $it 'tier)))
+      - set '$most-tier-cards (filter $all-tier-cards '( ! ( = (card-get $cardtoreplace 'name) (card-get $it 'name))))
       # Force a choose screen so that the player can see what card they got
-      - set '$random-tier-card (choose --required _ (take --from 'random $all-tier-cards 1) 1)
+      - "set '$random-tier-card (choose --prompt \"Your new card is:\" --required _ (take --from 'random $most-tier-cards 1) 1)"
       - pile-copy-to! $street $random-tier-card
 
 
@@ -362,18 +362,6 @@ cards:
     playActions:
       - game-draw! 3
       - pile-move-to! $jail $this
-
-  - name: Art Forger
-    tier: 1
-    rarity: 1
-    types: [thief, trickster]
-    cost: 3
-    flavor: Gain $$. You may reroll your shop with cards you own.
-    playActions:
-      - game-add! 'cash 2
-      - stop-if! (! (ask? "Reroll your shop with cards you own?" ))
-      - set '$cardnames (map $owned '(card-get $it 'name))
-      - shop-reroll! '(in? $cardnames (card-get $card 'name))
 
   - name: Squealer
     tier: 1
@@ -615,6 +603,19 @@ cards:
       - game-add! 'cash 2
       - if-true (gte? (size $owned) 20) '(game-add! 'luck 2)
 
+  - name: Art Forger
+    tier: 2
+    rarity: 2
+    types: [thief, trickster]
+    cost: 5
+    flavor: Gain $$. You may reroll your shop with cards you own.
+    playActions:
+      - game-add! 'cash 2
+      - stop-if! (! (ask? "Reroll your shop with cards you own?" ))
+      - set '$cardnames (map $owned '(card-get $it 'name))
+      - shop-reroll! '(in? $cardnames (card-get $card 'name))
+
+
   - name: Baby Teeth Nelson
     tier: 2
     rarity: 1
@@ -711,6 +712,21 @@ cards:
       - pile-move-to! $jail $card-to-jail
       - game-add! 'cash + 1 card-get $card-to-jail 'tier
 
+  - name: Police Trainer
+    tier: 3
+    rarity: 2
+    types: [cop]
+    cost: 4
+    flavor: When you get or play this, give another Cop you own "Draw a card".
+    initActions:
+      - card-trigger! $this
+    playActions:
+      - set '$all-cops filter $owned '(card-has-type? $it 'cop)
+      - set '$some-cops filter $all-cops '(! (card-has-upgrade? $it 'veteran))
+      - set '$cops filter $some-cops '(!= $it $this)
+      - stop-if! empty? $cops
+      - card-upgrade! (choose-across-piles "Choose a Cop to upgrade." $cops 1) 'veteran
+
   - name: Purse Snatcher
     tier: 3
     rarity: 1
@@ -728,10 +744,10 @@ cards:
     rarity: 1
     types: [cop]
     cost: 4
-    flavor: Draw three cards, then discard three cards. Gain $ for every Cop you own.
+    flavor: Draw two cards, then discard two cards. Gain $ for every Cop you own.
     playActions:
-      - game-draw! 3
-      - pile-move-to! $discard (choose --required _ --prompt "Discard three cards." $hand 3)
+      - game-draw! 2
+      - pile-move-to! $discard (choose --required _ --prompt "Discard three cards." $hand 2)
       - game-add! 'cash count $owned '(card-has-type? $it 'cop)
 
   - name: Gem Cutter
@@ -755,7 +771,7 @@ cards:
     rarity: 0
     types: [treasure]
     cost: 6
-    flavor: There's no place like home.
+    flavor: Do nothing.	
     vp: 7
 
   - name: Bank Robber
@@ -840,20 +856,6 @@ cards:
       - game-add! 'cash 2
       - fx-add! --desc icon-convert "Gain * whenever you play a Pickpocket or Burglar." '(if or? (= card-get $card 'name "Pickpocket") (= card-get $card 'name "Burglar") '(card-add! $card 'vp 1) _)
 
-  - name: Police Trainer
-    tier: 4
-    rarity: 2
-    types: [cop]
-    cost: 4
-    flavor: When you get or play this, give another Cop you own "Draw a card".
-    initActions:
-      - card-trigger! $this
-    playActions:
-      - set '$all-cops filter $owned '(card-has-type? $it 'cop)
-      - set '$some-cops filter $all-cops '(! (card-has-upgrade? $it 'veteran))
-      - set '$cops filter $some-cops '(!= $it $this)
-      - stop-if! empty? $cops
-      - card-upgrade! (choose-across-piles "Choose a Cop to upgrade." $cops 1) 'veteran
 
   - name: Annie Doshen
     tier: 4
