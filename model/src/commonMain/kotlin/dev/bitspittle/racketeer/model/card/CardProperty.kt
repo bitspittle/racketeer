@@ -5,6 +5,7 @@ enum class CardProperty {
     COUNTER,
     ID,
     NAME,
+    RARITY,
     TIER,
     TYPES,
     VP,

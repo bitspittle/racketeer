@@ -33,7 +33,14 @@ class CardSetMethod(private val getGameState: () -> GameState) : Method("card-se
                 CardProperty.COUNTER -> card.counter
                 CardProperty.VP -> card.vpBase
                 CardProperty.VP_PASSIVE -> card.vpPassive
-                CardProperty.COST, CardProperty.TIER, CardProperty.TYPES, CardProperty.NAME, CardProperty.ID, CardProperty.VP_TOTAL  -> throw EvaluationException(
+
+                CardProperty.COST,
+                CardProperty.ID,
+                CardProperty.NAME,
+                CardProperty.RARITY,
+                CardProperty.TIER,
+                CardProperty.TYPES,
+                CardProperty.VP_TOTAL -> throw EvaluationException(
                     identifier.ctx, "Cannot set this card's property as it is read-only."
                 )
             }
