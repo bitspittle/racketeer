@@ -19,12 +19,21 @@ class BrowseStreetView(ctx: GameContext) : GameView(ctx) {
         ctx.state.street.cards.map { card -> ViewCardCommand(ctx, card) }
 
     override fun MainRenderScope.renderContentUpper() {
-        if (ctx.state.effects.isNotEmpty()) {
+        if (ctx.state.effects.items.isNotEmpty()) {
             textLine("Active effects:")
-            ctx.state.effects.forEach { effect ->
-                textLine("- ${effect.desc}")
-                if (ctx.settings.inAdminModeAndShowDebugInfo && effect.desc != effect.expr) {
-                    textLine("  ${effect.expr}")
+            ctx.state.effects.items.forEach { effect ->
+                textLine("- ${effect.desc ?: effect.expr}")
+                if (ctx.settings.inAdminModeAndShowDebugInfo) {
+                    textLine("  Lifetime: ${effect.lifetime.name.lowercase()}, Event: ${effect.event.name.lowercase()}")
+                    if (effect.data != null) {
+                        textLine("  Data: ${effect.data}")
+                    }
+                    if (effect.testExpr != null) {
+                        textLine("  Test: ${effect.testExpr}")
+                    }
+                    if (effect.desc != effect.expr) {
+                        textLine("  ${effect.expr}")
+                    }
                 }
             }
             textLine()

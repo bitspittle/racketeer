@@ -7,6 +7,10 @@ fun String.toIdentifierName(): String {
     return this.lowercase().replace('_', '-')
 }
 
+fun <E: Enum<E>> E.toIdentifierName(): String {
+    return this.name.toIdentifierName()
+}
+
 fun <E: Enum<E>> Array<E>.toIdentifierNames(): Sequence<Pair<E, String>> {
     return this
         .asSequence()

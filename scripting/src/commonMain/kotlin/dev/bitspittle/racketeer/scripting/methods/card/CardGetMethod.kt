@@ -29,7 +29,7 @@ class CardGetMethod : Method("card-get", 2) {
             CardProperty.COST -> card.template.cost
             CardProperty.COUNTER -> card.counter
             CardProperty.NAME -> card.template.name
-            CardProperty.ID -> card.id
+            CardProperty.ID -> card.id.toString() // Strings are easier to work with / pass around
             CardProperty.TIER -> card.template.tier
             CardProperty.TYPES -> card.template.types
             CardProperty.VP -> card.vpBase

@@ -169,11 +169,27 @@ sealed class GameChangeSnapshot {
 
     @Serializable
     @SerialName("AddEffect")
-    class AddEffect(val expr: String, val desc: String) : GameChangeSnapshot() {
+    class AddEffect(
+        val expr: String,
+        val desc: String?,
+        val lifetime: Lifetime,
+        val event: GameEvent,
+        val data: String?,
+        val testExpr: String?
+    ) : GameChangeSnapshot() {
         companion object {
-            fun from(change: GameStateChange.AddEffect) = AddEffect(change.effect.expr, change.effect.desc)
+            fun from(change: GameStateChange.AddEffect): AddEffect {
+                val effect = change.effect
+                return AddEffect(effect.expr, effect.desc, effect.lifetime, effect.event, effect.data, effect.testExpr)
+            }
         }
-        override fun create(state: GameState) = GameStateChange.AddEffect(Effect(expr, desc) { error("Not expected to get called") })
+
+        override fun create(state: GameState) = run {
+            // These effects won't ever get run, they're just saved so that we can review a user's history (at the
+            // moment, at least!). So just create dummy effects for now to satisfy the serializer.
+            val dummyEffect = Effect<Any>(desc, lifetime, event, data, testExpr, expr, test = { error("Dummy effect") }, action = { error("Dummy effect") })
+            GameStateChange.AddEffect(dummyEffect)
+        }
     }
 
     @Serializable
@@ -222,6 +238,4 @@ sealed class GameChangeSnapshot {
         }
         override fun create(state: GameState) = GameStateChange.GameOver()
     }
-
-
 }

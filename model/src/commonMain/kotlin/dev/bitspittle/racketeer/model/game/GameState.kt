@@ -26,7 +26,7 @@ interface GameState {
     val discard: Pile
     val jail: Pile
     val graveyard: Pile
-    val effects: List<Effect>
+    val effects: Effects
     val history: List<GameStateChange>
 
     /**
@@ -70,7 +70,7 @@ class MutableGameState internal constructor(
     override val discard: MutablePile,
     override val jail: MutablePile,
     override val graveyard: MutablePile,
-    override val effects: MutableList<Effect>,
+    override val effects: MutableEffects,
     override val history: MutableList<GameStateChange>,
 ): GameState {
     constructor(data: GameData, cardQueue: CardQueue, random: CopyableRandom = CopyableRandom()) : this(
@@ -99,7 +99,7 @@ class MutableGameState internal constructor(
         discard = MutablePile(),
         jail = MutablePile(),
         graveyard = MutablePile(),
-        effects = mutableListOf(),
+        effects = MutableEffects(),
         history = mutableListOf()
     )
 
@@ -247,7 +247,7 @@ class MutableGameState internal constructor(
             discard.copy(),
             jail.copy(),
             graveyard.copy(),
-            effects.toMutableList(),
+            effects.copy(),
             history.toMutableList(),
         )
     }

@@ -2,16 +2,15 @@
 
 package dev.bitspittle.racketeer.model.serialization
 
-import kotlinx.serialization.UseSerializers
-
 import com.benasher44.uuid.Uuid
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
-import dev.bitspittle.racketeer.model.card.*
-import dev.bitspittle.racketeer.model.game.Effect
-import dev.bitspittle.racketeer.model.game.GameData
-import dev.bitspittle.racketeer.model.game.GameState
-import dev.bitspittle.racketeer.model.game.MutableGameState
+import dev.bitspittle.limp.utils.toIdentifierName
+import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.card.CardQueue
+import dev.bitspittle.racketeer.model.card.MutableCard
+import dev.bitspittle.racketeer.model.card.UpgradeType
+import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.random.CopyableRandom
@@ -20,6 +19,7 @@ import dev.bitspittle.racketeer.model.shop.MutableShop
 import dev.bitspittle.racketeer.model.shop.Shop
 import dev.bitspittle.racketeer.model.text.Describer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 
 @Serializable
 class CardSnapshot(
@@ -42,7 +42,7 @@ class CardSnapshot(
     fun create(data: GameData) = MutableCard(
         data.cards.single { it.name == name },
         vp,
-        vpPassive = 0,
+        vpPassive = 0, // Will be calculated later
         counter,
         upgrades.toMutableSet(),
         id
@@ -53,6 +53,10 @@ class CardSnapshot(
 class ExclusionSnapshot(val expr: String) {
     companion object {
         fun from(exclusion: Exclusion) = ExclusionSnapshot(exclusion.expr)
+    }
+
+    suspend fun evaluate(env: Environment, evaluator: Evaluator) {
+        evaluator.evaluate(env, "shop-exclude! '$expr") as Exclusion
     }
 }
 
@@ -101,12 +105,42 @@ class PileSnapshot(
 }
 
 @Serializable
-class EffectSnapshot(val expr: String, val desc: String) {
+class EffectSnapshot(
+    val expr: String,
+    val desc: String?,
+    val lifetime: Lifetime,
+    val event: GameEvent,
+    val data: String?,
+    val testExpr: String?
+) {
     companion object {
-        fun from(effect: Effect) = EffectSnapshot(
-            effect.expr,
-            effect.desc,
-        )
+        fun from(effect: Effect<*>): EffectSnapshot = run {
+            EffectSnapshot(effect.expr, effect.desc, effect.lifetime, effect.event, effect.data, effect.testExpr)
+        }
+    }
+
+    suspend fun evaluate(env: Environment, evaluator: Evaluator) {
+        val code = buildString {
+            append("fx-add! ")
+            if (desc != null) {
+                append("--desc \"$desc\" ")
+            }
+            if (lifetime != Lifetime.TURN) {
+                append("--lifetime '${lifetime.toIdentifierName()} ")
+            }
+            if (event != GameEvent.PLAY) {
+                append("--event '${event.toIdentifierName()} ")
+            }
+            if (data != null) {
+                append("--data \"$data\" ")
+            }
+            if (testExpr != null) {
+                append("--if '${testExpr} ")
+            }
+            append("'$expr")
+        }
+
+        evaluator.evaluate(env, code)
     }
 }
 
@@ -151,7 +185,7 @@ class GameSnapshot(
             PileSnapshot.from(gameState.discard),
             PileSnapshot.from(gameState.jail),
             PileSnapshot.from(gameState.graveyard),
-            gameState.effects.map { EffectSnapshot.from(it) },
+            gameState.effects.items.map { effect -> EffectSnapshot.from(effect) },
             gameState.history.map { change -> GameChangeSnapshot.from(describer, gameState, change) }
         )
     }
@@ -170,7 +204,7 @@ class GameSnapshot(
             cash,
             influence,
             luck,
-            0,
+            0, // Recaluclated shortly
             handSize,
             shop.create(data, random),
             deck.create(data),
@@ -179,7 +213,7 @@ class GameSnapshot(
             discard.create(data),
             jail.create(data),
             graveyard.create(data),
-            effects = mutableListOf(), // Populated shortly
+            effects = MutableEffects(), // Populated shortly
             history = mutableListOf(), // Populated shortly
         )
         gs.history.addAll(history.map { it.create(gs) })
@@ -188,12 +222,8 @@ class GameSnapshot(
 
         env.scoped {
             val evaluator = Evaluator()
-            shop.exclusions.forEach { exclusion ->
-                evaluator.evaluate(env, "shop-exclude! '${exclusion.expr}")
-            }
-            effects.forEach { effect ->
-                evaluator.evaluate(env, "fx-add! --desc \"${effect.desc}\" '${effect.expr}")
-            }
+            shop.exclusions.forEach { exclusion -> exclusion.evaluate(env, evaluator) }
+            effects.forEach { effect -> effect.evaluate(env, evaluator) }
         }
         gs.updateVictoryPoints()
     }

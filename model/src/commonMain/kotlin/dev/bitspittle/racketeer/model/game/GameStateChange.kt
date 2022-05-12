@@ -49,10 +49,10 @@ sealed class GameStateChange {
             if (card.isLucky) apply(AddGameAmount(GameProperty.LUCK, 1))
 
             // Playing this card might install an effect, but that shouldn't take effect until the next card is played
-            val effectsCopy = effects.toList()
+            val effectsCopy = effects.copy()
             cardQueue.enqueuePlayActions(card)
             cardQueue.runEnqueuedActions(this)
-            effectsCopy.forEach { effect -> effect.invoke(card) }
+            effectsCopy.processCardPlayed(card)
 
             if (card.isVeteran) apply(Draw(1))
         }
@@ -107,9 +107,9 @@ sealed class GameStateChange {
         }
     }
 
-    class AddEffect(val effect: Effect) : GameStateChange() {
+    class AddEffect(val effect: Effect<*>) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
-            effects.add(effect)
+            effects.items.add(effect)
         }
     }
 
@@ -141,7 +141,7 @@ sealed class GameStateChange {
             turn++
             cash = 0
 
-            effects.clear()
+            effects.processTurnEnded()
             move(street.cards, discard)
             move(hand.cards, discard)
             shop.restock()
