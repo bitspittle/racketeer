@@ -80,8 +80,6 @@ class SystemMethodsTest {
     @Test
     fun testDefineMethods() = runTest {
         val env = Environment()
-        env.addMethod(MinMethod())
-        env.addMethod(MaxMethod())
         env.addMethod(DefMethod())
         env.storeValue("_", Placeholder)
 
@@ -89,6 +87,9 @@ class SystemMethodsTest {
 
         // Define clamp
         env.scoped {
+            env.addMethod(MinMethod())
+            env.addMethod(MaxMethod())
+
             assertThat(env.loadValue("val")).isNull()
             assertThat(env.loadValue("low")).isNull()
             assertThat(env.loadValue("hi")).isNull()
@@ -116,14 +117,47 @@ class SystemMethodsTest {
         env.scoped {
             evaluator.evaluate(env, "def 'add3 'a 'b 'c '(+ a + b c)")
             assertThat(env.getMethod("add3")).isNotNull()
-            assertThat(env.getMethod("+")).isNull()
 
+            assertThat(env.getMethod("+")).isNull()
             assertThrows<EvaluationException> {
                 evaluator.evaluate(env, "add3 1 2 3")
             }
 
             env.addMethod(AddMethod())
             assertThat(evaluator.evaluate(env, "add3 1 2 3")).isEqualTo(6)
+        }
+
+        // Verify inline behavior
+        env.scoped {
+            env.addMethod(SetMethod(ConsoleLogger()))
+            env.addMethod(AddMethod())
+
+            evaluator.evaluate(env, "def 'set-add3-normal '\$a '\$b '\$c '(set '\$sum + \$a + \$b \$c)")
+            assertThat(env.getMethod("set-add3-normal")).isNotNull()
+
+            evaluator.evaluate(env, "def 'set-add3-inline --inline _ '\$a '\$b '\$c '(set '\$sum + \$a + \$b \$c)")
+            assertThat(env.getMethod("set-add3-inline")).isNotNull()
+
+            // We'll want to make sure lambda parameters don't leak in inline mode
+            assertThat(env.loadValue("\$a")).isNull()
+            assertThat(env.loadValue("\$b")).isNull()
+            assertThat(env.loadValue("\$c")).isNull()
+            assertThat(env.loadValue("\$sum")).isNull()
+
+            evaluator.evaluate(env, "set-add3-normal 1 2 3")
+            // Trust me, it was called! But the values it calculated were lost when the scope got torn down
+            assertThat(env.loadValue("\$a")).isNull()
+            assertThat(env.loadValue("\$b")).isNull()
+            assertThat(env.loadValue("\$c")).isNull()
+            assertThat(env.loadValue("\$sum")).isNull()
+
+            evaluator.evaluate(env, "set-add3-inline 1 2 3")
+            // With inline, the method was called in our current scope! So sum will stuck. But lambda parameters
+            // shouldn't leak.
+            assertThat(env.loadValue("\$a")).isNull()
+            assertThat(env.loadValue("\$b")).isNull()
+            assertThat(env.loadValue("\$c")).isNull()
+            assertThat(env.loadValue("\$sum")).isEqualTo(6)
         }
 
         // Misc. error checking

@@ -8,7 +8,9 @@ import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.types.Expr
 
 /**
- * Define a method that lets you define a method...
+ * def --overwrite (Bool|Placeholder) --inline (Bool|Placeholder) (arg1: Any) (arg2: Any)... (body: 'Expr)
+ *
+ * Define a method.
  *
  * The method should take at least two arguments, a name and a method body, but optionally one or more arguments that,
  * if present, will be bound to as temporary variables.
@@ -21,6 +23,12 @@ import dev.bitspittle.limp.types.Expr
  *
  * you can see that the first argument, `'clamp`, is the name, followed by three parameters, followed by the method
  * body `'(min ...)`.
+ *
+ * `--overwrite`: You cannot set a value that already has been defined, unless you pass true (or _) to the overwrite
+ *    option.
+ *
+ * `--inline`: Normally, a method creates a new scope in which it works, making it safe for things like declaring variables.
+ * However, if you inline it, the method will be defined in the current scope.
  */
 class DefMethod : Method("def", 0, consumeRest = true) {
     override suspend fun invoke(
@@ -52,6 +60,11 @@ class DefMethod : Method("def", 0, consumeRest = true) {
             options["overwrite"]?.let { env.expectConvert(it) }
         } ?: false
 
+        val isInline = env.scoped {
+            env.addConverter(PlaceholderConverter(true))
+            options["inline"]?.let { env.expectConvert(it) }
+        } ?: false
+
         env.addMethod(object : Method(nameIdentifier.name, argIds.size) {
             override suspend fun invoke(
                 env: Environment,
@@ -60,8 +73,12 @@ class DefMethod : Method("def", 0, consumeRest = true) {
                 options: Map<String, Any>,
                 rest: List<Any>
             ): Any {
-                return env.scoped { // Don't let values defined during the lambda escape
-                    val evaluator = eval.extend(params.mapIndexed { i, value -> argIds[i].name to value }.toMap())
+                val evaluator = eval.extend(params.mapIndexed { i, value -> argIds[i].name to value }.toMap())
+                return if (!isInline) {
+                    env.scoped {
+                        evaluator.evaluate(env, bodyExpr)
+                    }
+                } else {
                     evaluator.evaluate(env, bodyExpr)
                 }
             }
