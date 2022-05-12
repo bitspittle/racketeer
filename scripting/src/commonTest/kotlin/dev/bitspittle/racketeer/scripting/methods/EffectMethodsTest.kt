@@ -40,7 +40,7 @@ class EffectMethodsTest {
         assertThat(evaluator.evaluate(env, "fx-add! --desc \"Add 2*\" '(card-set! \$card 'vp '(+ \$it 2))"))
         assertThat(evaluator.evaluate(env, "fx-add! --desc \"Add 3&\"'(game-set! 'influence '(+ \$it 3))"))
 
-        assertThat(gameState.effects.map { it.desc }).containsExactly(
+        assertThat(gameState.effects.items.map { it.desc ?: it.expr }).containsExactly(
             "(+ 123 456)",
             "Add 2*",
             "Add 3&",
@@ -54,7 +54,7 @@ class EffectMethodsTest {
             env.storeValue("\$hand", gameState.hand)
             env.storeValue("\$all-cards", service.gameData.cards)
             // Create a card which has an install effect which adds one cash to the game per card played
-            evaluator.evaluate(env, "pile-copy-to! --pos 'front \$hand single \$all-cards '(= card-get \$it 'name \"Embezzler\")")
+            evaluator.evaluate(env, "pile-copy-to! --pos 'front \$hand single --matching '(= card-get \$it 'name \"Embezzler\") \$all-cards")
             ++expectedHandSize
         }
         assertThat(gameState.hand.cards.size).isEqualTo(expectedHandSize)
@@ -71,9 +71,9 @@ class EffectMethodsTest {
 
         // First, play the card with an effect. It should install an effect that happens on the NEXT CARD but not
         // itself (adding cash)
-        assertThat(gameState.effects).hasSize(3)
+        assertThat(gameState.effects.items).hasSize(3)
         gameState.apply(GameStateChange.Play(handIndex = 0)); --expectedHandSize
-        assertThat(gameState.effects).hasSize(4)
+        assertThat(gameState.effects.items).hasSize(4)
         assertThat(gameState.hand.cards.size).isEqualTo(expectedHandSize)
         assertThat(gameState.cash).isEqualTo(0) // Cash effect just installed but won't start until the next card
         assertThat(gameState.influence).isEqualTo(3) // Already installed effect affects game

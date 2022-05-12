@@ -67,7 +67,7 @@ class PileMethodsTest {
             val handSize = gameState.hand.cards.size
             assertThat(gameState.hand.cards[0].template.name).isEqualTo("Pickpocket")
 
-            evaluator.evaluate(env, "pile-copy-to! --pos 'front \$discard first \$hand _")
+            evaluator.evaluate(env, "pile-copy-to! --pos 'front \$discard first \$hand")
 
             assertThat(gameState.discard.cards).hasSize(3)
             assertThat(gameState.hand.cards).hasSize(handSize) // Hand not affected
@@ -125,7 +125,7 @@ class PileMethodsTest {
         assertThat(gameState.hand.cards).hasSize(handSize + 2) // Deck size affected
 
         // move a single card
-        evaluator.evaluate(env, "pile-move-to! \$discard first \$hand _")
+        evaluator.evaluate(env, "pile-move-to! \$discard first \$hand")
         assertThat(gameState.discard.cards).hasSize(1)
     }
 }

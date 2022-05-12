@@ -91,7 +91,7 @@ class CardMethodsTest {
         assertThat(evaluator.evaluate(env, "card-get card 'cost")).isEqualTo(2)
         assertThat(evaluator.evaluate(env, "card-get card 'vp")).isEqualTo(5)
         assertThat(evaluator.evaluate(env, "card-get card 'name")).isEqualTo("test-card")
-        assertThat(evaluator.evaluate(env, "card-get card 'id")).isInstanceOf<Uuid>()
+        assertThat(evaluator.evaluate(env, "card-get card 'id")).isInstanceOf<String>()
         assertThat(evaluator.evaluate(env, "card-get card 'types") as List<String>).containsExactly("type-a", "type-b").inOrder()
 
         assertThrows<EvaluationException> {
@@ -212,7 +212,7 @@ class CardMethodsTest {
         // Can check types from cards even if they're not instantiated yet
         assertThat(evaluator.evaluate(env, "card-has-type? list-get \$all-cards 0 'thief") as Boolean).isTrue()
 
-        evaluator.evaluate(env, "pile-copy-to! \$hand single \$all-cards '(= card-get \$it 'name \"Embezzler\")")
+        evaluator.evaluate(env, "pile-copy-to! \$hand single --matching '(= card-get \$it 'name \"Embezzler\") \$all-cards")
         evaluator.evaluate(env, "set '\$card list-get \$hand 0")
         val card = evaluator.evaluate(env, "\$card") as Card
         assertThat(card.template.types).containsExactly("thief", "spy").inOrder()
