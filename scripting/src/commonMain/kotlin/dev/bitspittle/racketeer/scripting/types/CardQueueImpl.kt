@@ -6,7 +6,7 @@ import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardQueue
 import dev.bitspittle.racketeer.model.card.allPassiveActions
-import dev.bitspittle.racketeer.model.game.MutableGameState
+import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.scripting.utils.setValuesFrom
 
 class CardQueueImpl(private val env: Environment) : CardQueue {
@@ -45,7 +45,7 @@ class CardQueueImpl(private val env: Environment) : CardQueue {
         cardsToRun.clear()
     }
 
-    private suspend fun run(gameState: MutableGameState, card: Card) {
+    private suspend fun run(gameState: GameState, card: Card) {
         val evaluator = Evaluator()
         env.scoped {
             env.setValuesFrom(gameState)
@@ -57,7 +57,7 @@ class CardQueueImpl(private val env: Environment) : CardQueue {
         }
     }
 
-    override suspend fun runEnqueuedActions(gameState: MutableGameState) {
+    override suspend fun runEnqueuedActions(gameState: GameState) {
         if (isRunning) return
         isRunning = true
         try {
