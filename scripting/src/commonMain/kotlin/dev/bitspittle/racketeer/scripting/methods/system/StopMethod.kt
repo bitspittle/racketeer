@@ -13,7 +13,7 @@ class StopMethod(private val actionQueue: ActionQueue) : Method("stop!", 0) {
         options: Map<String, Any>,
         rest: List<Any>
     ): Any {
-        actionQueue.clear()
+        actionQueue.stop()
 
         return Unit
     }

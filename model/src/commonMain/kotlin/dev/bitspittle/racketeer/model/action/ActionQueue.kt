@@ -17,7 +17,8 @@ class ActionQueue {
         actionsToRun.add(ActionGroup(init, tearDown, actions))
     }
 
-    fun clear() {
+    fun stop() {
+        isRunning = false
         actionsToRun.clear()
     }
 
@@ -32,6 +33,7 @@ class ActionQueue {
                     val innerActions = group.actions.toMutableList()
                     while (innerActions.isNotEmpty()) {
                         innerActions.removeFirst().invoke()
+                        if (!isRunning) break // An action might have indirectly triggered `stop()`
                     }
                 }
                 finally {
@@ -39,8 +41,7 @@ class ActionQueue {
                 }
             }
         } finally {
-            actionsToRun.clear()
-            isRunning = false
+            stop()
         }
     }
 

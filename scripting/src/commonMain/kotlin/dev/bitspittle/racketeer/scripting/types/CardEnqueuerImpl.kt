@@ -26,7 +26,7 @@ class CardEnqueuerImpl(
             },
             tearDown = {
                 env.popScope()
-                       },
+            },
             actions = actions.map {
                 { evaluator.evaluate(env, exprCache.parse(it)) }
             }
