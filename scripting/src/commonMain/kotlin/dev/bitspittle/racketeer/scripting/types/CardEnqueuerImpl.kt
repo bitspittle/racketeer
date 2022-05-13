@@ -15,6 +15,8 @@ class CardEnqueuerImpl(
     private val actionQueue: ActionQueue,
 ) : CardEnqueuer {
     private fun enqueueActions(gameState: GameState, card: Card, actions: List<String>) {
+        if (actions.isEmpty()) return
+
         val evaluator = Evaluator()
         actions.forEach { action ->
             actionQueue.enqueue {
