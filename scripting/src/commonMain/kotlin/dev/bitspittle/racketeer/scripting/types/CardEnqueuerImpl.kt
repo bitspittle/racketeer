@@ -6,6 +6,7 @@ import dev.bitspittle.racketeer.model.action.ActionQueue
 import dev.bitspittle.racketeer.model.action.ExprCache
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardEnqueuer
+import dev.bitspittle.racketeer.model.card.allPassiveActions
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.scripting.utils.setValuesFrom
 
@@ -35,5 +36,5 @@ class CardEnqueuerImpl(
 
     override fun enqueueInitActions(gameState: GameState, card: Card) = enqueueActions(gameState, card, card.template.initActions)
     override fun enqueuePlayActions(gameState: GameState, card: Card) = enqueueActions(gameState, card, card.template.playActions)
-    override fun enqueuePassiveActions(gameState: GameState, card: Card) = enqueueActions(gameState, card, card.template.passiveActions)
+    override fun enqueuePassiveActions(gameState: GameState, card: Card) = enqueueActions(gameState, card, card.template.allPassiveActions)
 }
