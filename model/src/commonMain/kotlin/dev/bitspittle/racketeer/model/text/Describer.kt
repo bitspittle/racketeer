@@ -252,6 +252,30 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
     }
 
+    fun describeActivationCost(blueprint: Blueprint): String {
+        return buildString {
+            blueprint.activationCost.let { cost ->
+                if (cost.cash > 0) {
+                    append(describeCash(cost.cash))
+                }
+
+                if (cost.influence > 0) {
+                    if (this.isNotEmpty()) append(' ')
+                    append(describeInfluence(cost.influence))
+                }
+
+                if (cost.luck > 0) {
+                    if (this.isNotEmpty()) append(' ')
+                    append(describeLuck(cost.luck))
+                }
+            }
+        }
+    }
+
+    private fun StringBuilder.appendActivationCost(blueprint: Blueprint) {
+        appendLine("Activation cost: ${describeActivationCost(blueprint)}")
+    }
+
     private fun StringBuilder.appendBlueprintBody(blueprint: Blueprint) {
         append(convertIcons(blueprint.flavor))
 
@@ -298,43 +322,24 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
 
             if (!concise) {
                 appendLine() // Finish name row
+                appendActivationCost(blueprint)
                 appendLine() // Newline
                 appendBlueprintBody(blueprint)
             }
         }
     }
 
-    fun describeActivationCost(location: Location): String {
-        return buildString {
-            location.blueprint.activationCost.let { cost ->
-                if (cost.cash > 0) {
-                    append(describeCash(cost.cash))
-                }
-
-                if (cost.influence > 0) {
-                    if (this.isNotEmpty()) append(' ')
-                    append(describeInfluence(cost.influence))
-                }
-
-                if (cost.luck > 0) {
-                    if (this.isNotEmpty()) append(' ')
-                    append(describeLuck(cost.luck))
-                }
-            }
-        }
-    }
-
-
     fun describeLocation(location: Location, showActivated: Boolean = false, concise: Boolean = false): String {
         return buildString {
             append(location.blueprint.name)
 
             if (!concise) {
-                append(describeActivationCost(location))
                 appendLine() // Finish name row
+                appendActivationCost(location.blueprint)
                 if (showActivated) {
-                    appendLine("Activated? " + if (location.isActivated) "Yes" else "No")
+                    appendLine("Activated this turn? " + if (location.isActivated) "Yes" else "No")
                 }
+
                 appendLine()
 
                 appendBlueprintBody(location.blueprint)

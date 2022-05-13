@@ -6,7 +6,9 @@ import kotlinx.serialization.Serializable
 class BuildCost(val cash: Int, val influence: Int)
 
 @Serializable
-class ActivationCost(val cash: Int = 0, val influence: Int = 0, val luck: Int = 0)
+class ActivationCost(val cash: Int = 0, val influence: Int = 0, val luck: Int = 0) {
+    fun isFree() = cash == 0 && influence == 0 && luck == 0
+}
 
 /**
  * @param initActions Actions run when this blueprint is first built as a concrete location

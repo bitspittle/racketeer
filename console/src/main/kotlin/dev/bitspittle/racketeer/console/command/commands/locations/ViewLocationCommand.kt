@@ -12,6 +12,11 @@ import dev.bitspittle.racketeer.model.location.Location
  * A no-op command used when read-only viewing a blueprint
  */
 class ViewLocationCommand(ctx: GameContext, location: Location) : Command(ctx) {
+    override val type: Type = when {
+        // TODO: Handle canActivate == false
+        location.isActivated -> Type.Disabled
+        else -> Type.Normal
+    }
     override val title = ctx.describer.describeLocation(location, concise = true)
     override val description = ctx.describer.describeLocation(location, showActivated = true, concise = false)
 }

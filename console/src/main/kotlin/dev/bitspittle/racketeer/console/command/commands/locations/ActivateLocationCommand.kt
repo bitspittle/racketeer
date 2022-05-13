@@ -23,7 +23,7 @@ class ActivateLocationCommand(ctx: GameContext, private val location: Location) 
 
     override val title = "Activate: " + ctx.describer.describeLocation(location, concise = true)
     override val description = ctx.describer.describeLocation(location, concise = false)
-    override val extra: String = ctx.describer.describeActivationCost(location)
+    override val extra: String = ctx.describer.describeActivationCost(location.blueprint)
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {

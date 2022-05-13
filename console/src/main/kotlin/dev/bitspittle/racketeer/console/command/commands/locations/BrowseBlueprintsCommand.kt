@@ -12,9 +12,9 @@ class BrowseBlueprintsCommand(ctx: GameContext) : Command(ctx) {
         ctx.state.blueprints.isNotEmpty() -> Type.Normal
         else -> Type.Hidden
     }
-    override val title = "Blueprints (${ctx.state.blueprints.size})"
+    override val title = "Blueprints"
 
-    override val description = "Blueprints are needed for building locations into the street.\n\nYou can currently build $affordableCount of them."
+    override val description = "Blueprints are needed for building locations into the street."
 
     override suspend fun invoke(): Boolean {
         ctx.viewStack.pushView(BrowseBlueprintsView(ctx))
