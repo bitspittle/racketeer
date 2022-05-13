@@ -5,6 +5,7 @@ import dev.bitspittle.racketeer.console.user.CardStats
 import dev.bitspittle.racketeer.console.user.Settings
 import dev.bitspittle.racketeer.console.view.ViewStack
 import dev.bitspittle.racketeer.model.action.ActionQueue
+import dev.bitspittle.racketeer.model.action.Enqueuers
 import dev.bitspittle.racketeer.model.action.ExprCache
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardEnqueuer
@@ -29,9 +30,7 @@ class GameContext(
     val describer: Describer,
     var state: GameState,
     val env: Environment,
-    val exprCache: ExprCache,
-    val actionQueue: ActionQueue,
-    val cardEnqueuer: CardEnqueuer,
+    val enqueuers: Enqueuers,
     val viewStack: ViewStack,
     val app: App
 )

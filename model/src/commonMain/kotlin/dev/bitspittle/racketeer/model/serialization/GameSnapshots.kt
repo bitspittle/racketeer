@@ -7,6 +7,7 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.utils.toIdentifierName
 import dev.bitspittle.racketeer.model.action.ActionQueue
+import dev.bitspittle.racketeer.model.action.Enqueuers
 import dev.bitspittle.racketeer.model.action.ExprCache
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardEnqueuer
@@ -200,16 +201,12 @@ class GameSnapshot(
     suspend fun create(
         data: GameData,
         env: Environment,
-        exprCache: ExprCache,
-        actionQueue: ActionQueue,
-        cardEnqueuer: CardEnqueuer,
+        enqueuers: Enqueuers,
         onGameStateCreated: (MutableGameState) -> Unit
     ) {
         val gs = MutableGameState(
             random,
-            exprCache,
-            actionQueue,
-            cardEnqueuer,
+            enqueuers,
             numTurns,
             turn,
             cash,

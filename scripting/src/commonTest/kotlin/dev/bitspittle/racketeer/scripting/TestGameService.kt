@@ -1,13 +1,19 @@
 package dev.bitspittle.racketeer.scripting
 
+import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.types.DelegatingLogger
+import dev.bitspittle.racketeer.model.action.ActionQueue
+import dev.bitspittle.racketeer.model.action.Enqueuers
+import dev.bitspittle.racketeer.model.action.ExprCache
 import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.card.CardQueue
+import dev.bitspittle.racketeer.model.card.CardEnqueuer
 import dev.bitspittle.racketeer.model.game.GameData
+import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.MutableGameState
 import dev.bitspittle.racketeer.model.random.CopyableRandom
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
+import dev.bitspittle.racketeer.scripting.types.CardEnqueuerImpl
 import dev.bitspittle.racketeer.scripting.types.GameService
 import kotlin.random.Random
 
@@ -155,30 +161,29 @@ private val FAKE_GAME_DATA_TEXT = """
 
 fun createFakeGameData() = GameData.decodeFromString(FAKE_GAME_DATA_TEXT)
 
-class StubCardQueue : CardQueue {
-    override fun enqueueInitActions(card: Card) {
-    }
+class StubCardEnqueuer : CardEnqueuer {
+    override fun enqueueInitActions(gameState: GameState, card: Card) { NotImplementedError() }
+    override fun enqueuePlayActions(gameState: GameState, card: Card) { NotImplementedError() }
+    override fun enqueuePassiveActions(gameState: GameState, card: Card) { NotImplementedError() }
+}
 
-    override fun enqueuePlayActions(card: Card) {
-    }
+@Suppress("TestFunctionName") // Imitating a factory method
+fun TestEnqueuers(env: Environment): Enqueuers {
+    val exprCache = ExprCache()
+    val actionQueue = ActionQueue()
 
-    override fun enqueuePassiveActions(card: Card) {
-    }
-
-    override fun clear() {
-    }
-
-    override suspend fun runEnqueuedActions(gameState: MutableGameState) {
-    }
-
-    override val isRunning = false
+    return Enqueuers(actionQueue, CardEnqueuerImpl(env, exprCache, actionQueue))
 }
 
 // Create a random with a fixed seed so tests run consistently
 class TestGameService(
     private val copyableRandom: CopyableRandom = CopyableRandom(0),
     override val gameData: GameData = createFakeGameData(),
-    override val cardQueue: CardQueue = StubCardQueue(),
+
+    override val enqueuers: Enqueuers = Enqueuers(
+        ActionQueue(),
+        StubCardEnqueuer(),
+    ),
     override val chooseHandler: ChooseHandler = object : ChooseHandler {
         override suspend fun query(
             prompt: String?,
@@ -193,7 +198,7 @@ class TestGameService(
     val random: Random get() = copyableRandom()
 
     override val describer: Describer = Describer(gameData, showDebugInfo = { true })
-    override val gameState = MutableGameState(gameData, cardQueue, copyableRandom)
+    override val gameState = MutableGameState(gameData, enqueuers, copyableRandom)
     private val _logs = mutableListOf<String>()
     val logs: List<String> = _logs
 

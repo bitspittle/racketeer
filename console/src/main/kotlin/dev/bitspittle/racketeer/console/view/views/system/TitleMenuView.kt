@@ -21,6 +21,7 @@ import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.console.view.ViewStack
 import dev.bitspittle.racketeer.console.view.views.game.play.PreDrawView
 import dev.bitspittle.racketeer.model.action.ActionQueue
+import dev.bitspittle.racketeer.model.action.Enqueuers
 import dev.bitspittle.racketeer.model.action.ExprCache
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.MutableGameState
@@ -43,18 +44,19 @@ class TitleMenuView(
         val cardStats = cardStats.associateBy { it.name }.toMutableMap()
 
         val actionQueue = ActionQueue()
-        val cardEnqueuer = CardEnqueuerImpl(env, exprCache, actionQueue)
+        val enqueuers = Enqueuers(
+            actionQueue,
+            CardEnqueuerImpl(env, exprCache, actionQueue)
+        )
 
         GameContext(
             data,
             settings,
             cardStats,
             Describer(data, showDebugInfo = { settings.inAdminModeAndShowDebugInfo }),
-            MutableGameState(data, exprCache, actionQueue, cardEnqueuer),
+            MutableGameState(data, enqueuers),
             env,
-            exprCache,
-            actionQueue,
-            cardEnqueuer,
+            enqueuers,
             viewStack,
             app
         )

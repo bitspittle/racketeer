@@ -1,6 +1,5 @@
 package dev.bitspittle.racketeer.scripting.methods
 
-import com.benasher44.uuid.Uuid
 import com.varabyte.truthish.assertThat
 import com.varabyte.truthish.assertThrows
 import dev.bitspittle.limp.Environment
@@ -18,11 +17,11 @@ import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.game.getOwnedCards
 import dev.bitspittle.racketeer.model.random.CopyableRandom
+import dev.bitspittle.racketeer.scripting.TestEnqueuers
 import dev.bitspittle.racketeer.scripting.TestGameService
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.card.*
 import dev.bitspittle.racketeer.scripting.methods.pile.PileCopyToMethod
-import dev.bitspittle.racketeer.scripting.types.CardQueueImpl
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -243,9 +242,10 @@ class CardMethodsTest {
     fun testTriggerMethod() = runTest {
         val env = Environment()
 
-        val service = TestGameService(cardQueue = CardQueueImpl(env))
 
-        env.addMethod(CardTriggerMethod(service.cardQueue))
+        val service = TestGameService(enqueuers = TestEnqueuers(env))
+
+        env.addMethod(CardTriggerMethod(service.enqueuers.card, service::gameState))
         env.addMethod(DbgMethod(service.logger))
         env.addMethod(RunMethod())
         env.addMethod(CardGetMethod())
@@ -272,9 +272,9 @@ class CardMethodsTest {
         env.storeValue("\$card3", card3)
 
         assertThat(service.logs).isEmpty()
-        service.cardQueue.apply {
-            enqueuePlayActions(card1)
-            runEnqueuedActions(service.gameState)
+        service.enqueuers.apply {
+            card.enqueuePlayActions(service.gameState, card1)
+            actionQueue.runEnqueuedActions()
         }
         assertThat(service.logs).containsExactly(
             "[D] Debug: Card #1 # String",

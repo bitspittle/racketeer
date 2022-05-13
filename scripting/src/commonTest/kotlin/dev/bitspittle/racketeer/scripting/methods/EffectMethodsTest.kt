@@ -8,13 +8,13 @@ import dev.bitspittle.limp.methods.compare.EqualsMethod
 import dev.bitspittle.limp.methods.math.AddMethod
 import dev.bitspittle.limp.methods.system.SetMethod
 import dev.bitspittle.racketeer.model.game.GameStateChange
+import dev.bitspittle.racketeer.scripting.TestEnqueuers
 import dev.bitspittle.racketeer.scripting.TestGameService
 import dev.bitspittle.racketeer.scripting.methods.card.CardGetMethod
 import dev.bitspittle.racketeer.scripting.methods.card.CardSetMethod
 import dev.bitspittle.racketeer.scripting.methods.effect.FxAddMethod
 import dev.bitspittle.racketeer.scripting.methods.game.GameSetMethod
 import dev.bitspittle.racketeer.scripting.methods.pile.PileCopyToMethod
-import dev.bitspittle.racketeer.scripting.types.CardQueueImpl
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -22,7 +22,7 @@ class EffectMethodsTest {
     @Test
     fun testFxAddMethod() = runTest {
         val env = Environment()
-        val service = TestGameService(cardQueue = CardQueueImpl(env))
+        val service = TestGameService(enqueuers = TestEnqueuers(env))
         val gameState = service.gameState
         env.addMethod(FxAddMethod { gameState })
         env.addMethod(GameSetMethod { gameState })

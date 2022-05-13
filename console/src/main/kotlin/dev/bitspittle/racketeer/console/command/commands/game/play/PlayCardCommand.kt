@@ -7,7 +7,7 @@ import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.game.getOwnedCards
 
 class PlayCardCommand(ctx: GameContext, private val handIndex: Int) : Command(ctx) {
-    override val type get() = if (ctx.actionQueue.isRunning) Type.Blocked else Type.Emphasized
+    override val type get() = if (ctx.enqueuers.actionQueue.isRunning) Type.Blocked else Type.Emphasized
     private val card = ctx.state.hand.cards[handIndex]
 
     override val title = "Play: ${ctx.describer.describeCard(card, concise = true)}"

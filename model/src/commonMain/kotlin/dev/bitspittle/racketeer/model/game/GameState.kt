@@ -2,10 +2,8 @@ package dev.bitspittle.racketeer.model.game
 
 import com.benasher44.uuid.Uuid
 import dev.bitspittle.limp.types.ListStrategy
-import dev.bitspittle.racketeer.model.action.ActionQueue
-import dev.bitspittle.racketeer.model.action.ExprCache
+import dev.bitspittle.racketeer.model.action.Enqueuers
 import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.card.CardEnqueuer
 import dev.bitspittle.racketeer.model.card.MutableCard
 import dev.bitspittle.racketeer.model.card.vpTotal
 import dev.bitspittle.racketeer.model.pile.MutablePile
@@ -59,9 +57,7 @@ fun GameState.getOwnedCards() = ownedPiles
 
 class MutableGameState internal constructor(
     override val random: CopyableRandom,
-    private val exprCache: ExprCache,
-    val actionQueue: ActionQueue,
-    val cardEnqueuer: CardEnqueuer,
+    val enqueuers: Enqueuers,
     numTurns: Int,
     turn: Int,
     cash: Int,
@@ -79,11 +75,9 @@ class MutableGameState internal constructor(
     override val effects: MutableEffects,
     override val history: MutableList<GameStateChange>,
 ): GameState {
-    constructor(data: GameData, exprCache: ExprCache, actionQueue: ActionQueue, cardEnqueuer: CardEnqueuer, random: CopyableRandom = CopyableRandom()) : this(
+    constructor(data: GameData, enqueuers: Enqueuers, random: CopyableRandom = CopyableRandom()) : this(
         random,
-        exprCache,
-        actionQueue,
-        cardEnqueuer,
+        enqueuers,
         numTurns = data.numTurns,
         turn = 0,
         cash = 0,
@@ -199,8 +193,8 @@ class MutableGameState internal constructor(
 
     override suspend fun updateVictoryPoints() {
         val owned = getOwnedCards()
-        owned.forEach { card -> cardEnqueuer.enqueuePassiveActions(this, card) }
-        actionQueue.runEnqueuedActions()
+        owned.forEach { card -> enqueuers.card.enqueuePassiveActions(this, card) }
+        enqueuers.actionQueue.runEnqueuedActions()
 
         vp = owned.sumOf { card -> card.vpTotal }
     }
@@ -226,8 +220,8 @@ class MutableGameState internal constructor(
 
         // ... then execute their actions
         run {
-            cardsToInit.forEach { card -> cardEnqueuer.enqueueInitActions(this, card) }
-            actionQueue.runEnqueuedActions()
+            cardsToInit.forEach { card -> enqueuers.card.enqueueInitActions(this, card) }
+            enqueuers.actionQueue.runEnqueuedActions()
         }
     }
 
@@ -240,9 +234,7 @@ class MutableGameState internal constructor(
         val random = random.copy()
         return MutableGameState(
             random,
-            exprCache,
-            actionQueue,
-            cardEnqueuer,
+            enqueuers,
             numTurns,
             turn,
             cash,
