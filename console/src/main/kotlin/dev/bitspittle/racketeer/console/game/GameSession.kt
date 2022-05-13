@@ -20,6 +20,7 @@ import dev.bitspittle.racketeer.console.user.Settings
 import dev.bitspittle.racketeer.console.user.inAdminModeAndShowDebugInfo
 import dev.bitspittle.racketeer.console.utils.DriveUploadService
 import dev.bitspittle.racketeer.console.utils.UploadService
+import dev.bitspittle.racketeer.console.utils.UploadThrottleCategory
 import dev.bitspittle.racketeer.console.view.ViewStackImpl
 import dev.bitspittle.racketeer.console.view.views.game.choose.ChooseItemsView
 import dev.bitspittle.racketeer.console.view.views.game.choose.PickItemView
@@ -81,7 +82,18 @@ class GameSession(
             }
 
             override val userData = userData
-            override val uploadService: UploadService = DriveUploadService(gameData.title)
+            override val uploadService: UploadService = DriveUploadService(
+                gameData.title,
+                // If games are broken (e.g. infinite cards), we don't want to keep reporting crashes because users can
+                // get into a sort of death spiral as the system begins exploding under the pressure. Instead, crash
+                // reporting is for catching mistakes we made in cards, not in the underlying engine (there are better
+                // ways to report those sorts of issues, e.g. getting in touch with the developer and reporting a bug).
+                //
+                // At this point, a normal game clocks in at around 100K, so we give ourselves a bit of a buffer on top
+                // of that, something that should limit the chance of cutting out real game crashes. file sizes go up in
+                // the future, we'll want to review this value.
+                throttleSizes = mapOf(UploadThrottleCategory.CRASH_REPORT to 500 * 1024)
+            )
         }
 
         lateinit var produceRandom: () -> Random

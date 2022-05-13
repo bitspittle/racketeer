@@ -15,6 +15,7 @@ import java.io.FileNotFoundException
 import java.nio.file.Files
 import java.time.Duration
 import kotlin.io.path.deleteExisting
+import kotlin.io.path.fileSize
 import kotlin.io.path.writeText
 
 private val DEFAULT_THROTTLE_DURATION = Duration.ofMinutes(1)
@@ -25,6 +26,7 @@ interface UploadService {
     }
 
     val throttleDurations: Map<Any, Duration>
+    val throttleSizes: Map<Any, Long>
 
     /**
      * Upload some data file to a folder in the Cloud.
@@ -42,13 +44,25 @@ interface UploadService {
      *   been uploaded somewhat recently. Pass in `null` to not throttle. See also: [throttleDurations]
      */
     fun upload(fileName: String, mimeType: String, throttleKey: Any? = null, produceData: () -> String)
+
+    /**
+     * Remove any throttles currently set.
+     *
+     * This is useful if you have really long-running throttles that are only meant to limit data collected for a single
+     * game.
+     */
+    fun clearThrottles()
 }
 
 enum class UploadThrottleCategory {
     CRASH_REPORT
 }
 
-class DriveUploadService(title: String, override val throttleDurations: Map<Any, Duration> = mapOf()) : UploadService {
+class DriveUploadService(
+    title: String,
+    override val throttleDurations: Map<Any, Duration> = mapOf(),
+    override val throttleSizes: Map<Any, Long> = mapOf()
+) : UploadService {
     private val UPLOAD_FOLDER_ID = "14bplvWMj-3qTuydASDz1LcBUzxDjz28U"
     private val JSON_FACTORY = GsonFactory.getDefaultInstance()
     private val nextAllowedUpload = mutableMapOf<Any, Long>()
@@ -87,6 +101,8 @@ class DriveUploadService(title: String, override val throttleDurations: Map<Any,
                 }
 
                 try {
+                    if (throttleKey != null && tmp.fileSize() > (throttleSizes[throttleKey] ?: Long.MAX_VALUE)) return@launch
+
                     val fileMetadata = File()
                     fileMetadata.name = fileName
                     fileMetadata.parents = listOf(UPLOAD_FOLDER_ID)
@@ -99,6 +115,9 @@ class DriveUploadService(title: String, override val throttleDurations: Map<Any,
                 finally { tmp.deleteExisting() }
             }
         }
+    }
 
+    override fun clearThrottles() {
+        nextAllowedUpload.clear()
     }
 }
