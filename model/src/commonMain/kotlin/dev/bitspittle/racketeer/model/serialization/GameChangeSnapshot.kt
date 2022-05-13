@@ -234,11 +234,11 @@ sealed class GameChangeSnapshot {
 
     @Serializable
     @SerialName("Activate")
-    class Activate(val locationIndex: Int) : GameChangeSnapshot() {
+    class Activate(val buildingIndex: Int) : GameChangeSnapshot() {
         companion object {
-            fun from(change: GameStateChange.Activate) = Activate(change.locationIndex)
+            fun from(change: GameStateChange.Activate) = Activate(change.buildingIndex)
         }
-        override fun create(state: GameState) = GameStateChange.Activate(locationIndex)
+        override fun create(state: GameState) = GameStateChange.Activate(buildingIndex)
     }
 
     @Serializable

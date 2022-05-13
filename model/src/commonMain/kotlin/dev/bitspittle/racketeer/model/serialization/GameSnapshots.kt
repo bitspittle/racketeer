@@ -11,9 +11,9 @@ import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.MutableCard
 import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.game.*
-import dev.bitspittle.racketeer.model.location.Blueprint
-import dev.bitspittle.racketeer.model.location.Location
-import dev.bitspittle.racketeer.model.location.MutableLocation
+import dev.bitspittle.racketeer.model.building.Blueprint
+import dev.bitspittle.racketeer.model.building.Building
+import dev.bitspittle.racketeer.model.building.MutableBuilding
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.random.CopyableRandom
@@ -53,20 +53,20 @@ class CardSnapshot(
 }
 
 @Serializable
-class LocationSnapshot(
+class BuildingSnapshot(
     val id: Uuid,
     val name: String,
     val isActivated: Boolean,
 ) {
     companion object {
-        fun from(location: Location) = LocationSnapshot(
-            location.id,
-            location.blueprint.name,
-            location.isActivated
+        fun from(building: Building) = BuildingSnapshot(
+            building.id,
+            building.blueprint.name,
+            building.isActivated
         )
     }
 
-    fun create(data: GameData) = MutableLocation(
+    fun create(data: GameData) = MutableBuilding(
         BlueprintSnapshot(name).create(data),
         id,
         isActivated
@@ -202,7 +202,7 @@ class GameSnapshot(
     val jail: PileSnapshot,
     val graveyard: PileSnapshot,
     val blueprints: List<BlueprintSnapshot>,
-    val locations: List<LocationSnapshot>,
+    val buildings: List<BuildingSnapshot>,
     val effects: List<EffectSnapshot>,
     val history: List<GameChangeSnapshot>,
 ) {
@@ -225,7 +225,7 @@ class GameSnapshot(
             PileSnapshot.from(gameState.jail),
             PileSnapshot.from(gameState.graveyard),
             gameState.blueprints.map { blueprint -> BlueprintSnapshot.from(blueprint) },
-            gameState.locations.map { location -> LocationSnapshot.from(location) },
+            gameState.buildings.map { building -> BuildingSnapshot.from(building) },
             gameState.effects.items.map { effect -> EffectSnapshot.from(effect) },
             gameState.history.map { change -> GameChangeSnapshot.from(describer, gameState, change) }
         )
@@ -260,7 +260,7 @@ class GameSnapshot(
             jail.create(data),
             graveyard.create(data),
             blueprints.map { it.create(data) }.toMutableList(),
-            locations.map { it.create(data) }.toMutableList(),
+            buildings.map { it.create(data) }.toMutableList(),
             effects = MutableEffects(), // Populated shortly
             history = mutableListOf(), // Populated shortly
         )

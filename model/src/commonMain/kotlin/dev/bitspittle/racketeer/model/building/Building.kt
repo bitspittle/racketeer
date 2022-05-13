@@ -1,33 +1,31 @@
-package dev.bitspittle.racketeer.model.location
+package dev.bitspittle.racketeer.model.building
 
 import com.benasher44.uuid.Uuid
 import com.benasher44.uuid.uuid4
-import dev.bitspittle.racketeer.model.card.MutableCard
-import dev.bitspittle.racketeer.model.card.UpgradeType
 
-interface Location : Comparable<Location> {
+interface Building : Comparable<Building> {
     val blueprint: Blueprint
     val id: Uuid
     val isActivated: Boolean
 }
 
 /**
- * @param blueprint The blueprint this location was built from.
+ * @param blueprint The blueprint this building was constructed from.
  * @param id A globally unique ID which can act as this specific card's fingerprint
  */
-class MutableLocation internal constructor(
+class MutableBuilding internal constructor(
     override val blueprint: Blueprint,
     override val id: Uuid = uuid4(),
     override var isActivated: Boolean,
-) : Location {
+) : Building {
     internal constructor(blueprint: Blueprint) : this(blueprint, uuid4(), isActivated = false)
 
     fun copy(
         id: Uuid = this.id,
         isActivated: Boolean = this.isActivated
-    ) = MutableLocation(blueprint, id, isActivated)
+    ) = MutableBuilding(blueprint, id, isActivated)
 
-    override fun compareTo(other: Location): Int {
+    override fun compareTo(other: Building): Int {
         return blueprint.compareTo(other.blueprint).takeUnless { it == 0 }
             ?: id.compareTo(other.id) // This last check is meaningless but consistent
     }

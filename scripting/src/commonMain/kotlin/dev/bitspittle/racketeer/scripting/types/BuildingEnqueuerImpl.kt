@@ -5,15 +5,15 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.racketeer.model.action.ActionQueue
 import dev.bitspittle.racketeer.model.action.ExprCache
 import dev.bitspittle.racketeer.model.game.GameState
-import dev.bitspittle.racketeer.model.location.Location
-import dev.bitspittle.racketeer.model.location.LocationEnqueuer
+import dev.bitspittle.racketeer.model.building.Building
+import dev.bitspittle.racketeer.model.building.BuildingEnqueuer
 import dev.bitspittle.racketeer.scripting.utils.setValuesFrom
 
-class LocationEnqueuerImpl(
+class BuildingEnqueuerImpl(
     private val env: Environment,
     private val exprCache: ExprCache,
     private val actionQueue: ActionQueue,
-) : LocationEnqueuer {
+) : BuildingEnqueuer {
     private fun enqueueActions(gameState: GameState, actions: List<String>) {
         if (actions.isEmpty()) return
 
@@ -28,7 +28,7 @@ class LocationEnqueuerImpl(
         }
     }
 
-    override fun enqueueInitActions(gameState: GameState, location: Location) = enqueueActions(gameState, location.blueprint.initActions)
-    override fun enqueueActivateActions(gameState: GameState, location: Location) = enqueueActions(gameState, location.blueprint.activateActions)
-    override fun enqueuePassiveActions(gameState: GameState, location: Location) = enqueueActions(gameState, location.blueprint.passiveActions)
+    override fun enqueueInitActions(gameState: GameState, building: Building) = enqueueActions(gameState, building.blueprint.initActions)
+    override fun enqueueActivateActions(gameState: GameState, building: Building) = enqueueActions(gameState, building.blueprint.activateActions)
+    override fun enqueuePassiveActions(gameState: GameState, building: Building) = enqueueActions(gameState, building.blueprint.passiveActions)
 }

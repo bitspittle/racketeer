@@ -10,14 +10,14 @@ import dev.bitspittle.racketeer.model.card.CardEnqueuer
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.MutableGameState
-import dev.bitspittle.racketeer.model.location.Location
-import dev.bitspittle.racketeer.model.location.LocationEnqueuer
+import dev.bitspittle.racketeer.model.building.Building
+import dev.bitspittle.racketeer.model.building.BuildingEnqueuer
 import dev.bitspittle.racketeer.model.random.CopyableRandom
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.types.CardEnqueuerImpl
 import dev.bitspittle.racketeer.scripting.types.GameService
-import dev.bitspittle.racketeer.scripting.types.LocationEnqueuerImpl
+import dev.bitspittle.racketeer.scripting.types.BuildingEnqueuerImpl
 import kotlin.random.Random
 
 private val FAKE_GAME_DATA_TEXT = """
@@ -173,10 +173,10 @@ class StubCardEnqueuer : CardEnqueuer {
     override fun enqueuePlayActions(gameState: GameState, card: Card) { NotImplementedError() }
     override fun enqueuePassiveActions(gameState: GameState, card: Card) { NotImplementedError() }
 }
-class StubLocationEnqueuer : LocationEnqueuer {
-    override fun enqueueInitActions(gameState: GameState, location: Location) { NotImplementedError() }
-    override fun enqueueActivateActions(gameState: GameState, location: Location) { NotImplementedError() }
-    override fun enqueuePassiveActions(gameState: GameState, location: Location) { NotImplementedError() }
+class StubBuildingEnqueuer : BuildingEnqueuer {
+    override fun enqueueInitActions(gameState: GameState, building: Building) { NotImplementedError() }
+    override fun enqueueActivateActions(gameState: GameState, building: Building) { NotImplementedError() }
+    override fun enqueuePassiveActions(gameState: GameState, building: Building) { NotImplementedError() }
 }
 
 @Suppress("TestFunctionName") // Imitating a factory method
@@ -187,7 +187,7 @@ fun TestEnqueuers(env: Environment): Enqueuers {
     return Enqueuers(
         actionQueue,
         CardEnqueuerImpl(env, exprCache, actionQueue),
-        LocationEnqueuerImpl(env, exprCache, actionQueue)
+        BuildingEnqueuerImpl(env, exprCache, actionQueue)
     )
 }
 
@@ -199,7 +199,7 @@ class TestGameService(
     override val enqueuers: Enqueuers = Enqueuers(
         ActionQueue(),
         StubCardEnqueuer(),
-        StubLocationEnqueuer(),
+        StubBuildingEnqueuer(),
     ),
     override val chooseHandler: ChooseHandler = object : ChooseHandler {
         override suspend fun query(

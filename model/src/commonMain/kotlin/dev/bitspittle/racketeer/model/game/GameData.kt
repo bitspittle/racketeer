@@ -4,7 +4,7 @@ import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.card.Rarity
 import dev.bitspittle.racketeer.model.card.UpgradeNames
 import dev.bitspittle.racketeer.model.card.UpgradeType
-import dev.bitspittle.racketeer.model.location.Blueprint
+import dev.bitspittle.racketeer.model.building.Blueprint
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import net.mamoe.yamlkt.Yaml

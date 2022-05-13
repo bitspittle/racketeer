@@ -1,4 +1,4 @@
-package dev.bitspittle.racketeer.model.location
+package dev.bitspittle.racketeer.model.building
 
 import kotlinx.serialization.Serializable
 
@@ -11,7 +11,7 @@ class ActivationCost(val cash: Int = 0, val influence: Int = 0, val luck: Int = 
 }
 
 /**
- * @param initActions Actions run when this blueprint is first built as a concrete location
+ * @param initActions Actions run when this blueprint is first built as a concrete building
  * @param canActivate An expression which must evaluate to true or false, checked before every user action. If false,
  *   the card won't show up as an option that can be activated. Note: If the card's [activationCost] can't be met, then
  *   the card will be considered ineligible for activation even if this expression returns true.
@@ -30,7 +30,7 @@ data class Blueprint(
     val canActivate: String = "true",
     val activateActions: List<String> = emptyList(),
 ): Comparable<Blueprint> {
-    fun build() = MutableLocation(this)
+    fun build() = MutableBuilding(this)
 
     override fun compareTo(other: Blueprint): Int = this.name.compareTo(other.name)
 }
@@ -39,4 +39,4 @@ data class Blueprint(
  * A collection of all passive actions, both those written explicitly and also implicitly extracted from other fields
  */
 val Blueprint.allPassiveActions: List<String> get() =
-    (passiveVp?.let { expr -> listOf("location-set! \$this 'vp-passive ($expr)") } ?: emptyList()) + passiveActions
+    (passiveVp?.let { expr -> listOf("building-set! \$this 'vp-passive ($expr)") } ?: emptyList()) + passiveActions

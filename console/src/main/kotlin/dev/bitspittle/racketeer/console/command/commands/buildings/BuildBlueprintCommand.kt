@@ -1,11 +1,11 @@
-package dev.bitspittle.racketeer.console.command.commands.locations
+package dev.bitspittle.racketeer.console.command.commands.buildings
 
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.utils.runStateChangingAction
 import dev.bitspittle.racketeer.model.game.GameProperty
 import dev.bitspittle.racketeer.model.game.GameStateChange
-import dev.bitspittle.racketeer.model.location.Blueprint
+import dev.bitspittle.racketeer.model.building.Blueprint
 
 fun Blueprint.canAfford(ctx: GameContext) = ctx.state.cash >= this.buildCost.cash && ctx.state.influence >= this.buildCost.influence
 

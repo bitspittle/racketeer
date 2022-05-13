@@ -27,7 +27,7 @@ import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.MutableGameState
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.types.CardEnqueuerImpl
-import dev.bitspittle.racketeer.scripting.types.LocationEnqueuerImpl
+import dev.bitspittle.racketeer.scripting.types.BuildingEnqueuerImpl
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 
@@ -48,7 +48,7 @@ class TitleMenuView(
         val enqueuers = Enqueuers(
             actionQueue,
             CardEnqueuerImpl(env, exprCache, actionQueue),
-            LocationEnqueuerImpl(env, exprCache, actionQueue),
+            BuildingEnqueuerImpl(env, exprCache, actionQueue),
         )
 
         GameContext(

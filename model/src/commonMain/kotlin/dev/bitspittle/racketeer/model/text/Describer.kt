@@ -3,8 +3,8 @@ package dev.bitspittle.racketeer.model.text
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
-import dev.bitspittle.racketeer.model.location.Blueprint
-import dev.bitspittle.racketeer.model.location.Location
+import dev.bitspittle.racketeer.model.building.Blueprint
+import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.pile.Pile
 
 private fun GameData.iconMappings() = mapOf(
@@ -124,7 +124,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             if (template.initActions.isNotEmpty()) {
                 appendLine() // Finish previous section
                 appendLine() // Newline
-                appendLine("When card first enters play:")
+                appendLine("When first enters play:")
                 template.initActions.forEachIndexed { i, action ->
                     append("- $action")
                     if (i < template.initActions.lastIndex) {
@@ -135,7 +135,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             if (template.playActions.isNotEmpty()) {
                 appendLine() // Finish previous section
                 appendLine() // Newline
-                appendLine("When card is played:")
+                appendLine("When played:")
                 template.playActions.forEachIndexed { i, action ->
                     append("- $action")
                     if (i < template.playActions.lastIndex) {
@@ -283,7 +283,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             if (blueprint.initActions.isNotEmpty()) {
                 appendLine() // Finish previous section
                 appendLine() // Newline
-                appendLine("When this location is first built:")
+                appendLine("When first built:")
                 blueprint.initActions.forEachIndexed { i, action ->
                     append("- $action")
                     if (i < blueprint.initActions.lastIndex) {
@@ -294,7 +294,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             if (blueprint.activateActions.isNotEmpty()) {
                 appendLine() // Finish previous section
                 appendLine() // Newline
-                appendLine("When this location is activated:")
+                appendLine("When activated:")
                 blueprint.activateActions.forEachIndexed { i, action ->
                     append("- $action")
                     if (i < blueprint.activateActions.lastIndex) {
@@ -329,20 +329,20 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
     }
 
-    fun describeLocation(location: Location, showActivated: Boolean = false, concise: Boolean = false): String {
+    fun describeBuilding(building: Building, showActivated: Boolean = false, concise: Boolean = false): String {
         return buildString {
-            append(location.blueprint.name)
+            append(building.blueprint.name)
 
             if (!concise) {
                 appendLine() // Finish name row
-                appendActivationCost(location.blueprint)
+                appendActivationCost(building.blueprint)
                 if (showActivated) {
-                    appendLine("Activated this turn? " + if (location.isActivated) "Yes" else "No")
+                    appendLine("Activated this turn? " + if (building.isActivated) "Yes" else "No")
                 }
 
                 appendLine()
 
-                appendBlueprintBody(location.blueprint)
+                appendBlueprintBody(building.blueprint)
             }
         }
     }

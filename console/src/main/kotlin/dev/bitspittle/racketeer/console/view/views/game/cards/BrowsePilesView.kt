@@ -4,7 +4,7 @@ import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.runtime.MainRenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.cards.*
-import dev.bitspittle.racketeer.console.command.commands.locations.BrowseLocationsCommand
+import dev.bitspittle.racketeer.console.command.commands.buildings.BrowseBuildingsCommand
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.user.inAdminModeAndShowDebugInfo
 import dev.bitspittle.racketeer.console.view.views.game.GameView
@@ -36,7 +36,7 @@ class BrowsePilesView(ctx: GameContext) : GameView(ctx) {
     override fun createCommands() = (if (!ctx.state.isGameOver) {
         listOf(BrowseShopCommand(ctx))
     } else emptyList<Command>()) + listOf(
-        BrowseLocationsCommand(ctx),
+        BrowseBuildingsCommand(ctx),
         BrowseStreetCommand(ctx),
         BrowseHandCommand(ctx),
         BrowseDeckCommand(ctx),

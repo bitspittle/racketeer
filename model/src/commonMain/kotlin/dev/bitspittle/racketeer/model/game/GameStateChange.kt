@@ -140,23 +140,23 @@ sealed class GameStateChange {
             val blueprint = blueprints[blueprintIndex]
 
             blueprints.remove(blueprint)
-            val location = blueprint.build()
-            locations.add(location).also { locations.sort() }
+            val building = blueprint.build()
+            buildings.add(building).also { buildings.sort() }
 
-            enqueuers.location.enqueueInitActions(this, location)
+            enqueuers.building.enqueueInitActions(this, building)
             enqueuers.actionQueue.runEnqueuedActions()
         }
     }
 
-   class Activate(val locationIndex: Int) : GameStateChange() {
+   class Activate(val buildingIndex: Int) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
-            require(locationIndex in locations.indices) { "Attempt to activate a location with an invalid index $locationIndex, when location count is ${locations.size}" }
-            val location = locations[locationIndex]
-            require(!location.isActivated) { "Attempt to activate an already active location" }
-            location.isActivated = true
+            require(buildingIndex in buildings.indices) { "Attempt to activate a building with an invalid index $buildingIndex, when building count is ${buildings.size}" }
+            val building = buildings[buildingIndex]
+            require(!building.isActivated) { "Attempt to activate a building that was already activated" }
+            building.isActivated = true
 
             // Run its activate actions.
-            enqueuers.location.enqueueActivateActions(this, location)
+            enqueuers.building.enqueueActivateActions(this, building)
             enqueuers.actionQueue.runEnqueuedActions()
         }
     }
@@ -177,7 +177,7 @@ sealed class GameStateChange {
             move(hand.cards, discard)
             shop.restock()
 
-            locations.forEach { it.isActivated = false }
+            buildings.forEach { it.isActivated = false }
         }
     }
 
