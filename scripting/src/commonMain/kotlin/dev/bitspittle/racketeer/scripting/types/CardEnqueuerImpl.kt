@@ -18,16 +18,19 @@ class CardEnqueuerImpl(
         if (actions.isEmpty()) return
 
         val evaluator = Evaluator()
-        actions.forEach { action ->
-            actionQueue.enqueue {
-                env.scoped {
-                    env.setValuesFrom(gameState)
-                    env.setValuesFrom(card)
-
-                    evaluator.evaluate(env, exprCache.parse(action))
-                }
+        actionQueue.enqueue(
+            init = {
+                env.pushScope()
+                env.setValuesFrom(gameState)
+                env.setValuesFrom(card)
+            },
+            tearDown = {
+                env.popScope()
+                       },
+            actions = actions.map {
+                { evaluator.evaluate(env, exprCache.parse(it)) }
             }
-        }
+        )
     }
 
     override fun enqueueInitActions(gameState: GameState, card: Card) = enqueueActions(gameState, card, card.template.initActions)

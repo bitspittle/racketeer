@@ -1,10 +1,20 @@
 package dev.bitspittle.racketeer.model.action
 
 class ActionQueue {
-    private val actionsToRun = mutableListOf<suspend () -> Unit>()
+    private val actionsToRun = mutableListOf<ActionGroup>()
 
-    fun enqueue(action: suspend () -> Unit) {
-        actionsToRun.add(action)
+    private class ActionGroup(
+        val init: suspend () -> Unit,
+        val tearDown: suspend () -> Unit,
+        val actions: List<suspend () -> Unit>,
+    )
+
+    fun enqueue(init: suspend () -> Unit = {}, tearDown: suspend () -> Unit = {}, action: suspend () -> Unit) {
+        enqueue(listOf(action), init, tearDown)
+    }
+
+    fun enqueue(actions: List<suspend () -> Unit>, init: suspend () -> Unit = {}, tearDown: suspend () -> Unit = {}) {
+        actionsToRun.add(ActionGroup(init, tearDown, actions))
     }
 
     fun clear() {
@@ -16,7 +26,17 @@ class ActionQueue {
         isRunning = true
         try {
             while (actionsToRun.isNotEmpty()) {
-                actionsToRun.removeFirst().invoke()
+                val group = actionsToRun.removeFirst()
+                try {
+                    group.init()
+                    val innerActions = group.actions.toMutableList()
+                    while (innerActions.isNotEmpty()) {
+                        innerActions.removeFirst().invoke()
+                    }
+                }
+                finally {
+                    group.tearDown()
+                }
             }
         } finally {
             actionsToRun.clear()
