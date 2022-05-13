@@ -760,7 +760,7 @@ cards:
     flavor: Add a card from the shop to the street and a Constable to your hand.
     playActions:
       - stop-if! empty? $shop
-      - pile-move-to! $street (choose --format $fmt-card-with-cash --prompt "Choose a card to add to your discard pile." $shop 1)
+      - pile-move-to! $street (choose --format $fmt-card-with-cash --prompt "Choose a card to add to the street." $shop 1)
       - pile-copy-to! $hand (card-named "Constable")
 
 
@@ -932,8 +932,8 @@ cards:
     vp: 12
     flavor: Comes as a set of two Pearl Earrings worth 6 VP each.
     initActions:
-      - pile-copy-to! $discard card-named "Pearl Earring"
-      - pile-copy-to! $discard card-named "Pearl Earring"
+      - pile-copy-to! $street card-named "Pearl Earring"
+      - pile-copy-to! $street card-named "Pearl Earring"
       - card-remove! $this
 
   - name: Pearl Earring
@@ -951,7 +951,6 @@ cards:
     cost: 8
     vp: 10
     flavor: Do nothing.
-
 
   - name: Ultimate Heist
     tier: 4
