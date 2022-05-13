@@ -3,6 +3,7 @@ package dev.bitspittle.racketeer.scripting.utils
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
+import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.allCards
@@ -127,4 +128,14 @@ fun Environment.setValuesFrom(state: GameState) {
  */
 fun Environment.setValuesFrom(card: Card) {
     storeValue("\$this", card)
+}
+
+/**
+ * Store the current location in the environment.
+ *
+ * You probably want to do this within an [Environment.scoped] block, tied to the lifetime of the current building
+ * being activated.
+ */
+fun Environment.setValuesFrom(building: Building) {
+    storeValue("\$this", building)
 }
