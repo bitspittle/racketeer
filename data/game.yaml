@@ -75,17 +75,17 @@ rankings:
       - name: "B+  Swindler"
         score: 70
       - name: "A-  Fence"
-        score: 80
+        score: 85
       - name: "A   Safecracker"
-        score: 90
-      - name: "A+  Purse Snatcher"
         score: 100
-      - name: "S-  Bank Robber"
-        score: 110
-      - name: "S   Kingpin"
+      - name: "A+  Purse Snatcher"
         score: 120
+      - name: "S-  Bank Robber"
+        score: 150
+      - name: "S   Kingpin"
+        score: 180
       - name: "S+  Annie Doshen"
-        score: 130
+        score: 250
 
 globalActions:
   # yaml freaks out a bit about some characters (e.g. | or >, which it tries to interpret), so define non-symbol
@@ -204,7 +204,7 @@ cards:
       - set '$cardtoreplace (single (choose --prompt "Choose a card to jail." $street 1))
       - set '$newtier (card-get $cardtoreplace 'tier)
       - pile-move-to! $jail $cardtoreplace
-      - set '$all-tier-cards (filter $all-cards '(= $newtier (card-get $it 'tier)))
+      - set '$all-tier-cards (filter $card-list '(= $newtier (card-get $it 'tier)))
       # We don't want to jail a card to simply replace it with itself, that doesn't feel fun
       - set '$most-tier-cards (filter $all-tier-cards '(! (= (card-get $cardtoreplace 'name) (card-get $it 'name))))
       # Force a choose screen so that the player can see what card they got
@@ -228,10 +228,14 @@ cards:
     rarity: 2
     types: [action]
     cost: 3
-    flavor: Gain %. Create a Burglar (worth +2$) in your hand.
+    flavor: Create a Burglar (worth +2$) in your hand. Jail this after two uses.
+    initActions:
+      - card-set! $this 'counter 2
     playActions:
-      - game-add! 'luck 1
       - pile-copy-to! $hand (card-named "Burglar")
+      - card-sub! $this 'counter 1
+      - stop-if! gt? (card-get $this 'counter) 0
+      - pile-move-to! $jail $this
 
   - name: Croupier
     tier: 0
@@ -367,6 +371,18 @@ cards:
       - game-draw! 3
       - pile-move-to! $jail $this
 
+  - name: Beat Cop
+    tier: 1
+    rarity: 1
+    types: [cop]
+    cost: 3
+    flavor: When you get this, give 2 Thieves you own +$.
+    initActions:
+      - set '$all-thieves filter $owned '(card-has-type? $it 'thief)
+      - set '$thieves filter $all-thieves '(! (card-has-upgrade? $it 'cash))
+      - stop-if! empty? $thieves
+      - card-upgrade! (choose-across-piles "Choose up to two Thieves to upgrade." $thieves .. 0 2) 'cash
+
   - name: Squealer
     tier: 1
     rarity: 1
@@ -376,18 +392,6 @@ cards:
     playActions:
       - game-add! 'influence 2
       - pile-move-to! $jail (choose --prompt "Choose up to one card to jail." $street .. 0 1)
-
-  - name: Beat Cop
-    tier: 1
-    rarity: 1
-    types: [cop]
-    cost: 4
-    flavor: When you get this, give 3 Thieves you own +$.
-    initActions:
-      - set '$all-thieves filter $owned '(card-has-type? $it 'thief)
-      - set '$thieves filter $all-thieves '(! (card-has-upgrade? $it 'cash))
-      - stop-if! empty? $thieves
-      - card-upgrade! (choose-across-piles "Choose up to three Thieves to upgrade." $thieves .. 0 3) 'cash
 
   - name: Grifter
     tier: 1
@@ -449,13 +453,13 @@ cards:
     rarity: 2
     types: [action]
     cost: 5
-    flavor: Gain $$$. Add a random Legend to your discard pile. Jail this card.
+    flavor: Gain $$$. Add a random Legend to the street. Jail this card.
     playActions:
       - game-add! 'cash 3
       - set '$all-legend-cards (filter $card-list '(card-has-type? $it 'legend))
       # Force a choose screen so that the player can see what card they got
       - "set '$random-legend (choose --prompt \"Wanted: Dead or Alive\" --required _ (take --from 'random $all-legend-cards 1) 1)"
-      - pile-copy-to! $discard $random-legend
+      - pile-copy-to! $street $random-legend
       - pile-move-to! $jail $this
 
   - name: Double-Dealer
@@ -552,7 +556,9 @@ cards:
     flavor: When you play this, it becomes an exact copy of a card in your hand.
     playActions:
       - cancel-if! empty? $hand
-      - set '$copied-card (choose --prompt "Choose a card to copy." $hand 1)
+      - set '$copied-card single (choose --prompt "Choose a card to copy." $hand 1)
+      - set '$my-name card-get $this 'name
+      - if-true (= $my-name card-get $copied-card 'name) '(run '(info "Sorry, it is strictly forbidden by the sacred Mime Code to use their powers on a fellow Mime.") '(cancel!))
       - card-remove! $this
       - pile-copy-to! $hand $copied-card
 
@@ -684,6 +690,21 @@ cards:
      - game-set! 'hand-size 6
      - card-remove! $this
 
+  - name: Bada Bing!
+    tier: 2
+    rarity: 2
+    types: [action]
+    cost: 8
+    flavor: When you get this, jail it and gain two copies of a card you own that costs 3$ or less.
+    initActions:
+      - pile-move-to! $jail $this
+      - set '$low-cost-owned (filter $owned '(lte? (card-get $it 'cost) 3))
+      - cancel-if! empty? $low-cost-owned
+      - set '$card-to-copy (choose-across-piles "Choose a card to get two copies of." $low-cost-owned 1)
+      - pile-copy-to! $street $card-to-copy
+      - pile-copy-to! $street $card-to-copy
+
+
 # TIER 4
 
   - name: Patrolman's Badge
@@ -736,10 +757,10 @@ cards:
     rarity: 1
     types: [thief]
     cost: 5
-    flavor: Add a card from the shop to your discard pile and a Constable to your hand.
+    flavor: Add a card from the shop to the street and a Constable to your hand.
     playActions:
       - stop-if! empty? $shop
-      - pile-move-to! $discard (choose --format $fmt-card-with-cash --prompt "Choose a card to add to your discard pile." $shop 1)
+      - pile-move-to! $street (choose --format $fmt-card-with-cash --prompt "Choose a card to add to your discard pile." $shop 1)
       - pile-copy-to! $hand (card-named "Constable")
 
 
@@ -751,7 +772,7 @@ cards:
     flavor: Draw two cards, then discard two cards. Gain $ for every Cop you own.
     playActions:
       - game-draw! 2
-      - pile-move-to! $discard (choose --required _ --prompt "Discard three cards." $hand 2)
+      - pile-move-to! $discard (choose --required _ --prompt "Discard two cards." $hand 2)
       - game-add! 'cash count $owned '(card-has-type? $it 'cop)
 
   - name: Gem Cutter
@@ -864,13 +885,11 @@ cards:
   - name: Annie Doshen
     tier: 4
     rarity: 2
-    types: [thief, spy, trickster, legend]
+    types: [trickster, legend]
     cost: 6
-    flavor: Gain $, &, and %. This is worth * for each upgraded card you own.
+    flavor: Gain %. This is worth * for each upgraded card you own.
     passiveVp: count $owned '(card-has-any-upgrade? $it)
     playActions:
-      - game-add! 'cash 1
-      - game-add! 'influence 1
       - game-add! 'luck 1
 
   - name: Jailbreak
