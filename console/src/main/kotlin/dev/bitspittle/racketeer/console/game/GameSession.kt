@@ -101,12 +101,15 @@ class GameSession(
         }
 
         val viewStack = ViewStackImpl()
-        // Compile early to suss out any syntax errors
-        gameData.cards.flatMap { it.playActions }.forEach { Expr.parse(it) }
 
         val cardStats = CardStats.load(userData) ?: emptyList()
 
         val exprCache = ExprCache()
+        // Compile early to suss out any syntax errors at startup time instead of runtime
+        gameData.cards.flatMap { it.initActions }.forEach { exprCache.parse(it) }
+        gameData.cards.flatMap { it.passiveActions }.forEach { exprCache.parse(it) }
+        gameData.cards.flatMap { it.playActions }.forEach { exprCache.parse(it) }
+
         val titleView = TitleMenuView(gameData, exprCache, settings, cardStats, app, viewStack, env)
         produceRandom = { titleView.ctx.state.random() }
 
