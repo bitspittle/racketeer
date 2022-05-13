@@ -36,8 +36,8 @@ class SystemMethodsTest {
         }
 
         assertThat(service.logs).containsExactly(
-            "[D] Debug: 1 # Int",
-            "[D] Debug: 2 # Int",
+            "[D] 1 # Int",
+            "[D] 2 # Int",
             // Debug: 3 never happens because it got stopped
         ).inOrder()
 

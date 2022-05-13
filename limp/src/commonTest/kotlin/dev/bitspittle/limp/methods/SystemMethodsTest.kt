@@ -259,7 +259,7 @@ class SystemMethodsTest {
         val evaluator = Evaluator()
 
         evaluator.evaluate(env, "dbg 123")
-        assertThat(service.logs).containsExactly("[D] Debug: 123 # Int")
+        assertThat(service.logs).containsExactly("[D] 123 # Int")
 
         service.clearLogs()
         evaluator.evaluate(env, "dbg --msg \"Debug value\" 456")
@@ -269,7 +269,7 @@ class SystemMethodsTest {
         service.clearLogs()
         evaluator.evaluate(env, "dbg + dbg 10 dbg 20")
         assertThat(service.logs)
-            .containsExactly("[D] Debug: 20 # Int", "[D] Debug: 10 # Int", "[D] Debug: 30 # Int")
+            .containsExactly("[D] 20 # Int", "[D] 10 # Int", "[D] 30 # Int")
             .inOrder()
     }
 

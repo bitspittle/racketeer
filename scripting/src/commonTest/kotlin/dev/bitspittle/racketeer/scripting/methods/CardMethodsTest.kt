@@ -277,9 +277,9 @@ class CardMethodsTest {
             actionQueue.runEnqueuedActions()
         }
         assertThat(service.logs).containsExactly(
-            "[D] Debug: Card #1 # String",
-            "[D] Debug: Card #2 # String",
-            "[D] Debug: Card #3 # String"
+            "[D] Card #1 # String",
+            "[D] Card #2 # String",
+            "[D] Card #3 # String"
         ).inOrder()
     }
 }

@@ -58,10 +58,10 @@ class CardTests {
         service.enqueuers.actionQueue.runEnqueuedActions()
 
         assertThat(service.logs).containsExactly(
-            "[D] Debug: Card1 # String",
-            "[D] Debug: 3 # Int",
-            "[D] Debug: Card2 # String",
-            "[D] Debug: 123 # Int"
+            "[D] Card1 # String",
+            "[D] 3 # Int",
+            "[D] Card2 # String",
+            "[D] 123 # Int"
         ).inOrder()
     }
 }
