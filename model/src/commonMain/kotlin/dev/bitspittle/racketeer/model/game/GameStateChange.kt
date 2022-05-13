@@ -32,6 +32,8 @@ sealed class GameStateChange {
             deck.cards.take(count).let { cards ->
                 move(cards, hand)
             }
+
+            effects.processTurnStarted()
         }
     }
 
@@ -75,6 +77,7 @@ sealed class GameStateChange {
     class Shuffle(val pile: Pile) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             (pile as MutablePile).cards.shuffle(random())
+            effects.processPileShuffed(pile)
         }
     }
 

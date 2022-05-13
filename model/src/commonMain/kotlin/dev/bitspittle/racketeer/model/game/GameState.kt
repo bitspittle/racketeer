@@ -199,11 +199,12 @@ class MutableGameState internal constructor(
         vp = owned.sumOf { card -> card.vpTotal }
     }
 
+    private fun Card.isOwned() = cardPiles[id].let { pile -> pile != null && pile in ownedPiles }
+
     @Suppress("NAME_SHADOWING")
     suspend fun move(cards: List<Card>, toPile: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
         // Any cards that go from being unowned to owned should be initialized; including cards from the jail
-        val cardsToInit = cards
-            .filter { card -> card.template.initActions.isNotEmpty() && cardPiles[card.id].let { it == null || it == jail} }
+        val unownedBeforeMove = cards.filter { !it.isOwned() }
 
         // Move the cards
         run {
@@ -220,8 +221,11 @@ class MutableGameState internal constructor(
 
         // ... then execute their actions
         run {
-            cardsToInit.forEach { card -> enqueuers.card.enqueueInitActions(this, card) }
+            unownedBeforeMove.filter { it.template.initActions.isNotEmpty() }.forEach { card -> enqueuers.card.enqueueInitActions(this, card) }
             enqueuers.actionQueue.runEnqueuedActions()
+
+            // Trigger effects that are listening for new card effects
+            unownedBeforeMove.forEach { card -> effects.processCardCreated(card) }
         }
     }
 

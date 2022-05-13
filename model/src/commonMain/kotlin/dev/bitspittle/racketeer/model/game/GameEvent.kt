@@ -30,13 +30,4 @@ enum class GameEvent {
      * Create events will include the newly created card set to the variable `$card`.
      */
     CREATE,
-
-    /**
-     * An event fired just after a card is removed from the game.
-     *
-     * This happens when you jail a card or play a card which destroys other cards as a side effect.
-     *
-     * Destroy events will include the newly destroyed card set to the variable `$card`.
-     */
-    DESTROY,
 }
