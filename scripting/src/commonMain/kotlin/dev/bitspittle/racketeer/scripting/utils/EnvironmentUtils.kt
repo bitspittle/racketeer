@@ -19,6 +19,7 @@ import dev.bitspittle.racketeer.scripting.methods.pile.PileMoveToMethod
 import dev.bitspittle.racketeer.scripting.methods.shop.ShopExcludeMethod
 import dev.bitspittle.racketeer.scripting.methods.shop.ShopRerollMethod
 import dev.bitspittle.racketeer.scripting.methods.system.CancelMethod
+import dev.bitspittle.racketeer.scripting.methods.system.RunLaterMethod
 import dev.bitspittle.racketeer.scripting.methods.system.StopMethod
 import dev.bitspittle.racketeer.scripting.methods.text.IconConvertMethod
 import dev.bitspittle.racketeer.scripting.types.GameService
@@ -30,6 +31,7 @@ fun Environment.installGameLogic(service: GameService) {
     // System
     addMethod(StopMethod(service.enqueuers.actionQueue))
     addMethod(CancelMethod())
+    addMethod(RunLaterMethod(service.enqueuers.actionQueue))
 
     // Collection
     addMethod(ChooseMethod(service.logger, service.chooseHandler))

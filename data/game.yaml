@@ -702,8 +702,10 @@ cards:
       - cancel-if! empty? $low-cost-owned
       - set '$card-to-copy (choose-across-piles "Choose a card to get two copies of." $low-cost-owned 1)
       - pile-copy-to! $street $card-to-copy
-      - pile-copy-to! $street $card-to-copy
-
+      # We need to use run-later below for Gold Chain, a card which, when it is created, checks to see how many other
+      # gold chains are in your cards. By deferring the second card's creation, we get the behavior we intuitively
+      # expect to happen (the first gold chain doesn't see the second).
+      - run-later '(pile-copy-to! $street $card-to-copy)
 
 # TIER 4
 

@@ -7,9 +7,24 @@ class Environment {
     private val aliasesStack = mutableListOf<MutableMap<String, String>?>()
     private val variablesStack = mutableListOf<MutableMap<String, Any>?>()
     private val convertersStack = mutableListOf<MutableList<Converter<*>>?>()
+    // Adding a new field? Don't forget to update copy()
+
     init {
         // Populate stacks
         pushScope()
+    }
+
+    /**
+     * Make a copy of the current environment, which can be useful if you need to pass something into a deferred
+     * statement during which the original environment may have already popped / redefined a bunch of scopes.
+     */
+    fun copy(): Environment {
+        val envCopy = Environment()
+        envCopy.methodsStack.addAll(methodsStack)
+        envCopy.aliasesStack.addAll(aliasesStack)
+        envCopy.variablesStack.addAll(variablesStack)
+        envCopy.convertersStack.addAll(convertersStack)
+        return envCopy
     }
 
     fun addMethod(method: Method, allowOverwrite: Boolean = false) {
