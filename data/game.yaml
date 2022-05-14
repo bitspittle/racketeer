@@ -398,11 +398,11 @@ cards:
     rarity: 1
     types: [spy, trickster]
     cost: 4
-    flavor: Gain &&&. Add a card from the shop to your deck. Jail this card.
+    flavor: Gain &&&. Add a card from the shop to the street. Jail this card.
     playActions:
       - game-add! 'influence 3
       - stop-if! empty? $shop
-      - pile-move-to! --pos 'random $deck (choose --format $fmt-card-with-cash --prompt "Choose a card to add to your deck." $shop 1)
+      - pile-move-to! $street (choose --format $fmt-card-with-cash --prompt "Choose a card to add to your deck." $shop 1)
       - pile-move-to! $jail $this
 
   - name: Gentleman Gerald
