@@ -90,8 +90,12 @@ class DriveUploadService(
 
     override fun upload(fileName: String, mimeType: String, throttleKey: Any?, produceData: () -> String) {
         val now = System.currentTimeMillis()
-        if (throttleKey != null && nextAllowedUpload.getOrDefault(throttleKey, 0) > now) {
-            return
+        if (throttleKey != null) {
+            if (nextAllowedUpload.getOrDefault(throttleKey, 0) > now) {
+                return
+            } else {
+                nextAllowedUpload[throttleKey] = now + (throttleDurations[throttleKey] ?: DEFAULT_THROTTLE_DURATION).toMillis()
+            }
         }
 
         CoroutineScope(Dispatchers.IO).launch {
@@ -108,9 +112,6 @@ class DriveUploadService(
                     fileMetadata.parents = listOf(UPLOAD_FOLDER_ID)
                     val mediaContent = FileContent(mimeType, tmp.toFile())
                     driveService.files().create(fileMetadata, mediaContent).execute()
-                    if (throttleKey != null) {
-                        nextAllowedUpload[throttleKey] = now + (throttleDurations[throttleKey] ?: DEFAULT_THROTTLE_DURATION).toMillis()
-                    }
                 } catch (ignored: Throwable) { }
                 finally { tmp.deleteExisting() }
             }
