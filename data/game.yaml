@@ -149,7 +149,7 @@ cards:
     rarity: 1
     types: [action]
     cost: 2
-    flavor: Gain $$$$. Jail this card.
+    flavor: Gain 4$. Jail this card.
     playActions:
       - game-add! 'cash 4
       - pile-move-to! $jail $this
@@ -190,7 +190,7 @@ cards:
     rarity: 0
     types: [thief]
     cost: 2
-    flavor: Gain $$.
+    flavor: Gain 2$.
     playActions:
       - game-add! 'cash 2
 
@@ -242,7 +242,7 @@ cards:
     rarity: 1
     types: [thief, trickster]
     cost: 4
-    flavor: Gain $$ and %.
+    flavor: Gain 2$ and %.
     playActions:
       - game-add! 'cash 2
       - game-add! 'luck 1
@@ -264,7 +264,7 @@ cards:
     rarity: 1
     types: [spy]
     cost: 2
-    flavor: Gain &&. Gets another +& after one use.
+    flavor: Gain 2&. Gets another +& after one use.
     playActions:
       - game-add! 'influence 2
       - stop-if! card-has-upgrade? $this 'influence
@@ -341,7 +341,7 @@ cards:
     rarity: 1
     types: [thief]
     cost: 3
-    flavor: Gain $$. Gets another +$ after one use.
+    flavor: Gain 2$. Gets another +$ after one use.
     playActions:
       - game-add! 'cash 2
       - stop-if! card-has-upgrade? $this 'cash
@@ -354,9 +354,9 @@ cards:
 #    rarity: 1
 #    types: [thief, spy]
 #    cost: 3
-#    flavor: "Choose one: Gain $$ or Gain &&."
+#    flavor: "Choose one: Gain 2$ or Gain 2&."
 #    playActions:
-#      - set '$choices (map (list "Gain $$." "Gain &&.") '(icon-convert $it))
+#      - set '$choices (map (list "Gain 2$." "Gain 2&.") '(icon-convert $it))
 #      - set '$chosen-index (index-of $choices single choose $choices 1)
 #      - if-true (= $chosen-index 0) '(game-add! 'cash 2)
 #      - if-true (= $chosen-index 1) '(game-add! 'influence 2)
@@ -388,7 +388,7 @@ cards:
     rarity: 1
     types: [spy, cop]
     cost: 4
-    flavor: Gain &&. You may jail a card on the Street.
+    flavor: Gain 2&. You may jail a card on the Street.
     playActions:
       - game-add! 'influence 2
       - pile-move-to! $jail (choose --prompt "Choose up to one card to jail." $street .. 0 1)
@@ -398,7 +398,7 @@ cards:
     rarity: 1
     types: [spy, trickster]
     cost: 4
-    flavor: Gain &&&. Add a card from the shop to the street. Jail this card.
+    flavor: Gain 3&. Add a card from the shop to the street. Jail this card.
     playActions:
       - game-add! 'influence 3
       - stop-if! empty? $shop
@@ -419,7 +419,7 @@ cards:
     rarity: 2
     types: [cop, legend]
     cost: 4
-    flavor: Gain $$. You may convert all your $ to &.
+    flavor: Gain 2$. You may convert all your $ to &.
     playActions:
       - game-add! 'cash 2
       - set '$convert (ask? "Would you like to convert your $ into &?")
@@ -432,7 +432,7 @@ cards:
     rarity: 2
     types: [trickster, legend]
     cost: 5
-    flavor: Draw a card. When you get this, gain %%%%%.
+    flavor: Draw a card. When you get this, gain 5%.
     initActions:
       - game-add! 'luck 5
     playActions:
@@ -443,7 +443,7 @@ cards:
     rarity: 0
     types: [spy]
     cost: 5
-    flavor: Draw a card. Gain &&.
+    flavor: Draw a card. Gain 2&.
     playActions:
       - game-draw! 1
       - game-add! 'influence 2
@@ -453,7 +453,7 @@ cards:
     rarity: 2
     types: [action]
     cost: 5
-    flavor: Gain $$$. Add a random Legend to the street. Jail this card.
+    flavor: Gain 3$. Add a random Legend to the street. Jail this card.
     playActions:
       - game-add! 'cash 3
       - set '$all-legend-cards (filter $card-list '(card-has-type? $it 'legend))
@@ -497,7 +497,7 @@ cards:
     types: [treasure]
     cost: 3
     vp: 1
-    flavor: When you play this card, it gains +**.
+    flavor: When you play this card, it gains +2*.
     playActions:
      - card-add! $this 'vp 2
 
@@ -518,7 +518,7 @@ cards:
     rarity: 2
     types: [action]
     cost: 3
-    flavor: Gain %%. Put a card from jail and a Constable into your hand.
+    flavor: Gain 2%. Put a card from jail and a Constable into your hand.
     playActions:
       - game-add! 'luck 2
       - stop-if! empty? $jail
@@ -538,7 +538,7 @@ cards:
     rarity: 2
     types: [thief, spy, legend]
     cost: 4
-    flavor: Gain $$ and &&. Jail this after three uses.
+    flavor: Gain 2$ and 2&. Jail this after three uses.
     initActions:
       - card-set! $this 'counter 3
     playActions:
@@ -595,7 +595,7 @@ cards:
     rarity: 2
     types: [spy, legend]
     cost: 4
-    flavor: Gain &&. You may convert all your & to $.
+    flavor: Gain 2&. You may convert all your & to $.
     playActions:
       - game-add! 'influence 3
       - set '$convert (ask? "Would you like to convert your & into $?")
@@ -608,7 +608,7 @@ cards:
     rarity: 1
     types: [thief, trickster]
     cost: 4
-    flavor: Gain $$. Gain %% if you own 20 or more cards.
+    flavor: Gain 2$. Gain 2% if you own 20 or more cards.
     playActions:
       - game-add! 'cash 2
       - if-true (gte? (size $owned-cards) 20) '(game-add! 'luck 2)
@@ -618,7 +618,7 @@ cards:
     rarity: 2
     types: [thief, trickster]
     cost: 5
-    flavor: Gain $$. You may reroll your shop with cards you own.
+    flavor: Gain 2$. You may reroll your shop with cards you own.
     playActions:
       - game-add! 'cash 2
       - stop-if! (! (ask? "Reroll your shop with cards you own?" ))
@@ -663,7 +663,7 @@ cards:
     rarity: 0
     types: [thief]
     cost: 5
-    flavor: Gain $$$.
+    flavor: Gain 3$.
     playActions:
       - game-add! 'cash 3
 
@@ -672,7 +672,7 @@ cards:
     rarity: 2
     types: [thief, trickster, legend]
     cost: 6
-    flavor: Gain $$. You may reroll your shop with Treasures.
+    flavor: Gain 2$. You may reroll your shop with Treasures.
     playActions:
       - game-add! 'cash 2
       - stop-if! (! (ask? "Reroll your shop with Treasures?" ))
@@ -782,7 +782,7 @@ cards:
     rarity: 1
     types: [thief, trickster]
     cost: 5
-    flavor: Gain $$. You may jail a Treasure you own. This gains its *.
+    flavor: Gain 2$. You may jail a Treasure you own. This gains its *.
     playActions:
      - game-add! 'cash 2
      - set '$treasures-to-jail (filter $owned-cards '(card-has-type? $it 'treasure))
@@ -806,7 +806,7 @@ cards:
     rarity: 1
     types: [thief]
     cost: 6
-    flavor: Gain $$$$.
+    flavor: Gain 4$.
     playActions:
       - game-add! 'cash 4
 
@@ -815,7 +815,7 @@ cards:
     rarity: 1
     types: [spy, cop]
     cost: 6
-    flavor: Gain &&&. You may spend &&&&&& to give this card ******.
+    flavor: Gain 3&. You may spend 6& to give this card 6*.
     playActions:
       - game-add! 'influence 3
       - stop-if! < game-get 'influence 6
@@ -860,7 +860,7 @@ cards:
     rarity: 2
     types: [treasure]
     cost: 5
-    flavor: This is worth ** for every Legend you own or in jail.
+    flavor: This is worth 2* for every Legend you own or in jail.
     passiveVp: * 2 (size (filter (union $owned-cards $jail) '(card-has-type? $it 'legend)))
 
   - name: Lucky Emerald
@@ -869,7 +869,7 @@ cards:
     types: [treasure]
     cost: 5
     vp: 5
-    flavor: Gain %%.
+    flavor: Gain 2%.
     playActions:
       - game-add! 'luck 2
 
@@ -878,7 +878,7 @@ cards:
     rarity: 2
     types: [thief, legend]
     cost: 5
-    flavor: Gain $$. Gain * whenever you play a Pickpocket or Burglar this turn.
+    flavor: Gain 2$. Gain * whenever you play a Pickpocket or Burglar this turn.
     playActions:
       - game-add! 'cash 2
       - fx-add! --desc (icon-convert "Gain * whenever you play a Pickpocket or Burglar.") --data (card-get $this 'id) '(if-true or? (= card-get $card 'name "Pickpocket") (= card-get $card 'name "Burglar") '(card-add! card-with-id $data 'vp 1))
@@ -922,7 +922,7 @@ cards:
     rarity: 0
     types: [thief]
     cost: 7
-    flavor: Gain $$$$$.
+    flavor: Gain 5$.
     playActions:
       - game-add! 'cash 5
 
