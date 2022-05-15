@@ -25,6 +25,7 @@ import dev.bitspittle.racketeer.console.view.views.game.choose.ChooseItemsView
 import dev.bitspittle.racketeer.console.view.views.game.choose.PickItemView
 import dev.bitspittle.racketeer.console.view.views.system.TitleMenuView
 import dev.bitspittle.racketeer.model.action.ExprCache
+import dev.bitspittle.racketeer.model.building.allPassiveActions
 import dev.bitspittle.racketeer.model.card.allPassiveActions
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
@@ -121,7 +122,7 @@ class GameSession(
         gameData.cards.flatMap { it.allPassiveActions }.forEach { exprCache.parse(it) }
         gameData.cards.flatMap { it.playActions }.forEach { exprCache.parse(it) }
         gameData.blueprints.flatMap { it.initActions }.forEach { exprCache.parse(it) }
-        gameData.blueprints.flatMap { it.passiveActions }.forEach { exprCache.parse(it) }
+        gameData.blueprints.flatMap { it.allPassiveActions }.forEach { exprCache.parse(it) }
         gameData.blueprints.flatMap { it.activateActions }.forEach { exprCache.parse(it) }
 
         val titleView = TitleMenuView(gameData, exprCache, settings, cardStats, app, viewStack, env)
