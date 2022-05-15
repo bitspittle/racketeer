@@ -124,6 +124,7 @@ class GameSession(
         gameData.blueprints.flatMap { it.initActions }.forEach { exprCache.parse(it) }
         gameData.blueprints.flatMap { it.allPassiveActions }.forEach { exprCache.parse(it) }
         gameData.blueprints.flatMap { it.activateActions }.forEach { exprCache.parse(it) }
+        gameData.blueprints.map { it.canActivate }.filter { it.isNotBlank() }.forEach { exprCache.parse(it) }
 
         val titleView = TitleMenuView(gameData, exprCache, settings, cardStats, app, viewStack, env)
         produceRandom = { titleView.ctx.state.random() }
