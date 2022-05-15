@@ -10,7 +10,6 @@ import com.varabyte.kotter.foundation.text.*
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
-import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.LangService
 import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.limp.utils.installDefaults
@@ -25,8 +24,8 @@ import dev.bitspittle.racketeer.console.view.ViewStackImpl
 import dev.bitspittle.racketeer.console.view.views.game.choose.ChooseItemsView
 import dev.bitspittle.racketeer.console.view.views.game.choose.PickItemView
 import dev.bitspittle.racketeer.console.view.views.system.TitleMenuView
-import dev.bitspittle.racketeer.model.action.Enqueuers
 import dev.bitspittle.racketeer.model.action.ExprCache
+import dev.bitspittle.racketeer.model.card.allPassiveActions
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.types.GameService
@@ -119,7 +118,7 @@ class GameSession(
         val exprCache = ExprCache()
         // Compile early to suss out any syntax errors at startup time instead of runtime
         gameData.cards.flatMap { it.initActions }.forEach { exprCache.parse(it) }
-        gameData.cards.flatMap { it.passiveActions }.forEach { exprCache.parse(it) }
+        gameData.cards.flatMap { it.allPassiveActions }.forEach { exprCache.parse(it) }
         gameData.cards.flatMap { it.playActions }.forEach { exprCache.parse(it) }
 
         val titleView = TitleMenuView(gameData, exprCache, settings, cardStats, app, viewStack, env)
