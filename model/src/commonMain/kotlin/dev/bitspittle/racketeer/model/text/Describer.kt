@@ -158,7 +158,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
     fun describeCard(template: CardTemplate, showCash: Boolean = false, concise: Boolean = false): String {
         return buildString {
             appendCardName(template.name, emptySet(), concise)
-            if (showCash) {
+            if (showCash && template.cost > 0) {
                 append(" ${describeCash(template.cost)}")
             }
 
