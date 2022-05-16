@@ -34,7 +34,7 @@ class ChoosePileCardsView(ctx: GameContext, private val pile: Pile) : GameView(c
         }
     }
 
-    override fun RenderScope.renderUpperFooter() {
+    override fun RenderScope.renderFooterUpper() {
         text("Press "); cyan { text("SPACE") }; textLine(" to toggle individual selections.")
         text("Press "); cyan { text("A") }; textLine(" to toggle all selections.")
     }

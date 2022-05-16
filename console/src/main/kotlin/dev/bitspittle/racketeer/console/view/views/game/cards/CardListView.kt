@@ -70,7 +70,7 @@ class CardListView(ctx: GameContext, private var sortingOrder: SortingOrder = So
         }
     }
 
-    override fun RenderScope.renderUpperFooter() {
+    override fun RenderScope.renderFooterUpper() {
         val sortingWord = sortingOrder.next().name.lowercase()
         text("Press "); cyan { text("TAB") }; textLine(" to sort by $sortingWord.")
         if (sortingOrder == SortingOrder.NAME) {

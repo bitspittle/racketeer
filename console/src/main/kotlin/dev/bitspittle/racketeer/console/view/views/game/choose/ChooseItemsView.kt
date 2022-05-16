@@ -61,7 +61,7 @@ class ChooseItemsView(
         if (requiredChoice) yellow { textLine("This choice is not optional, so you cannot back out of it."); textLine() }
     }
 
-    override fun RenderScope.renderUpperFooter() {
+    override fun RenderScope.renderFooterUpper() {
         if (currCommand is SelectItemCommand) {
             text("Press "); cyan { text("SPACE") }; textLine(" to toggle the selected item.")
         }

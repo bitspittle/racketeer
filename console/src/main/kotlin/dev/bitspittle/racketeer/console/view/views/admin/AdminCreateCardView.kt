@@ -41,7 +41,7 @@ class AdminCreateCardView(ctx: GameContext) : GameView(ctx) {
         }
     }
 
-    override fun RenderScope.renderUpperFooter() {
+    override fun RenderScope.renderFooterUpper() {
         text("Press "); cyan { text("A-Z") }; textLine(" to jump to cards by name.")
     }
 

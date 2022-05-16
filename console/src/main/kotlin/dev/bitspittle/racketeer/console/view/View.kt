@@ -165,7 +165,9 @@ abstract class View(
                 textLine()
             }
 
+            renderFooterUpper()
             renderFooter()
+            renderFooterLower()
         }
     }
 
@@ -173,6 +175,8 @@ abstract class View(
     protected open fun MainRenderScope.renderContentUpper() = Unit
     /** Content (with possible `input()`) rendered just below all commands */
     protected open fun MainRenderScope.renderContentLower() = Unit
+    protected open fun RenderScope.renderFooterUpper() = Unit
+    protected open fun RenderScope.renderFooterLower() = Unit
     protected open fun RenderScope.renderHeader() = Unit
     protected open fun RenderScope.renderFooter() = Unit
 }

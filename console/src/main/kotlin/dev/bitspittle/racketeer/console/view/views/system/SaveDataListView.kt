@@ -19,7 +19,7 @@ abstract class SaveDataListView(ctx: GameContext) : GameView(ctx) {
         return true
     }
 
-    override fun RenderScope.renderUpperFooter() {
+    override fun RenderScope.renderFooterUpper() {
         if (ctx.app.userData.pathForSlot(currIndex).exists()) {
             text("Press "); yellow { text("DELETE") }; textLine(" to delete save slot #${currIndex + 1}.")
         }

@@ -102,8 +102,6 @@ abstract class GameView(val ctx: GameContext) : View(ctx.settings, ctx.viewStack
     }
 
     final override fun RenderScope.renderFooter() {
-        renderUpperFooter()
-
         if (allowBrowsingCards()) {
             text("Press "); cyan { text("\\") }; textLine(" to browse all card piles.")
         }
@@ -115,11 +113,7 @@ abstract class GameView(val ctx: GameContext) : View(ctx.settings, ctx.viewStack
             text("Press "); cyan { text("ESC") }
             if (ctx.viewStack.canGoBack) textLine(" to go back.") else textLine(" to open options.")
         }
-
-        renderLowerFooter()
     }
 
-    protected open fun RenderScope.renderUpperFooter() = Unit
-    protected open fun RenderScope.renderLowerFooter() = Unit
     protected open fun onEscRequested() = Unit
 }

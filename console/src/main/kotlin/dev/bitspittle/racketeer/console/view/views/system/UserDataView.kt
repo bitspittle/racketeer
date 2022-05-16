@@ -32,7 +32,7 @@ class UserDataView(ctx: GameContext) : GameView(ctx) {
         }
     )
 
-    override fun RenderScope.renderUpperFooter() {
+    override fun RenderScope.renderFooterUpper() {
         textLine("Your user data is located at: ${ctx.app.userData.path.absolutePathString()}")
         textLine()
     }

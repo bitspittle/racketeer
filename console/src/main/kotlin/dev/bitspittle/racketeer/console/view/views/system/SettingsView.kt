@@ -72,7 +72,7 @@ class SettingsView(ctx: GameContext, categories: List<Category>) : GameView(ctx)
         }
     }
 
-    override fun RenderScope.renderUpperFooter() {
+    override fun RenderScope.renderFooterUpper() {
         if (currCommand is SelectItemCommand) {
             text("Press "); cyan { text("SPACE") }; textLine(" to toggle the selected setting.")
         }

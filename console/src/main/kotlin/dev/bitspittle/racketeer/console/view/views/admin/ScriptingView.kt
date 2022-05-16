@@ -237,7 +237,7 @@ class ScriptingView(ctx: GameContext) : GameView(ctx) {
         }
     }
 
-    override fun RenderScope.renderUpperFooter() {
+    override fun RenderScope.renderFooterUpper() {
         text("Press "); cyan { text("TAB") }; text(" to set focus to ")
         text(if (inEditingMode) { "the menu" } else { "the script editor" })
         textLine('.')

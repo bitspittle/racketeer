@@ -83,7 +83,7 @@ class OptionsMenuView(ctx: GameContext) : GameView(ctx) {
         return false
     }
 
-    override fun RenderScope.renderLowerFooter() {
+    override fun RenderScope.renderFooterLower() {
         textLine()
         magenta {
             textLine("${ctx.data.title} v${ctx.app.version}")

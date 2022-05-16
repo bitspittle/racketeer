@@ -56,7 +56,7 @@ class BrowseManyCardsView(ctx: GameContext, cards: List<Card>) : GameView(ctx) {
         textLine()
     }
 
-    override fun RenderScope.renderUpperFooter() {
+    override fun RenderScope.renderFooterUpper() {
         text("Press "); cyan { text("1") }; textLine( " to sort by name.")
         text("Press "); cyan { text("2") }; textLine( " to sort by tier.")
         text("Press "); cyan { text("3") }; textLine( " to sort by pile.")
