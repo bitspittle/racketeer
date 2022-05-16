@@ -32,7 +32,8 @@ class GameSummaryView(ctx: GameContext) : GameView(ctx) {
                     val utcNow =
                         Instant.now().atOffset(ZoneOffset.UTC)
                             .format(DateTimeFormatter.ofPattern("MM-dd-yyyy|HH:mm:ss"))
-                    append("endstates:$utcNow")
+                    append("endstates:$utcNow:")
+                    append("vp:${ctx.state.vp}")
                     append(".yaml")
                 },
                 UploadService.MimeTypes.YAML
