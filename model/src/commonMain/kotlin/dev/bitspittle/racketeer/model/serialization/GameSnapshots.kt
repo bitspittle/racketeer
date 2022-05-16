@@ -273,6 +273,6 @@ class GameSnapshot(
             shop.exclusions.forEach { exclusion -> exclusion.evaluate(env, evaluator) }
             effects.forEach { effect -> effect.evaluate(env, evaluator) }
         }
-        gs.updateVictoryPoints()
+        gs.onBoardChanged()
     }
 }

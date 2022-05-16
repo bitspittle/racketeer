@@ -38,16 +38,19 @@ interface GameState {
     val history: List<GameStateChange>
 
     /**
-     * Inform this state that something changed and you'd like to recalculate the VP amount.
+     * Inform this state that something changed and you'd like to recalculate any values that may change based on it,
+     * e.g. VPs and building states.
      */
     // It would be nice if this could be done automatically, but with the current architecture, this has to be done
     // in a suspend context, so it requires a parent suspend function calling it right now. Maybe this can be revisited
     // later.
-    suspend fun updateVictoryPoints()
+    suspend fun onBoardChanged()
     suspend fun apply(change: GameStateChange)
     fun copy(): GameState
 
     fun pileFor(card: Card): Pile?
+
+    fun canActivate(building: Building): Boolean
 }
 
 val GameState.lastTurnIndex get() = numTurns - 1
@@ -161,7 +164,7 @@ class MutableGameState internal constructor(
     /**
      * How many victory points the player currently has.
      *
-     * See also: [updateVictoryPoints].
+     * See also: [onBoardChanged].
      */
     override var vp = vp
         private set
@@ -196,17 +199,24 @@ class MutableGameState internal constructor(
 
     override fun pileFor(card: Card): Pile? = cardPiles[card.id]
 
+    private val _canActivate = mutableMapOf<Building, Boolean>()
+    override fun canActivate(building: Building): Boolean = _canActivate.getValue(building)
+
     suspend fun move(card: Card, pileTo: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
         move(listOf(card), pileTo, listStrategy)
     }
 
-    override suspend fun updateVictoryPoints() {
+    override suspend fun onBoardChanged() {
         val owned = getOwnedCards()
         owned.forEach { card -> enqueuers.card.enqueuePassiveActions(this, card) }
         buildings.forEach { building -> enqueuers.building.enqueuePassiveActions(this, building) }
         enqueuers.actionQueue.runEnqueuedActions()
 
         vp = owned.sumOf { card -> card.vpTotal }
+
+        buildings.forEach { building ->
+            _canActivate[building] = enqueuers.building.canActivate(this, building)
+        }
     }
 
     private fun Card.isOwned() = cardPiles[id].let { pile -> pile != null && pile in ownedPiles }

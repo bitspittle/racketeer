@@ -24,7 +24,7 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
         try {
             state = nextState
             block().also {
-                nextState.updateVictoryPoints()
+                nextState.onBoardChanged()
                 GameStateDiff(prevState, nextState).reportTo(describer, app.logger)
             }
 

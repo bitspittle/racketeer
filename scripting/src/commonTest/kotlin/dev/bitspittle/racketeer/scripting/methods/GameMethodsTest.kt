@@ -66,7 +66,7 @@ class GameMethodsTest {
         gameState.influence = 2
         // As a side-effect, sets the gamestate's VP to 3
         gameState.move(CardTemplate("Free VP", "", listOf(), tier = 0, vp = 3).instantiate(), gameState.hand)
-        gameState.updateVictoryPoints()
+        gameState.onBoardChanged()
 
         assertThat(evaluator.evaluate(env, "game-get 'cash")).isEqualTo(1)
         assertThat(evaluator.evaluate(env, "game-get 'influence")).isEqualTo(2)

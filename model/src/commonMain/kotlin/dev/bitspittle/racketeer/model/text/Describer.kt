@@ -280,6 +280,12 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         append(convertIcons(blueprint.flavor))
 
         if (showDebugInfo()) {
+            if (blueprint.canActivate.isNotBlank()) {
+                appendLine() // Finish previous section
+                appendLine() // Newline
+                append("Activation test: ${blueprint.canActivate}")
+            }
+
             if (blueprint.initActions.isNotEmpty()) {
                 appendLine() // Finish previous section
                 appendLine() // Newline
@@ -329,14 +335,14 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
     }
 
-    fun describeBuilding(building: Building, showActivated: Boolean = false, concise: Boolean = false): String {
+    fun describeBuilding(building: Building, showActivatedState: Boolean = false, concise: Boolean = false): String {
         return buildString {
             append(building.blueprint.name)
 
             if (!concise) {
                 appendLine() // Finish name row
                 appendActivationCost(building.blueprint)
-                if (showActivated) {
+                if (showActivatedState) {
                     appendLine("Activated this turn? " + if (building.isActivated) "Yes" else "No")
                 }
 

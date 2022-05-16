@@ -34,6 +34,18 @@ class BuildingEnqueuerImpl(
         )
     }
 
+    override suspend fun canActivate(gameState: GameState, building: Building): Boolean {
+        if (building.blueprint.canActivate.isBlank()) return true
+
+        return env.scoped {
+            val evaluator = Evaluator()
+            env.setValuesFrom(gameState)
+            env.setValuesFrom(building)
+
+            env.expectConvert(evaluator.evaluate(env, exprCache.parse(building.blueprint.canActivate)))
+        }
+    }
+
     override fun enqueueInitActions(gameState: GameState, building: Building) = enqueueActions(gameState, building, building.blueprint.initActions)
     override fun enqueueActivateActions(gameState: GameState, building: Building) = enqueueActions(gameState, building, building.blueprint.activateActions)
     override fun enqueuePassiveActions(gameState: GameState, building: Building) = enqueueActions(gameState, building, building.blueprint.allPassiveActions)

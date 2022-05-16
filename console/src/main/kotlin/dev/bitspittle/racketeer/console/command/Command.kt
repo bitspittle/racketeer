@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.console.command
 
 import com.varabyte.kotter.foundation.input.Key
 import com.varabyte.kotter.foundation.text.*
+import com.varabyte.kotter.runtime.MainRenderScope
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.model.card.Card

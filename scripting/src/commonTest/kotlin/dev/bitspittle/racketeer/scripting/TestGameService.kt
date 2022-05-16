@@ -174,6 +174,7 @@ class StubCardEnqueuer : CardEnqueuer {
     override fun enqueuePassiveActions(gameState: GameState, card: Card) { NotImplementedError() }
 }
 class StubBuildingEnqueuer : BuildingEnqueuer {
+    override suspend fun canActivate(building: Building): Boolean = true
     override fun enqueueInitActions(gameState: GameState, building: Building) { NotImplementedError() }
     override fun enqueueActivateActions(gameState: GameState, building: Building) { NotImplementedError() }
     override fun enqueuePassiveActions(gameState: GameState, building: Building) { NotImplementedError() }

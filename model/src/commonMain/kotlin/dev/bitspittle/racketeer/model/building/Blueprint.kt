@@ -15,6 +15,10 @@ class ActivationCost(val cash: Int = 0, val influence: Int = 0, val luck: Int = 
  * @param canActivate An expression which must evaluate to true or false, checked before every user action. If false,
  *   the card won't show up as an option that can be activated. Note: If the card's [activationCost] can't be met, then
  *   the card will be considered ineligible for activation even if this expression returns true.
+ * @param cannotActivateReason A user visible reason for why this building could not activate, which should essentially
+ *   describe what the [canActivate] method is checking for. If it is not set and [canActivate] evaluates to false,
+ *   then the building won't be shown to the user at all on the main game view. Otherwise, it will show up disabled and
+ *   display text like, "This building could not be activated because (reason)."
  */
 @Serializable
 data class Blueprint(
@@ -28,6 +32,7 @@ data class Blueprint(
     val initActions: List<String> = emptyList(),
     val passiveActions: List<String> = emptyList(),
     val canActivate: String = "true",
+    val cannotActivateReason: String? = null,
     val activateActions: List<String> = emptyList(),
 ): Comparable<Blueprint> {
     fun build() = MutableBuilding(this)
