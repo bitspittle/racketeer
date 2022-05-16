@@ -21,7 +21,6 @@ class ChoosePileCardsView(ctx: GameContext, private val pile: Pile) : GameView(c
 
     override suspend fun handleAdditionalKeys(key: Key): Boolean {
         return when (key) {
-            Keys.SPACE -> (currCommand as? SelectItemCommand)?.invoke()?.let { true } ?: false
             Keys.A -> {
                 if (selectCardCommands.any { !it.selected }) {
                     selectCardCommands.forEach { it.selected = true }
@@ -35,7 +34,6 @@ class ChoosePileCardsView(ctx: GameContext, private val pile: Pile) : GameView(c
     }
 
     override fun RenderScope.renderFooterUpper() {
-        text("Press "); cyan { text("SPACE") }; textLine(" to toggle individual selections.")
         text("Press "); cyan { text("A") }; textLine(" to toggle all selections.")
     }
 

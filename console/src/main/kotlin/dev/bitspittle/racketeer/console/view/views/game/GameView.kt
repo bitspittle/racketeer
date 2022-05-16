@@ -59,7 +59,7 @@ abstract class GameView(val ctx: GameContext) : View(ctx.settings, ctx.viewStack
                 } else false
             }
 
-            else -> handleAdditionalKeys(key)
+            else -> currCommand.handleKey(key) || handleAdditionalKeys(key)
         }
     }
 

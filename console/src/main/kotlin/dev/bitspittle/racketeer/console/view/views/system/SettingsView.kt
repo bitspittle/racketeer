@@ -65,19 +65,6 @@ class SettingsView(ctx: GameContext, categories: List<Category>) : GameView(ctx)
         )
     )
 
-    override suspend fun handleAdditionalKeys(key: Key): Boolean {
-        return when (key) {
-            Keys.SPACE -> (currCommand as? SelectItemCommand)?.invoke()?.let { true } ?: false
-            else -> false
-        }
-    }
-
-    override fun RenderScope.renderFooterUpper() {
-        if (currCommand is SelectItemCommand) {
-            text("Press "); cyan { text("SPACE") }; textLine(" to toggle the selected setting.")
-        }
-    }
-
     private fun createNewSettings() = Settings().apply {
         setFrom(ctx.settings)
         entries.values.flatten().forEach { entry ->

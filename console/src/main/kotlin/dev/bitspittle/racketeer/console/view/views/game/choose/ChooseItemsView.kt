@@ -49,22 +49,8 @@ class ChooseItemsView(
 
     private fun hasUserSelectedEnoughChoices() = selectItemCommands.count { it.selected } in range
 
-    override suspend fun handleAdditionalKeys(key: Key): Boolean {
-        return if (key == Keys.SPACE) {
-            (currCommand as? SelectItemCommand)?.invoke()?.let { true } ?: false
-        } else {
-            false
-        }
-    }
-
     override fun MainRenderScope.renderContentUpper() {
         if (requiredChoice) yellow { textLine("This choice is not optional, so you cannot back out of it."); textLine() }
-    }
-
-    override fun RenderScope.renderFooterUpper() {
-        if (currCommand is SelectItemCommand) {
-            text("Press "); cyan { text("SPACE") }; textLine(" to toggle the selected item.")
-        }
     }
 
     override fun onEscRequested() {

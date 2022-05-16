@@ -139,7 +139,9 @@ abstract class View(
             renderHeader()
 
             renderContentUpper()
+            currCommand.renderContentUpperInto(this)
             commandsSection.renderInto(this)
+            currCommand.renderContentLowerInto(this)
             renderContentLower()
 
             commandsSection.currCommand.description?.let { description ->
@@ -166,7 +168,9 @@ abstract class View(
             }
 
             renderFooterUpper()
+            currCommand.renderFooterUpperInto(this)
             renderFooter()
+            currCommand.renderFooterLowerInto(this)
             renderFooterLower()
         }
     }

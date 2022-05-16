@@ -1,5 +1,6 @@
 package dev.bitspittle.racketeer.console.command
 
+import com.varabyte.kotter.foundation.input.Key
 import com.varabyte.kotter.foundation.text.*
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.game.GameContext
@@ -59,6 +60,13 @@ abstract class Command(protected val ctx: GameContext) {
             }
         }
     }
+
+    open suspend fun handleKey(key: Key): Boolean = false
+
+    open fun renderContentUpperInto(scope: RenderScope) = Unit
+    open fun renderContentLowerInto(scope: RenderScope) = Unit
+    open fun renderFooterUpperInto(scope: RenderScope) = Unit
+    open fun renderFooterLowerInto(scope: RenderScope) = Unit
 
     open suspend fun invoke() = false
 
