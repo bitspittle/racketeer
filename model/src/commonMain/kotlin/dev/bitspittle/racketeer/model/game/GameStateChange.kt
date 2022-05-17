@@ -26,6 +26,12 @@ sealed class GameStateChange {
 
     class Draw(var count: Int) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
+            val isFirstDrawThisTurn = run {
+                check(history.last() === this@Draw)
+                val prevChange = history.dropLast(1).lastOrNull { it is Draw || it is EndTurn }
+                prevChange !is Draw
+            }
+
             if (deck.cards.size < count && discard.cards.isNotEmpty()) {
                 apply(ShuffleDiscardIntoDeck(), insertBefore = this@Draw)
             }
@@ -35,7 +41,9 @@ sealed class GameStateChange {
                 move(cards, hand)
             }
 
-            effects.processTurnStarted()
+            if (isFirstDrawThisTurn) {
+                effects.processTurnStarted()
+            }
         }
     }
 
