@@ -5,6 +5,7 @@ import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.building.Blueprint
 import dev.bitspittle.racketeer.model.building.Building
+import dev.bitspittle.racketeer.model.building.vpTotal
 import dev.bitspittle.racketeer.model.pile.Pile
 
 private fun GameData.iconMappings() = mapOf(
@@ -338,6 +339,10 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
     fun describeBuilding(building: Building, showActivatedState: Boolean = false, concise: Boolean = false): String {
         return buildString {
             append(building.blueprint.name)
+
+            if (building.vpTotal > 0) {
+                append(" ${describeVictoryPoints(building.vpTotal)}")
+            }
 
             if (!concise) {
                 appendLine() // Finish name row

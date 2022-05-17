@@ -9,6 +9,7 @@ import dev.bitspittle.racketeer.model.card.vpTotal
 import dev.bitspittle.racketeer.model.building.Blueprint
 import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.building.MutableBuilding
+import dev.bitspittle.racketeer.model.building.vpTotal
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.random.CopyableRandom
@@ -240,8 +241,7 @@ class MutableGameState internal constructor(
         buildings.forEach { building -> enqueuers.building.enqueuePassiveActions(this, building) }
         enqueuers.actionQueue.runEnqueuedActions()
 
-        vp = owned.sumOf { card -> card.vpTotal }
-
+        vp = owned.sumOf { card -> card.vpTotal } + buildings.sumOf { building -> building.vpTotal }
         buildings.forEach { building ->
             _canActivate[building] = enqueuers.building.canActivate(this, building)
         }
