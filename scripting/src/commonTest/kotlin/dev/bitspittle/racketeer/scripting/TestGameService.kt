@@ -33,7 +33,7 @@ private val FAKE_GAME_DATA_TEXT = """
     initialCash: 0
     initialInfluence: 0
     initialLuck: 5
-    initialBlueprintCount: 0
+    initialBlueprintCount: 3
     initialDeck:
       - Pickpocket 5
       - Rumormonger 3
@@ -161,9 +161,48 @@ private val FAKE_GAME_DATA_TEXT = """
         cost: 4
         flavor: ""
         playActions: - fx-add! '(game-set! 'cash '(+ ${'$'}it 1))
-        
-    # Disabled for now. Should add tests later...
-    blueprints: []
+
+    blueprints:
+      - name: Wine Cellar
+        flavor: This gains * at the start of every turn.
+        buildCost:
+          cash: 2
+          influence: 2
+        canActivate: false # Passive building
+        initActions:
+          - fx-add! --lifetime 'game --event 'turn-start --data (building-get ${'$'}this 'id) '(building-add! building-with-id ${'$'}data 'vp 1)
+
+      - name: City Hall
+        flavor: Gain 4&.
+        buildCost:
+          cash: 3
+          influence: 3
+        activationCost:
+          cash: 2
+        activateActions:
+          - game-add! 'influence 4
+
+      - name: Stock Exchange
+        flavor: Gain 4${'$'}.
+        rarity: 2
+        buildCost:
+          cash: 3
+          influence: 3
+        activationCost:
+          influence: 2
+        activateActions:
+          - game-add! 'cash 4
+
+      - name: Newsstand
+        flavor: Draw a card.
+        vp: 1
+        buildCost:
+          cash: 2
+          influence: 2
+        activationCost:
+          cash: 1
+        activateActions:
+          - game-draw! 1
 """.trimIndent()
 
 fun createFakeGameData() = GameData.decodeFromString(FAKE_GAME_DATA_TEXT)
