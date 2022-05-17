@@ -17,6 +17,8 @@ import dev.bitspittle.racketeer.console.trie.TextTree
 import dev.bitspittle.racketeer.console.trie.TextTreeCursor
 import dev.bitspittle.racketeer.console.trie.intoWordTree
 import dev.bitspittle.racketeer.console.view.View
+import dev.bitspittle.racketeer.model.building.Blueprint
+import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardProperty
 import dev.bitspittle.racketeer.model.card.CardTemplate
@@ -273,6 +275,8 @@ private class Stringifier(private val describer: Describer, private val gameStat
             } else ""
             is CardTemplate -> value.name
             is Card -> value.template.name
+            is Blueprint -> value.name
+            is Building -> value.blueprint.name
             else -> value.toString()
         }
     }
