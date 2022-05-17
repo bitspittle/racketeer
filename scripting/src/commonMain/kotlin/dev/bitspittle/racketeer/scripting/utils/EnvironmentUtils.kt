@@ -11,9 +11,7 @@ import dev.bitspittle.racketeer.model.game.allCards
 import dev.bitspittle.racketeer.model.game.getOwnedCards
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.converters.MutablePileToCardsConverter
-import dev.bitspittle.racketeer.scripting.methods.building.BlueprintGetMethod
-import dev.bitspittle.racketeer.scripting.methods.building.BuildingGetMethod
-import dev.bitspittle.racketeer.scripting.methods.building.BuildingSetMethod
+import dev.bitspittle.racketeer.scripting.methods.building.*
 import dev.bitspittle.racketeer.scripting.methods.card.*
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseMethod
 import dev.bitspittle.racketeer.scripting.methods.effect.FxAddMethod
@@ -101,7 +99,11 @@ fun Environment.installGameLogic(service: GameService) {
     (0..4).forEach { i -> storeValue("\$tier${i + 1}", i) }
 
     // Buildings
+    addMethod(BlueprintIsBuiltMethod(service::gameState))
+    addMethod(BlueprintIsOwnedMethod(service::gameState))
     addMethod(BlueprintGetMethod())
+    addMethod(BlueprintOwnMethod(service::gameState))
+    addMethod(BlueprintBuildMethod(service::gameState))
     addMethod(BuildingGetMethod())
     addMethod(BuildingSetMethod(service::gameState))
     addMethod(object : Method("\$unowned-blueprints", 0) {
