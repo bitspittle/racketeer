@@ -19,12 +19,12 @@ class AdminCreateCardView(ctx: GameContext) : GameView(ctx) {
     private val cardSearcher = CardSearcher(ctx.data.cards)
     private var searchPrefix = ""
 
-    override fun createCommands(): List<Command> = cardSearcher.cards.map { CreateCardCommand(ctx, it) }
+    override fun createCommands(): List<Command> = cardSearcher.items.map { CreateCardCommand(ctx, it) }
 
     override suspend fun handleAdditionalKeys(key: Key): Boolean {
         return if (key is CharKey && (key.code.isLetter() || key.code == ' ')) {
             searchPrefix += key.code.lowercase()
-            currIndex = cardSearcher.search(searchPrefix)?.let { found -> cardSearcher.cards.indexOf(found) } ?: 0
+            currIndex = cardSearcher.search(searchPrefix)?.let { found -> cardSearcher.items.indexOf(found) } ?: 0
             true
         } else {
             when (key) {
