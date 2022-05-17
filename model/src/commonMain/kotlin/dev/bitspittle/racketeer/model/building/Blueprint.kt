@@ -1,5 +1,6 @@
 package dev.bitspittle.racketeer.model.building
 
+import dev.bitspittle.racketeer.model.game.GameState
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -45,3 +46,6 @@ data class Blueprint(
  */
 val Blueprint.allPassiveActions: List<String> get() =
     (passiveVp?.let { expr -> listOf("building-set! \$this 'vp-passive ($expr)") } ?: emptyList()) + passiveActions
+
+fun Blueprint.isBuilt(state: GameState) = state.buildings.any { it.blueprint === this }
+fun Blueprint.isOwned(state: GameState) = state.blueprints.contains(this) || isBuilt(state)

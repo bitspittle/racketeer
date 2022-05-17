@@ -160,6 +160,10 @@ private class GameStateDiffReporter(
         reportLine("The shop was upgraded.")
     }
 
+    private fun StringBuilder.report(change: GameStateChange.AddBlueprint) = change.apply {
+        reportLine("You added the following blueprint: ${change.blueprint.name}.")
+    }
+
     private fun StringBuilder.report(change: GameStateChange.Build) = change.apply {
         val blueprint = diff.before.blueprints[change.blueprintIndex]
         reportLine("${blueprint.name} was built.")
@@ -204,6 +208,7 @@ private class GameStateDiffReporter(
                     is GameStateChange.AddShopExclusion -> Unit // Background magic, should be invisible to the user
                     is GameStateChange.RestockShop -> report(change)
                     is GameStateChange.UpgradeShop -> report(change)
+                    is GameStateChange.AddBlueprint -> report(change)
                     is GameStateChange.Build -> report(change)
                     is GameStateChange.Activate -> Unit // No need to report, obvious from user actions
                     is GameStateChange.EndTurn -> Unit // No need to report, obvious from user actions
@@ -257,6 +262,9 @@ private class GameStateDiffReporter(
     }
 
     private fun StringBuilder.reportLine(message: String) {
-        appendLine("- $message")
+        if (this.isNotEmpty()) {
+            appendLine()
+        }
+        append("- $message")
     }
 }

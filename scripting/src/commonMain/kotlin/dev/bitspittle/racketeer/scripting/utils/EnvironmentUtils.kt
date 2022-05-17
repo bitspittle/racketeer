@@ -4,6 +4,7 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 import dev.bitspittle.racketeer.model.building.Building
+import dev.bitspittle.racketeer.model.building.isOwned
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.allCards
@@ -110,9 +111,7 @@ fun Environment.installGameLogic(service: GameService) {
             rest: List<Any>
         ): Any {
             val state = service.gameState
-            return service.gameData.blueprints.filterNot { blueprint ->
-                state.blueprints.contains(blueprint) || state.blueprints.any { it === blueprint }
-            }
+            return service.gameData.blueprints.filterNot { it.isOwned(state) }
         }
     })
 

@@ -157,32 +157,16 @@ class GameSession(
                         }
                     }
 
-                override val logger = object : Logger {
-                    override fun info(message: String) {
-                        logRenderers.add { green { textLine(message) } }
-                    }
-
-                    override fun warn(message: String) {
-                        logRenderers.add { yellow { textLine(message) } }
-                    }
-
-                    override fun error(message: String) {
-                        logRenderers.add { red { textLine(message) } }
-                    }
-
-                    override fun debug(message: String) {
-                        logRenderers.add { magenta { textLine(message) } }
-                    }
-                }
+                override val logger = app.logger
             })
         }
 
         viewStack.pushView(titleView)
         section {
             viewStack.currentView.renderInto(this)
-            logRenderers.forEach {
+            if (logRenderers.isNotEmpty()) {
                 textLine()
-                it.invoke(this)
+                logRenderers.forEach { it.invoke(this) }
             }
         }.runUntilSignal {
             handleQuit = { signal() }

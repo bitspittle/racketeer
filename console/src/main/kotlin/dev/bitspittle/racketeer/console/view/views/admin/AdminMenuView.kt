@@ -33,6 +33,15 @@ class AdminMenuView(ctx: GameContext) : GameView(ctx) {
             },
             object : Command(ctx) {
                 override val type = Type.Warning
+                override val title = "Build a building"
+                override val description: String = "Create any building in the game."
+                override suspend fun invoke(): Boolean {
+                    ctx.viewStack.pushView(AdminBuildBuildingView(ctx))
+                    return true
+                }
+            },
+            object : Command(ctx) {
+                override val type = Type.Warning
                 override val title = "Add game resources"
                 override val description = "Increase spendable game resources, e.g. cash, influence, and/or luck."
 

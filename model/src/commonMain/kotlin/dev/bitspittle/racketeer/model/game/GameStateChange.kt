@@ -1,9 +1,7 @@
 package dev.bitspittle.racketeer.model.game
 
 import dev.bitspittle.limp.types.ListStrategy
-import dev.bitspittle.racketeer.model.building.Building
-import dev.bitspittle.racketeer.model.building.BuildingProperty
-import dev.bitspittle.racketeer.model.building.MutableBuilding
+import dev.bitspittle.racketeer.model.building.*
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
@@ -175,6 +173,12 @@ sealed class GameStateChange {
         }
     }
 
+    class AddBlueprint(val blueprint: Blueprint) : GameStateChange() {
+        override suspend fun MutableGameState.apply() {
+            require(!blueprint.isOwned(this)) { "Attempt to add blueprint \"${blueprint.name}\" that was already owned" }
+            blueprints.add(blueprint).also { blueprints.sort() }
+        }
+    }
 
     class EndTurn : GameStateChange() {
         override suspend fun MutableGameState.apply() {

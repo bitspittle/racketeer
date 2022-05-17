@@ -68,6 +68,7 @@ sealed class GameChangeSnapshot {
             is GameStateChange.AddShopExclusion -> AddShopExclusion.from(change)
             is GameStateChange.RestockShop -> RestockShop.from(change)
             is GameStateChange.UpgradeShop -> UpgradeShop.from(change)
+            is GameStateChange.AddBlueprint -> AddBlueprint.from(change)
             is GameStateChange.Build -> Build.from(change)
             is GameStateChange.Activate -> Activate.from(change)
             is GameStateChange.EndTurn -> EndTurn.from(change)
@@ -246,6 +247,15 @@ sealed class GameChangeSnapshot {
             fun from(change: GameStateChange.UpgradeShop) = UpgradeShop()
         }
         override fun create(state: GameState) = GameStateChange.UpgradeShop()
+    }
+
+    @Serializable
+    @SerialName("AddBlueprint")
+    class AddBlueprint(val name: String) : GameChangeSnapshot() {
+        companion object {
+            fun from(change: GameStateChange.AddBlueprint) = AddBlueprint(change.blueprint.name)
+        }
+        override fun create(state: GameState) = GameStateChange.AddBlueprint(state.blueprints.single { it.name == name })
     }
 
     @Serializable
