@@ -2,29 +2,31 @@ package dev.bitspittle.racketeer.console.view
 
 import com.varabyte.kotter.foundation.input.Key
 import com.varabyte.kotter.foundation.input.Keys
-import com.varabyte.kotter.foundation.text.text
-import com.varabyte.kotter.foundation.text.textLine
+import com.varabyte.kotter.foundation.text.*
 import com.varabyte.kotter.runtime.MainRenderScope
 import com.varabyte.kotter.runtime.render.RenderScope
 import com.varabyte.kotterx.decorations.BorderCharacters
 import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.playtestId
-import dev.bitspittle.racketeer.console.game.App
+import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.version
-import dev.bitspittle.racketeer.console.user.Settings
 import dev.bitspittle.racketeer.console.utils.UploadService
 import dev.bitspittle.racketeer.console.utils.UploadThrottleCategory
 import dev.bitspittle.racketeer.console.utils.encodeToYaml
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.views.admin.AdminMenuView
+import dev.bitspittle.racketeer.console.view.views.game.cards.BrowsePilesView
+import dev.bitspittle.racketeer.console.view.views.game.play.GameSummaryView
+import dev.bitspittle.racketeer.console.view.views.game.play.PlayCardsView
+import dev.bitspittle.racketeer.console.view.views.game.play.PreDrawView
+import dev.bitspittle.racketeer.console.view.views.system.OptionsMenuView
+import dev.bitspittle.racketeer.model.game.GameStateStub
+import dev.bitspittle.racketeer.model.game.allPiles
 
 private const val DESC_WRAP_WIDTH = 60
 
-abstract class View(
-    private val settings: Settings,
-    private val viewStack: ViewStack,
-    private val app: App
-) {
+abstract class View(protected val ctx: GameContext) {
+    // region Commands
     protected abstract fun createCommands(): List<Command>
     private var shouldRefreshCommands = true
     private var _commandsSection: CommandsSection? = null
@@ -47,7 +49,7 @@ abstract class View(
     protected open val subtitle: String? = null
     protected open val heading: String? = null
 
-    protected val currCommand get() = commandsSection.currCommand
+    private val currCommand get() = commandsSection.currCommand
     protected var currIndex
         get() = commandsSection.currIndex
         set(value) {
@@ -57,6 +59,59 @@ abstract class View(
     fun refreshCommands() {
         shouldRefreshCommands = true
     }
+    // endregion
+
+    protected open val allowEsc: Boolean = true
+    protected open val allowBrowseCards: Boolean = true
+
+    private fun hasGameStarted() = ctx.state !== GameStateStub && ctx.state.allPiles.any { it.cards.isNotEmpty() }
+
+    private fun allowAdminAccess(): Boolean {
+        if (!hasGameStarted()) return false
+        return ctx.settings.admin.enabled && !(ctx.viewStack.contains { view -> view is AdminMenuView })
+    }
+
+    private fun allowBrowsingCards(): Boolean {
+        if (!hasGameStarted()) return false
+        return allowBrowseCards && ctx.viewStack.contains { view -> (view is PreDrawView || view is PlayCardsView || view is GameSummaryView) } && !ctx.viewStack.contains { view -> view is BrowsePilesView }
+    }
+
+    private suspend fun doHandleKeys(key: Key): Boolean {
+        return when (key) {
+            Keys.ESC -> {
+                if (allowEsc) {
+                    if (ctx.viewStack.canGoBack) {
+                        onEscRequested()
+                        goBack()
+                    } else {
+                        ctx.viewStack.pushView(OptionsMenuView(ctx))
+                    }
+                    true
+                } else {
+                    false
+                }
+            }
+            Keys.TICK, Keys.TILDE -> {
+                if (allowAdminAccess()) {
+                    ctx.viewStack.pushView(AdminMenuView(ctx))
+                    true
+                } else false
+            }
+            Keys.BACKSLASH -> {
+                if (allowBrowsingCards()) {
+                    ctx.viewStack.pushView(BrowsePilesView(ctx))
+                    true
+                } else false
+            }
+
+            else -> currCommand.handleKey(key) || handleAdditionalKeys(key)
+        }
+    }
+
+    protected open suspend fun handleAdditionalKeys(key: Key): Boolean = false
+
+    /////
+
 
     /**
      * Give child views a chance to influence the new cursor position after [refreshCommands] is called.
@@ -66,42 +121,40 @@ abstract class View(
     protected open fun refreshCursorPosition(oldIndex: Int, oldCommand: Command): Int = oldIndex
 
     protected fun goBack() {
-        viewStack.popView()
+        ctx.viewStack.popView()
         // Refresh commands in case the screen we were in caused a change
-        viewStack.currentView.refreshCommands()
+        ctx.viewStack.currentView.refreshCommands()
     }
 
     private inline fun runUnsafeCode(block: () -> Unit) {
         try {
             block()
         } catch (ex: Exception) {
-            app.logger.error(ex.message ?: "Code threw exception without a message: ${ex::class.simpleName}")
+            ctx.app.logger.error(ex.message ?: "Code threw exception without a message: ${ex::class.simpleName}")
 
             // At this point, let's try to send an automatic crash report. We wrap it in an aggressive try/catch block
             // though because there's nothing more fun than throwing an exception while trying to handle an exception
             // NOTE: Admin players are probably messing with the game and their crashes are probably just distractions
             // as they experiment with cards, so only send data for regular players
-            if (!settings.admin.enabled) {
-                (viewStack.currentView as? GameView)?.ctx?.let { ctx ->
-                    try {
-                        val filename = run {
-                            val viewName = this::class.simpleName!!.lowercase().removeSuffix("view")
-                            val command = currCommand.title
-                                .map { if (it.isLetterOrDigit()) it else '_' }
-                                .joinToString("")
-                                // Collapse all underscores and make sure any of them don't show up in weird places
-                                .replace(Regex("__+"), "_")
-                                .trim('_')
-                                .lowercase()
-                            "versions:${app.version}:users:${app.userData.playtestId}:crashes:$viewName-$command.yaml"
-                        }
-                        app.uploadService.upload(
-                            filename,
-                            UploadService.MimeTypes.YAML,
-                            throttleKey = UploadThrottleCategory.CRASH_REPORT,
-                        ) { ctx.encodeToYaml() }
-                    } catch (ignored: Throwable) {
+            if (!ctx.settings.admin.enabled) {
+                try {
+                    val filename = run {
+                        val viewName = this::class.simpleName!!.lowercase().removeSuffix("view")
+                        val command = currCommand.title
+                            .map { if (it.isLetterOrDigit()) it else '_' }
+                            .joinToString("")
+                            // Collapse all underscores and make sure any of them don't show up in weird places
+                            .replace(Regex("__+"), "_")
+                            .trim('_')
+                            .lowercase()
+                        "versions:${ctx.app.version}:users:${ctx.app.userData.playtestId}:crashes:$viewName-$command.yaml"
                     }
+                    ctx.app.uploadService.upload(
+                        filename,
+                        UploadService.MimeTypes.YAML,
+                        throttleKey = UploadThrottleCategory.CRASH_REPORT,
+                    ) { ctx.encodeToYaml() }
+                } catch (ignored: Throwable) {
                 }
             }
         }
@@ -131,8 +184,6 @@ abstract class View(
     }
     protected open suspend fun doHandleInputChanged(input: String) = Unit
     protected open suspend fun doHandleInputEntered(input: String, clearInput: () -> Unit) = Unit
-
-    protected open suspend fun doHandleKeys(key: Key): Boolean = false
 
     fun renderInto(scope: MainRenderScope) {
         scope.apply {
@@ -181,7 +232,57 @@ abstract class View(
     protected open fun MainRenderScope.renderContentLower() = Unit
     protected open fun RenderScope.renderFooterUpper() = Unit
     protected open fun RenderScope.renderFooterLower() = Unit
-    protected open fun RenderScope.renderHeader() = Unit
-    protected open fun RenderScope.renderFooter() = Unit
+
+    private fun RenderScope.renderHeader() {
+        textLine() // Give the top line some breathing space from the prompt
+
+        val state = ctx.state
+
+        if (ctx.state !== GameStateStub) {
+            textLine(
+                "${ctx.describer.describeCash(state.cash)} ${ctx.describer.describeInfluence(state.influence)} ${
+                    ctx.describer.describeLuck(
+                        state.luck
+                    )
+                } ${ctx.describer.describeVictoryPoints(state.vp)} "
+            )
+            textLine()
+            scopedState {
+                val numRemainingTurns = state.numTurns - state.turn
+                if (numRemainingTurns == 1) red() else if (numRemainingTurns <= 4) yellow()
+                bold { textLine("Turn ${state.turn + 1} out of ${state.numTurns}") }
+            }
+            textLine()
+        }
+
+        title?.let { title ->
+            bold { textLine(title.uppercase()) }
+            textLine()
+        }
+        subtitle?.let { subtitle ->
+            underline { textLine(subtitle) }
+            textLine()
+        }
+        heading?.let { heading ->
+            textLine(heading)
+            textLine()
+        }
+    }
+
+    private fun RenderScope.renderFooter() {
+        if (allowBrowsingCards()) {
+            text("Press "); cyan { text("\\") }; textLine(" to browse all card piles.")
+        }
+        if (allowAdminAccess()) {
+            text("Press "); cyan { text("~") }; textLine(" to access the admin menu.")
+        }
+        text("Press "); cyan { text("UP/DOWN") }; text(", "); cyan { text("HOME/END") }; text(", and "); cyan { text("PGUP/PGDN") }; textLine(" to navigate choices.")
+        if (allowEsc) {
+            text("Press "); cyan { text("ESC") }
+            if (ctx.viewStack.canGoBack) textLine(" to go back.") else textLine(" to open options.")
+        }
+    }
+
+    protected open fun onEscRequested() = Unit
 }
 

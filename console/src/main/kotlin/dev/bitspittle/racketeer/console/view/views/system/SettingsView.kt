@@ -1,19 +1,13 @@
 package dev.bitspittle.racketeer.console.view.views.system
 
-import com.varabyte.kotter.foundation.input.Key
-import com.varabyte.kotter.foundation.input.Keys
-import com.varabyte.kotter.foundation.text.cyan
-import com.varabyte.kotter.foundation.text.text
-import com.varabyte.kotter.foundation.text.textLine
-import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.choose.SelectItemCommand
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.user.Settings
 import dev.bitspittle.racketeer.console.user.save
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 
-class SettingsView(ctx: GameContext, categories: List<Category>) : GameView(ctx) {
+class SettingsView(ctx: GameContext, categories: List<Category>) : View(ctx) {
     enum class Category {
         ADMIN,
     }

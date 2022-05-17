@@ -7,10 +7,10 @@ import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.foundation.text.yellow
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 import kotlin.io.path.exists
 
-abstract class SaveDataListView(ctx: GameContext) : GameView(ctx) {
+abstract class SaveDataListView(ctx: GameContext) : View(ctx) {
     override suspend fun handleAdditionalKeys(key: Key): Boolean {
         when (key) {
             Keys.DELETE -> ctx.viewStack.pushView(ConfirmDeleteSaveView(ctx, currIndex))

@@ -10,11 +10,11 @@ import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.cards.ViewCardCommand
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.card.Card
 
 /** A browse view for a large list of cards that you can sort and filter in different ways */
-class BrowseManyCardsView(ctx: GameContext, cards: List<Card>) : GameView(ctx) {
+class BrowseManyCardsView(ctx: GameContext, cards: List<Card>) : View(ctx) {
     enum class SortingOrder {
         NAME,
         TIER,

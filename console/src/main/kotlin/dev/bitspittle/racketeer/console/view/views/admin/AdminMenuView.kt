@@ -1,14 +1,13 @@
 package dev.bitspittle.racketeer.console.view.views.admin
 
 import dev.bitspittle.racketeer.console.command.Command
-import dev.bitspittle.racketeer.console.command.commands.system.UserData
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.console.view.views.system.LoadGameView
 import dev.bitspittle.racketeer.console.view.views.system.SaveGameView
 import dev.bitspittle.racketeer.console.view.views.system.SettingsView
 
-class AdminMenuView(ctx: GameContext) : GameView(ctx) {
+class AdminMenuView(ctx: GameContext) : View(ctx) {
     override val title: String = "Admin"
 
     override fun createCommands(): List<Command> =

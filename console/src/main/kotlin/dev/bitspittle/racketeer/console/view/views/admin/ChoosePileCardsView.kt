@@ -9,11 +9,11 @@ import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.choose.SelectItemCommand
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.pile.Pile
 
-class ChoosePileCardsView(ctx: GameContext, private val pile: Pile) : GameView(ctx) {
+class ChoosePileCardsView(ctx: GameContext, private val pile: Pile) : View(ctx) {
     override val heading = "Choose one or more cards to move."
 
     private val selectCardCommands = pile.cards.map { card -> SelectItemCommand(ctx, card) }

@@ -3,9 +3,9 @@ package dev.bitspittle.racketeer.console.view.views.game.cards
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.cards.ViewCardCommand
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 
-class BrowseStreetView(ctx: GameContext) : GameView(ctx) {
+class BrowseStreetView(ctx: GameContext) : View(ctx) {
     init {
         check(ctx.state.street.cards.isNotEmpty())
     }

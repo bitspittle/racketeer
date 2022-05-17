@@ -13,13 +13,13 @@ import dev.bitspittle.racketeer.console.game.version
 import dev.bitspittle.racketeer.console.user.save
 import dev.bitspittle.racketeer.console.utils.UploadService
 import dev.bitspittle.racketeer.console.utils.encodeToYaml
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.game.from
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
-class GameSummaryView(ctx: GameContext) : GameView(ctx) {
+class GameSummaryView(ctx: GameContext) : View(ctx) {
     init {
         ctx.cardStats.values.save(ctx.app.userData)
 

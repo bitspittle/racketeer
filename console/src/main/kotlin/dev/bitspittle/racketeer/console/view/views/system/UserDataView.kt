@@ -4,11 +4,11 @@ import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 import java.awt.Desktop
 import kotlin.io.path.absolutePathString
 
-class UserDataView(ctx: GameContext) : GameView(ctx) {
+class UserDataView(ctx: GameContext) : View(ctx) {
     override fun createCommands(): List<Command> = listOf(
         object : Command(ctx) {
             override val title = "Show user data"

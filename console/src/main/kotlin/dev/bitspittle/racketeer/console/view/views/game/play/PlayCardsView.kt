@@ -7,9 +7,9 @@ import dev.bitspittle.racketeer.console.command.commands.game.play.VisitShopComm
 import dev.bitspittle.racketeer.console.command.commands.buildings.ActivateBuildingCommand
 import dev.bitspittle.racketeer.console.command.commands.buildings.BrowseBlueprintsCommand
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 
-class PlayCardsView(ctx: GameContext) : GameView(ctx) {
+class PlayCardsView(ctx: GameContext) : View(ctx) {
     override fun refreshCursorPosition(oldIndex: Int, oldCommand: Command): Int {
         // Keep the cursor in place, except when we're playing cards -- then, make sure the cursor stays on cards
         // until we run out. This way, if the user plays the last card in their hand, their cursor will be on the next

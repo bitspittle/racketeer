@@ -5,9 +5,9 @@ import dev.bitspittle.racketeer.console.command.commands.game.play.DrawCardsComm
 import dev.bitspittle.racketeer.console.command.commands.game.play.VisitShopCommand
 import dev.bitspittle.racketeer.console.command.commands.buildings.BrowseBlueprintsCommand
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 
-class PreDrawView(ctx: GameContext) : GameView(ctx) {
+class PreDrawView(ctx: GameContext) : View(ctx) {
     override fun createCommands(): List<Command> = listOf(
         DrawCardsCommand(ctx),
         VisitShopCommand(ctx),

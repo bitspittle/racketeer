@@ -1,11 +1,11 @@
 package dev.bitspittle.racketeer.console.view.views.game.play
 
-import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.play.EndTurnCommand
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.view.View
 
-class ConfirmEndTurnView(ctx: GameContext) : GameView(ctx) {
+class ConfirmEndTurnView(ctx: GameContext) : View(ctx) {
     init {
         require(ctx.state.cash > 0)
     }

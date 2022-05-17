@@ -28,8 +28,8 @@ class BuyCardCommand(ctx: GameContext, private val card: Card) : Command(ctx) {
         return true
     }
 
-    fun renderHelpInto(renderScope: RenderScope) {
-        renderScope.apply {
+    override fun renderContentLowerInto(scope: RenderScope) {
+        scope.apply {
             if (shouldMarkNew) {
                 yellow { textLine("You have never purchased this item before.") }
                 textLine()

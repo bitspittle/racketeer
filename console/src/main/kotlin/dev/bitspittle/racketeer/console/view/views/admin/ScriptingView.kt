@@ -1,6 +1,10 @@
 package dev.bitspittle.racketeer.console.view.views.admin
 
-import com.varabyte.kotter.foundation.input.*
+import Constants
+import com.varabyte.kotter.foundation.input.InputCompleter
+import com.varabyte.kotter.foundation.input.Key
+import com.varabyte.kotter.foundation.input.Keys
+import com.varabyte.kotter.foundation.input.input
 import com.varabyte.kotter.foundation.text.*
 import com.varabyte.kotter.runtime.MainRenderScope
 import com.varabyte.kotter.runtime.render.RenderScope
@@ -12,13 +16,13 @@ import dev.bitspittle.racketeer.console.trie.MutableTextTree
 import dev.bitspittle.racketeer.console.trie.TextTree
 import dev.bitspittle.racketeer.console.trie.TextTreeCursor
 import dev.bitspittle.racketeer.console.trie.intoWordTree
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.card.CardProperty
 import dev.bitspittle.racketeer.model.card.CardTemplate
+import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.text.Describer
-import dev.bitspittle.racketeer.model.card.CardProperty
-import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.scripting.types.PileProperty
 import dev.bitspittle.racketeer.scripting.utils.setValuesFrom
 
@@ -39,7 +43,7 @@ private class ScriptingCommand(
     }
 }
 
-class ScriptingView(ctx: GameContext) : GameView(ctx) {
+class ScriptingView(ctx: GameContext) : View(ctx) {
     init {
         onEnteringView()
     }

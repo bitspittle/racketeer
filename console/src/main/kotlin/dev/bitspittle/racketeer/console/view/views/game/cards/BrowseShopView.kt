@@ -2,9 +2,9 @@ package dev.bitspittle.racketeer.console.view.views.game.cards
 
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 
-class BrowseShopView(ctx: GameContext) : GameView(ctx) {
+class BrowseShopView(ctx: GameContext) : View(ctx) {
     init {
         check(ctx.state.shop.stock.filterNotNull().isNotEmpty())
     }

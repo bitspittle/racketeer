@@ -4,9 +4,9 @@ import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.SaveGameCommand
 import dev.bitspittle.racketeer.console.command.commands.system.UserData
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 
-class ConfirmQuitView(ctx: GameContext) : GameView(ctx) {
+class ConfirmQuitView(ctx: GameContext) : View(ctx) {
     override fun createCommands(): List<Command> = listOf(
         object : Command(ctx) {
             override val type = Type.Warning

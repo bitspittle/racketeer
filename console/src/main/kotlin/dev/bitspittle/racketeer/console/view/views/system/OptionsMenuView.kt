@@ -12,12 +12,10 @@ import dev.bitspittle.racketeer.console.command.commands.system.playtestId
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.version
 import dev.bitspittle.racketeer.console.user.save
-import dev.bitspittle.racketeer.console.view.views.game.GameView
-import dev.bitspittle.racketeer.model.game.hasGameStarted
+import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.game.isGameInProgress
-import dev.bitspittle.racketeer.model.game.isGameOver
 
-class OptionsMenuView(ctx: GameContext) : GameView(ctx) {
+class OptionsMenuView(ctx: GameContext) : View(ctx) {
     override val title: String = "Options"
 
     private var secretCode = ""

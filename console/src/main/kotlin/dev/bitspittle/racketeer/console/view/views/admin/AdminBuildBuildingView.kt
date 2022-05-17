@@ -13,10 +13,10 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.admin.CreateBuildingCommand
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.utils.BlueprintSearcher
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.building.isBuilt
 
-class AdminBuildBuildingView(ctx: GameContext) : GameView(ctx) {
+class AdminBuildBuildingView(ctx: GameContext) : View(ctx) {
     private val blueprintSearcher = BlueprintSearcher(ctx.data.blueprints.filterNot { it.isBuilt(ctx.state) })
     private var searchPrefix = ""
 

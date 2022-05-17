@@ -11,9 +11,9 @@ import dev.bitspittle.racketeer.console.command.commands.game.cards.ViewCardTemp
 import dev.bitspittle.racketeer.console.command.commands.game.cards.shouldMask
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.utils.CardSearcher
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 
-class CardListView(ctx: GameContext, private var sortingOrder: SortingOrder = SortingOrder.NAME) : GameView(ctx) {
+class CardListView(ctx: GameContext, private var sortingOrder: SortingOrder = SortingOrder.NAME) : View(ctx) {
     enum class SortingOrder {
         NAME,
         TIER;

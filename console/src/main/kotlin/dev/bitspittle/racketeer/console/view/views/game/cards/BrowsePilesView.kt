@@ -3,15 +3,15 @@ package dev.bitspittle.racketeer.console.view.views.game.cards
 import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.runtime.MainRenderScope
 import dev.bitspittle.racketeer.console.command.Command
-import dev.bitspittle.racketeer.console.command.commands.game.cards.*
 import dev.bitspittle.racketeer.console.command.commands.buildings.BrowseBuildingsCommand
+import dev.bitspittle.racketeer.console.command.commands.game.cards.*
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.user.inAdminModeAndShowDebugInfo
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.game.isGameOver
 import dev.bitspittle.racketeer.model.game.warningExpr
 
-class BrowsePilesView(ctx: GameContext) : GameView(ctx) {
+class BrowsePilesView(ctx: GameContext) : View(ctx) {
     override fun MainRenderScope.renderContentUpper() {
         if (ctx.state.effects.items.isNotEmpty()) {
             textLine("Active effects:")

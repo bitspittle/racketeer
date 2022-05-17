@@ -24,11 +24,17 @@ import dev.bitspittle.racketeer.console.view.ViewStackImpl
 import dev.bitspittle.racketeer.console.view.views.game.choose.ChooseItemsView
 import dev.bitspittle.racketeer.console.view.views.game.choose.PickItemView
 import dev.bitspittle.racketeer.console.view.views.system.TitleMenuView
+import dev.bitspittle.racketeer.model.action.ActionQueue
+import dev.bitspittle.racketeer.model.action.Enqueuers
 import dev.bitspittle.racketeer.model.action.ExprCache
 import dev.bitspittle.racketeer.model.building.allPassiveActions
 import dev.bitspittle.racketeer.model.card.allPassiveActions
 import dev.bitspittle.racketeer.model.game.GameData
+import dev.bitspittle.racketeer.model.game.GameStateStub
+import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
+import dev.bitspittle.racketeer.scripting.types.BuildingEnqueuerImpl
+import dev.bitspittle.racketeer.scripting.types.CardEnqueuerImpl
 import dev.bitspittle.racketeer.scripting.types.GameService
 import dev.bitspittle.racketeer.scripting.utils.installGameLogic
 import kotlinx.coroutines.*
@@ -126,40 +132,63 @@ class GameSession(
         gameData.blueprints.flatMap { it.activateActions }.forEach { exprCache.parse(it) }
         gameData.blueprints.map { it.canActivate }.filter { it.isNotBlank() }.forEach { exprCache.parse(it) }
 
-        val titleView = TitleMenuView(gameData, exprCache, settings, cardStats, app, viewStack, env)
-        produceRandom = { titleView.ctx.state.random() }
+        val ctx = run {
+            @Suppress("NAME_SHADOWING")
+            val cardStats = cardStats.associateBy { it.name }.toMutableMap()
+
+            val actionQueue = ActionQueue()
+            val enqueuers = Enqueuers(
+                actionQueue,
+                CardEnqueuerImpl(env, exprCache, actionQueue),
+                BuildingEnqueuerImpl(env, exprCache, actionQueue),
+            )
+
+            GameContext(
+                gameData,
+                settings,
+                cardStats,
+                Describer(gameData, showDebugInfo = { settings.inAdminModeAndShowDebugInfo }),
+                GameStateStub,
+                env,
+                enqueuers,
+                viewStack,
+                app
+            )
+        }
+
+
+        val titleView = TitleMenuView(ctx)
+        produceRandom = { ctx.state.random() }
 
         var handleRerender: () -> Unit = {}
-        titleView.ctx.let { ctx ->
-            env.installGameLogic(object : GameService {
-                override val gameData = ctx.data
-                override val describer = ctx.describer
-                override val gameState get() = ctx.state
-                override val enqueuers = ctx.enqueuers
-                override val chooseHandler
-                    get() = object : ChooseHandler {
-                        override suspend fun query(
-                            prompt: String?,
-                            list: List<Any>,
-                            range: IntRange,
-                            requiredChoice: Boolean
-                        ): List<Any>? {
-                            return suspendCoroutine { choices ->
-                                viewStack.pushView(
-                                    if (range.first == range.last && range.first == 1) {
-                                        PickItemView(ctx, prompt, list, choices, requiredChoice)
-                                    } else {
-                                        ChooseItemsView(ctx, prompt, list, range, choices, requiredChoice)
-                                    }
-                                )
-                                handleRerender()
-                            }
+        env.installGameLogic(object : GameService {
+            override val gameData = ctx.data
+            override val describer = ctx.describer
+            override val gameState get() = ctx.state
+            override val enqueuers = ctx.enqueuers
+            override val chooseHandler
+                get() = object : ChooseHandler {
+                    override suspend fun query(
+                        prompt: String?,
+                        list: List<Any>,
+                        range: IntRange,
+                        requiredChoice: Boolean
+                    ): List<Any>? {
+                        return suspendCoroutine { choices ->
+                            viewStack.pushView(
+                                if (range.first == range.last && range.first == 1) {
+                                    PickItemView(ctx, prompt, list, choices, requiredChoice)
+                                } else {
+                                    ChooseItemsView(ctx, prompt, list, range, choices, requiredChoice)
+                                }
+                            )
+                            handleRerender()
                         }
                     }
+                }
 
-                override val logger = app.logger
-            })
-        }
+            override val logger = app.logger
+        })
 
         viewStack.pushView(titleView)
         section {

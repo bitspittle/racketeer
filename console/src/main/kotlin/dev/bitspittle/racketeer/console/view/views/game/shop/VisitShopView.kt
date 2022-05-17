@@ -6,9 +6,9 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.shop.*
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.user.inAdminModeAndShowDebugInfo
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 
-class VisitShopView(ctx: GameContext) : GameView(ctx) {
+class VisitShopView(ctx: GameContext) : View(ctx) {
     override val subtitle get() = "Shop (Tier ${ctx.state.shop.tier + 1})"
 
     override fun createCommands(): List<Command> = run {
@@ -34,9 +34,5 @@ class VisitShopView(ctx: GameContext) : GameView(ctx) {
             }
             textLine()
         }
-    }
-
-    override fun MainRenderScope.renderContentLower() {
-        (currCommand as? BuyCardCommand)?.renderHelpInto(this)
     }
 }

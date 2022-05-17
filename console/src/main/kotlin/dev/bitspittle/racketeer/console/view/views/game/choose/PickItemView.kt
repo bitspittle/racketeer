@@ -5,7 +5,7 @@ import com.varabyte.kotter.foundation.text.yellow
 import com.varabyte.kotter.runtime.MainRenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 
@@ -18,7 +18,7 @@ class PickItemView(
     private val items: List<Any>,
     private val choices: Continuation<List<Any>?>,
     private val requiredChoice: Boolean,
-) : GameView(ctx) {
+) : View(ctx) {
     override val heading = (prompt ?: "Choose 1 item:")
     override val allowEsc = !requiredChoice
 

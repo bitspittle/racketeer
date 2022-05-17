@@ -1,73 +1,26 @@
 package dev.bitspittle.racketeer.console.view.views.system
 
 import com.varabyte.kotter.foundation.text.*
+import com.varabyte.kotter.runtime.MainRenderScope
 import com.varabyte.kotter.runtime.render.RenderScope
 import com.varabyte.kotterx.decorations.BorderCharacters
 import com.varabyte.kotterx.decorations.bordered
-import dev.bitspittle.limp.Environment
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.CardListCommand
 import dev.bitspittle.racketeer.console.command.commands.system.ConfirmLoadCommand
-import dev.bitspittle.racketeer.console.command.commands.system.UserDataCommand
 import dev.bitspittle.racketeer.console.command.commands.system.UserData.Companion.QUICKSAVE_SLOT
+import dev.bitspittle.racketeer.console.command.commands.system.UserDataCommand
 import dev.bitspittle.racketeer.console.command.commands.system.playtestId
-import dev.bitspittle.racketeer.console.game.App
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.version
-import dev.bitspittle.racketeer.console.user.CardStats
-import dev.bitspittle.racketeer.console.user.Settings
-import dev.bitspittle.racketeer.console.user.inAdminModeAndShowDebugInfo
 import dev.bitspittle.racketeer.console.utils.createNewGame
 import dev.bitspittle.racketeer.console.view.View
-import dev.bitspittle.racketeer.console.view.ViewStack
 import dev.bitspittle.racketeer.console.view.views.game.play.PreDrawView
-import dev.bitspittle.racketeer.model.action.ActionQueue
-import dev.bitspittle.racketeer.model.action.Enqueuers
-import dev.bitspittle.racketeer.model.action.ExprCache
-import dev.bitspittle.racketeer.model.game.GameData
-import dev.bitspittle.racketeer.model.game.GameStateStub
-import dev.bitspittle.racketeer.model.text.Describer
-import dev.bitspittle.racketeer.scripting.types.CardEnqueuerImpl
-import dev.bitspittle.racketeer.scripting.types.BuildingEnqueuerImpl
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 
-class TitleMenuView(
-    data: GameData,
-    exprCache: ExprCache,
-    settings: Settings,
-    cardStats: Iterable<CardStats>,
-    app: App,
-    viewStack: ViewStack,
-    env: Environment,
-) : View(settings, viewStack, app) {
-    val ctx = run {
-        @Suppress("NAME_SHADOWING")
-        val cardStats = cardStats.associateBy { it.name }.toMutableMap()
-
-        val actionQueue = ActionQueue()
-        val enqueuers = Enqueuers(
-            actionQueue,
-            CardEnqueuerImpl(env, exprCache, actionQueue),
-            BuildingEnqueuerImpl(env, exprCache, actionQueue),
-        )
-
-        GameContext(
-            data,
-            settings,
-            cardStats,
-            Describer(data, showDebugInfo = { settings.inAdminModeAndShowDebugInfo }),
-            GameStateStub,
-            env,
-            enqueuers,
-            viewStack,
-            app
-        )
-    }
-
-    override fun RenderScope.renderHeader() {
-        textLine()
-
+class TitleMenuView(ctx: GameContext) : View(ctx) {
+    override fun MainRenderScope.renderContentUpper() {
         bold {
             red {
                 bordered(borderCharacters = BorderCharacters.CURVED, paddingLeftRight = 1) {
@@ -131,7 +84,8 @@ class TitleMenuView(
             }
         )
 
-    override fun RenderScope.renderFooter() {
+    override fun RenderScope.renderFooterLower() {
+        textLine()
         magenta { textLine("Playtest ID: ${ctx.app.userData.playtestId}") }
     }
 }

@@ -3,7 +3,7 @@ package dev.bitspittle.racketeer.console.view.views.admin
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.utils.runStateChangingAction
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.game.GameProperty
 import dev.bitspittle.racketeer.model.game.GameStateChange
 
@@ -11,7 +11,7 @@ private const val TINY_RESOURCE_INCREMENT = 1
 private const val MINOR_RESOURCE_INCREMENT = 5
 private const val MAJOR_RESOURCE_INCREMENT = 100
 
-class AddResourcesView(ctx: GameContext) : GameView(ctx) {
+class AddResourcesView(ctx: GameContext) : View(ctx) {
     override fun createCommands(): List<Command> =
         listOf(
             object : Command(ctx) {

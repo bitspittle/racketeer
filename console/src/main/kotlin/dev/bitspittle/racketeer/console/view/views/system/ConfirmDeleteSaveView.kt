@@ -1,11 +1,11 @@
 package dev.bitspittle.racketeer.console.view.views.system
 
-import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.view.View
 import kotlin.io.path.deleteIfExists
 
-class ConfirmDeleteSaveView(ctx: GameContext, private val slot: Int) : GameView(ctx) {
+class ConfirmDeleteSaveView(ctx: GameContext, private val slot: Int) : View(ctx) {
     override fun createCommands(): List<Command> = listOf(
         object : Command(ctx) {
             override val type = Type.Danger

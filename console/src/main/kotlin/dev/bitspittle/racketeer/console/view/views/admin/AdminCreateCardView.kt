@@ -13,9 +13,9 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.admin.CreateCardCommand
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.utils.CardSearcher
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 
-class AdminCreateCardView(ctx: GameContext) : GameView(ctx) {
+class AdminCreateCardView(ctx: GameContext) : View(ctx) {
     private val cardSearcher = CardSearcher(ctx.data.cards)
     private var searchPrefix = ""
 

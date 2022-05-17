@@ -1,17 +1,12 @@
 package dev.bitspittle.racketeer.console.view.views.game.choose
 
-import com.varabyte.kotter.foundation.input.Key
-import com.varabyte.kotter.foundation.input.Keys
-import com.varabyte.kotter.foundation.text.cyan
-import com.varabyte.kotter.foundation.text.text
 import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.foundation.text.yellow
 import com.varabyte.kotter.runtime.MainRenderScope
-import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.choose.SelectItemCommand
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 
@@ -22,7 +17,7 @@ class ChooseItemsView(
     private val range: IntRange,
     private val choices: Continuation<List<Any>?>,
     private val requiredChoice: Boolean,
-) : GameView(ctx) {
+) : View(ctx) {
     override val heading = (prompt ?: "Choose ${ctx.describer.describeRange(range)} item(s):")
     override val allowEsc = !requiredChoice
 

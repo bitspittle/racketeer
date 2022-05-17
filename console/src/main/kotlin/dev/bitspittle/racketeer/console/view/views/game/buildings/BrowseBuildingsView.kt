@@ -3,9 +3,9 @@ package dev.bitspittle.racketeer.console.view.views.game.buildings
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.buildings.ViewBuildingCommand
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.view.views.game.GameView
+import dev.bitspittle.racketeer.console.view.View
 
-class BrowseBuildingsView(ctx: GameContext) : GameView(ctx) {
+class BrowseBuildingsView(ctx: GameContext) : View(ctx) {
     override val subtitle get() = "Buildings"
 
     override fun createCommands(): List<Command> = run {
