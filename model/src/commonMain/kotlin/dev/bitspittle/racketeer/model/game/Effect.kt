@@ -53,3 +53,9 @@ class Effect<T : Any>(
         } else false
     }
 }
+
+/**
+ * [Effect.expr] prefixed by a warning symbol.
+ *
+ * Useful indicator to our designers that something internal is leaking to public users if not fixed. */
+val Effect<*>.warningExpr get() = "⚠️ $expr"

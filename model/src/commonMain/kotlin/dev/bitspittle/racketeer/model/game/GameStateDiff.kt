@@ -149,7 +149,7 @@ private class GameStateDiffReporter(
     }
 
     private fun StringBuilder.report(change: GameStateChange.AddEffect) = change.apply {
-        reportLine("You added the following effect onto the street:\n  ${effect.desc ?: ("⚠️ " + effect.expr)}")
+        reportLine("You added the following effect onto the street:\n  ${effect.desc ?: effect.warningExpr}")
     }
 
     private fun StringBuilder.report(change: GameStateChange.RestockShop) = change.apply {
