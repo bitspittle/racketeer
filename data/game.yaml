@@ -14,7 +14,6 @@ initialBlueprintCount: 3
 initialDeck:
   - Pickpocket 5
   - Newsie 3
-
 cardTypes:
   # Ordered by how they should show up on a card, NOT alphabetically necessarily
   - Action
@@ -195,6 +194,15 @@ cards:
     flavor: Gain 2$.
     playActions:
       - game-add! 'cash 2
+
+  - name: Rumormonger
+    tier: 0
+    rarity: 1
+    types: [spy]
+    cost: 2
+    flavor: Gain 2&.
+    playActions:
+      - game-add! 'influence 2
 
   - name: Graffiti Artist
     tier: 0
@@ -875,15 +883,15 @@ cards:
     playActions:
       - game-add! 'luck 2
 
-  - name: Old Gaffin
-    tier: 4
-    rarity: 2
-    types: [thief, legend]
-    cost: 5
-    flavor: Gain 2$. Gain * whenever you play a Pickpocket or Burglar this turn.
-    playActions:
-      - game-add! 'cash 2
-      - fx-add! --desc (icon-convert "Gain * whenever you play a Pickpocket or Burglar.") --data (card-get $this 'id) '(if-true or? (= card-get $card 'name "Pickpocket") (= card-get $card 'name "Burglar") '(card-add! card-with-id $data 'vp 1))
+#  - name: Old Gaffin
+#    tier: 4
+#    rarity: 2
+#    types: [thief, legend]
+#    cost: 5
+#    flavor: Gain 2$. Gain * whenever you play a Pickpocket or Burglar this turn.
+#    playActions:
+#      - game-add! 'cash 2
+#      - fx-add! --desc (icon-convert "Gain * whenever you play a Pickpocket or Burglar.") --data (card-get $this 'id) '(if-true or? (= card-get $card 'name "Pickpocket") (= card-get $card 'name "Burglar") '(card-add! card-with-id $data 'vp 1))
 
 
   - name: Annie Doshen
@@ -966,32 +974,123 @@ cards:
       - game-draw! 3
 
 blueprints:
-  - name: David's Place
-    flavor: Gain 3%.
-    buildCost:
-      cash: 1
-      influence: 2
-    activationCost:
-      influence: 1
-    activateActions:
-      - game-add! 'luck 3
-
-  - name: Ari's Place
-    flavor: Gain 3&.
+  - name: Wine Cellar
+    flavor: This gains * every turn.
     buildCost:
       cash: 2
-      influence: 1
+      influence: 2
+    initActions:
+      - fx-add! --lifetime 'game --event 'turn-start --data $this '(location-add! $data 'vp 1)
+
+  - name: City Hall
+    flavor: Gain 4&.
+    buildCost:
+      cash: 3
+      influence: 3
+    activationCost:
+      cash: 2
+    activateActions:
+      - game-add! 'influence 4
+
+
+  - name: Stock Exchange
+    flavor: Gain 4$.
+    buildCost:
+      cash: 3
+      influence: 3
+    activationCost:
+      influence: 2
+    activateActions:
+      - game-add! 'cash 4
+
+  - name: Newsstand
+    flavor: Draw a card.
+    buildCost:
+      cash: 2
+      influence: 2
     activationCost:
       cash: 1
     activateActions:
-      - game-add! 'influence 3
+      - game-draw! 1
+
+  - name: Alley
+    flavor: Draw a card for each Burglar in your hand.
+    buildCost:
+      cash: 2
+      influence: 2
+    activateActions:
+      - game-draw! count $hand '(= card-get $it 'name "Burglar")
+
 
   - name: Casino
     flavor: Roll a die. Gain that much $.
     buildCost:
       cash: 5
-      influence: 2
+      influence: 5
     activationCost:
-      luck: 2
+      luck: 1
     activateActions:
       - game-add! 'cash random .. 1 6
+
+  - name: Cinema
+    flavor: At the end of your turn, choose a card from the street to put on top of your deck.
+    buildCost:
+      cash: 6
+      influence: 6
+    canActivate: false
+    initActions:
+      - fx-add! --event 'turn-end --lifetime 'game '(if-false empty? $street '(pile-move-to! --pos 'front $deck (choose --required _ $street 1)))
+
+  - name: Pawn Shop
+    flavor: Reroll the shop with cards you own.
+    buildCost:
+      cash: 3
+      influence: 3
+    activationCost:
+      luck: 1
+    activateActions:
+      - set '$cardnames (map $owned-cards '(card-get $it 'name))
+      - shop-reroll! '(in? $cardnames (card-get $card 'name))
+
+  - name: Flea Market
+    flavor: Jail a card you own. Get a random card one Tier higher.
+    buildCost:
+      cash: 3
+      influence: 3
+    activationCost:
+      cash: 1
+    activateActions:
+      - set '$cardtoreplace (single (choose-across-piles "Choose a card to jail." $owned-cards 1))
+      - set '$newtier min $tier5 (+ 1 card-get $cardtoreplace 'tier)
+      - pile-move-to! $jail $cardtoreplace
+      - set '$all-tier-cards (filter $card-list '(= $newtier (card-get $it 'tier)))
+  # Force a choose screen so that the player can see what card they got
+      - "set '$random-tier-card (choose --prompt \"Your new card is:\" --required _ (take --from 'random $all-tier-cards 1) 1)"
+      - pile-copy-to! $street $random-tier-card
+
+# Swanky Ballroom: has VP equal to your Influence
+
+  - name: Gleaming Skyscraper
+    flavor: Whenever you play a Thief, this gains *.
+    buildCost:
+      cash: 9
+      influence: 9
+    canActivate: false
+    initActions:
+      - fx-add! --desc (icon-convert "Gain * whenever you play a Thief.") --data (card-get $this 'id) '(if-true (card-has-type? $card 'thief) '(card-add! card-with-id $data 'vp 1))
+
+
+  - name: Counterfeiting Press
+    flavor: Get a copy of a Treasure you own of Tier 3 or lower.
+    buildCost:
+      cash: 6
+      influence: 6
+    activationCost:
+      cash: 3
+      luck: 1
+    activateActions:
+      - set '$treasures filter $owned-cards '(card-has-type? $it 'treasure)
+      - set '$low-tier-treasures filter $treasures '(lte? card-get $it 'tier 2)
+      - cancel-if! empty? $low-tier-treasures
+      - set '$copied-card (choose --prompt "Choose a Treasure to copy." $low-tier-treasures 1)
+      - pile-copy-to! $street $copied-card
