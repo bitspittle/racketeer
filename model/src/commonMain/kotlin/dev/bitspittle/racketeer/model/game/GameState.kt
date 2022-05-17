@@ -53,6 +53,34 @@ interface GameState {
     fun canActivate(building: Building): Boolean
 }
 
+object GameStateStub : GameState {
+    override val random get() = throw NotImplementedError()
+    override val numTurns: Int get() = throw NotImplementedError()
+    override val turn: Int get() = throw NotImplementedError()
+    override val cash: Int get() = throw NotImplementedError()
+    override val influence: Int get() = throw NotImplementedError()
+    override val luck: Int get() = throw NotImplementedError()
+    override val vp: Int get() = throw NotImplementedError()
+    override val handSize: Int get() = throw NotImplementedError()
+    override val shop: Shop get() = throw NotImplementedError()
+    override val deck: Pile get() = throw NotImplementedError()
+    override val hand: Pile get() = throw NotImplementedError()
+    override val street: Pile get() = throw NotImplementedError()
+    override val discard: Pile get() = throw NotImplementedError()
+    override val jail: Pile get() = throw NotImplementedError()
+    override val graveyard: Pile get() = throw NotImplementedError()
+    override val blueprints: List<Blueprint> get() = throw NotImplementedError()
+    override val buildings: List<Building> get() = throw NotImplementedError()
+    override val effects: Effects get() = throw NotImplementedError()
+    override val history: List<GameStateChange> get() = throw NotImplementedError()
+
+    override suspend fun onBoardChanged() = throw NotImplementedError()
+    override suspend fun apply(change: GameStateChange) = throw NotImplementedError()
+    override fun copy() = throw NotImplementedError()
+    override fun pileFor(card: Card) = throw NotImplementedError()
+    override fun canActivate(building: Building) = throw NotImplementedError()
+}
+
 val GameState.lastTurnIndex get() = numTurns - 1
 val GameState.hasGameStarted get() = !(turn == 0 && history.isEmpty() && getOwnedCards().all { pileFor(it) == deck })
 val GameState.isGameOver get() = history.lastOrNull() is GameStateChange.GameOver

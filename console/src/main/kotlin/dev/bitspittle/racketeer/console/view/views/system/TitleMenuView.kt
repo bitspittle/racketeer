@@ -17,6 +17,7 @@ import dev.bitspittle.racketeer.console.game.version
 import dev.bitspittle.racketeer.console.user.CardStats
 import dev.bitspittle.racketeer.console.user.Settings
 import dev.bitspittle.racketeer.console.user.inAdminModeAndShowDebugInfo
+import dev.bitspittle.racketeer.console.utils.createNewGame
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.console.view.ViewStack
 import dev.bitspittle.racketeer.console.view.views.game.play.PreDrawView
@@ -24,7 +25,7 @@ import dev.bitspittle.racketeer.model.action.ActionQueue
 import dev.bitspittle.racketeer.model.action.Enqueuers
 import dev.bitspittle.racketeer.model.action.ExprCache
 import dev.bitspittle.racketeer.model.game.GameData
-import dev.bitspittle.racketeer.model.game.MutableGameState
+import dev.bitspittle.racketeer.model.game.GameStateStub
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.types.CardEnqueuerImpl
 import dev.bitspittle.racketeer.scripting.types.BuildingEnqueuerImpl
@@ -56,7 +57,7 @@ class TitleMenuView(
             settings,
             cardStats,
             Describer(data, showDebugInfo = { settings.inAdminModeAndShowDebugInfo }),
-            MutableGameState(data, enqueuers),
+            GameStateStub,
             env,
             enqueuers,
             viewStack,
@@ -86,6 +87,7 @@ class TitleMenuView(
                 override val title = "New Game"
                 override val description = "Command your cronies, expand your turf, and become the most powerful crime boss in the city. Start a new game!"
                 override suspend fun invoke(): Boolean {
+                    ctx.state = ctx.createNewGame()
                     if (!ctx.app.userData.pathForSlot(QUICKSAVE_SLOT).exists()) {
                         ctx.viewStack.replaceView(PreDrawView(ctx))
                     } else {

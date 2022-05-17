@@ -4,12 +4,11 @@ import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.notifyOwnership
 import dev.bitspittle.racketeer.console.view.views.game.play.PreDrawView
-import dev.bitspittle.racketeer.model.game.GameStateChange
-import dev.bitspittle.racketeer.model.game.GameStateDiff
-import dev.bitspittle.racketeer.model.game.getOwnedCards
-import dev.bitspittle.racketeer.model.game.reportTo
+import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import dev.bitspittle.racketeer.scripting.types.CancelPlayException
+
+fun GameContext.createNewGame() = MutableGameState(data, enqueuers)
 
 /**
  * Run some actions that are expected to change the game state somehow and, if so, report it.

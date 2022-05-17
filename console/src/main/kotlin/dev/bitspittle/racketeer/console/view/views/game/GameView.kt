@@ -12,14 +12,14 @@ import dev.bitspittle.racketeer.console.view.views.game.play.GameSummaryView
 import dev.bitspittle.racketeer.console.view.views.game.play.PlayCardsView
 import dev.bitspittle.racketeer.console.view.views.game.play.PreDrawView
 import dev.bitspittle.racketeer.console.view.views.system.OptionsMenuView
-import dev.bitspittle.racketeer.console.view.views.system.TitleMenuView
-import dev.bitspittle.racketeer.model.game.allPiles
+import dev.bitspittle.racketeer.model.game.GameStateStub
+import dev.bitspittle.racketeer.model.game.hasGameStarted
 
 abstract class GameView(val ctx: GameContext) : View(ctx.settings, ctx.viewStack, ctx.app) {
     protected open val allowEsc: Boolean = true
     protected open val allowBrowseCards: Boolean = true
 
-    private fun hasGameStarted() = ctx.state.allPiles.any { it.cards.isNotEmpty() }
+    private fun hasGameStarted() = ctx.state !== GameStateStub && ctx.state.hasGameStarted
 
     private fun allowAdminAccess(): Boolean {
         if (!hasGameStarted()) return false
@@ -70,7 +70,7 @@ abstract class GameView(val ctx: GameContext) : View(ctx.settings, ctx.viewStack
 
         val state = ctx.state
 
-        if (!ctx.viewStack.contains { view -> view is TitleMenuView }) {
+        if (ctx.state !== GameStateStub) {
             textLine(
                 "${ctx.describer.describeCash(state.cash)} ${ctx.describer.describeInfluence(state.influence)} ${
                     ctx.describer.describeLuck(

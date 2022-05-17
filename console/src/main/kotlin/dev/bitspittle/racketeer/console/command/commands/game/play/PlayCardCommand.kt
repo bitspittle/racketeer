@@ -1,10 +1,9 @@
 package dev.bitspittle.racketeer.console.command.commands.game.play
 
-import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
+import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.utils.runStateChangingAction
 import dev.bitspittle.racketeer.model.game.GameStateChange
-import dev.bitspittle.racketeer.model.game.getOwnedCards
 
 class PlayCardCommand(ctx: GameContext, private val handIndex: Int) : Command(ctx) {
     override val type get() = if (ctx.enqueuers.actionQueue.isRunning) Type.Blocked else Type.Emphasized
