@@ -1,6 +1,9 @@
 package dev.bitspittle.racketeer.model.game
 
 import dev.bitspittle.limp.types.ListStrategy
+import dev.bitspittle.racketeer.model.building.Building
+import dev.bitspittle.racketeer.model.building.BuildingProperty
+import dev.bitspittle.racketeer.model.building.MutableBuilding
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
@@ -95,6 +98,17 @@ sealed class GameStateChange {
     class UpgradeCard(val card: Card, val upgradeType: UpgradeType) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             (card as MutableCard).upgrades.add(upgradeType)
+        }
+    }
+
+    class AddBuildingAmount(val property: BuildingProperty, val building: Building, val amount: Int) : GameStateChange() {
+        override suspend fun MutableGameState.apply() {
+            when (property) {
+                BuildingProperty.COUNTER -> (building as MutableBuilding).counter += amount
+                BuildingProperty.VP -> (building as MutableBuilding).vpBase += amount
+                BuildingProperty.VP_PASSIVE -> (building as MutableBuilding).vpPassive += amount
+                else -> error("Can't change read-only building property $property")
+            }
         }
     }
 

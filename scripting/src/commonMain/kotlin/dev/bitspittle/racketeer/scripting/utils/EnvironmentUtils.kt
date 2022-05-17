@@ -10,6 +10,8 @@ import dev.bitspittle.racketeer.model.game.allCards
 import dev.bitspittle.racketeer.model.game.getOwnedCards
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.converters.MutablePileToCardsConverter
+import dev.bitspittle.racketeer.scripting.methods.building.BuildingGetMethod
+import dev.bitspittle.racketeer.scripting.methods.building.BuildingSetMethod
 import dev.bitspittle.racketeer.scripting.methods.card.*
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseMethod
 import dev.bitspittle.racketeer.scripting.methods.effect.FxAddMethod
@@ -56,6 +58,30 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(CardTriggerMethod(service.enqueuers.card, service::gameState))
     addMethod(CardPileMethod(service::gameState))
     storeValue("\$card-list", service.gameData.cards)
+    addMethod(object : Method("\$owned-cards", 0) {
+        override suspend fun invoke(
+            env: Environment,
+            eval: Evaluator,
+            params: List<Any>,
+            options: Map<String, Any>,
+            rest: List<Any>
+        ): Any {
+            return service.gameState.getOwnedCards().toList()
+        }
+    })
+
+    addMethod(object : Method("\$all-cards", 0) {
+        override suspend fun invoke(
+            env: Environment,
+            eval: Evaluator,
+            params: List<Any>,
+            options: Map<String, Any>,
+            rest: List<Any>
+        ): Any {
+            return service.gameState.allCards.toList()
+        }
+    })
+
 
     // Pile
     addConverter(MutablePileToCardsConverter())
@@ -71,6 +97,24 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(ShopRerollMethod(service::gameState))
     addMethod(ShopExcludeMethod(service::gameState))
     (0..4).forEach { i -> storeValue("\$tier${i + 1}", i) }
+
+    // Buildings
+    addMethod(BuildingGetMethod())
+    addMethod(BuildingSetMethod(service::gameState))
+    addMethod(object : Method("\$unowned-blueprints", 0) {
+        override suspend fun invoke(
+            env: Environment,
+            eval: Evaluator,
+            params: List<Any>,
+            options: Map<String, Any>,
+            rest: List<Any>
+        ): Any {
+            val state = service.gameState
+            return service.gameData.blueprints.filterNot { blueprint ->
+                state.blueprints.contains(blueprint) || state.blueprints.any { it === blueprint }
+            }
+        }
+    })
 
     // Text
     addMethod(IconConvertMethod(service.describer))
@@ -93,31 +137,8 @@ fun Environment.setValuesFrom(state: GameState) {
 
     storeValue("\$shop", state.shop.stock.filterNotNull(), allowOverwrite = true)
 
-    // Make $owned a method instead of a variable because what's owned or not might change in the middle of a card's
-    // actions being executed.
-    addMethod(object : Method("\$owned-cards", 0) {
-        override suspend fun invoke(
-            env: Environment,
-            eval: Evaluator,
-            params: List<Any>,
-            options: Map<String, Any>,
-            rest: List<Any>
-        ): Any {
-            return state.getOwnedCards().toList()
-        }
-    }, allowOverwrite = true)
-
-    addMethod(object : Method("\$all-cards", 0) {
-        override suspend fun invoke(
-            env: Environment,
-            eval: Evaluator,
-            params: List<Any>,
-            options: Map<String, Any>,
-            rest: List<Any>
-        ): Any {
-            return state.allCards.toList()
-        }
-    }, allowOverwrite = true)
+    storeValue("\$buildings", state.buildings)
+    storeValue("\$owned-blueprints", state.blueprints)
 }
 
 /**

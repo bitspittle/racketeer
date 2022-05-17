@@ -4,6 +4,8 @@ package dev.bitspittle.racketeer.model.serialization
 
 import com.benasher44.uuid.Uuid
 import dev.bitspittle.limp.types.ListStrategy
+import dev.bitspittle.racketeer.model.building.Building
+import dev.bitspittle.racketeer.model.building.BuildingProperty
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardProperty
 import dev.bitspittle.racketeer.model.card.UpgradeType
@@ -23,6 +25,16 @@ class CardPtr(val id: Uuid, val name: String) {
     }
 
     fun findIn(state: GameState) = state.allCards.first { it.id == id }
+}
+
+// We don't technically need to save the name, but it's useful for humans browsing the file.
+@Serializable
+class BuildingPtr(val id: Uuid, val name: String) {
+    companion object {
+        fun from(building: Building) = BuildingPtr(building.id, building.blueprint.name)
+    }
+
+    fun findIn(state: GameState) = state.buildings.first { it.id == id }
 }
 
 // We don't technically need to save the name, but it's useful for humans browsing the file.
@@ -50,6 +62,7 @@ sealed class GameChangeSnapshot {
             is GameStateChange.Shuffle -> Shuffle.from(describer, state, change)
             is GameStateChange.AddCardAmount -> AddCardAmount.from(change)
             is GameStateChange.UpgradeCard -> UpgradeCard.from(change)
+            is GameStateChange.AddBuildingAmount -> AddBuildingAmount.from(change)
             is GameStateChange.AddGameAmount -> AddGameAmount.from(change)
             is GameStateChange.AddEffect -> AddEffect.from(change)
             is GameStateChange.AddShopExclusion -> AddShopExclusion.from(change)
@@ -158,6 +171,18 @@ sealed class GameChangeSnapshot {
             fun from(change: GameStateChange.UpgradeCard) = UpgradeCard(CardPtr.from(change.card), change.upgradeType)
         }
         override fun create(state: GameState) = GameStateChange.UpgradeCard(cardPtr.findIn(state), upgradeType)
+    }
+
+    @Serializable
+    @SerialName("AddBuildingAmount")
+    class AddBuildingAmount(val property: BuildingProperty, val buildingPtr: BuildingPtr, val amount: Int) : GameChangeSnapshot() {
+        companion object {
+            fun from(change: GameStateChange.AddBuildingAmount) =
+                AddBuildingAmount(change.property, BuildingPtr.from(change.building), change.amount)
+        }
+
+        override fun create(state: GameState) =
+            GameStateChange.AddBuildingAmount(property, buildingPtr.findIn(state), amount)
     }
 
     @Serializable

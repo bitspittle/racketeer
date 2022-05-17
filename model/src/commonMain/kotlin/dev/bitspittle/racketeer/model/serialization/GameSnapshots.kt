@@ -56,12 +56,16 @@ class CardSnapshot(
 class BuildingSnapshot(
     val id: Uuid,
     val name: String,
+    val vpBase: Int,
+    val counter: Int,
     val isActivated: Boolean,
 ) {
     companion object {
         fun from(building: Building) = BuildingSnapshot(
             building.id,
             building.blueprint.name,
+            building.vpBase,
+            building.counter,
             building.isActivated
         )
     }
@@ -69,6 +73,9 @@ class BuildingSnapshot(
     fun create(data: GameData) = MutableBuilding(
         BlueprintSnapshot(name).create(data),
         id,
+        vpBase = vpBase,
+        vpPassive = 0, // Will be calculated later
+        counter,
         isActivated
     )
 }
