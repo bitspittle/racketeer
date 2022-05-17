@@ -20,6 +20,7 @@ sealed class GameStateChange {
     class ShuffleDiscardIntoDeck : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             move(discard.cards.shuffled(random()), deck)
+            effects.processPileShuffed(deck)
         }
     }
 
