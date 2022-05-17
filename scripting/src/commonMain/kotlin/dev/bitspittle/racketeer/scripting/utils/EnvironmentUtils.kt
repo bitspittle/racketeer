@@ -137,8 +137,8 @@ fun Environment.setValuesFrom(state: GameState) {
 
     storeValue("\$shop", state.shop.stock.filterNotNull(), allowOverwrite = true)
 
-    storeValue("\$buildings", state.buildings)
-    storeValue("\$owned-blueprints", state.blueprints)
+    storeValue("\$buildings", state.buildings, allowOverwrite = true)
+    storeValue("\$owned-blueprints", state.blueprints, allowOverwrite = true)
 }
 
 /**
