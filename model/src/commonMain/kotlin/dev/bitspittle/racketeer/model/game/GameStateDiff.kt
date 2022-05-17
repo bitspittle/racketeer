@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.model.game
 
 import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.limp.types.Logger
+import dev.bitspittle.racketeer.model.building.BuildingProperty
 import dev.bitspittle.racketeer.model.card.CardProperty
 import dev.bitspittle.racketeer.model.text.Describer
 
@@ -122,8 +123,33 @@ private class GameStateDiffReporter(
         reportLine("${card.template.name} was upgraded, adding: ${describer.describeUpgradeTitle(upgradeType, icons = false)}.")
     }
 
+    private fun StringBuilder.report(change: GameStateChange.AddBuildingAmount) = change.apply {
+        val name = building.blueprint.name
+        when (property) {
+            BuildingProperty.COUNTER -> {
+                when {
+                    amount > 0 -> reportLine("$name added $amount counter(s).")
+                    amount < 0 -> reportLine("$name removed ${-amount} counter(s).")
+                }
+            }
+            BuildingProperty.VP -> {
+                when {
+                    amount > 0 -> reportLine("$name added ${describer.describeVictoryPoints(amount)}.")
+                    amount < 0 -> reportLine("$name lost ${describer.describeVictoryPoints(-amount)}.")
+                }
+            }
+            BuildingProperty.VP_PASSIVE -> {
+                when {
+                    amount > 0 -> reportLine("$name increased by ${describer.describeVictoryPoints(amount)}.")
+                    amount < 0 -> reportLine("$name decreased by ${describer.describeVictoryPoints(-amount)}.")
+                }
+            }
+            else -> error("Unexpected building property: ${property}.")
+        }
+    }
+
     private fun StringBuilder.report(change: GameStateChange.AddEffect) = change.apply {
-        reportLine("You added the following effect onto the street:\n  ${effect.desc}")
+        reportLine("You added the following effect onto the street:\n  ${effect.desc ?: ("⚠️ " + effect.expr)}")
     }
 
     private fun StringBuilder.report(change: GameStateChange.RestockShop) = change.apply {
@@ -132,6 +158,11 @@ private class GameStateDiffReporter(
 
     private fun StringBuilder.report(change: GameStateChange.UpgradeShop) = change.apply {
         reportLine("The shop was upgraded.")
+    }
+
+    private fun StringBuilder.report(change: GameStateChange.Build) = change.apply {
+        val blueprint = diff.before.blueprints[change.blueprintIndex]
+        reportLine("${blueprint.name} was built.")
     }
 
     fun reportTo(logger: Logger) {
@@ -167,11 +198,14 @@ private class GameStateDiffReporter(
                     is GameStateChange.Shuffle -> report(change)
                     is GameStateChange.AddCardAmount -> report(change)
                     is GameStateChange.UpgradeCard -> report(change)
+                    is GameStateChange.AddBuildingAmount -> report(change)
                     is GameStateChange.AddGameAmount -> Unit // Reported below, in aggregate
                     is GameStateChange.AddEffect -> report(change)
                     is GameStateChange.AddShopExclusion -> Unit // Background magic, should be invisible to the user
                     is GameStateChange.RestockShop -> report(change)
                     is GameStateChange.UpgradeShop -> report(change)
+                    is GameStateChange.Build -> report(change)
+                    is GameStateChange.Activate -> Unit // No need to report, obvious from user actions
                     is GameStateChange.EndTurn -> Unit // No need to report, obvious from user actions
                     is GameStateChange.GameOver -> Unit // Marker game state, no need to report
                 }
