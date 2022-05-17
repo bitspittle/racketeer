@@ -11,7 +11,7 @@ import dev.bitspittle.racketeer.model.building.Building
 class ViewBuildingCommand(ctx: GameContext, private val building: Building) : Command(ctx) {
     private val canActivate = ctx.state.canActivate(building)
     override val type: Type = when {
-        canActivate && building.canAffordActivationCost(ctx.state) -> Type.Normal
+        !building.isActivated && canActivate && building.canAffordActivationCost(ctx.state) -> Type.Normal
         else -> Type.Disabled
     }
     override val title = ctx.describer.describeBuilding(building, concise = true)
