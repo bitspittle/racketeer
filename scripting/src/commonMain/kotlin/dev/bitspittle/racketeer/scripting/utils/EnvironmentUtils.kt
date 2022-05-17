@@ -115,7 +115,7 @@ fun Environment.installGameLogic(service: GameService) {
             rest: List<Any>
         ): Any {
             val state = service.gameState
-            return service.gameData.blueprints.filterNot { it.isOwned(state) }
+            return service.gameData.blueprints.filterNot { it.isOwned(state) }.sortedBy { it.name }
         }
     })
 
