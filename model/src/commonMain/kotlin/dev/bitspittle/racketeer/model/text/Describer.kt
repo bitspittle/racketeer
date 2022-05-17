@@ -350,6 +350,9 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
                 if (showActivatedState) {
                     appendLine("Activated this turn? " + if (building.isActivated) "Yes" else "No")
                 }
+                if (building.counter > 0) {
+                    appendLine("Counters: ${building.counter}")
+                }
 
                 appendLine()
 
