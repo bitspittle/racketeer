@@ -104,6 +104,8 @@ globalActions:
   - def 'game-sub! '$property '$amount '(game-set! $property '(- $it $amount))
   - def 'card-add! '$card '$property '$amount '(card-set! $card $property '(+ $it $amount))
   - def 'card-sub! '$card '$property '$amount '(card-set! $card $property '(- $it $amount))
+  - def 'building-add! '$bldg '$property '$amount '(building-set! $bldg $property '(+ $it $amount))
+  - def 'building-sub! '$bldg '$property '$amount '(building-set! $bldg $property '(- $it $amount))
   - def 'if-true '$cond '$expr '(if $cond $expr _)
   - def 'if-false '$cond '$expr '(if $cond _ $expr)
   - def 'stop-if! '$cond '(if $cond '(stop!) _)
@@ -117,6 +119,7 @@ globalActions:
   - def 'card-has-any-upgrade? '$card '(gt? (card-upgrade-count $card) 0)
   - def 'card-named '$name '(single --matching '(= card-get $it 'name $name) $card-list)
   - def 'card-with-id '$id '(single --matching '(= card-get $it 'id $id) $all-cards)
+  - def 'building-with-id '$id '(single --matching '(= building-get $it 'id $id) $buildings)
   - def 'compare-by-index '$list '$a '$b '(compare index-of $list $a index-of $list $b)
   - def 'pile-compare '$pileA '$pileB '(compare-by-index (list $hand $deck $discard $street $jail) $pileA $pileB)
   - def 'choose-across-piles '$prompt '$cards '$count '(run '(cancel-if! empty? $cards) '(choose --format $fmt-card-with-pile --prompt $prompt (sorted --with '(pile-compare card-pile $a card-pile $b) (sorted $cards)) $count))
@@ -975,12 +978,13 @@ cards:
 
 blueprints:
   - name: Wine Cellar
-    flavor: This gains * every turn.
+    flavor: This gains * at the start of every turn.
     buildCost:
       cash: 2
       influence: 2
+    canActivate: false # Passive building
     initActions:
-      - fx-add! --lifetime 'game --event 'turn-start --data $this '(location-add! $data 'vp 1)
+      - fx-add! --lifetime 'game --event 'turn-start --data (building-get $this 'id) '(building-add! building-with-id $data 'vp 1)
 
   - name: City Hall
     flavor: Gain 4&.
