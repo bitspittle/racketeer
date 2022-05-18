@@ -1,6 +1,7 @@
 package dev.bitspittle.racketeer.model.building
 
 enum class BuildingProperty {
+    BLUEPRINT,
     COUNTER,
     ID,
     IS_ACTIVATED,

@@ -27,6 +27,7 @@ class BuildingGetMethod : Method("building-get", 2) {
         val property = identifier.toEnum(BuildingProperty.values())
 
         return when (property) {
+            BuildingProperty.BLUEPRINT -> building.blueprint
             BuildingProperty.COUNTER -> building.counter
             BuildingProperty.ID -> building.id.toString() // Strings rae easier to work with / pass around
             BuildingProperty.IS_ACTIVATED -> building.isActivated

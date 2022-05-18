@@ -41,6 +41,7 @@ class BuildingSetMethod(private val getGameState: () -> GameState) : Method("bui
                 BuildingProperty.VP -> building.vpBase
                 BuildingProperty.VP_PASSIVE -> building.vpPassive
 
+                BuildingProperty.BLUEPRINT,
                 BuildingProperty.IS_ACTIVATED,
                 BuildingProperty.ID,
                 BuildingProperty.NAME,
