@@ -21,7 +21,8 @@ class SaveGameCommand(ctx: GameContext, private val slot: Int) : Command(ctx) {
             writeText(ctx.encodeToYaml())
         }
         // While we're here, save card stats too
-        ctx.cardStats.values.saveInto(ctx.app.userDataDir)
+        ctx.userStats.cards.values.saveInto(ctx.app.userDataDir)
+        ctx.userStats.buildings.values.saveInto(ctx.app.userDataDir)
 
         if (slot >= 0) {
             ctx.app.logger.info("Slot #${slot + 1} successfully " + (if (overwritten) "overwritten" else "saved") + "!")

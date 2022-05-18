@@ -14,9 +14,7 @@ import dev.bitspittle.limp.types.LangService
 import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.limp.utils.installDefaults
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataDir
-import dev.bitspittle.racketeer.console.user.CardStats
-import dev.bitspittle.racketeer.console.user.Settings
-import dev.bitspittle.racketeer.console.user.inAdminModeAndShowDebugInfo
+import dev.bitspittle.racketeer.console.user.*
 import dev.bitspittle.racketeer.console.utils.DriveUploadService
 import dev.bitspittle.racketeer.console.utils.UploadService
 import dev.bitspittle.racketeer.console.utils.UploadThrottleCategory
@@ -120,8 +118,6 @@ class GameSession(
 
         val viewStack = ViewStackImpl()
 
-        val cardStats = CardStats.loadFrom(userDataDir) ?: emptyList()
-
         val exprCache = ExprCache()
         // Compile early to suss out any syntax errors at startup time instead of runtime
         gameData.cards.flatMap { it.initActions }.forEach { exprCache.parse(it) }
@@ -133,9 +129,6 @@ class GameSession(
         gameData.blueprints.map { it.canActivate }.filter { it.isNotBlank() }.forEach { exprCache.parse(it) }
 
         val ctx = run {
-            @Suppress("NAME_SHADOWING")
-            val cardStats = cardStats.associateBy { it.name }.toMutableMap()
-
             val actionQueue = ActionQueue()
             val enqueuers = Enqueuers(
                 actionQueue,
@@ -146,7 +139,7 @@ class GameSession(
             GameContext(
                 gameData,
                 settings,
-                cardStats,
+                UserStats.loadFrom(userDataDir),
                 Describer(gameData, showDebugInfo = { settings.inAdminModeAndShowDebugInfo }),
                 GameStateStub,
                 env,

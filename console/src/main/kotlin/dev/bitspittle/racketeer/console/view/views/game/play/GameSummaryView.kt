@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter
 
 class GameSummaryView(ctx: GameContext) : View(ctx) {
     init {
-        ctx.cardStats.values.saveInto(ctx.app.userDataDir)
+        ctx.userStats.cards.values.saveInto(ctx.app.userDataDir)
 
         // Admins might be playing with broken in progress cards. Don't save their data!
         if (!ctx.settings.admin.enabled) {

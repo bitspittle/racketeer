@@ -26,6 +26,7 @@ class UserDataDir(appName: String) {
     fun pathForSlot(slot: Int) = path.resolve(if (slot >= 0) "savegame.$slot.yaml" else "quicksave.yaml")
 
     fun pathForCardStats() = path.resolve("cardstats.yaml")
+    fun pathForBuildingStats() = path.resolve("bldgstats.yaml")
     fun pathForSettings() = path.resolve("settings.yaml")
 
     fun modifiedTime(slot: Int): String {

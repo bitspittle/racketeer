@@ -56,7 +56,7 @@ class CardListView(ctx: GameContext, private var sortingOrder: SortingOrder = So
         }
     }
 
-    private val numCardsUsed = ctx.data.cards.count { ctx.cardStats.contains(it.name) }
+    private val numCardsUsed = ctx.data.cards.count { ctx.userStats.cards.contains(it.name) }
     override fun MainRenderScope.renderContentUpper() {
         yellow { textLine("You have discovered $numCardsUsed out of ${ctx.data.cards.size} cards.") }
         textLine()

@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.console.utils
 
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.game.notifyBuilt
 import dev.bitspittle.racketeer.console.game.notifyOwnership
 import dev.bitspittle.racketeer.console.view.views.game.play.PreDrawView
 import dev.bitspittle.racketeer.model.game.*
@@ -27,26 +28,30 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
                 GameStateDiff(prevState, nextState).reportTo(describer, app.logger)
             }
 
-            // Notify ownership if a card ever goes from being unowned (in the previous state of the game) to
-            // owned now, by checking relevant game state changes that move cards into the game
-            state.history.forEach { change ->
+            // Update user stats based on new history
+            state.history.drop(prevState.history.size).forEach { change ->
                 when (change) {
                     is GameStateChange.GameStarted -> {
-                        state.getOwnedCards().forEach { card -> cardStats.notifyOwnership(card) }
+                        // Add ownership stats for the default cards you get (e.g. Pickpockets etc.)
+                        state.getOwnedCards().forEach { card -> userStats.cards.notifyOwnership(card) }
                     }
                     is GameStateChange.MoveCard -> {
                         if (prevState.pileFor(change.card) == null) {
-                            cardStats.notifyOwnership(change.card)
+                            userStats.cards.notifyOwnership(change.card)
                         }
                     }
                     is GameStateChange.MoveCards -> {
                         change.cards.forEach { card ->
                             if (prevState.pileFor(card) == null) {
-                                cardStats.notifyOwnership(card)
+                                userStats.cards.notifyOwnership(card)
                             }
                         }
                     }
-                    else -> Unit // Doesn't affect card stats
+                    is GameStateChange.Build -> {
+                        val blueprint = prevState.blueprints[change.blueprintIndex]
+                        userStats.buildings.notifyBuilt(blueprint)
+                    }
+                    else -> Unit // Doesn't affect user stats
                 }
             }
         } catch (ex: Exception) {

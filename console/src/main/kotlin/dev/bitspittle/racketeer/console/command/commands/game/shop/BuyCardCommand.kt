@@ -11,7 +11,7 @@ import dev.bitspittle.racketeer.model.game.GameProperty
 import dev.bitspittle.racketeer.model.game.GameStateChange
 
 class BuyCardCommand(ctx: GameContext, private val card: Card) : Command(ctx) {
-    private val shouldMarkNew get() = !ctx.cardStats.contains(card.template.name)
+    private val shouldMarkNew get() = !ctx.userStats.cards.contains(card.template.name)
 
     override val type = if (ctx.state.cash >= card.template.cost) Type.Emphasized else Type.Disabled
 
