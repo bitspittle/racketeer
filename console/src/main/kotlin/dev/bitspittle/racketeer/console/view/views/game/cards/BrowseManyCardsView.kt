@@ -12,6 +12,7 @@ import dev.bitspittle.racketeer.console.command.commands.game.cards.ViewCardComm
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.card.vpTotal
 
 /** A browse view for a large list of cards that you can sort and filter in different ways */
 class BrowseManyCardsView(ctx: GameContext, cards: List<Card>) : View(ctx) {
@@ -19,6 +20,7 @@ class BrowseManyCardsView(ctx: GameContext, cards: List<Card>) : View(ctx) {
         NAME,
         TIER,
         PILE,
+        VICTORY_POINTS,
     }
 
     // Always sort the cards at least by name a bit, to avoid giving away meaningful order information. For other
@@ -32,6 +34,8 @@ class BrowseManyCardsView(ctx: GameContext, cards: List<Card>) : View(ctx) {
     override fun createCommands() = when (sortingOrder) {
         SortingOrder.PILE -> cards.sortedBy { card -> pileNames.getValue(card) }
         SortingOrder.TIER -> cards.sortedBy { it.template.tier }
+        // For cards with same VP total and same name, sort by pile
+        SortingOrder.VICTORY_POINTS -> cards.sortedBy { card -> pileNames.getValue(card) }.sortedByDescending { it.vpTotal }
         SortingOrder.NAME -> cards
     }.filter { card ->
         if (typeFilter == null) true else card.template.types.any { it.equals(typeFilter, ignoreCase = true) }
@@ -40,7 +44,7 @@ class BrowseManyCardsView(ctx: GameContext, cards: List<Card>) : View(ctx) {
             ctx, card, when (sortingOrder) {
                 SortingOrder.NAME -> null
                 SortingOrder.TIER -> "(Tier ${card.template.tier + 1})"
-                SortingOrder.PILE -> "(${pileNames.getValue(card)})"
+                SortingOrder.PILE, SortingOrder.VICTORY_POINTS -> "(${pileNames.getValue(card)})"
             }
         )
     }
@@ -51,7 +55,7 @@ class BrowseManyCardsView(ctx: GameContext, cards: List<Card>) : View(ctx) {
         })
 
     override fun MainRenderScope.renderContentUpper() {
-        textLine("Sorted by: ${sortingOrder.name.lowercase().capitalize()}")
+        textLine("Sorted by: ${sortingOrder.name.replace('_', ' ').lowercase().capitalize()}")
         textLine("Filtered by: ${typeFilter ?: "(No filter)"}")
         textLine()
     }
@@ -60,6 +64,7 @@ class BrowseManyCardsView(ctx: GameContext, cards: List<Card>) : View(ctx) {
         text("Press "); cyan { text("1") }; textLine( " to sort by name.")
         text("Press "); cyan { text("2") }; textLine( " to sort by tier.")
         text("Press "); cyan { text("3") }; textLine( " to sort by pile.")
+        text("Press "); cyan { text("4") }; textLine( " to sort by victory points.")
         text("Press "); cyan { text("LEFT") }; text(" and "); cyan { text("RIGHT") }; textLine( " to change the current type filter.")
     }
 
@@ -68,6 +73,7 @@ class BrowseManyCardsView(ctx: GameContext, cards: List<Card>) : View(ctx) {
             Keys.DIGIT_1 -> sortingOrder = SortingOrder.NAME
             Keys.DIGIT_2 -> sortingOrder = SortingOrder.TIER
             Keys.DIGIT_3 -> sortingOrder = SortingOrder.PILE
+            Keys.DIGIT_4 -> sortingOrder = SortingOrder.VICTORY_POINTS
             Keys.LEFT -> typeFilter = typeFilters[(typeFilters.indexOf(typeFilter) - 1 + typeFilters.size) % typeFilters.size]
             Keys.RIGHT -> typeFilter = typeFilters[(typeFilters.indexOf(typeFilter) + 1) % typeFilters.size]
             else -> return false
