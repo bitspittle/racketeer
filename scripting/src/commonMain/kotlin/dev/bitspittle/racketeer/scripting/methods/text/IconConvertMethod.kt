@@ -14,6 +14,8 @@ class IconConvertMethod(private val describer: Describer) : Method("icon-convert
         rest: List<Any>
     ): Any {
         val text = env.expectConvert<String>(params[0])
-        return describer.convertIcons(text)
+        val expand = options["expand"]?.let { env.expectConvert(it) } ?: true
+
+        return if (expand) describer.convertIcons(text) else describer.convertIcons(text, maxExpand = 0)
     }
 }

@@ -16,16 +16,22 @@ private fun GameData.iconMappings() = mapOf(
 )
 
 class Describer(private val data: GameData, private val showDebugInfo: () -> Boolean) {
+    /**
+     * Run through some target [text] and convert some predefined ascii characters to emoji icons.
+     *
+     * @param maxExpand A numeric count for which it will be automatically expanded into a series of emoji values,
+     *   e.g. 3$ -> $$$, if `maxExpand` >= 3 (otherwise, it would be left as 3$)
+     */
     // Programmer's note: This method isn't very elegant, but it is usually fed pretty short strings which have
     // very few matches, so the actual amount of new strings we're churning out is few to none, and performance-wise,
     // we don't really have to worry about the inefficiency of running through short strings over and over.
-    fun convertIcons(text: String): String {
+    fun convertIcons(text: String, maxExpand: Int = 4): String {
         @Suppress("NAME_SHADOWING")
         var text = text
 
         val iconMappings = data.iconMappings()
 
-        for (i in 1..4) {
+        for (i in 1..maxExpand) {
             // Change something like 2% to %%, 4$ to $$$$
             for (asciiIcon in iconMappings.keys) {
                 // .. but don't match two digit numbers, e.g. 12$

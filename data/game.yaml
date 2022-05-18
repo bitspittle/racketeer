@@ -124,7 +124,8 @@ globalActions:
   - def 'pile-compare '$pileA '$pileB '(compare-by-index (list $hand $deck $discard $street $jail) $pileA $pileB)
   - def 'choose-across-piles '$prompt '$cards '$count '(run '(cancel-if! empty? $cards) '(choose --format $fmt-card-with-pile --prompt $prompt (sorted --with '(pile-compare card-pile $a card-pile $b) (sorted $cards)) $count))
   - set '$fmt-card-with-pile '(concat-to-string (list ";(" (pile-get (card-pile $it) 'name) ")"))
-  - set '$fmt-card-with-cash '(concat-to-string (list (card-get $it 'name) ";(" (card-get $it 'cost) (icon-convert "$") ")"))
+  - set '$fmt-card-with-cost '(concat-to-string (list (card-get $it 'name) ";(" (card-get $it 'cost) (icon-convert "$") ")"))
+  - set '$fmt-blueprint-with-cost '(icon-convert --expand false (concat-to-string (list (blueprint-get $it 'name) ";(" (blueprint-get $it 'build-cost-cash) "$ " (blueprint-get $it 'build-cost-influence) "&)")))
   - def 'buyable-card-list '(filter $card-list '(! (= 0 (card-get $it 'cost))))
 
 cards:
@@ -431,7 +432,7 @@ cards:
     playActions:
       - game-add! 'influence 3
       - stop-if! empty? $shop
-      - pile-move-to! $street (choose --format $fmt-card-with-cash --prompt "Choose a card to add to your deck." $shop 1)
+      - pile-move-to! $street (choose --format $fmt-card-with-cost --prompt "Choose a card to add to your deck." $shop 1)
       - pile-move-to! $jail $this
 
   - name: Gentleman Gerald
@@ -836,7 +837,7 @@ cards:
     flavor: Add a card from the shop to the street and a Constable to your hand.
     playActions:
       - stop-if! empty? $shop
-      - pile-move-to! $street (choose --format $fmt-card-with-cash --prompt "Choose a card to add to the street." $shop 1)
+      - pile-move-to! $street (choose --format $fmt-card-with-cost --prompt "Choose a card to add to the street." $shop 1)
       - pile-copy-to! $hand (card-named "Constable")
 
   - name: Gem Cutter
@@ -1054,7 +1055,7 @@ blueprints:
       influence: 1
     canActivate: false # Passive building
     initActions:
-      - blueprint-own! single choose --required _ (take --from 'random $unowned-blueprints 3) 1
+      - blueprint-own! single choose --format $fmt-blueprint-with-cost --required _ (take --from 'random $unowned-blueprints 3) 1
 
   - name: Interrogation Room
     flavor: At end of turn, jail one of two random cards you own.

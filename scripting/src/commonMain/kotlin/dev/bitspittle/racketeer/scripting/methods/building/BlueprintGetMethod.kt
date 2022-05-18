@@ -22,6 +22,8 @@ class BlueprintGetMethod : Method("blueprint-get", 2) {
         val property = identifier.toEnum(BlueprintProperty.values())
 
         return when (property) {
+            BlueprintProperty.BUILD_COST_CASH -> blueprint.buildCost.cash
+            BlueprintProperty.BUILD_COST_INFLUENCE -> blueprint.buildCost.influence
             BlueprintProperty.NAME -> blueprint.name
             BlueprintProperty.RARITY -> blueprint.rarity
             BlueprintProperty.VP -> blueprint.vp
