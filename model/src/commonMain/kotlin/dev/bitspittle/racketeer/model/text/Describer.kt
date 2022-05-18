@@ -280,7 +280,9 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
     }
 
     private fun StringBuilder.appendActivationCost(blueprint: Blueprint) {
-        appendLine("Activation cost: ${describeActivationCost(blueprint)}")
+        if (!blueprint.activationCost.isFree()) {
+            appendLine("Activation cost: ${describeActivationCost(blueprint)}")
+        }
     }
 
     private fun StringBuilder.appendBlueprintBody(blueprint: Blueprint) {
