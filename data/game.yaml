@@ -125,6 +125,7 @@ globalActions:
   - def 'choose-across-piles '$prompt '$cards '$count '(run '(cancel-if! empty? $cards) '(choose --format $fmt-card-with-pile --prompt $prompt (sorted --with '(pile-compare card-pile $a card-pile $b) (sorted $cards)) $count))
   - set '$fmt-card-with-pile '(concat-to-string (list ";(" (pile-get (card-pile $it) 'name) ")"))
   - set '$fmt-card-with-cash '(concat-to-string (list (card-get $it 'name) ";(" (card-get $it 'cost) (icon-convert "$") ")"))
+  - def 'buyable-card-list '(filter $card-list '(! (= 0 (card-get $it 'cost))))
 
 cards:
   # TIER 1
@@ -232,13 +233,11 @@ cards:
       - set '$cardtoreplace (single (choose --prompt "Choose a card to jail." $street 1))
       - set '$newtier (card-get $cardtoreplace 'tier)
       - pile-move-to! $jail $cardtoreplace
-      - set '$all-tier-cards (filter $card-list '(= $newtier (card-get $it 'tier)))
+      - set '$all-tier-cards (filter buyable-card-list '(= $newtier (card-get $it 'tier)))
       # We don't want to jail a card to simply replace it with itself, that doesn't feel fun
       - set '$most-tier-cards (filter $all-tier-cards '(! (= (card-get $cardtoreplace 'name) (card-get $it 'name))))
-      # Only "real" cards, no cost 0
-      - set '$some-tier-cards (filter $most-tier-cards '(! (= 0 (card-get $it 'cost))))
       # Force a choose screen so that the player can see what card they got
-      - "set '$random-tier-card (choose --prompt \"Your new card is:\" --required _ (take --from 'random $some-tier-cards 1) 1)"
+      - "set '$random-tier-card (choose --prompt \"Your new card is:\" --required _ (take --from 'random $most-tier-cards 1) 1)"
       - pile-copy-to! $street $random-tier-card
 
 
@@ -486,10 +485,9 @@ cards:
     flavor: Gain 3$. Add a random Legend to the street. Jail this card.
     playActions:
       - game-add! 'cash 3
-      - set '$all-legend-cards (filter $card-list '(card-has-type? $it 'legend))
-      - set '$most-legend-cards (filter $all-legend-cards '(! (= 0 (card-get $it 'cost))))
+      - set '$all-legend-cards (filter buyable-card-list '(card-has-type? $it 'legend))
       # Force a choose screen so that the player can see what card they got
-      - "set '$random-legend (choose --prompt \"Wanted: Dead or Alive\" --required _ (take --from 'random $most-legend-cards 1) 1)"
+      - "set '$random-legend (choose --prompt \"Wanted: Dead or Alive\" --required _ (take --from 'random $all-legend-cards 1) 1)"
       - pile-copy-to! $street $random-legend
       - pile-move-to! $jail $this
 
@@ -947,7 +945,6 @@ cards:
 #      - game-add! 'cash 2
 #      - fx-add! --desc (icon-convert "Gain * whenever you play a Pickpocket or Burglar.") --data (card-get $this 'id) '(if-true or? (= card-get $card 'name "Pickpocket") (= card-get $card 'name "Burglar") '(card-add! card-with-id $data 'vp 1))
 
-
   - name: Annie Doshen
     tier: 4
     rarity: 2
@@ -980,6 +977,18 @@ cards:
     playActions:
      - game-set! 'hand-size 7
      - card-remove! $this
+
+  - name: Real Estate Fraud
+    tier: 4
+    rarity: 2
+    types: [action]
+    cost: 7
+    flavor: When you get this, burn it and get a random blueprint.
+    initActions:
+      - shop-exclude! '(= card-get $card 'name "Real Estate Fraud")
+      - card-remove! $this
+      - blueprint-own! single take --from 'random $unowned-blueprints 1
+
 
   - name: Kingpin
     tier: 4
@@ -1220,10 +1229,9 @@ blueprints:
       - set '$cardtoreplace (single (choose-across-piles "Choose a card to jail." $owned-cards 1))
       - set '$newtier min $tier5 (+ 1 card-get $cardtoreplace 'tier)
       - pile-move-to! $jail $cardtoreplace
-      - set '$all-tier-cards (filter $card-list '(= $newtier (card-get $it 'tier)))
-      - set '$most-tier-cards (filter $all-tier-cards '(! (= 0 (card-get $it 'cost))))
+      - set '$all-tier-cards (filter buyable-card-list '(= $newtier (card-get $it 'tier)))
   # Force a choose screen so that the player can see what card they got
-      - "set '$random-tier-card (choose --prompt \"Your new card is:\" --required _ (take --from 'random $most-tier-cards 1) 1)"
+      - "set '$random-tier-card (choose --prompt \"Your new card is:\" --required _ (take --from 'random $all-tier-cards 1) 1)"
       - pile-copy-to! $street $random-tier-card
 
   - name: Swanky Ballroom
