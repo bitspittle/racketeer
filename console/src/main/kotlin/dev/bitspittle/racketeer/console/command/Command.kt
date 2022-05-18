@@ -5,6 +5,8 @@ import com.varabyte.kotter.foundation.text.*
 import com.varabyte.kotter.runtime.MainRenderScope
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.model.building.Blueprint
+import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.scripting.methods.collection.FormattedItem
@@ -73,6 +75,8 @@ abstract class Command(protected val ctx: GameContext) {
 
     protected fun describeForTitle(item: Any): String {
         return when (item) {
+            is Blueprint -> ctx.describer.describeBlueprint(item, concise = true)
+            is Building -> ctx.describer.describeBuilding(item, concise = true)
             is Card -> ctx.describer.describeCard(item, concise = true)
             is CardTemplate -> ctx.describer.describeCard(item, concise = true)
             is FormattedItem -> item.displayText ?: describeForTitle(item.wrapped)
@@ -89,6 +93,8 @@ abstract class Command(protected val ctx: GameContext) {
 
     protected fun describeForDescription(item: Any): String? {
         return when (item) {
+            is Blueprint -> ctx.describer.describeBlueprint(item, concise = false)
+            is Building -> ctx.describer.describeBuilding(item, concise = false)
             is Card -> ctx.describer.describeCard(item, concise = false )
             is CardTemplate -> ctx.describer.describeCard(item, concise = false)
             is FormattedItem -> describeForDescription(item.wrapped)
