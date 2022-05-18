@@ -8,7 +8,7 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 import kotlin.io.path.getLastModifiedTime
 
-class UserData(appName: String) {
+class UserDataDir(appName: String) {
     companion object {
         const val QUICKSAVE_SLOT = -1
     }
@@ -39,8 +39,3 @@ class UserData(appName: String) {
         }
     }
 }
-
-// We need a semi-permanent ID that won't change across playruns. Online resources recommend MAC addresses but
-// no guarantee that won't crash the user if they're offline or some other reason (it crashed me!). So, just
-// use the current user data directory. Should be good enough for our needs!
-val UserData.playtestId get() = (path.absolutePathString().hashCode().toUInt() % 1000000u).toString().padStart(6, '0')

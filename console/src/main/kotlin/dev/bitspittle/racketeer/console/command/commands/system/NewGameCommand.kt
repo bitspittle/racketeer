@@ -14,7 +14,7 @@ class NewGameCommand(ctx: GameContext) : Command(ctx) {
     override val title = "New Game"
 
     override suspend fun invoke(): Boolean {
-        ctx.app.userData.pathForSlot(UserData.QUICKSAVE_SLOT).deleteIfExists()
+        ctx.app.userDataDir.pathForSlot(UserDataDir.QUICKSAVE_SLOT).deleteIfExists()
         ctx.state = MutableGameState(ctx.data, ctx.enqueuers, CopyableRandom())
         ctx.app.uploadService.clearThrottles()
         ctx.viewStack.popAll()

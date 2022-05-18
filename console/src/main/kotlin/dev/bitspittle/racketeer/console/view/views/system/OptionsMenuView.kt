@@ -8,10 +8,10 @@ import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.CardListCommand
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataCommand
-import dev.bitspittle.racketeer.console.command.commands.system.playtestId
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.game.playtestId
 import dev.bitspittle.racketeer.console.game.version
-import dev.bitspittle.racketeer.console.user.save
+import dev.bitspittle.racketeer.console.user.saveInto
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.game.isGameInProgress
 
@@ -60,7 +60,7 @@ class OptionsMenuView(ctx: GameContext) : View(ctx) {
             if (secretCode.equals("admin", ignoreCase = true)) {
                 if (!ctx.settings.admin.enabled) {
                     ctx.settings.admin.enabled = true
-                    ctx.settings.save(ctx.app.userData)
+                    ctx.settings.saveInto(ctx.app.userDataDir)
                     ctx.app.logger.info("You now have admin privileges!")
                     secretCode = ""
                     return true
@@ -69,7 +69,7 @@ class OptionsMenuView(ctx: GameContext) : View(ctx) {
             else if (secretCode.equals("noadmin", ignoreCase = true)) {
                 if (ctx.settings.admin.enabled) {
                     ctx.settings.admin.enabled = false
-                    ctx.settings.save(ctx.app.userData)
+                    ctx.settings.saveInto(ctx.app.userDataDir)
                     ctx.app.logger.info("You have removed your admin privileges.")
                     secretCode = ""
                     return true
@@ -85,7 +85,7 @@ class OptionsMenuView(ctx: GameContext) : View(ctx) {
         textLine()
         magenta {
             textLine("${ctx.data.title} v${ctx.app.version}")
-            textLine("Playtest ID: ${ctx.app.userData.playtestId}")
+            textLine("Playtest ID: ${ctx.app.playtestId}")
         }
     }
 }

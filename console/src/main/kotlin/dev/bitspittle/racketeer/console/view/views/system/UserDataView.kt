@@ -16,7 +16,7 @@ class UserDataView(ctx: GameContext) : View(ctx) {
                 "Open a file browser window to the root folder containing your user data."
 
             override suspend fun invoke(): Boolean {
-                Desktop.getDesktop().browse(ctx.app.userData.path.toUri())
+                Desktop.getDesktop().browse(ctx.app.userDataDir.path.toUri())
                 return true
             }
         },
@@ -33,7 +33,7 @@ class UserDataView(ctx: GameContext) : View(ctx) {
     )
 
     override fun RenderScope.renderFooterUpper() {
-        textLine("Your user data is located at: ${ctx.app.userData.path.absolutePathString()}")
+        textLine("Your user data is located at: ${ctx.app.userDataDir.path.absolutePathString()}")
         textLine()
     }
 }

@@ -16,7 +16,7 @@ class ConfirmLoadCommand(ctx: GameContext, private val slot: Int) : Command(ctx)
     override val description = "Press ENTER if you're sure you want to load the data in save slot #${slot + 1}. Otherwise, go back!"
 
     override suspend fun invoke(): Boolean {
-        val path = ctx.app.userData.pathForSlot(slot)
+        val path = ctx.app.userDataDir.pathForSlot(slot)
         val snapshot = Yaml.decodeFromString(GameSnapshot.serializer(), path.readText())
         snapshot.create(ctx.data, ctx.env, ctx.enqueuers) { state ->
             ctx.state = state

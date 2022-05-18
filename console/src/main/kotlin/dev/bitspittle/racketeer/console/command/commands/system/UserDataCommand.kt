@@ -6,7 +6,7 @@ import dev.bitspittle.racketeer.console.view.views.system.UserDataView
 import kotlin.io.path.exists
 
 class UserDataCommand(ctx: GameContext) : Command(ctx) {
-    override val type get() = if (ctx.app.userData.path.exists()) Type.Normal else Type.Hidden
+    override val type get() = if (ctx.app.userDataDir.path.exists()) Type.Normal else Type.Hidden
     override val title = "User data"
     override val description: String = "Go to a menu for interacting with your saved user data."
     override suspend fun invoke(): Boolean {

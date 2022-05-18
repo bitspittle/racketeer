@@ -1,6 +1,6 @@
 package dev.bitspittle.racketeer.console.user
 
-import dev.bitspittle.racketeer.console.command.commands.system.UserData
+import dev.bitspittle.racketeer.console.command.commands.system.UserDataDir
 import dev.bitspittle.racketeer.console.utils.encodeToYaml
 import kotlinx.serialization.Serializable
 import kotlin.io.path.createDirectories
@@ -24,9 +24,9 @@ data class Settings(
 
 val Settings.inAdminModeAndShowDebugInfo get() = admin.enabled && admin.showDebugInfo
 
-fun Settings.save(userData: UserData) {
+fun Settings.saveInto(userDataDir: UserDataDir) {
     val self = this
-    userData.pathForSettings().apply {
+    userDataDir.pathForSettings().apply {
         parent.createDirectories()
         writeText(self.encodeToYaml())
     }

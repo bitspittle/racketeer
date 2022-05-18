@@ -4,7 +4,7 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.choose.SelectItemCommand
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.user.Settings
-import dev.bitspittle.racketeer.console.user.save
+import dev.bitspittle.racketeer.console.user.saveInto
 import dev.bitspittle.racketeer.console.view.View
 
 class SettingsView(ctx: GameContext, categories: List<Category>) : View(ctx) {
@@ -75,7 +75,7 @@ class SettingsView(ctx: GameContext, categories: List<Category>) : View(ctx) {
 
                     override suspend fun invoke(): Boolean {
                         ctx.settings.setFrom(createNewSettings())
-                        ctx.settings.save(ctx.app.userData)
+                        ctx.settings.saveInto(ctx.app.userDataDir)
                         ctx.app.logger.info("User settings updated and saved!")
                         ctx.viewStack.popView()
                         return true

@@ -2,8 +2,8 @@ package dev.bitspittle.racketeer.console.view.views.system
 
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.NewGameCommand
-import dev.bitspittle.racketeer.console.command.commands.system.playtestId
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.game.playtestId
 import dev.bitspittle.racketeer.console.game.version
 import dev.bitspittle.racketeer.console.utils.UploadService
 import dev.bitspittle.racketeer.console.utils.encodeToYaml
@@ -26,7 +26,7 @@ class ConfirmRestartView(ctx: GameContext) : View(ctx) {
                     ctx.app.uploadService.upload(
                         buildString {
                             append("versions:${ctx.app.version}:")
-                            append("users:${ctx.app.userData.playtestId}:")
+                            append("users:${ctx.app.playtestId}:")
                             val utcNow =
                                 Instant.now().atOffset(ZoneOffset.UTC)
                                     .format(DateTimeFormatter.ofPattern("MM-dd-yyyy|HH:mm:ss"))

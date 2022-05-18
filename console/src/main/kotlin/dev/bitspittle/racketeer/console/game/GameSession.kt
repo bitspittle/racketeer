@@ -13,7 +13,7 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.types.LangService
 import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.limp.utils.installDefaults
-import dev.bitspittle.racketeer.console.command.commands.system.UserData
+import dev.bitspittle.racketeer.console.command.commands.system.UserDataDir
 import dev.bitspittle.racketeer.console.user.CardStats
 import dev.bitspittle.racketeer.console.user.Settings
 import dev.bitspittle.racketeer.console.user.inAdminModeAndShowDebugInfo
@@ -49,9 +49,9 @@ class GameSession(
 ) {
     fun start() = session {
 
-        val userData = UserData(gameData.title.lowercase().replace(Regex("""\s"""), ""))
+        val userDataDir = UserDataDir(gameData.title.lowercase().replace(Regex("""\s"""), ""))
         val settings = try {
-            Yaml.decodeFromString(Settings.serializer(), userData.pathForSettings().readText())
+            Yaml.decodeFromString(Settings.serializer(), userDataDir.pathForSettings().readText())
         } catch (ex: Exception) {
             Settings()
         }
@@ -87,7 +87,7 @@ class GameSession(
                 }
             }
 
-            override val userData = userData
+            override val userDataDir = userDataDir
             override val uploadService: UploadService = DriveUploadService(
                 gameData.title,
                 // If games are broken (e.g. infinite cards), we don't want to keep reporting crashes because users can
@@ -120,7 +120,7 @@ class GameSession(
 
         val viewStack = ViewStackImpl()
 
-        val cardStats = CardStats.load(userData) ?: emptyList()
+        val cardStats = CardStats.loadFrom(userDataDir) ?: emptyList()
 
         val exprCache = ExprCache()
         // Compile early to suss out any syntax errors at startup time instead of runtime

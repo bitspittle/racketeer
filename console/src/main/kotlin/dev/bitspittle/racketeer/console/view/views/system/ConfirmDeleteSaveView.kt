@@ -14,7 +14,7 @@ class ConfirmDeleteSaveView(ctx: GameContext, private val slot: Int) : View(ctx)
             override val description = "Press ENTER if you're sure you want to delete the save data in slot #${slot + 1}. Otherwise, go back!"
 
             override suspend fun invoke(): Boolean {
-                if (ctx.app.userData.pathForSlot(slot).deleteIfExists()) {
+                if (ctx.app.userDataDir.pathForSlot(slot).deleteIfExists()) {
                     ctx.app.logger.info("Slot #${slot + 1} deleted!")
                 }
                 ctx.viewStack.popView()

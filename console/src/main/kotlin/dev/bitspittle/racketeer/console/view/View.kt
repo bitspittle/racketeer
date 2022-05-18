@@ -8,8 +8,8 @@ import com.varabyte.kotter.runtime.render.RenderScope
 import com.varabyte.kotterx.decorations.BorderCharacters
 import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.racketeer.console.command.Command
-import dev.bitspittle.racketeer.console.command.commands.system.playtestId
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.game.playtestId
 import dev.bitspittle.racketeer.console.game.version
 import dev.bitspittle.racketeer.console.utils.UploadService
 import dev.bitspittle.racketeer.console.utils.UploadThrottleCategory
@@ -147,7 +147,7 @@ abstract class View(protected val ctx: GameContext) {
                             .replace(Regex("__+"), "_")
                             .trim('_')
                             .lowercase()
-                        "versions:${ctx.app.version}:users:${ctx.app.userData.playtestId}:crashes:$viewName-$command.yaml"
+                        "versions:${ctx.app.version}:users:${ctx.app.playtestId}:crashes:$viewName-$command.yaml"
                     }
                     ctx.app.uploadService.upload(
                         filename,

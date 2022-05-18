@@ -66,7 +66,7 @@ class AdminMenuView(ctx: GameContext) : View(ctx) {
                 }
             },
             object : Command(ctx) {
-                override val type get() = if (ctx.app.userData.firstFreeSlot() > 0) Type.Warning else Type.Disabled
+                override val type get() = if (ctx.app.userDataDir.firstFreeSlot() > 0) Type.Warning else Type.Disabled
                 override val title = "Load game"
                 override val description: String = "Load a game. This will interrupt your current game!"
                 override suspend fun invoke(): Boolean {

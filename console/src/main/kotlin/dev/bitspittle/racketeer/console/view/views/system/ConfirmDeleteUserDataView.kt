@@ -15,7 +15,7 @@ class ConfirmDeleteUserDataView(ctx: GameContext) : View(ctx) {
 
             override suspend fun invoke(): Boolean {
                 ctx.cardStats.clear()
-                ctx.app.userData.path.toFile().deleteRecursively()
+                ctx.app.userDataDir.path.toFile().deleteRecursively()
                 ctx.viewStack.popAll()
                 ctx.viewStack.currentView.refreshCommands() // Ensure we hide "User data" if it was showing before
                 return true

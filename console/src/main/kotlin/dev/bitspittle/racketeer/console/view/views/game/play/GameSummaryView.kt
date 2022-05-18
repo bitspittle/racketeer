@@ -7,10 +7,10 @@ import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.runtime.MainRenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.NewGameCommand
-import dev.bitspittle.racketeer.console.command.commands.system.playtestId
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.game.playtestId
 import dev.bitspittle.racketeer.console.game.version
-import dev.bitspittle.racketeer.console.user.save
+import dev.bitspittle.racketeer.console.user.saveInto
 import dev.bitspittle.racketeer.console.utils.UploadService
 import dev.bitspittle.racketeer.console.utils.encodeToYaml
 import dev.bitspittle.racketeer.console.view.View
@@ -21,14 +21,14 @@ import java.time.format.DateTimeFormatter
 
 class GameSummaryView(ctx: GameContext) : View(ctx) {
     init {
-        ctx.cardStats.values.save(ctx.app.userData)
+        ctx.cardStats.values.saveInto(ctx.app.userDataDir)
 
         // Admins might be playing with broken in progress cards. Don't save their data!
         if (!ctx.settings.admin.enabled) {
             ctx.app.uploadService.upload(
                 buildString {
                     append("versions:${ctx.app.version}:")
-                    append("users:${ctx.app.userData.playtestId}:")
+                    append("users:${ctx.app.playtestId}:")
                     val utcNow =
                         Instant.now().atOffset(ZoneOffset.UTC)
                             .format(DateTimeFormatter.ofPattern("MM-dd-yyyy|HH:mm:ss"))
