@@ -10,6 +10,7 @@ import dev.bitspittle.racketeer.console.command.commands.system.NewGameCommand
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.playtestId
 import dev.bitspittle.racketeer.console.game.version
+import dev.bitspittle.racketeer.console.user.GameStats
 import dev.bitspittle.racketeer.console.user.saveInto
 import dev.bitspittle.racketeer.console.utils.UploadService
 import dev.bitspittle.racketeer.console.utils.encodeToYaml
@@ -21,6 +22,9 @@ import java.time.format.DateTimeFormatter
 
 class GameSummaryView(ctx: GameContext) : View(ctx) {
     init {
+        ctx.userStats.games.add(GameStats(ctx.state.vp))
+        ctx.userStats.games.saveInto(ctx.app.userDataDir)
+
         ctx.userStats.cards.values.saveInto(ctx.app.userDataDir)
 
         // Admins might be playing with broken in progress cards. Don't save their data!

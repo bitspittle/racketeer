@@ -5,6 +5,9 @@ import dev.bitspittle.racketeer.console.command.commands.system.NewGameCommand
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.playtestId
 import dev.bitspittle.racketeer.console.game.version
+import dev.bitspittle.racketeer.console.user.GameCancelReason
+import dev.bitspittle.racketeer.console.user.GameStats
+import dev.bitspittle.racketeer.console.user.saveInto
 import dev.bitspittle.racketeer.console.utils.UploadService
 import dev.bitspittle.racketeer.console.utils.encodeToYaml
 import dev.bitspittle.racketeer.console.view.View
@@ -37,6 +40,9 @@ class ConfirmRestartView(ctx: GameContext) : View(ctx) {
                         UploadService.MimeTypes.YAML
                     ) { ctx.encodeToYaml() }
                 }
+
+                ctx.userStats.games.add(GameStats(ctx.state.vp, cancelReason = GameCancelReason.RESTARTED))
+                ctx.userStats.games.saveInto(ctx.app.userDataDir)
 
                 return NewGameCommand(ctx).invoke()
             }

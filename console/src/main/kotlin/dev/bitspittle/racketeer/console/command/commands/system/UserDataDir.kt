@@ -27,6 +27,7 @@ class UserDataDir(appName: String) {
 
     fun pathForCardStats() = path.resolve("cardstats.yaml")
     fun pathForBuildingStats() = path.resolve("bldgstats.yaml")
+    fun pathForGameStats() = path.resolve("gamestats.yaml")
     fun pathForSettings() = path.resolve("settings.yaml")
 
     fun modifiedTime(slot: Int): String {
