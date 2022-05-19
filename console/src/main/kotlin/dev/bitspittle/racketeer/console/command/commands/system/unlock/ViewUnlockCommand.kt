@@ -24,11 +24,7 @@ class UnlockSettingHandlers(
     }
 }
 
-private val INVOKE_HANDLERS: Map<String, suspend () -> Unit> = mapOf(
-    "discord" to {}
-)
-
-fun Unlock.isForcefullyUnlocked(ctx: GameContext): Boolean {
+fun Unlock.isUnlocked(ctx: GameContext): Boolean {
     return UnlockSettingHandlers.instance[this.id]?.let { settingsHandler ->
         settingsHandler.get(ctx.settings.unlocks)
     } ?: false
@@ -38,27 +34,17 @@ class ViewUnlockCommand(ctx: GameContext, private val unlock: Unlock) : Command(
     private val totalVp = ctx.userStats.games.totalVp
 
     override val type = when {
-        !unlock.isForcefullyUnlocked(ctx) && unlock.vp > totalVp -> Type.Disabled
-        INVOKE_HANDLERS.containsKey(unlock.id) -> Type.Accented
+        !unlock.isUnlocked(ctx) -> Type.Disabled
         else -> Type.Normal
     }
-    override val title = if (type != Type.Disabled) unlock.name else "?".repeat(unlock.name.length)
-    override val description = if (type != Type.Disabled) {
-        buildString {
-            append(unlock.description)
-            if (!unlock.isForcefullyUnlocked(ctx)) {
-                append("\n\n")
-                append("This was unlocked after earning ${unlock.vp} victory points.")
-            }
-        }
-    } else {
-        "You will unlock this feature after earning ${unlock.vp - totalVp} more victory point(s)."
-    }
 
-    override suspend fun invoke(): Boolean {
-        return INVOKE_HANDLERS[unlock.id]?.let { handler ->
-            handler.invoke()
-            true
-        } ?: false
+    override val title = unlock.name
+    override val extra = ctx.describer.describeVictoryPoints(unlock.vp)
+    override val description = buildString {
+        append(unlock.description)
+        if (type == Type.Disabled) {
+            append("\n\n")
+            append("You will unlock this feature after earning ${unlock.vp - totalVp} more victory point(s).")
+        }
     }
 }

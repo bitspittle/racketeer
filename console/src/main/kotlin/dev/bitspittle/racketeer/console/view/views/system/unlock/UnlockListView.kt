@@ -2,11 +2,15 @@ package dev.bitspittle.racketeer.console.view.views.system.unlock
 
 import com.varabyte.kotter.foundation.input.CharKey
 import com.varabyte.kotter.foundation.input.Key
+import com.varabyte.kotter.foundation.text.textLine
+import com.varabyte.kotter.foundation.text.yellow
+import com.varabyte.kotter.runtime.MainRenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.unlock.UnlockSettingHandlers
 import dev.bitspittle.racketeer.console.command.commands.system.unlock.ViewUnlockCommand
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.user.saveInto
+import dev.bitspittle.racketeer.console.user.totalVp
 import dev.bitspittle.racketeer.console.view.View
 
 class UnlockListView(ctx: GameContext) : View(ctx) {
@@ -40,4 +44,10 @@ class UnlockListView(ctx: GameContext) : View(ctx) {
 
     override fun createCommands(): List<Command> = ctx.data.unlocks
         .map { unlock -> ViewUnlockCommand(ctx, unlock) }
+
+    private val totalVp = ctx.userStats.games.totalVp
+    override fun MainRenderScope.renderContentUpper() {
+        yellow { textLine("You have so far earned ${ctx.describer.describeVictoryPoints(totalVp)} across all your games.") }
+        textLine()
+    }
 }
