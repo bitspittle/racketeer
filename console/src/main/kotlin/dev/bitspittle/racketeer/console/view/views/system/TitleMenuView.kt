@@ -21,6 +21,8 @@ import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 
 class TitleMenuView(ctx: GameContext) : View(ctx) {
+    override val allowEsc = false // No options access from title screen
+
     override fun MainRenderScope.renderContentUpper() {
         bold {
             red {
