@@ -5,7 +5,7 @@ import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.views.game.buildings.BrowseBlueprintsView
 
 class BrowseBlueprintsCommand(ctx: GameContext) : Command(ctx) {
-    private val affordableCount = ctx.state.blueprints.count { it.canAfford(ctx) }
+    private val affordableCount = ctx.state.blueprints.count { it.canAffordBuildCost(ctx) }
 
     override val type: Type = when {
         affordableCount > 0 -> Type.Emphasized

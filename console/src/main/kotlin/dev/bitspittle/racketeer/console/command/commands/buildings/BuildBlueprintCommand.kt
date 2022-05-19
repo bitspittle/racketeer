@@ -7,13 +7,11 @@ import dev.bitspittle.racketeer.model.game.GameProperty
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.building.Blueprint
 
-fun Blueprint.canAfford(ctx: GameContext) = ctx.state.cash >= this.buildCost.cash && ctx.state.influence >= this.buildCost.influence
-
 /**
  * A no-op command used when read-only viewing a blueprint
  */
 class BuildBlueprintCommand(ctx: GameContext, private val blueprint: Blueprint) : Command(ctx) {
-    override val type = if (blueprint.canAfford(ctx)) Type.Normal else Type.Disabled
+    override val type = if (blueprint.canAffordBuildCost(ctx)) Type.Normal else Type.Disabled
 
     override val title = ctx.describer.describeBlueprint(blueprint, concise = true)
     override val description = ctx.describer.describeBlueprint(blueprint, concise = false)
