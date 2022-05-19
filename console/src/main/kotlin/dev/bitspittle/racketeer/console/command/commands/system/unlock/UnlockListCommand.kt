@@ -7,9 +7,7 @@ import dev.bitspittle.racketeer.console.view.views.system.unlock.UnlockListView
 
 class UnlockListCommand(ctx: GameContext) : Command(ctx) {
     private val totalVp = ctx.userStats.games.totalVp
-    private val nextUnlock = ctx.data.unlocks
-        .filter { !it.isUnlocked(ctx) }
-        .firstOrNull { it.vp > totalVp }
+    private val nextUnlock = ctx.data.unlocks.locked(ctx, totalVp).firstOrNull()
 
     override val title = "Unlocks"
     override val description: String =

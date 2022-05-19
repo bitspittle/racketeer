@@ -7,11 +7,14 @@ import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.runtime.MainRenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.NewGameCommand
+import dev.bitspittle.racketeer.console.command.commands.system.unlock.locked
+import dev.bitspittle.racketeer.console.command.commands.system.unlock.unlock
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.playtestId
 import dev.bitspittle.racketeer.console.game.version
 import dev.bitspittle.racketeer.console.user.GameStats
 import dev.bitspittle.racketeer.console.user.saveInto
+import dev.bitspittle.racketeer.console.user.totalVp
 import dev.bitspittle.racketeer.console.utils.UploadService
 import dev.bitspittle.racketeer.console.utils.encodeToYaml
 import dev.bitspittle.racketeer.console.view.View
@@ -22,9 +25,26 @@ import java.time.format.DateTimeFormatter
 
 class GameSummaryView(ctx: GameContext) : View(ctx) {
     init {
-        ctx.userStats.games.add(GameStats(ctx.state.vp))
-        ctx.userStats.games.saveInto(ctx.app.userDataDir)
 
+        // Check unlocks after adding more VP
+        run {
+            val prevTotalVp = ctx.userStats.games.totalVp
+            ctx.userStats.games.add(GameStats(ctx.state.vp))
+
+            val lockedBefore = ctx.data.unlocks.locked(ctx, prevTotalVp)
+            val lockedAfter = ctx.data.unlocks.locked(ctx, prevTotalVp + ctx.state.vp)
+
+            val toUnlock = lockedBefore - lockedAfter
+            if (toUnlock.isNotEmpty()) {
+                toUnlock.forEach {
+                    ctx.app.logger.info("Congratulations! You unlocked: ${it.name}")
+                    it.unlock(ctx)
+                }
+                ctx.settings.saveInto(ctx.app.userDataDir)
+            }
+        }
+
+        ctx.userStats.games.saveInto(ctx.app.userDataDir)
         ctx.userStats.cards.values.saveInto(ctx.app.userDataDir)
 
         // Admins might be playing with broken in progress cards. Don't save their data!
