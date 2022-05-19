@@ -9,6 +9,7 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.system.BuildingListCommand
 import dev.bitspittle.racketeer.console.command.commands.system.CardListCommand
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataCommand
+import dev.bitspittle.racketeer.console.command.commands.system.unlock.UnlockListCommand
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.playtestId
 import dev.bitspittle.racketeer.console.game.version
@@ -25,6 +26,7 @@ class OptionsMenuView(ctx: GameContext) : View(ctx) {
         listOf(
             CardListCommand(ctx),
             BuildingListCommand(ctx),
+            UnlockListCommand(ctx),
             UserDataCommand(ctx),
             object : Command(ctx) {
                 override val type = if (ctx.state.isGameInProgress) Type.Warning else Type.Hidden

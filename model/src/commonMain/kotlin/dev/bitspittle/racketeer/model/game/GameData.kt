@@ -20,6 +20,7 @@ private val String.indentLength: Int
 data class GameData(
     val title: String,
     val icons: GameIcons,
+    val unlocks: List<Unlock>,
     val numTurns: Int,
     val initialHandSize: Int,
     val initialInfluence: Int,
@@ -120,6 +121,8 @@ data class GameData(
     }
 
     init {
+        require(unlocks.sortedBy { it.vp } == unlocks) { "Unlocks should be specified in the order of VP required to them."}
+
         require(shopPrices.size == tierFrequencies.size - 1) { "There should be exactly one less entry for shop prices than tiers" }
         require(shopSizes.size == tierFrequencies.size) { "There should be exactly the same number of shop sizes as tiers" }
         shopSizes.forEachIndexed { i, size ->

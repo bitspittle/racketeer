@@ -5,6 +5,24 @@ icons:
   luck: "🎲"
   card: "🃏"
   vp: "🌟"
+unlocks:
+  - id: buildings
+    name: Blueprints & Buildings
+    description: |
+      You can now play games with the "Blueprints & Buildings" feature!
+
+      You will get to choose this option the next time you select "New Game".
+    codename: realestate
+    vp: 200
+  - id: discord
+    name: Join our Discord
+    description: |
+      You've shown some real persistence and grit to get this far! Join other players and share stories of your trails and tribulations.
+
+      Press ENTER on this command to open up a page to our Discord Server in your browser.
+    codename: speakeasy
+    vp: 500
+
 numTurns: 20
 initialHandSize: 5
 initialCash: 0

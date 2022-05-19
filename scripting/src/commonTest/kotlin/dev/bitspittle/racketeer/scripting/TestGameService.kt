@@ -28,6 +28,7 @@ private val FAKE_GAME_DATA_TEXT = """
       luck: "%"
       card: "▯"
       vp: "*"
+    unlocks: []
     numTurns: 3
     initialHandSize: 4
     initialCash: 0

@@ -11,6 +11,7 @@ import dev.bitspittle.racketeer.console.command.commands.system.CardListCommand
 import dev.bitspittle.racketeer.console.command.commands.system.ConfirmLoadCommand
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataCommand
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataDir.Companion.QUICKSAVE_SLOT
+import dev.bitspittle.racketeer.console.command.commands.system.unlock.UnlockListCommand
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.playtestId
 import dev.bitspittle.racketeer.console.game.version
@@ -77,6 +78,7 @@ class TitleMenuView(ctx: GameContext) : View(ctx) {
             },
             CardListCommand(ctx),
             BuildingListCommand(ctx),
+            UnlockListCommand(ctx),
             UserDataCommand(ctx),
             object : Command(ctx) {
                 override val title = "Quit"
