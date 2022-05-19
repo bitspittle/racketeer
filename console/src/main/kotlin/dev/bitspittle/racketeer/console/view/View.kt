@@ -11,7 +11,7 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.playtestId
 import dev.bitspittle.racketeer.console.game.version
-import dev.bitspittle.racketeer.console.utils.UploadService
+import dev.bitspittle.racketeer.console.utils.CloudFileService
 import dev.bitspittle.racketeer.console.utils.UploadThrottleCategory
 import dev.bitspittle.racketeer.console.utils.encodeToYaml
 import dev.bitspittle.racketeer.console.view.views.admin.AdminMenuView
@@ -45,10 +45,6 @@ abstract class View(protected val ctx: GameContext) {
             return _commandsSection!!
         }
 
-    protected open val title: String? = null
-    protected open val subtitle: String? = null
-    protected open val heading: String? = null
-
     private val currCommand get() = commandsSection.currCommand
     protected var currIndex
         get() = commandsSection.currIndex
@@ -61,6 +57,11 @@ abstract class View(protected val ctx: GameContext) {
     }
     // endregion
 
+    protected open val title: String? = null
+    protected open val subtitle: String? = null
+    protected open val heading: String? = null
+
+    protected open val showUpdateMessage: Boolean = false
     protected open val allowEsc: Boolean = true
     protected open val allowBrowseCards: Boolean = true
 
@@ -149,9 +150,9 @@ abstract class View(protected val ctx: GameContext) {
                             .lowercase()
                         "versions:${ctx.app.version}:users:${ctx.app.playtestId}:crashes:$viewName-$command.yaml"
                     }
-                    ctx.app.uploadService.upload(
+                    ctx.app.cloudFileService.upload(
                         filename,
-                        UploadService.MimeTypes.YAML,
+                        CloudFileService.MimeTypes.YAML,
                         throttleKey = UploadThrottleCategory.CRASH_REPORT,
                     ) { ctx.encodeToYaml() }
                 } catch (ignored: Throwable) {
@@ -223,6 +224,14 @@ abstract class View(protected val ctx: GameContext) {
             renderFooter()
             currCommand.renderFooterLowerInto(this)
             renderFooterLower()
+
+            if (showUpdateMessage && ctx.app.isUpdateAvailable) {
+                textLine()
+                yellow {
+                    textLine("A new version of the game is available. Check your email for instructions.")
+                }
+            }
+
         }
     }
 

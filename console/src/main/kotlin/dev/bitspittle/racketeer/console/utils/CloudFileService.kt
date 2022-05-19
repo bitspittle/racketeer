@@ -11,6 +11,7 @@ import com.google.api.services.drive.model.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 import java.io.FileNotFoundException
 import java.nio.file.Files
 import java.time.Duration
@@ -20,7 +21,7 @@ import kotlin.io.path.writeText
 
 private val DEFAULT_THROTTLE_DURATION = Duration.ofMinutes(1)
 
-interface UploadService {
+interface CloudFileService {
     object MimeTypes {
         const val YAML = "text/yaml"
     }
@@ -46,6 +47,16 @@ interface UploadService {
     fun upload(fileName: String, mimeType: String, throttleKey: Any? = null, produceData: () -> String)
 
     /**
+     * Download a file from a folder in the Cloud.
+     *
+     * @param filename The name of the file on the remote server
+     * @param onDownloaded A callback triggered with the contents of the file on success
+     * @param onFailed An indication that the download didn't succeed, either because the file could not be found or
+     *   maybe due to an issue with network access, etc.
+     */
+    fun download(filename: String, onDownloaded: (String) -> Unit, onFailed: (Exception) -> Unit)
+
+    /**
      * Remove any throttles currently set.
      *
      * This is useful if you have really long-running throttles that are only meant to limit data collected for a single
@@ -58,17 +69,18 @@ enum class UploadThrottleCategory {
     CRASH_REPORT
 }
 
-class DriveUploadService(
+class DriveCloudFileService(
     title: String,
     override val throttleDurations: Map<Any, Duration> = mapOf(),
     override val throttleSizes: Map<Any, Long> = mapOf()
-) : UploadService {
+) : CloudFileService {
     private val UPLOAD_FOLDER_ID = "14bplvWMj-3qTuydASDz1LcBUzxDjz28U"
+    private val DOWNLOAD_FOLDER_ID = "100uGi6esshosPLmaXy3jUDp3C9E-Dj8d"
     private val JSON_FACTORY = GsonFactory.getDefaultInstance()
     private val nextAllowedUpload = mutableMapOf<Any, Long>()
 
     private fun getCredentials(): Credential {
-        val credentialsJson = DriveUploadService::class.java.getResourceAsStream("/credentials.json")
+        val credentialsJson = DriveCloudFileService::class.java.getResourceAsStream("/credentials.json")
             ?: throw FileNotFoundException("Credentials not found")
 
         // Of course leave it to Google to deprecate an API and suggest using another library which, when you try to
@@ -114,6 +126,26 @@ class DriveUploadService(
                     driveService.files().create(fileMetadata, mediaContent).execute()
                 } catch (ignored: Throwable) { }
                 finally { tmp.deleteExisting() }
+            }
+        }
+    }
+
+    override fun download(filename: String, onDownloaded: (String) -> Unit, onFailed: (Exception) -> Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val fileId = driveService.files().list()
+                    .setQ("name='$filename'")
+                    .setSpaces("drive")
+                    .setFields("files(id)")
+                    .execute()
+                    .files.single().id
+
+                ByteArrayOutputStream().use { content ->
+                    driveService.files().get(fileId).executeMediaAndDownloadTo(content)
+                    onDownloaded(content.toString(Charsets.UTF_8))
+                }
+            } catch (ex: Exception) {
+                onFailed(ex)
             }
         }
     }

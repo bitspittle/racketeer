@@ -12,11 +12,10 @@ import dev.bitspittle.racketeer.console.command.commands.system.unlock.unlock
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.playtestId
 import dev.bitspittle.racketeer.console.game.version
-import dev.bitspittle.racketeer.console.user.GameCancelReason
 import dev.bitspittle.racketeer.console.user.GameStats
 import dev.bitspittle.racketeer.console.user.saveInto
 import dev.bitspittle.racketeer.console.user.totalVp
-import dev.bitspittle.racketeer.console.utils.UploadService
+import dev.bitspittle.racketeer.console.utils.CloudFileService
 import dev.bitspittle.racketeer.console.utils.encodeToYaml
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.game.from
@@ -25,8 +24,9 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 class GameSummaryView(ctx: GameContext) : View(ctx) {
-    init {
+    override val showUpdateMessage = true // Let the user know there's a new version BEFORE they start a new game
 
+    init {
         // Check unlocks after adding more VP
         run {
             val prevTotalVp = ctx.userStats.games.totalVp
@@ -50,7 +50,7 @@ class GameSummaryView(ctx: GameContext) : View(ctx) {
 
         // Admins might be playing with broken in progress cards. Don't save their data!
         if (!ctx.settings.admin.enabled) {
-            ctx.app.uploadService.upload(
+            ctx.app.cloudFileService.upload(
                 buildString {
                     append("versions:${ctx.app.version}:")
                     append("users:${ctx.app.playtestId}:")
@@ -61,7 +61,7 @@ class GameSummaryView(ctx: GameContext) : View(ctx) {
                     append("vp:${ctx.state.vp}")
                     append(".yaml")
                 },
-                UploadService.MimeTypes.YAML
+                CloudFileService.MimeTypes.YAML
             ) { ctx.encodeToYaml() }
         }
     }

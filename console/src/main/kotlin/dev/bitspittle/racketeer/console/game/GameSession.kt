@@ -15,8 +15,8 @@ import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.limp.utils.installDefaults
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataDir
 import dev.bitspittle.racketeer.console.user.*
-import dev.bitspittle.racketeer.console.utils.DriveUploadService
-import dev.bitspittle.racketeer.console.utils.UploadService
+import dev.bitspittle.racketeer.console.utils.DriveCloudFileService
+import dev.bitspittle.racketeer.console.utils.CloudFileService
 import dev.bitspittle.racketeer.console.utils.UploadThrottleCategory
 import dev.bitspittle.racketeer.console.view.ViewStackImpl
 import dev.bitspittle.racketeer.console.view.views.game.choose.ChooseItemsView
@@ -37,6 +37,7 @@ import dev.bitspittle.racketeer.scripting.types.GameService
 import dev.bitspittle.racketeer.scripting.utils.installGameLogic
 import kotlinx.coroutines.*
 import net.mamoe.yamlkt.Yaml
+import java.time.Duration
 import java.util.*
 import kotlin.coroutines.suspendCoroutine
 import kotlin.io.path.readText
@@ -86,7 +87,7 @@ class GameSession(
             }
 
             override val userDataDir = userDataDir
-            override val uploadService: UploadService = DriveUploadService(
+            override val cloudFileService: CloudFileService = DriveCloudFileService(
                 gameData.title,
                 // If games are broken (e.g. infinite cards), we don't want to keep reporting crashes because users can
                 // get into a sort of death spiral as the system begins exploding under the pressure. Instead, crash
@@ -98,6 +99,31 @@ class GameSession(
                 // the future, we'll want to review this value.
                 throttleSizes = mapOf(UploadThrottleCategory.CRASH_REPORT to 500 * 1024)
             )
+
+            override var isUpdateAvailable: Boolean = false
+                private set
+
+            init {
+                lateinit var checkForUpdate: () -> Unit
+                fun waitAndCheckAgain() {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        delay(Duration.ofMinutes(30).toMillis())
+                        checkForUpdate()
+                    }
+                }
+                checkForUpdate = {
+                    cloudFileService.download("version.txt",
+                        onDownloaded = { versionStr ->
+                            isUpdateAvailable = this.version < Version(versionStr.trim())
+                            if (!isUpdateAvailable) {
+                                waitAndCheckAgain()
+                            }
+                        },
+                        onFailed = { waitAndCheckAgain() }
+                    )
+                }
+                checkForUpdate()
+            }
         }
 
         lateinit var produceRandom: () -> Random

@@ -8,7 +8,7 @@ import dev.bitspittle.racketeer.console.game.version
 import dev.bitspittle.racketeer.console.user.GameCancelReason
 import dev.bitspittle.racketeer.console.user.GameStats
 import dev.bitspittle.racketeer.console.user.saveInto
-import dev.bitspittle.racketeer.console.utils.UploadService
+import dev.bitspittle.racketeer.console.utils.CloudFileService
 import dev.bitspittle.racketeer.console.utils.encodeToYaml
 import dev.bitspittle.racketeer.console.view.View
 import java.time.Instant
@@ -16,6 +16,8 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 class ConfirmRestartView(ctx: GameContext) : View(ctx) {
+    override val showUpdateMessage = true // Let the user know there's a new version BEFORE they start a new game
+
     override fun createCommands(): List<Command> = listOf(
         object : Command(ctx) {
             override val type = Type.Danger
@@ -26,7 +28,7 @@ class ConfirmRestartView(ctx: GameContext) : View(ctx) {
             override suspend fun invoke(): Boolean {
                 // The user restarted. Why? Let's send some data, maybe we can find out.
                 if (!ctx.settings.admin.enabled) {
-                    ctx.app.uploadService.upload(
+                    ctx.app.cloudFileService.upload(
                         buildString {
                             append("versions:${ctx.app.version}:")
                             append("users:${ctx.app.playtestId}:")
@@ -37,7 +39,7 @@ class ConfirmRestartView(ctx: GameContext) : View(ctx) {
                             append("turn:${ctx.state.turn}:vp:${ctx.state.vp}")
                             append(".yaml")
                         },
-                        UploadService.MimeTypes.YAML
+                        CloudFileService.MimeTypes.YAML
                     ) { ctx.encodeToYaml() }
                 }
 

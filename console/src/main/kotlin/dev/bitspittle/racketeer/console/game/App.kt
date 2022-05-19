@@ -2,7 +2,7 @@ package dev.bitspittle.racketeer.console.game
 
 import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataDir
-import dev.bitspittle.racketeer.console.utils.UploadService
+import dev.bitspittle.racketeer.console.utils.CloudFileService
 import java.util.Properties
 import kotlin.io.path.absolutePathString
 
@@ -11,10 +11,11 @@ interface App {
     val properties: Properties
     val logger: Logger
     val userDataDir: UserDataDir
-    val uploadService: UploadService
+    val cloudFileService: CloudFileService
+    val isUpdateAvailable: Boolean
 }
 
-val App.version: String get() = properties.getProperty("version")
+val App.version: Version get() = Version(properties.getProperty("version"))
 
 // We need a semi-permanent ID that won't change across playruns. Online resources recommend MAC addresses but
 // no guarantee that won't crash the user if they're offline or some other reason (it crashed me!). So, just

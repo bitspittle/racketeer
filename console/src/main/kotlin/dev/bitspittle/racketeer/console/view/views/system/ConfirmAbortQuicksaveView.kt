@@ -9,6 +9,8 @@ import dev.bitspittle.racketeer.console.user.saveInto
 import dev.bitspittle.racketeer.console.view.View
 
 class ConfirmAbortQuicksaveView(ctx: GameContext) : View(ctx) {
+    override val showUpdateMessage = true // Let the user know there's a new version BEFORE they start a new game
+
     override fun createCommands(): List<Command> = listOf(
         object : Command(ctx) {
             override val type = Type.Warning

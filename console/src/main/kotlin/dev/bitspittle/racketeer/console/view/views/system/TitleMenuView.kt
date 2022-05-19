@@ -15,14 +15,13 @@ import dev.bitspittle.racketeer.console.command.commands.system.unlock.UnlockLis
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.playtestId
 import dev.bitspittle.racketeer.console.game.version
-import dev.bitspittle.racketeer.console.utils.createNewGame
 import dev.bitspittle.racketeer.console.view.View
-import dev.bitspittle.racketeer.console.view.views.game.play.PreDrawView
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 
 class TitleMenuView(ctx: GameContext) : View(ctx) {
     override val allowEsc = false // No options access from title screen
+    override val showUpdateMessage = true // Grab people's attention when they are starting a new game
 
     override fun MainRenderScope.renderContentUpper() {
         bold {

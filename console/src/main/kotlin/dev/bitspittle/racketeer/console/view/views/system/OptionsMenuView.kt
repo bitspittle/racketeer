@@ -20,6 +20,8 @@ import dev.bitspittle.racketeer.model.game.isGameInProgress
 class OptionsMenuView(ctx: GameContext) : View(ctx) {
     override val title: String = "Options"
 
+    override val showUpdateMessage = true // Grab people's attention when they are taking a break from their game
+
     private var secretCode = ""
 
     override fun createCommands(): List<Command> =

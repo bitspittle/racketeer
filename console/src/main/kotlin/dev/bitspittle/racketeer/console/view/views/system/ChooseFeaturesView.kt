@@ -17,6 +17,8 @@ private fun GameContext.startNewGame(features: Set<Feature.Type> = emptySet()) {
 }
 
 class ChooseFeaturesView private constructor(ctx: GameContext, private val features: List<Feature>) : View(ctx) {
+    override val showUpdateMessage = true // Let the user know there's a new version BEFORE they start a new game
+
     companion object {
         fun enter(ctx: GameContext) {
             val availableFeatures = ctx.data.features.sortedBy { it.name }.filter { it.isUnlocked(ctx) }
