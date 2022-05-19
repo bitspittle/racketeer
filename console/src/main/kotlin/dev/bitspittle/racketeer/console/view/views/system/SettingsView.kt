@@ -35,13 +35,6 @@ class SettingsView(ctx: GameContext, categories: List<Category>) : View(ctx) {
         Category.ADMIN to listOf(
             Entry(
                 ctx,
-                "Mask cards",
-                "If true, card list screens will hide card names and descriptions until the first time you buy one.",
-                { admin.maskCards },
-                { value -> admin.maskCards = value },
-            ),
-            Entry(
-                ctx,
                 "Show debug info",
                 "Set true to surface things like game code inside the UI.",
                 { admin.showDebugInfo },

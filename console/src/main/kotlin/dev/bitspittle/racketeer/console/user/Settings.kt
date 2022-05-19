@@ -14,7 +14,6 @@ data class Settings(
 ) {
     @Serializable
     data class Admin(
-        var maskCards: Boolean = true,
         var showDebugInfo: Boolean = true,
         var enabled: Boolean = false,
     )
