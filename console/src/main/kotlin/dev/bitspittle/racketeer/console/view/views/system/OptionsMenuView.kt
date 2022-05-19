@@ -61,7 +61,7 @@ class OptionsMenuView(ctx: GameContext) : View(ctx) {
         if (key is CharKey) {
             secretCode += key.code
 
-            if (secretCode.equals("admin", ignoreCase = true)) {
+            if (secretCode.equals("thegodfather", ignoreCase = true)) {
                 if (!ctx.settings.admin.enabled) {
                     ctx.settings.admin.enabled = true
                     ctx.settings.saveInto(ctx.app.userDataDir)
@@ -70,7 +70,7 @@ class OptionsMenuView(ctx: GameContext) : View(ctx) {
                     return true
                 }
             }
-            else if (secretCode.equals("noadmin", ignoreCase = true)) {
+            else if (secretCode.equals("nothegodfather", ignoreCase = true)) {
                 if (ctx.settings.admin.enabled) {
                     ctx.settings.admin.enabled = false
                     ctx.settings.saveInto(ctx.app.userDataDir)
