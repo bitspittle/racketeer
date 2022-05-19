@@ -191,6 +191,7 @@ class EffectSnapshot(
 @Serializable
 class GameSnapshot(
     val random: CopyableRandom,
+    val features: Set<Feature.Type>,
     val isPreDraw: Boolean,
     val numTurns: Int,
     val turn: Int,
@@ -216,6 +217,7 @@ class GameSnapshot(
     companion object {
         fun from(describer: Describer, gameState: GameState, isPreDraw: Boolean) = GameSnapshot(
             gameState.random,
+            gameState.features,
             isPreDraw,
             gameState.numTurns,
             gameState.turn,
@@ -251,6 +253,7 @@ class GameSnapshot(
     ) {
         val gs = MutableGameState(
             random,
+            features,
             enqueuers,
             numTurns,
             turn,

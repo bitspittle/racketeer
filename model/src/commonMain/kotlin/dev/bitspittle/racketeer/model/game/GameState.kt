@@ -19,6 +19,7 @@ import kotlin.math.max
 
 interface GameState {
     val random: CopyableRandom
+    val features: Set<Feature.Type>
     val numTurns: Int
     val turn: Int
     val cash: Int
@@ -56,6 +57,7 @@ interface GameState {
 
 object GameStateStub : GameState {
     override val random get() = throw NotImplementedError()
+    override val features get() = throw NotImplementedError()
     override val numTurns: Int get() = throw NotImplementedError()
     override val turn: Int get() = throw NotImplementedError()
     override val cash: Int get() = throw NotImplementedError()
@@ -94,6 +96,7 @@ fun GameState.getOwnedCards() = ownedPiles
 
 class MutableGameState internal constructor(
     override val random: CopyableRandom,
+    override val features: Set<Feature.Type>,
     val enqueuers: Enqueuers,
     numTurns: Int,
     turn: Int,
@@ -114,8 +117,9 @@ class MutableGameState internal constructor(
     override val effects: MutableEffects,
     override val history: MutableList<GameStateChange>,
 ): GameState {
-    constructor(data: GameData, enqueuers: Enqueuers, random: CopyableRandom = CopyableRandom()) : this(
+    constructor(data: GameData, features: Set<Feature.Type>, enqueuers: Enqueuers, random: CopyableRandom = CopyableRandom()) : this(
         random,
+        features,
         enqueuers,
         numTurns = data.numTurns,
         turn = 0,
@@ -140,7 +144,9 @@ class MutableGameState internal constructor(
         discard = MutablePile(),
         jail = MutablePile(),
         graveyard = MutablePile(),
-        blueprints = data.blueprints.shuffled(random()).take(data.initialBlueprintCount).toMutableList().also { it.sort() },
+        blueprints = if (features.contains(Feature.Type.BUILDINGS)) {
+            data.blueprints.shuffled(random()).take(data.initialBlueprintCount).toMutableList().also { it.sort() }
+        } else mutableListOf(),
         buildings = mutableListOf(),
         effects = MutableEffects(),
         history = mutableListOf()
@@ -286,6 +292,7 @@ class MutableGameState internal constructor(
         val random = random.copy()
         return MutableGameState(
             random,
+            features,
             enqueuers,
             numTurns,
             turn,

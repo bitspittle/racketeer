@@ -20,6 +20,7 @@ private val String.indentLength: Int
 data class GameData(
     val title: String,
     val icons: GameIcons,
+    val features: List<Feature>,
     val unlocks: List<Unlock>,
     val numTurns: Int,
     val initialHandSize: Int,

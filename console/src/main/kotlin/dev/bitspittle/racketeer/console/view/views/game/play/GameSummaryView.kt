@@ -12,6 +12,7 @@ import dev.bitspittle.racketeer.console.command.commands.system.unlock.unlock
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.playtestId
 import dev.bitspittle.racketeer.console.game.version
+import dev.bitspittle.racketeer.console.user.GameCancelReason
 import dev.bitspittle.racketeer.console.user.GameStats
 import dev.bitspittle.racketeer.console.user.saveInto
 import dev.bitspittle.racketeer.console.user.totalVp
@@ -29,7 +30,7 @@ class GameSummaryView(ctx: GameContext) : View(ctx) {
         // Check unlocks after adding more VP
         run {
             val prevTotalVp = ctx.userStats.games.totalVp
-            ctx.userStats.games.add(GameStats(ctx.state.vp))
+            ctx.userStats.games.add(GameStats.from(ctx.state))
 
             val lockedBefore = ctx.data.unlocks.locked(ctx, prevTotalVp)
             val lockedAfter = ctx.data.unlocks.locked(ctx, prevTotalVp + ctx.state.vp)
@@ -37,7 +38,7 @@ class GameSummaryView(ctx: GameContext) : View(ctx) {
             val toUnlock = lockedBefore - lockedAfter
             if (toUnlock.isNotEmpty()) {
                 toUnlock.forEach {
-                    ctx.app.logger.info("Congratulations! You unlocked: ${it.name}")
+                    ctx.app.logger.info("Congratulations! You unlocked: ${it.resolvedName(ctx.data)}")
                     it.unlock(ctx)
                 }
                 ctx.settings.saveInto(ctx.app.userDataDir)

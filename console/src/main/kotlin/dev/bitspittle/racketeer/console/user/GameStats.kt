@@ -2,6 +2,8 @@ package dev.bitspittle.racketeer.console.user
 
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataDir
 import dev.bitspittle.racketeer.console.utils.encodeToYaml
+import dev.bitspittle.racketeer.model.game.Feature
+import dev.bitspittle.racketeer.model.game.GameState
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import net.mamoe.yamlkt.Yaml
@@ -19,10 +21,12 @@ enum class GameCancelReason {
 @Serializable
 class GameStats(
     val vp: Int,
-    // val features: Set<GameFeature>,
+    val features: Set<Feature.Type>,
     val cancelReason: GameCancelReason = GameCancelReason.NONE,
 ) {
     companion object {
+        fun from(state: GameState, cancelReason: GameCancelReason = GameCancelReason.NONE) = GameStats(state.vp, state.features, cancelReason)
+
         fun loadFrom(userDataDir: UserDataDir): Iterable<GameStats>? {
             return try {
                 userDataDir.pathForGameStats()

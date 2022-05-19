@@ -28,6 +28,7 @@ private val FAKE_GAME_DATA_TEXT = """
       luck: "%"
       card: "▯"
       vp: "*"
+    features: []
     unlocks: []
     numTurns: 3
     initialHandSize: 4
@@ -256,7 +257,7 @@ class TestGameService(
     val random: Random get() = copyableRandom()
 
     override val describer: Describer = Describer(gameData, showDebugInfo = { true })
-    override val gameState = MutableGameState(gameData, enqueuers, copyableRandom)
+    override val gameState = MutableGameState(gameData, setOf(), enqueuers, copyableRandom)
     private val _logs = mutableListOf<String>()
     val logs: List<String> = _logs
 

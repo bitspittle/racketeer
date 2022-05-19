@@ -5,10 +5,14 @@ icons:
   luck: "🎲"
   card: "🃏"
   vp: "🌟"
-unlocks:
+features:
   - id: buildings
     name: Blueprints & Buildings
-    description: Once unlocked, you can choose the "Blueprints & Buildings" game mode the next time you select "New Game".
+    description: Extend the base game with buildings! Construct useful support structures and discover new strategies for dominating the street.
+unlocks:
+  - id: buildings
+    name: $feature
+    description: You can choose the "$feature" game mode the next time you select "New Game".
     codename: realestate
     vp: 200
   - id: discord

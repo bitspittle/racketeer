@@ -9,7 +9,7 @@ import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import dev.bitspittle.racketeer.scripting.types.CancelPlayException
 
-fun GameContext.createNewGame() = MutableGameState(data, enqueuers)
+fun GameContext.createNewGame(features: Set<Feature.Type> = setOf(Feature.Type.BUILDINGS)) = MutableGameState(data, features, enqueuers)
 
 /**
  * Run some actions that are expected to change the game state somehow and, if so, report it.

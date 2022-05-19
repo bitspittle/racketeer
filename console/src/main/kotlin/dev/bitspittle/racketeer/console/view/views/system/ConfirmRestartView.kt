@@ -41,7 +41,7 @@ class ConfirmRestartView(ctx: GameContext) : View(ctx) {
                     ) { ctx.encodeToYaml() }
                 }
 
-                ctx.userStats.games.add(GameStats(ctx.state.vp, cancelReason = GameCancelReason.RESTARTED))
+                ctx.userStats.games.add(GameStats.from(ctx.state, GameCancelReason.RESTARTED))
                 ctx.userStats.games.saveInto(ctx.app.userDataDir)
 
                 return NewGameCommand(ctx).invoke()

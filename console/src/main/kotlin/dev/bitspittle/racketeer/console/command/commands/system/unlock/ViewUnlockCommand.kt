@@ -13,10 +13,10 @@ class ViewUnlockCommand(ctx: GameContext, private val unlock: Unlock) : Command(
         else -> Type.Normal
     }
 
-    override val title = unlock.name
+    override val title = unlock.resolvedName(ctx.data)
     override val extra = ctx.describer.describeVictoryPoints(unlock.vp)
     override val description = buildString {
-        append(unlock.description)
+        append(unlock.resolvedDescription(ctx.data))
         if (type == Type.Disabled) {
             append("\n\n")
             append("You will unlock this feature after earning ${unlock.vp - totalVp} more victory point(s).")

@@ -28,7 +28,7 @@ class UnlockListView(ctx: GameContext) : View(ctx) {
                         if (!settingsHandler.get(ctx.settings.unlocks)) {
                             settingsHandler.set(ctx.settings.unlocks, true)
                             ctx.settings.saveInto(ctx.app.userDataDir)
-                            ctx.app.logger.info("You have manually unlocked: ${unlock.name}")
+                            ctx.app.logger.info("You have manually unlocked: ${unlock.resolvedName(ctx.data)}")
                             secretCode = ""
                             refreshCommands()
                             return true
