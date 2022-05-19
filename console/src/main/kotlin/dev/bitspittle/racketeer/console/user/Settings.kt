@@ -9,7 +9,8 @@ import kotlin.io.path.writeText
 @Serializable
 data class Settings(
     var admin: Admin = Admin(),
-    var unlocks: Unlocks = Unlocks()
+    var unlocks: Unlocks = Unlocks(),
+    var features: Features = Features(),
 ) {
     @Serializable
     data class Admin(
@@ -24,9 +25,15 @@ data class Settings(
         var discord: Boolean = false,
     )
 
+    @Serializable
+    data class Features(
+        var buildings: Boolean = false,
+    )
+
     fun setFrom(other: Settings) {
         admin = other.admin.copy()
         unlocks = other.unlocks.copy()
+        features = other.features.copy()
     }
 }
 

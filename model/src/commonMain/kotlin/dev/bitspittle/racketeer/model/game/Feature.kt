@@ -1,6 +1,8 @@
 package dev.bitspittle.racketeer.model.game
 
+import dev.bitspittle.limp.utils.toIdentifierName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 /**
  * @param id A consistent text value that will be used to associate this feature metadata with the code that drives it.
@@ -16,6 +18,9 @@ class Feature(
     enum class Type {
         BUILDINGS,
     }
+
+    @Transient
+    val type = Type.values().first { it.toIdentifierName() == id }
 }
 
 

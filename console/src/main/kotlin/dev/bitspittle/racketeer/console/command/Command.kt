@@ -9,6 +9,7 @@ import dev.bitspittle.racketeer.model.building.Blueprint
 import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
+import dev.bitspittle.racketeer.model.game.Feature
 import dev.bitspittle.racketeer.scripting.methods.collection.FormattedItem
 
 abstract class Command(protected val ctx: GameContext) {
@@ -79,6 +80,7 @@ abstract class Command(protected val ctx: GameContext) {
             is Building -> ctx.describer.describeBuilding(item, concise = true)
             is Card -> ctx.describer.describeCard(item, concise = true)
             is CardTemplate -> ctx.describer.describeCard(item, concise = true)
+            is Feature -> item.name
             is FormattedItem -> item.displayText ?: describeForTitle(item.wrapped)
             else -> item.toString()
         }
@@ -97,6 +99,7 @@ abstract class Command(protected val ctx: GameContext) {
             is Building -> ctx.describer.describeBuilding(item, concise = false)
             is Card -> ctx.describer.describeCard(item, concise = false )
             is CardTemplate -> ctx.describer.describeCard(item, concise = false)
+            is Feature -> item.description
             is FormattedItem -> describeForDescription(item.wrapped)
             else -> null
         }

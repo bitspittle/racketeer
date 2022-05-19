@@ -8,7 +8,10 @@ icons:
 features:
   - id: buildings
     name: Blueprints & Buildings
-    description: Extend the base game with buildings! Construct useful support structures and discover new strategies for dominating the street.
+    description: |
+      Extend the base game with buildings.
+
+      Construct useful support structures and discover new strategies for dominating the street.
 unlocks:
   - id: buildings
     name: $feature

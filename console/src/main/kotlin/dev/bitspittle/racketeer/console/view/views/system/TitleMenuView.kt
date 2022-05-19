@@ -18,7 +18,6 @@ import dev.bitspittle.racketeer.console.game.version
 import dev.bitspittle.racketeer.console.utils.createNewGame
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.console.view.views.game.play.PreDrawView
-import dev.bitspittle.racketeer.model.game.Feature
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 
@@ -46,8 +45,7 @@ class TitleMenuView(ctx: GameContext) : View(ctx) {
                 override val description = "Command your cronies, expand your turf, and become the most powerful crime boss in the city. Start a new game!"
                 override suspend fun invoke(): Boolean {
                     if (!ctx.app.userDataDir.pathForSlot(QUICKSAVE_SLOT).exists()) {
-                        ctx.state = ctx.createNewGame()
-                        ctx.viewStack.replaceView(PreDrawView(ctx))
+                        ChooseFeaturesView.enter(ctx)
                     } else {
                         ctx.viewStack.pushView(ConfirmAbortQuicksaveView(ctx))
                     }
