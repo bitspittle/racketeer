@@ -6,6 +6,7 @@ import com.varabyte.kotter.foundation.text.magenta
 import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
+import dev.bitspittle.racketeer.console.command.commands.system.BuildingListCommand
 import dev.bitspittle.racketeer.console.command.commands.system.CardListCommand
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataCommand
 import dev.bitspittle.racketeer.console.game.GameContext
@@ -23,6 +24,7 @@ class OptionsMenuView(ctx: GameContext) : View(ctx) {
     override fun createCommands(): List<Command> =
         listOf(
             CardListCommand(ctx),
+            BuildingListCommand(ctx),
             UserDataCommand(ctx),
             object : Command(ctx) {
                 override val type = if (ctx.state.isGameInProgress) Type.Warning else Type.Hidden

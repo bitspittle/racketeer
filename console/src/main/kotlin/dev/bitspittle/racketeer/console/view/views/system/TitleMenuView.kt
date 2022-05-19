@@ -6,10 +6,11 @@ import com.varabyte.kotter.runtime.render.RenderScope
 import com.varabyte.kotterx.decorations.BorderCharacters
 import com.varabyte.kotterx.decorations.bordered
 import dev.bitspittle.racketeer.console.command.Command
+import dev.bitspittle.racketeer.console.command.commands.system.BuildingListCommand
 import dev.bitspittle.racketeer.console.command.commands.system.CardListCommand
 import dev.bitspittle.racketeer.console.command.commands.system.ConfirmLoadCommand
-import dev.bitspittle.racketeer.console.command.commands.system.UserDataDir.Companion.QUICKSAVE_SLOT
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataCommand
+import dev.bitspittle.racketeer.console.command.commands.system.UserDataDir.Companion.QUICKSAVE_SLOT
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.playtestId
 import dev.bitspittle.racketeer.console.game.version
@@ -73,6 +74,7 @@ class TitleMenuView(ctx: GameContext) : View(ctx) {
                 }
             },
             CardListCommand(ctx),
+            BuildingListCommand(ctx),
             UserDataCommand(ctx),
             object : Command(ctx) {
                 override val title = "Quit"
