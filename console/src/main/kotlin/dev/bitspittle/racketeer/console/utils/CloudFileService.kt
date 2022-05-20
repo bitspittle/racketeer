@@ -134,7 +134,7 @@ class DriveCloudFileService(
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val fileId = driveService.files().list()
-                    .setQ("name='$filename'")
+                    .setQ("name='$filename' and '$DOWNLOAD_FOLDER_ID' in parents")
                     .setSpaces("drive")
                     .setFields("files(id)")
                     .execute()
