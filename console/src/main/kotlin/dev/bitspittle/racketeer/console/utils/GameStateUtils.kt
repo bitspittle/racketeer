@@ -68,6 +68,7 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
 }
 
 fun GameContext.encodeToYaml() = GameSnapshot.from(
+    data,
     describer,
     state,
     isPreDraw = viewStack.contains { view -> view is PreDrawView }

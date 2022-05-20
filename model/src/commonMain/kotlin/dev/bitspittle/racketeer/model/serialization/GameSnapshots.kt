@@ -215,7 +215,7 @@ class GameSnapshot(
     val history: List<GameChangeSnapshot>,
 ) {
     companion object {
-        fun from(describer: Describer, gameState: GameState, isPreDraw: Boolean) = GameSnapshot(
+        fun from(data: GameData, describer: Describer, gameState: GameState, isPreDraw: Boolean) = GameSnapshot(
             gameState.random,
             gameState.features,
             isPreDraw,
@@ -236,7 +236,7 @@ class GameSnapshot(
             gameState.blueprints.map { blueprint -> BlueprintSnapshot.from(blueprint) },
             gameState.buildings.map { building -> BuildingSnapshot.from(building) },
             gameState.effects.items.map { effect -> EffectSnapshot.from(effect) },
-            gameState.history.map { change -> GameChangeSnapshot.from(describer, gameState, change) }
+            gameState.history.map { change -> GameChangeSnapshot.from(data, describer, gameState, change) }
         )
     }
 
@@ -274,7 +274,7 @@ class GameSnapshot(
             effects = MutableEffects(), // Populated shortly
             history = mutableListOf(), // Populated shortly
         )
-        gs.history.addAll(history.map { it.create(gs) })
+        gs.history.addAll(history.map { it.create(data, gs) })
 
         onGameStateCreated(gs)
 
