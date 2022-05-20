@@ -211,7 +211,7 @@ abstract class View(protected val ctx: GameContext, private val initialCurrIndex
             if (showUpdateMessage && ctx.app.isUpdateAvailable) {
                 textLine()
                 yellow {
-                    textLine("A new version of the game is available. Check your email for instructions.")
+                    textLine("A new version of the game is available. Check your email for instructions.".wrap())
                 }
             }
 
