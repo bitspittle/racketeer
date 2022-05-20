@@ -10,6 +10,7 @@ import dev.bitspittle.racketeer.model.building.Blueprint
 import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.building.MutableBuilding
 import dev.bitspittle.racketeer.model.building.vpTotal
+import dev.bitspittle.racketeer.model.card.allInitActions
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.random.CopyableRandom
@@ -275,7 +276,7 @@ class MutableGameState internal constructor(
 
         // ... then execute their actions
         run {
-            unownedBeforeMove.filter { it.template.initActions.isNotEmpty() }.forEach { card -> enqueuers.card.enqueueInitActions(this, card) }
+            unownedBeforeMove.filter { it.template.allInitActions.isNotEmpty() }.forEach { card -> enqueuers.card.enqueueInitActions(this, card) }
             enqueuers.actionQueue.runEnqueuedActions()
 
             // Trigger effects that are listening for new card effects

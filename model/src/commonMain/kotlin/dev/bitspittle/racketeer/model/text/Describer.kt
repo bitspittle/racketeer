@@ -54,6 +54,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             UpgradeType.CASH -> if (icons) data.icons.cash else data.upgradeNames.cash
             UpgradeType.INFLUENCE -> if (icons) data.icons.influence else data.upgradeNames.influence
             UpgradeType.LUCK -> if (icons) data.icons.luck else data.upgradeNames.luck
+            UpgradeType.SWIFT -> null
             UpgradeType.VETERAN -> if (icons) data.icons.card else data.upgradeNames.veteran
         }
     }
@@ -62,6 +63,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             UpgradeType.CASH -> "${data.upgradeNames.cash}: +1${data.icons.cash}."
             UpgradeType.INFLUENCE -> "${data.upgradeNames.influence}: +1${data.icons.influence}."
             UpgradeType.LUCK -> "${data.upgradeNames.luck}: +1${data.icons.luck}."
+            UpgradeType.SWIFT -> "${data.upgradeNames.swift}: Goes directly to hand."
             UpgradeType.VETERAN -> "${data.upgradeNames.veteran}: Draw an extra card."
         }
     }
@@ -128,13 +130,13 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
 
         if (showDebugInfo()) {
-            if (template.initActions.isNotEmpty()) {
+            template.allInitActions.takeIf { it.isNotEmpty() }?.let { allInitActions ->
                 appendLine() // Finish previous section
                 appendLine() // Newline
                 appendLine("When first enters play:")
-                template.initActions.forEachIndexed { i, action ->
+                allInitActions.forEachIndexed { i, action ->
                     append("- $action")
-                    if (i < template.initActions.lastIndex) {
+                    if (i < allInitActions.lastIndex) {
                         appendLine()
                     }
                 }
@@ -172,7 +174,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             }
 
             if (!concise) {
-                appendCardBody(template)
+                appendCardBody(template, template.upgradeTypes)
             }
         }
     }

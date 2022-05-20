@@ -26,9 +26,7 @@ class MutableCard internal constructor(
 ) : Card {
     internal constructor(template: CardTemplate) : this(
         template, template.vp, 0, 0,
-        template.upgrades.map { upgradeStr ->
-            UpgradeType.values().first { it.name.compareTo(upgradeStr, ignoreCase = true) == 0 }
-        }.toMutableSet(),
+        template.upgradeTypes.toMutableSet(),
         uuid4(),
     )
 
@@ -79,5 +77,6 @@ class MutableCard internal constructor(
 val Card.isDexterous get() = this.upgrades.contains(UpgradeType.CASH)
 val Card.isArtful get() = this.upgrades.contains(UpgradeType.INFLUENCE)
 val Card.isLucky get() = this.upgrades.contains(UpgradeType.LUCK)
+val Card.isSwift get() = this.upgrades.contains(UpgradeType.SWIFT)
 val Card.isVeteran get() = this.upgrades.contains(UpgradeType.VETERAN)
 val Card.vpTotal get() = vpBase + vpPassive

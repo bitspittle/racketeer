@@ -47,6 +47,7 @@ upgradeNames:
   cash: Dextrous
   influence: Artful
   luck: Lucky
+  swift: Swift
   veteran: Veteran
 
 rarities:
@@ -229,9 +230,8 @@ cards:
     rarity: 1
     types: [action]
     cost: 2
-    flavor: "Jail this and two non-Cop cards you own.\n\nSwift: Goes directly to hand."
-    initActions:
-      - pile-move-to! $hand $this
+    upgrades: [swift]
+    flavor: "Jail this and two non-Cop cards you own."
     playActions:
       - pile-move-to! $jail $this
       - set '$ownednoncops filter $owned-cards '(! (card-has-type? $it 'cop))
@@ -349,9 +349,8 @@ cards:
     rarity: 2
     types: [spy, legend]
     cost: 3
-    flavor: "Give another Spy you own +&.\n\nSwift: Goes directly to hand."
-    initActions:
-      - pile-move-to! $hand $this
+    upgrades: [swift]
+    flavor: "Give another Spy you own +&."
     playActions:
       - set '$all-spies filter $owned-cards '(card-has-type? $it 'spy)
       - set '$some-spies filter $all-spies '(! (card-has-upgrade? $it 'influence))
@@ -364,9 +363,8 @@ cards:
     rarity: 2
     types: [thief, legend]
     cost: 3
-    flavor: "Give another Thief you own +$.\n\nSwift: Goes directly to hand."
-    initActions:
-      - pile-move-to! $hand $this
+    upgrades: [swift]
+    flavor: "Give another Thief you own +$."
     playActions:
       - set '$all-thieves filter $owned-cards '(card-has-type? $it 'thief)
       - set '$some-thieves filter $all-thieves '(! (card-has-upgrade? $it 'cash))
@@ -631,9 +629,8 @@ cards:
     rarity: 2
     types: [trickster]
     cost: 3
-    flavor: "Shuffle the discard pile into the deck, then discard all Treasures in it.\n\nSwift: Goes directly to hand."
-    initActions:
-      - pile-move-to! $hand $this
+    upgrades: [swift]
+    flavor: "Shuffle the discard pile into the deck, then discard all Treasures in it."
     playActions:
      - pile-move-to! $deck $discard
      - shuffle! $deck
@@ -762,9 +759,8 @@ cards:
     rarity: 2
     types: [action]
     cost: 8
-    flavor: "Gain two copies of a card you own that costs 3$ or less. Burn this card.\n\nSwift: Goes directly to hand."
-    initActions:
-      - pile-move-to! $hand $this
+    upgrades: [swift]
+    flavor: "Gain two copies of a card you own that costs 3$ or less. Burn this card."
     playActions:
       - card-remove! $this
       - set '$low-cost-owned (filter $owned-cards '(lte? (card-get $it 'cost) 3))
@@ -828,9 +824,8 @@ cards:
     rarity: 2
     types: [cop]
     cost: 4
-    flavor: "Give another Cop you own \"Draw a card.\"\n\nSwift: Goes directly to hand."
-    initActions:
-      - pile-move-to! $hand $this
+    upgrades: [swift]
+    flavor: "Give another Cop you own \"Draw a card.\""
     playActions:
       - set '$all-cops filter $owned-cards '(card-has-type? $it 'cop)
       - set '$some-cops filter $all-cops '(! (card-has-upgrade? $it 'veteran))

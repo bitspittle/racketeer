@@ -36,3 +36,13 @@ data class CardTemplate(
  */
 val CardTemplate.allPassiveActions: List<String> get() =
     (passiveVp?.let { expr -> listOf("card-set! \$this 'vp-passive ($expr)") } ?: emptyList()) + passiveActions
+
+/**
+ * A collection of all init actions, both those written explicitly and also implicitly extracted from other fields
+ */
+val CardTemplate.allInitActions: List<String> get() =
+    (if (upgradeTypes.contains(UpgradeType.SWIFT)) listOf("pile-move-to! \$hand \$this") else emptyList()) + initActions
+
+val CardTemplate.upgradeTypes: Set<UpgradeType> get() = upgrades.map { upgradeStr ->
+    UpgradeType.values().first { it.name.compareTo(upgradeStr, ignoreCase = true) == 0 }
+}.toSet()
