@@ -41,7 +41,8 @@ class BuildingPtr(val id: Uuid, val name: String) {
 @Serializable
 class PilePtr(val id: Uuid, val name: String) {
     companion object {
-        fun from(describer: Describer, state: GameState, pile: Pile) = PilePtr(pile.id, describer.describePileTitle(state, pile))
+        fun from(describer: Describer, state: GameState, pile: Pile) =
+            PilePtr(pile.id, describer.describePileTitle(state, pile))
     }
 
     fun findIn(state: GameState) = state.allPiles.first { it.id == id }
@@ -52,28 +53,29 @@ class PilePtr(val id: Uuid, val name: String) {
 @Serializable
 sealed class GameChangeSnapshot {
     companion object {
-        fun from(data: GameData, describer: Describer, state: GameState, change: GameStateChange): GameChangeSnapshot = when(change) {
-            is GameStateChange.GameStarted -> GameStarted.from(change)
-            is GameStateChange.ShuffleDiscardIntoDeck -> ShuffleDiscardIntoDeck.from(change)
-            is GameStateChange.Draw -> Draw.from(change)
-            is GameStateChange.Play -> Play.from(change)
-            is GameStateChange.MoveCard -> MoveCard.from(describer, state, change)
-            is GameStateChange.MoveCards -> MoveCards.from(describer, state, change)
-            is GameStateChange.Shuffle -> Shuffle.from(describer, state, change)
-            is GameStateChange.AddCardAmount -> AddCardAmount.from(change)
-            is GameStateChange.UpgradeCard -> UpgradeCard.from(change)
-            is GameStateChange.AddBuildingAmount -> AddBuildingAmount.from(change)
-            is GameStateChange.AddGameAmount -> AddGameAmount.from(change)
-            is GameStateChange.AddEffect -> AddEffect.from(change)
-            is GameStateChange.AddShopExclusion -> AddShopExclusion.from(change)
-            is GameStateChange.RestockShop -> RestockShop.from(change)
-            is GameStateChange.UpgradeShop -> UpgradeShop.from(change)
-            is GameStateChange.AddBlueprint -> AddBlueprint.from(change)
-            is GameStateChange.Build -> Build.from(change)
-            is GameStateChange.Activate -> Activate.from(change)
-            is GameStateChange.EndTurn -> EndTurn.from(change)
-            is GameStateChange.GameOver -> GameOver.from(change)
-        }
+        fun from(data: GameData, describer: Describer, state: GameState, change: GameStateChange): GameChangeSnapshot =
+            when (change) {
+                is GameStateChange.GameStarted -> GameStarted.from(change)
+                is GameStateChange.ShuffleDiscardIntoDeck -> ShuffleDiscardIntoDeck.from(change)
+                is GameStateChange.Draw -> Draw.from(change)
+                is GameStateChange.Play -> Play.from(change)
+                is GameStateChange.MoveCard -> MoveCard.from(describer, state, change)
+                is GameStateChange.MoveCards -> MoveCards.from(describer, state, change)
+                is GameStateChange.Shuffle -> Shuffle.from(describer, state, change)
+                is GameStateChange.AddCardAmount -> AddCardAmount.from(change)
+                is GameStateChange.UpgradeCard -> UpgradeCard.from(change)
+                is GameStateChange.AddBuildingAmount -> AddBuildingAmount.from(change)
+                is GameStateChange.AddGameAmount -> AddGameAmount.from(change)
+                is GameStateChange.AddEffect -> AddEffect.from(change)
+                is GameStateChange.AddShopExclusion -> AddShopExclusion.from(change)
+                is GameStateChange.RestockShop -> RestockShop.from(change)
+                is GameStateChange.UpgradeShop -> UpgradeShop.from(change)
+                is GameStateChange.AddBlueprint -> AddBlueprint.from(change)
+                is GameStateChange.Build -> Build.from(change)
+                is GameStateChange.Activate -> Activate.from(change)
+                is GameStateChange.EndTurn -> EndTurn.from(change)
+                is GameStateChange.GameOver -> GameOver.from(change)
+            }
     }
 
     abstract fun create(data: GameData, state: GameState): GameStateChange
@@ -84,6 +86,7 @@ sealed class GameChangeSnapshot {
         companion object {
             fun from(change: GameStateChange.GameStarted) = GameStarted()
         }
+
         override fun create(data: GameData, state: GameState) = GameStateChange.GameStarted()
     }
 
@@ -93,6 +96,7 @@ sealed class GameChangeSnapshot {
         companion object {
             fun from(change: GameStateChange.ShuffleDiscardIntoDeck) = ShuffleDiscardIntoDeck()
         }
+
         override fun create(data: GameData, state: GameState) = GameStateChange.ShuffleDiscardIntoDeck()
     }
 
@@ -102,6 +106,7 @@ sealed class GameChangeSnapshot {
         companion object {
             fun from(change: GameStateChange.Draw) = Draw(change.count)
         }
+
         override fun create(data: GameData, state: GameState) = GameStateChange.Draw(count)
     }
 
@@ -111,12 +116,14 @@ sealed class GameChangeSnapshot {
         companion object {
             fun from(change: GameStateChange.Play) = Play(change.handIndex)
         }
+
         override fun create(data: GameData, state: GameState) = GameStateChange.Play(handIndex)
     }
 
     @Serializable
     @SerialName("MoveCard")
-    class MoveCard(val cardPtr: CardPtr, val pilePtr: PilePtr, val listStrategy: ListStrategy = ListStrategy.BACK) : GameChangeSnapshot() {
+    class MoveCard(val cardPtr: CardPtr, val pilePtr: PilePtr, val listStrategy: ListStrategy = ListStrategy.BACK) :
+        GameChangeSnapshot() {
         companion object {
             fun from(describer: Describer, state: GameState, change: GameStateChange.MoveCard) = MoveCard(
                 CardPtr.from(change.card),
@@ -124,12 +131,18 @@ sealed class GameChangeSnapshot {
                 change.listStrategy
             )
         }
-        override fun create(data: GameData, state: GameState) = GameStateChange.MoveCard(cardPtr.findIn(state), pilePtr.findIn(state), listStrategy)
+
+        override fun create(data: GameData, state: GameState) =
+            GameStateChange.MoveCard(cardPtr.findIn(state), pilePtr.findIn(state), listStrategy)
     }
 
     @Serializable
     @SerialName("MoveCards")
-    class MoveCards(val cardPtrs: List<CardPtr>, val pilePtr: PilePtr, val listStrategy: ListStrategy = ListStrategy.BACK) : GameChangeSnapshot() {
+    class MoveCards(
+        val cardPtrs: List<CardPtr>,
+        val pilePtr: PilePtr,
+        val listStrategy: ListStrategy = ListStrategy.BACK
+    ) : GameChangeSnapshot() {
         companion object {
             fun from(describer: Describer, state: GameState, change: GameStateChange.MoveCards) = MoveCards(
                 change.cards.map { card -> CardPtr.from(card) },
@@ -137,18 +150,22 @@ sealed class GameChangeSnapshot {
                 change.listStrategy
             )
         }
+
         override fun create(data: GameData, state: GameState) = GameStateChange.MoveCards(
             cardPtrs.map { cardPtr -> cardPtr.findIn(state) },
             pilePtr.findIn(state),
-            listStrategy)
+            listStrategy
+        )
     }
 
     @Serializable
     @SerialName("Shuffle")
     class Shuffle(val pilePtr: PilePtr) : GameChangeSnapshot() {
         companion object {
-            fun from(describer: Describer, state: GameState, change: GameStateChange.Shuffle) = Shuffle(PilePtr.from(describer, state, change.pile))
+            fun from(describer: Describer, state: GameState, change: GameStateChange.Shuffle) =
+                Shuffle(PilePtr.from(describer, state, change.pile))
         }
+
         override fun create(data: GameData, state: GameState) = GameStateChange.Shuffle(pilePtr.findIn(state))
     }
 
@@ -162,7 +179,9 @@ sealed class GameChangeSnapshot {
                 change.amount
             )
         }
-        override fun create(data: GameData, state: GameState) = GameStateChange.AddCardAmount(property, cardPtr.findIn(state), amount)
+
+        override fun create(data: GameData, state: GameState) =
+            GameStateChange.AddCardAmount(property, cardPtr.findIn(state), amount)
     }
 
     @Serializable
@@ -171,12 +190,15 @@ sealed class GameChangeSnapshot {
         companion object {
             fun from(change: GameStateChange.UpgradeCard) = UpgradeCard(CardPtr.from(change.card), change.upgradeType)
         }
-        override fun create(data: GameData, state: GameState) = GameStateChange.UpgradeCard(cardPtr.findIn(state), upgradeType)
+
+        override fun create(data: GameData, state: GameState) =
+            GameStateChange.UpgradeCard(cardPtr.findIn(state), upgradeType)
     }
 
     @Serializable
     @SerialName("AddBuildingAmount")
-    class AddBuildingAmount(val property: BuildingProperty, val buildingPtr: BuildingPtr, val amount: Int) : GameChangeSnapshot() {
+    class AddBuildingAmount(val property: BuildingProperty, val buildingPtr: BuildingPtr, val amount: Int) :
+        GameChangeSnapshot() {
         companion object {
             fun from(change: GameStateChange.AddBuildingAmount) =
                 AddBuildingAmount(change.property, BuildingPtr.from(change.building), change.amount)
@@ -192,6 +214,7 @@ sealed class GameChangeSnapshot {
         companion object {
             fun from(change: GameStateChange.AddGameAmount) = AddGameAmount(change.property, change.amount)
         }
+
         override fun create(data: GameData, state: GameState) = GameStateChange.AddGameAmount(property, amount)
     }
 
@@ -215,7 +238,15 @@ sealed class GameChangeSnapshot {
         override fun create(data: GameData, state: GameState) = run {
             // These effects won't ever get run, they're just saved so that we can review a user's history (at the
             // moment, at least!). So just create dummy effects for now to satisfy the serializer.
-            val dummyEffect = Effect<Any>(desc, lifetime, event, this.data, testExpr, expr, test = { error("Dummy effect") }, action = { error("Dummy effect") })
+            val dummyEffect = Effect<Any>(
+                desc,
+                lifetime,
+                event,
+                this.data,
+                testExpr,
+                expr,
+                test = { error("Dummy effect") },
+                action = { error("Dummy effect") })
             GameStateChange.AddEffect(dummyEffect)
         }
     }
@@ -226,9 +257,11 @@ sealed class GameChangeSnapshot {
         companion object {
             fun from(change: GameStateChange.AddShopExclusion) = AddShopExclusion(change.exclusion.expr)
         }
+
         // Just create a dummy exclusion here. We're not really expecting to recreate anything here. We're just keeping
         // the history so a human can look things over in the save file
-        override fun create(data: GameData, state: GameState) = GameStateChange.AddShopExclusion(Exclusion(expr) { error("Not expected to get called") })
+        override fun create(data: GameData, state: GameState) =
+            GameStateChange.AddShopExclusion(Exclusion(expr) { error("Not expected to get called") })
     }
 
     @Serializable
@@ -237,6 +270,7 @@ sealed class GameChangeSnapshot {
         companion object {
             fun from(change: GameStateChange.RestockShop) = RestockShop()
         }
+
         override fun create(data: GameData, state: GameState) = GameStateChange.RestockShop()
     }
 
@@ -246,6 +280,7 @@ sealed class GameChangeSnapshot {
         companion object {
             fun from(change: GameStateChange.UpgradeShop) = UpgradeShop()
         }
+
         override fun create(data: GameData, state: GameState) = GameStateChange.UpgradeShop()
     }
 
@@ -255,7 +290,9 @@ sealed class GameChangeSnapshot {
         companion object {
             fun from(change: GameStateChange.AddBlueprint) = AddBlueprint(change.blueprint.name)
         }
-        override fun create(data: GameData, state: GameState) = GameStateChange.AddBlueprint(data.blueprints.single { it.name == name })
+
+        override fun create(data: GameData, state: GameState) =
+            GameStateChange.AddBlueprint(data.blueprints.single { it.name == name })
     }
 
     @Serializable
@@ -264,6 +301,7 @@ sealed class GameChangeSnapshot {
         companion object {
             fun from(change: GameStateChange.Build) = Build(change.blueprintIndex)
         }
+
         override fun create(data: GameData, state: GameState) = GameStateChange.Build(blueprintIndex)
     }
 
@@ -273,6 +311,7 @@ sealed class GameChangeSnapshot {
         companion object {
             fun from(change: GameStateChange.Activate) = Activate(change.buildingIndex)
         }
+
         override fun create(data: GameData, state: GameState) = GameStateChange.Activate(buildingIndex)
     }
 
@@ -282,6 +321,7 @@ sealed class GameChangeSnapshot {
         companion object {
             fun from(change: GameStateChange.EndTurn) = EndTurn()
         }
+
         override fun create(data: GameData, state: GameState) = GameStateChange.EndTurn()
     }
 
@@ -291,6 +331,7 @@ sealed class GameChangeSnapshot {
         companion object {
             fun from(change: GameStateChange.GameOver) = GameOver()
         }
+
         override fun create(data: GameData, state: GameState) = GameStateChange.GameOver()
     }
 }

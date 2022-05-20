@@ -66,7 +66,6 @@ sealed class GameStateChange {
             effects.processCardPlayed(card)
             enqueuers.card.enqueuePlayActions(this, card)
             enqueuers.actionQueue.runEnqueuedActions()
-
         }
     }
 
