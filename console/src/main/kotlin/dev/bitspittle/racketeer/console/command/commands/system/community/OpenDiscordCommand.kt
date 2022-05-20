@@ -2,11 +2,6 @@ package dev.bitspittle.racketeer.console.command.commands.system.community
 
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.game.Version
-import dev.bitspittle.racketeer.console.game.version
-import dev.bitspittle.racketeer.console.view.views.game.buildings.BuildingListView
-import java.awt.Desktop
-import java.net.URI
 
 class OpenDiscordCommand(ctx: GameContext) : Command(ctx) {
     private var downloading = false
@@ -19,7 +14,8 @@ class OpenDiscordCommand(ctx: GameContext) : Command(ctx) {
         downloading = true
         ctx.app.cloudFileService.download("discord.txt",
             onDownloaded = { urlStr ->
-                Desktop.getDesktop().browse(URI.create(urlStr.trim()))
+                ctx.app.logger.info("Please point your browser at: ${urlStr.trim()}")
+                ctx.app.logger.info("\nNote: Most terminals allow ctrl / cmd clicking the link.")
                 downloading = false
            },
             onFailed = {

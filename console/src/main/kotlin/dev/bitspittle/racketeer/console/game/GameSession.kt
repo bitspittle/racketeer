@@ -1,5 +1,6 @@
 package dev.bitspittle.racketeer.console.game
 
+import com.varabyte.kotter.foundation.collections.liveListOf
 import com.varabyte.kotter.foundation.input.onInputChanged
 import com.varabyte.kotter.foundation.input.onInputEntered
 import com.varabyte.kotter.foundation.input.onKeyPressed
@@ -56,7 +57,7 @@ class GameSession(
             Settings()
         }
 
-        val logRenderers = mutableListOf<RenderScope.() -> Unit>()
+        val logRenderers = liveListOf<RenderScope.() -> Unit>()
         var handleQuit: () -> Unit = {}
         val app = object : App {
             override fun quit() {
