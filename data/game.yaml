@@ -393,7 +393,7 @@ cards:
       - game-add! 'cash 1
       - game-add! 'influence 1
       - game-add! 'luck 1
-      - fx-add! --event 'turn-end --data (card-get $this 'id) '(run '(pile-move-to! $deck (card-with-id $data)) '(shuffle! $deck))
+      - fx-add! --desc "At end of turn, shuffle Roving Gambler into your deck." --event 'turn-end --data (card-get $this 'id) '(run '(pile-move-to! $deck (card-with-id $data)) '(shuffle! $deck))
 
   - name: Gold Chain
     tier: 1
