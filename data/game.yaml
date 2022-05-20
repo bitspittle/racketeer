@@ -5,6 +5,7 @@ icons:
   luck: "🎲"
   card: "🃏"
   vp: "🌟"
+
 features:
   - id: buildings
     name: Blueprints & Buildings
@@ -12,22 +13,26 @@ features:
       Extend the base game with buildings.
 
       Construct useful support structures and discover new strategies for dominating the street.
+
 unlocks:
+
   - id: feedback
     name: Feedback Access
     description: Send us feedback using our form. We're listening to you!
     codename: heylisten
     vp: 1
+
   - id: buildings
     name: $feature
     description: You can choose the "$feature" game mode the next time you select "New Game".
     codename: realestate
-    vp: 200
+    vp: 120
+
   - id: discord
     name: Discord Access
     description: Join the community! Share stories of your triumphs, trials, and tribulations.
     codename: speakeasy
-    vp: 500
+    vp: 300
 
 numTurns: 20
 initialHandSize: 5
@@ -215,7 +220,7 @@ cards:
     rarity: 1
     types: [thief, trickster]
     cost: 2
-    flavor: Gain $ and &.
+    flavor: Gain $ and %.
     playActions:
       - game-add! 'cash 1
       - game-add! 'luck 1
@@ -383,11 +388,12 @@ cards:
     rarity: 1
     types: [thief, spy, trickster]
     cost: 3
-    flavor: Gain $, &, and %.
+    flavor: Gain $, &, and %. At end of turn, shuffle this into your deck.
     playActions:
       - game-add! 'cash 1
       - game-add! 'influence 1
       - game-add! 'luck 1
+      - fx-add! --event 'turn-end --data (card-get $this 'id) '(run '(pile-move-to! $deck (card-with-id $data)) '(shuffle! $deck))
 
   - name: Gold Chain
     tier: 1
@@ -454,7 +460,7 @@ cards:
     rarity: 1
     types: [spy, cop]
     cost: 4
-    flavor: Gain 2&. You may jail a card on the Street.
+    flavor: Gain 2&. You may jail a card on the street.
     playActions:
       - game-add! 'influence 2
       - pile-move-to! $jail (choose --prompt "Choose up to one card to jail." $street .. 0 1)
@@ -626,7 +632,7 @@ cards:
       - cancel-if! empty? $hand
       - set '$copied-card single (choose --prompt "Choose a card to copy." $hand 1)
       - set '$my-name card-get $this 'name
-      - if-true (= $my-name card-get $copied-card 'name) '(run '(info "Sorry, it is strictly forbidden by the sacred Mime Code to use their powers on a fellow Mime.") '(cancel!))
+      - if-true (= $my-name card-get $copied-card 'name) '(run '(info "Sorry, it is strictly forbidden by the sacred Mime Code to use one's powers on a fellow Mime.") '(cancel!))
       - card-remove! $this
       - pile-copy-to! $hand $copied-card
 
@@ -816,14 +822,13 @@ cards:
     rarity: 1
     types: [action]
     cost: 3
-    flavor: Choose up to three cards from Discard or Jail to shuffle into your deck.
+    flavor: Play a card from jail or discard, then burn it.
     playActions:
      - set '$discard-or-jail (union $discard $jail)
-     - if-false (empty? $discard-or-jail) '(run
-          '(set '$cards-to-shuffle (choose-across-piles "Choose up to three cards to shuffle into your deck." $discard-or-jail .. 0 3))
-          '(pile-move-to! $deck $cards-to-shuffle)
-           )
-     - shuffle! $deck
+     - cancel-if! (empty? $discard-or-jail)
+     - set '$card-to-play single (choose-across-piles "Choose a card to play and burn." $discard-or-jail 1)
+     - card-trigger! $card-to-play
+     - run-later '(card-remove! $card-to-play)
 
   - name: Police Trainer
     tier: 3
@@ -860,7 +865,7 @@ cards:
     flavor: Gain %%. At end of turn, you may put a Thief from the street on top of your deck.
     playActions:
       - game-add! 'luck 2
-      - fx-add! --event 'turn-end '(if-false empty? (filter $street '(card-has-type? $it 'thief)) '(pile-move-to! --pos 'front $deck (choose --required _ --prompt "You may put a Thief on top of your deck." (filter $street '(card-has-type? $it 'thief)) .. 0 1)))
+      - fx-add! --desc "At end of turn, you may put a Thief from the street on top of your deck." --event 'turn-end '(if-false empty? (filter $street '(card-has-type? $it 'thief)) '(pile-move-to! --pos 'front $deck (choose --required _ --prompt "You may put a Thief on top of your deck." (filter $street '(card-has-type? $it 'thief)) .. 0 1)))
 
 
 
@@ -874,6 +879,18 @@ cards:
       - stop-if! empty? $shop
       - pile-move-to! $street (choose --format $fmt-card-with-cost --prompt "Choose a card to add to the street." $shop 1)
       - pile-copy-to! $hand (card-named "Constable")
+
+
+#  - name: Old Gaffin
+#    tier: 3
+#    rarity: 2
+#    types: [thief, legend]
+#    cost: 5
+#    flavor: Gain 2$. Gain * whenever you play a Pickpocket or Burglar this turn.
+#    playActions:
+#      - game-add! 'cash 2
+#      - fx-add! --desc (icon-convert "Gain * whenever you play a Pickpocket or Burglar.") --data (card-get $this 'id) '(if-true or? (= card-get $card 'name "Pickpocket") (= card-get $card 'name "Burglar") '(card-add! card-with-id $data 'vp 1))
+
 
   - name: Gem Cutter
     tier: 3
@@ -970,16 +987,6 @@ cards:
     flavor: Gain 2%.
     playActions:
       - game-add! 'luck 2
-
-#  - name: Old Gaffin
-#    tier: 4
-#    rarity: 2
-#    types: [thief, legend]
-#    cost: 5
-#    flavor: Gain 2$. Gain * whenever you play a Pickpocket or Burglar this turn.
-#    playActions:
-#      - game-add! 'cash 2
-#      - fx-add! --desc (icon-convert "Gain * whenever you play a Pickpocket or Burglar.") --data (card-get $this 'id) '(if-true or? (= card-get $card 'name "Pickpocket") (= card-get $card 'name "Burglar") '(card-add! card-with-id $data 'vp 1))
 
   - name: Annie Doshen
     tier: 4
@@ -1083,15 +1090,27 @@ cards:
 
 blueprints:
 
+  - name: Opera House
+    flavor: "Activate: Play a card from jail, then burn it."
+    buildCost:
+      cash: 2
+      influence: 2
+    canActivate: ! empty? $jail
+    activateActions:
+     - set '$card-to-play single (choose --prompt "Choose a card to play and burn." $jail 1)
+     - card-trigger! $card-to-play
+     - run-later '(card-remove! $card-to-play)
+
+
   - name: Forger's Workshop
-    flavor: Get an extra copy of the next card you get this turn.
+    flavor: "Activate: Get an extra copy of the next card you get this turn."
     buildCost:
       cash: 3
       influence: 3
     activationCost:
       cash: 2
     activateActions:
-      - fx-add! --lifetime 'once --event 'create '(run-later '(pile-copy-to! $street $card))
+      - fx-add! --desc "Get an extra copy of the next card you get this turn." --lifetime 'once --event 'create '(run-later '(pile-copy-to! $street $card))
 
 
   - name: Flea Market
@@ -1109,20 +1128,20 @@ blueprints:
       - pile-copy-to! $street list-get $random-tier-cards 2
 
   - name: Banana Stand
-    flavor: This gets a banana counter at the start of every turn. Activate to sell bananas for $ each.
+    flavor: "This gets a banana counter at the start of every turn.\nActivate: sell bananas for $ each."
     buildCost:
       cash: 2
       influence: 2
     canActivate: gt? (building-get $this 'counter) 0
     initActions:
-      - fx-add! --lifetime 'game --event 'turn-start --data (building-get $this 'id) '(building-add! building-with-id $data 'counter 1)
+      - fx-add! --desc "Get a banana counter at the start of every turn." --lifetime 'game --event 'turn-start --data (building-get $this 'id) '(building-add! building-with-id $data 'counter 1)
     activateActions:
       - game-add! 'cash (building-get $this 'counter)
       - building-set! $this 'counter 0
 
 
   - name: Exclusive Lounge
-    flavor: Reroll the shop with Legends.
+    flavor: "Activate: Reroll the shop with Legends."
     buildCost:
       cash: 4
       influence: 4
@@ -1147,7 +1166,7 @@ blueprints:
       influence: 1
     canActivate: false # Passive building
     initActions:
-      - blueprint-own! single choose --format $fmt-blueprint-with-cost --required _ (take --from 'random $unowned-blueprints 3) 1
+      - blueprint-own! single choose --prompt "Choose a blueprint." --format $fmt-blueprint-with-cost --required _ (take --from 'random $unowned-blueprints 3) 1
 
   - name: Interrogation Room
     flavor: At end of turn, jail one of two random cards you own.
@@ -1156,14 +1175,14 @@ blueprints:
       influence: 3
     canActivate: false # Passive building
     initActions:
-      - fx-add! --lifetime 'game --event 'turn-end '(run
+      - fx-add! --desc "At end of turn, jail one of two random cards you own." --lifetime 'game --event 'turn-end '(run
          '(cancel-if! (< (size $owned-cards) 2))
          '(set '$suspects (take --from 'random $owned-cards 2))
          '(pile-move-to! $jail (choose-across-piles "Choose a card to jail." $suspects 1))
          )
 
   - name: School of Hard Knocks
-    flavor: Fully upgrade a Thief, Spy, Trickster, or Cop in your hand.
+    flavor: "Activate: Fully upgrade a Thief, Spy, Trickster, or Cop in your hand."
     buildCost:
       cash: 4
       influence: 4
@@ -1195,7 +1214,7 @@ blueprints:
       influence: 4
     canActivate: false # Passive building
     initActions:
-      - fx-add! --lifetime 'game --event 'turn-start --data (building-get $this 'id) '(building-add! building-with-id $data 'vp 2)
+      - fx-add! --desc (icon-convert "Gain ** at the start of every turn.") --lifetime 'game --event 'turn-start --data (building-get $this 'id) '(building-add! building-with-id $data 'vp 2)
 
   - name: Five and Dime
     flavor: Whenever you get a card, this gains *.
@@ -1214,7 +1233,7 @@ blueprints:
       influence: 2
     canActivate: false # Passive building
     initActions:
-      - fx-add! --lifetime 'game --event 'create '(if-true (card-has-type? $card 'cop) '(run '(game-add! 'cash 2) '(game-add! 'influence 2)))
+      - fx-add! --desc (icon-convert "Whenever you get a Cop, gain $$ and &&.") --lifetime 'game --event 'create '(if-true (card-has-type? $card 'cop) '(run '(game-add! 'cash 2) '(game-add! 'influence 2)))
 
 
   - name: Poker Parlor
@@ -1224,11 +1243,11 @@ blueprints:
       influence: 2
     canActivate: false # Passive building
     initActions:
-      - fx-add! --lifetime 'game --data (building-get $this 'id) --event 'shuffle '(if-true (= $pile $deck) '(building-add! building-with-id $data 'vp 3))
+      - fx-add! --desc (icon-convert "Whenever you shuffle your deck, gain ***.") --lifetime 'game --data (building-get $this 'id) --event 'shuffle '(if-true (= $pile $deck) '(building-add! building-with-id $data 'vp 3))
 
 
   - name: City Hall
-    flavor: Gain 4&.
+    flavor: "Activate: Gain 4&."
     buildCost:
       cash: 3
       influence: 3
@@ -1239,7 +1258,7 @@ blueprints:
 
 
   - name: Stock Exchange
-    flavor: Gain 4$.
+    flavor: "Activate: Gain 4$."
     buildCost:
       cash: 3
       influence: 3
@@ -1249,7 +1268,7 @@ blueprints:
       - game-add! 'cash 4
 
   - name: Newsstand
-    flavor: Draw a card.
+    flavor: "Activate: Draw a card."
     buildCost:
       cash: 2
       influence: 2
@@ -1259,7 +1278,7 @@ blueprints:
       - game-draw! 1
 
   - name: Dark Alley
-    flavor: Draw a card for each Burglar in your hand.
+    flavor: "Activate: Draw a card for each Burglar in your hand."
     buildCost:
       cash: 4
       influence: 4
@@ -1268,7 +1287,7 @@ blueprints:
 
 
   - name: Craps Den
-    flavor: Roll a die. Gain that much $.
+    flavor: "Activate: Roll a die. Gain that much $."
     buildCost:
       cash: 4
       influence: 4
@@ -1278,30 +1297,30 @@ blueprints:
       - game-add! 'cash random .. 1 6
 
   - name: Cinema
-    flavor: At the end of your turn, choose a card from the street to put on top of your deck.
+    flavor: At end of turn, choose a card from the street to put on top of your deck.
     buildCost:
       cash: 6
       influence: 6
     canActivate: false
     initActions:
-      - fx-add! --event 'turn-end --lifetime 'game '(if-false empty? $street '(pile-move-to! --pos 'front $deck (choose --required _ $street 1)))
+      - fx-add! --desc "At end of turn, choose a card from the street to put on top of your deck." --event 'turn-end --lifetime 'game '(if-false empty? $street '(pile-move-to! --pos 'front $deck (choose --prompt "Choose a card to put on top of your deck." --required _ $street 1)))
 
 
   - name: Jazz Club
-    flavor: At the beginning of your turn, randomly gain $$, &&, or %%.
+    flavor: At the beginning of every turn, randomly gain $$, &&, or %%.
     buildCost:
       cash: 2
       influence: 2
     canActivate: false
     initActions:
-      - fx-add! --event 'turn-start --lifetime 'game '(run 
+      - fx-add! --desc (icon-convert "At the beginning of every turn, randomly gain $$, &&, or %%.") --event 'turn-start --lifetime 'game '(run 
          '(set '$chosen-index (random (list 0 1 2)))
          '(if-true (= $chosen-index 0) '(game-add! 'cash 2))
          '(if-true (= $chosen-index 1) '(game-add! 'influence 2))
          '(if-true (= $chosen-index 2) '(game-add! 'luck 2)))
 
   - name: Pawn Shop
-    flavor: Reroll the shop with cards you own.
+    flavor: "Activate: Reroll the shop with cards you own."
     buildCost:
       cash: 3
       influence: 3
@@ -1310,7 +1329,7 @@ blueprints:
       - shop-reroll! '(in? $cardnames (card-get $card 'name))
 
   - name: Chop Shop
-    flavor: Jail a card you own. Get a random card one Tier higher.
+    flavor: "Activate: Jail a card you own. Get a random card one Tier higher."
     buildCost:
       cash: 3
       influence: 3
@@ -1350,16 +1369,12 @@ blueprints:
     passiveVp: size (distinct (map $owned-cards '(card-get $it 'name)))
 
   - name: Boxing Ring
-    flavor: This turn, your Actions take effect an additional time.
+    flavor: "Activate: The next Action you play this turn takes effect an additional time."
     buildCost:
       cash: 4
       influence: 4
-    activationCost:
-      cash: 2
     activateActions:
       - fx-add! --lifetime 'once --desc "Your next Action takes effect an additional time." --if '(card-has-type? $card 'action) '(card-trigger! $card)
-
-# Want to make this once a turn but for some reason it's not working now. Fix later.
 
   - name: Gleaming Skyscraper
     flavor: Whenever you play a Thief, this gains *.
@@ -1371,7 +1386,7 @@ blueprints:
       - fx-add! --lifetime 'game --desc (icon-convert "Gain * whenever you play a Thief.") --data (building-get $this 'id) '(if-true (card-has-type? $card 'thief) '(building-add! building-with-id $data 'vp 1))
 
   - name: Counterfeiting Press
-    flavor: Get a copy of a Treasure you own of Tier 3 or lower.
+    flavor: "Activate: Get a copy of a Treasure you own of Tier 3 or lower."
     buildCost:
       cash: 6
       influence: 6
