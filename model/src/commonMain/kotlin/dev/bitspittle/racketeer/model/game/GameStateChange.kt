@@ -59,14 +59,14 @@ sealed class GameStateChange {
             if (card.isDexterous) apply(AddGameAmount(GameProperty.CASH, 1))
             if (card.isArtful) apply(AddGameAmount(GameProperty.INFLUENCE, 1))
             if (card.isLucky) apply(AddGameAmount(GameProperty.LUCK, 1))
+            if (card.isVeteran) apply(Draw(1))
 
-            // Playing this card might install an effect, but that shouldn't take effect until the next card is played
-            val effectsCopy = effects.copy()
+            // Trigger effects first. Once we play a card, it might install an additional effect, which we don't want
+            // to immediately run against the card itself
+            effects.processCardPlayed(card)
             enqueuers.card.enqueuePlayActions(this, card)
             enqueuers.actionQueue.runEnqueuedActions()
-            effectsCopy.processCardPlayed(card)
 
-            if (card.isVeteran) apply(Draw(1))
         }
     }
 
