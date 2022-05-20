@@ -11,6 +11,7 @@ import dev.bitspittle.racketeer.console.command.commands.system.CardListCommand
 import dev.bitspittle.racketeer.console.command.commands.system.ConfirmLoadCommand
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataCommand
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataDir.Companion.QUICKSAVE_SLOT
+import dev.bitspittle.racketeer.console.command.commands.system.community.OpenDiscordCommand
 import dev.bitspittle.racketeer.console.command.commands.system.unlock.UnlockListCommand
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.playtestId
@@ -78,6 +79,7 @@ class TitleMenuView(ctx: GameContext) : View(ctx) {
             BuildingListCommand(ctx),
             UnlockListCommand(ctx),
             UserDataCommand(ctx),
+            OpenDiscordCommand(ctx),
             object : Command(ctx) {
                 override val title = "Quit"
                 override val description = "Actually, I'm feeling scared. Maybe this crime stuff isn't for me..."
