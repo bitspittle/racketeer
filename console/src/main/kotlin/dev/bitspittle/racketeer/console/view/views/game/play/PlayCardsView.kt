@@ -5,7 +5,7 @@ import dev.bitspittle.racketeer.console.command.commands.game.play.EndTurnComman
 import dev.bitspittle.racketeer.console.command.commands.game.play.PlayCardCommand
 import dev.bitspittle.racketeer.console.command.commands.game.play.VisitShopCommand
 import dev.bitspittle.racketeer.console.command.commands.buildings.ActivateBuildingCommand
-import dev.bitspittle.racketeer.console.command.commands.buildings.BrowseBlueprintsCommand
+import dev.bitspittle.racketeer.console.command.commands.buildings.VisitBlueprintsCommand
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.View
 
@@ -23,7 +23,7 @@ class PlayCardsView(ctx: GameContext) : View(ctx) {
         List(ctx.state.hand.cards.size) { i -> PlayCardCommand(ctx, i) } +
         ctx.state.buildings.map { building -> ActivateBuildingCommand(ctx, building) } + listOf(
             VisitShopCommand(ctx),
-            BrowseBlueprintsCommand(ctx),
+            VisitBlueprintsCommand(ctx),
             EndTurnCommand(ctx),
         )
 }

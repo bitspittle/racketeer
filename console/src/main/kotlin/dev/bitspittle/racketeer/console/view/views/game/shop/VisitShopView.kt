@@ -3,6 +3,7 @@ package dev.bitspittle.racketeer.console.view.views.game.shop
 import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.runtime.MainRenderScope
 import dev.bitspittle.racketeer.console.command.Command
+import dev.bitspittle.racketeer.console.command.commands.buildings.VisitBlueprintsCommand
 import dev.bitspittle.racketeer.console.command.commands.game.shop.*
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.user.inAdminModeAndShowDebugInfo
@@ -16,7 +17,8 @@ class VisitShopView(ctx: GameContext) : View(ctx) {
             if (card != null) BuyCardCommand(ctx, card) else SoldOutCardCommand(ctx)
         } + listOf(
             RestockShopCommand(ctx),
-            if (ctx.state.shop.tier < ctx.data.maxTier) ExpandShopCommand(ctx) else MaxedOutShopCommand(ctx)
+            if (ctx.state.shop.tier < ctx.data.maxTier) ExpandShopCommand(ctx) else MaxedOutShopCommand(ctx),
+            VisitBlueprintsCommand(ctx)
         )
     }
 

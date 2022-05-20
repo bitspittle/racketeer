@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.console.command.commands.game.play
 
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
+import dev.bitspittle.racketeer.console.view.popAll
 import dev.bitspittle.racketeer.console.view.views.game.shop.VisitShopView
 import dev.bitspittle.racketeer.model.shop.Shop
 
@@ -20,6 +21,7 @@ class VisitShopCommand(ctx: GameContext) : Command(ctx) {
     override val description = "Look over the cards in the shop, or take other relevant actions."
 
     override suspend fun invoke(): Boolean {
+        ctx.viewStack.popAll() // Blueprints should always be anchored to the top level
         ctx.viewStack.pushView(VisitShopView(ctx))
         return true
     }
