@@ -7,5 +7,6 @@ class OpenDiscordCommand(ctx: GameContext) : BrowserCommand(
     ctx,
     "Open Discord",
     "Get a link for joining the ${ctx.data.title} Discord Server.",
-    "discord.txt"
+    "discord.txt",
+    ctx.settings.unlocks.discord
 )

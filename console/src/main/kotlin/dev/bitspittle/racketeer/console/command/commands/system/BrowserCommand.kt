@@ -7,10 +7,15 @@ open class BrowserCommand(
     ctx: GameContext,
     final override val title: String,
     final override val description: String,
-    private val linkFilename: String
+    private val linkFilename: String,
+    private val isUnlocked: Boolean,
 ) : Command(ctx) {
     private var downloading = false
-    final override val type get() = if (ctx.settings.unlocks.discord) Type.Normal else Type.Hidden
+    final override val type get() = when {
+        isUnlocked -> if (downloading) Type.Blocked else Type.Normal
+        else -> Type.Hidden
+    }
+
     final override suspend fun invoke(): Boolean {
         if (downloading) return false
 

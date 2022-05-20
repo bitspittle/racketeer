@@ -7,5 +7,6 @@ class SendFeedbackCommand(ctx: GameContext) : BrowserCommand(
     ctx,
     "Send Feedback",
     "Get a link for filing feedback that the devs will see.",
-    "feedback.txt"
+    "feedback.txt",
+    ctx.settings.unlocks.feedback
 )
