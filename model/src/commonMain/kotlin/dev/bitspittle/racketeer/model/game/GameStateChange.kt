@@ -102,6 +102,9 @@ sealed class GameStateChange {
     }
 
     class UpgradeCard(val card: Card, val upgradeType: UpgradeType) : GameStateChange() {
+        init {
+            check(!upgradeType.isInternal()) { "Unexpected request to upgrade card with internal upgrade type: $upgradeType"}
+        }
         override suspend fun MutableGameState.apply() {
             (card as MutableCard).upgrades.add(upgradeType)
         }
