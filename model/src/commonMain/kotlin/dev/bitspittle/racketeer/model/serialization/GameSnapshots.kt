@@ -118,9 +118,10 @@ class ShopSnapshot(
         )
     }
 
-    fun create(data: GameData, random: CopyableRandom) = MutableShop(
+    fun create(data: GameData, features: Set<Feature.Type>, random: CopyableRandom) = MutableShop(
         random,
         data.cards,
+        features,
         data.shopSizes,
         data.tierFrequencies,
         data.rarities.map { it.frequency },
@@ -262,7 +263,7 @@ class GameSnapshot(
             luck,
             0, // Recaluclated shortly
             handSize,
-            shop.create(data, random),
+            shop.create(data, features, random),
             deck.create(data),
             hand.create(data),
             street.create(data),

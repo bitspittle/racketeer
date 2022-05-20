@@ -171,6 +171,7 @@ cards:
       - game-add! 'cash 1
 
   - name: Agent Magpie
+    feature: buildings
     tier: 0
     types: [thief, spy, trickster, cop]
     flavor: Gain $, &, and %. Then this gains either +$, +&, +%, or "Draw a card", in that order.
@@ -1009,10 +1010,10 @@ cards:
      - card-remove! $this
 
   - name: Real Estate Fraud
+    feature: buildings
     tier: 4
     rarity: 2
     types: [action]
-    features: [buildings]
     cost: 7
     flavor: When you get this, burn it and get a random blueprint.
     initActions:

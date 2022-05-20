@@ -129,7 +129,7 @@ class MutableGameState internal constructor(
         luck = data.initialLuck,
         vp = 0,
         handSize = data.initialHandSize,
-        shop = MutableShop(random, data.cards, data.shopSizes, data.tierFrequencies, data.rarities.map { it.frequency }),
+        shop = MutableShop(random, data.cards, features, data.shopSizes, data.tierFrequencies, data.rarities.map { it.frequency }),
         deck = MutablePile(data.initialDeck
             .flatMap { entry ->
                 val cardName = entry.substringBeforeLast(' ')

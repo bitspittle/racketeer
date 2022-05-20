@@ -1,8 +1,12 @@
 package dev.bitspittle.racketeer.model.card
 
+import dev.bitspittle.limp.utils.toIdentifierName
+import dev.bitspittle.racketeer.model.game.Feature
 import kotlinx.serialization.Serializable
 
 /**
+ * @param feature Which feature expansion this card should be limited to. If not set, this card is considered part of
+ *   the base set.
  * @param cost How much this card costs to purchase. If a card has no cost, it means it [isPriceless], and it can't be
  *   sold in a shop.
  * @param vp How many active VP points this card has earned over its lifetime.
@@ -15,6 +19,7 @@ data class CardTemplate(
     val flavor: String,
     val types: List<String>,
     val tier: Int,
+    val feature: String? = null,
     val rarity: Int = 0,
     val vp: Int = 0,
     val passiveVp: String? = null,
@@ -43,6 +48,8 @@ val CardTemplate.allPassiveActions: List<String> get() =
 val CardTemplate.allInitActions: List<String> get() =
     (if (upgradeTypes.contains(UpgradeType.SWIFT)) listOf("pile-move-to! \$hand \$this") else emptyList()) + initActions
 
+val CardTemplate.featureType: Feature.Type? get() = feature?.let { featureStr -> Feature.Type.values().first { it.toIdentifierName() == featureStr }}
+
 val CardTemplate.upgradeTypes: Set<UpgradeType> get() = upgrades.map { upgradeStr ->
-    UpgradeType.values().first { it.name.compareTo(upgradeStr, ignoreCase = true) == 0 }
+    UpgradeType.values().first { it.toIdentifierName() == upgradeStr }
 }.toSet()

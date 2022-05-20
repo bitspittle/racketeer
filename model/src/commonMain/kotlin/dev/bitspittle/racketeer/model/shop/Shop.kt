@@ -3,6 +3,8 @@ package dev.bitspittle.racketeer.model.shop
 import com.benasher44.uuid.Uuid
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
+import dev.bitspittle.racketeer.model.card.featureType
+import dev.bitspittle.racketeer.model.game.Feature
 import dev.bitspittle.racketeer.model.random.CopyableRandom
 
 interface Shop {
@@ -14,6 +16,7 @@ interface Shop {
 class MutableShop internal constructor(
     private val random: CopyableRandom,
     private val allCards: List<CardTemplate>,
+    private val features: Set<Feature.Type>,
     private val shopSizes: List<Int>,
     private val tierFrequencies: List<Int>,
     private val rarityFrequencies: List<Int>,
@@ -21,9 +24,17 @@ class MutableShop internal constructor(
     override val stock: MutableList<Card?>,
     override val exclusions: MutableList<Exclusion>,
 ) : Shop {
-    constructor(random: CopyableRandom, allCards: List<CardTemplate>, shopSizes: List<Int>, tierFrequencies: List<Int>, rarityFrequencies: List<Int>) : this(
+    constructor(
+        random: CopyableRandom,
+        allCards: List<CardTemplate>,
+        features: Set<Feature.Type>,
+        shopSizes: List<Int>,
+        tierFrequencies: List<Int>,
+        rarityFrequencies: List<Int>
+    ) : this(
         random,
         allCards,
+        features,
         shopSizes,
         tierFrequencies,
         rarityFrequencies,
@@ -80,7 +91,11 @@ class MutableShop internal constructor(
 
     private inline fun filterAllCards(additionalFilter: (CardTemplate) -> Boolean): List<CardTemplate> {
         return allCards
-            .filter { card -> card.cost > 0 && card.tier <= this.tier && additionalFilter(card) }
+            .filter { card ->
+                card.cost > 0
+                        && card.tier <= this.tier
+                        && (card.feature == null || features.contains(card.featureType))
+                        && additionalFilter(card) }
     }
 
     suspend fun restock(restockAll: Boolean = true, additionalFilter: suspend (CardTemplate) -> Boolean = { true }): Boolean {
@@ -113,6 +128,7 @@ class MutableShop internal constructor(
     fun copy(random: CopyableRandom = this.random.copy()) = MutableShop(
         random,
         allCards,
+        features,
         shopSizes,
         tierFrequencies,
         rarityFrequencies,
