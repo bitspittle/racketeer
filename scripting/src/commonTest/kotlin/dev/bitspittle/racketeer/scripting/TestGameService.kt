@@ -51,6 +51,7 @@ private val FAKE_GAME_DATA_TEXT = """
       cash: Dextrous
       influence: Artful
       luck: Lucky
+      swift: Swift
       veteran: Veteran
 
     rarities:
