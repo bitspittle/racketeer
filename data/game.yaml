@@ -5,25 +5,6 @@ icons:
   luck: "🎲"
   card: "🃏"
   vp: "🌟"
-features:
-  - id: buildings
-    name: Blueprints & Buildings
-    description: |
-      Extend the base game with buildings.
-
-      Construct useful support structures and discover new strategies for dominating the street.
-unlocks:
-  - id: buildings
-    name: $feature
-    description: You can choose the "$feature" game mode the next time you select "New Game".
-    codename: realestate
-    vp: 200
-  - id: discord
-    name: Discord Access
-    description: Join the community! Share stories of your triumphs, trials, and tribulations.
-    codename: speakeasy
-    vp: 500
-
 numTurns: 20
 initialHandSize: 5
 initialCash: 0
@@ -203,6 +184,17 @@ cards:
       - game-add! 'cash 1
       - game-add! 'influence 1
 
+  - name: Con Artist
+    tier: 0
+    rarity: 1
+    types: [thief, trickster]
+    cost: 2
+    flavor: Gain $ and &.
+    playActions:
+      - game-add! 'cash 1
+      - game-add! 'luck 1
+
+
   - name: Vintage Brooch
     tier: 0
     rarity: 1
@@ -218,8 +210,10 @@ cards:
     rarity: 1
     types: [action]
     cost: 2
-    flavor: When you get this, jail it and two non-Cop cards you own.
+    flavor: "Jail this and two non-Cop cards you own.\n\nSwift: Goes directly to hand."
     initActions:
+      - pile-move-to! $hand $this
+    playActions:
       - pile-move-to! $jail $this
       - set '$ownednoncops filter $owned-cards '(! (card-has-type? $it 'cop))
       - pile-move-to! $jail choose-across-piles "Choose two cards to jail." $ownednoncops (min 2 size $ownednoncops)
@@ -261,10 +255,10 @@ cards:
       - pile-copy-to! $street $random-tier-card
 
 
-  - name: Scrounger
+  - name: Scrounge
     tier: 0
     rarity: 1
-    types: [trickster]
+    types: [action]
     cost: 3
     flavor: Draw two cards, then discard one.
     playActions:
@@ -336,9 +330,9 @@ cards:
     rarity: 2
     types: [spy, legend]
     cost: 3
-    flavor: When you get or play this, give another Spy you own +&.
+    flavor: "Give another Spy you own +&.\n\nSwift: Goes directly to hand."
     initActions:
-      - card-trigger! $this
+      - pile-move-to! $hand $this
     playActions:
       - set '$all-spies filter $owned-cards '(card-has-type? $it 'spy)
       - set '$some-spies filter $all-spies '(! (card-has-upgrade? $it 'influence))
@@ -351,9 +345,9 @@ cards:
     rarity: 2
     types: [thief, legend]
     cost: 3
-    flavor: When you get or play this, give another Thief you own +$.
+    flavor: "Give another Thief you own +$.\n\nSwift: Goes directly to hand."
     initActions:
-      - card-trigger! $this
+      - pile-move-to! $hand $this
     playActions:
       - set '$all-thieves filter $owned-cards '(card-has-type? $it 'thief)
       - set '$some-thieves filter $all-thieves '(! (card-has-upgrade? $it 'cash))
@@ -410,10 +404,10 @@ cards:
       - if-true (= $chosen-index 1) '(game-add! 'influence 2)
       - if-true (= $chosen-index 2) '(game-add! 'luck 2)
 
-  - name: Smuggler
+  - name: Smuggle
     tier: 1
     rarity: 2
-    types: [trickster]
+    types: [action]
     cost: 3
     flavor: Draw three cards. Jail this card.
     playActions:
@@ -618,9 +612,9 @@ cards:
     rarity: 2
     types: [trickster]
     cost: 3
-    flavor: When you get or play this, shuffle the discard pile into the deck, then discard all Treasures in it.
+    flavor: "Shuffle the discard pile into the deck, then discard all Treasures in it.\n\nSwift: Goes directly to hand."
     initActions:
-      - card-trigger! $this
+      - pile-move-to! $hand $this
     playActions:
      - pile-move-to! $deck $discard
      - shuffle! $deck
@@ -749,8 +743,10 @@ cards:
     rarity: 2
     types: [action]
     cost: 8
-    flavor: When you get this, burn it and gain two copies of a card you own that costs 3$ or less.
+    flavor: "Gain two copies of a card you own that costs 3$ or less. Burn this card.\n\nSwift: Goes directly to hand."
     initActions:
+      - pile-move-to! $hand $this
+    playActions:
       - card-remove! $this
       - set '$low-cost-owned (filter $owned-cards '(lte? (card-get $it 'cost) 3))
       - cancel-if! empty? $low-cost-owned
@@ -813,9 +809,9 @@ cards:
     rarity: 2
     types: [cop]
     cost: 4
-    flavor: When you get or play this, give another Cop you own "Draw a card".
+    flavor: "Give another Cop you own \"Draw a card.\"\n\nSwift: Goes directly to hand."
     initActions:
-      - card-trigger! $this
+      - pile-move-to! $hand $this
     playActions:
       - set '$all-cops filter $owned-cards '(card-has-type? $it 'cop)
       - set '$some-cops filter $all-cops '(! (card-has-upgrade? $it 'veteran))
@@ -906,10 +902,10 @@ cards:
       - game-add! 'influence -6
       - card-add! $this 'vp 6
 
-  - name: Hattie the Finder
+  - name: Offer You Can't Refuse
     tier: 2
     rarity: 2
-    types: [trickster, legend]
+    types: [action]
     cost: 6
     flavor: Choose a card from your deck or discard pile to put into your hand.
     playActions:
@@ -924,10 +920,10 @@ cards:
     playActions:
       - game-add! 'cash count $street '(card-has-type? $it 'thief)
 
-  - name: Three-Card Monte Dealer
+  - name: Three-Card Monte
     tier: 3
     rarity: 1
-    types: [trickster]
+    types: [Action]
     cost: 7
     flavor: Draw three cards, then discard one.
     playActions:
@@ -941,9 +937,9 @@ cards:
     tier: 4
     rarity: 2
     types: [treasure]
-    cost: 5
-    flavor: This is worth 2* for every Legend you own or in jail.
-    passiveVp: * 2 (size (filter (union $owned-cards $jail) '(card-has-type? $it 'legend)))
+    cost: 4
+    flavor: This is worth * for every Legend you own or in jail.
+    passiveVp: size (filter (union $owned-cards $jail) '(card-has-type? $it 'legend))
 
   - name: Lucky Emerald
     tier: 4
@@ -1002,6 +998,7 @@ cards:
     tier: 4
     rarity: 2
     types: [action]
+    features: [buildings]
     cost: 7
     flavor: When you get this, burn it and get a random blueprint.
     initActions:
@@ -1056,7 +1053,63 @@ cards:
     playActions:
       - game-draw! 3
 
+#
+#
+#
+# Blueprints start here!
+#
+#
+#
+
 blueprints:
+
+  - name: Forger's Workshop
+    flavor: Get an extra copy of the next card you get this turn.
+    buildCost:
+      cash: 3
+      influence: 3
+    activationCost:
+      cash: 2
+    activateActions:
+      - fx-add! --lifetime 'once --event 'create '(run-later '(pile-copy-to! $street $card))
+
+
+  - name: Flea Market
+    flavor: When you build this, get three random Tier 3 cards.
+    buildCost:
+      cash: 3
+      influence: 3
+    canActivate: false
+    initActions:
+      - set '$all-tier-cards (filter buyable-card-list '(= 3 (card-get $it 'tier)))
+      - set '$random-tier-cards (take --from 'random $all-tier-cards 3)
+       # copy one at a time so they see which cards were created
+      - pile-copy-to! $street list-get $random-tier-cards 0
+      - pile-copy-to! $street list-get $random-tier-cards 1
+      - pile-copy-to! $street list-get $random-tier-cards 2
+
+  - name: Banana Stand
+    flavor: This gets a banana counter at the start of every turn. Activate to sell bananas for $ each.
+    buildCost:
+      cash: 2
+      influence: 2
+    canActivate: gt? (building-get $this 'counter) 0
+    initActions:
+      - fx-add! --lifetime 'game --event 'turn-start --data (building-get $this 'id) '(building-add! building-with-id $data 'counter 1)
+    activateActions:
+      - game-add! 'cash (building-get $this 'counter)
+      - building-set! $this 'counter 0
+
+
+  - name: Exclusive Lounge
+    flavor: Reroll the shop with Legends.
+    buildCost:
+      cash: 4
+      influence: 4
+    canActivate: gt? $shop-tier 0
+    activateActions:
+      - shop-reroll! '(card-has-type? $card 'legend)
+
   - name: Construction Company
     flavor: When you build this, get two random blueprints.
     buildCost:
@@ -1185,7 +1238,7 @@ blueprints:
     activateActions:
       - game-draw! 1
 
-  - name: Alley
+  - name: Dark Alley
     flavor: Draw a card for each Burglar in your hand.
     buildCost:
       cash: 4
@@ -1194,7 +1247,7 @@ blueprints:
       - game-draw! count $hand '(= card-get $it 'name "Burglar")
 
 
-  - name: Casino
+  - name: Craps Den
     flavor: Roll a die. Gain that much $.
     buildCost:
       cash: 4
@@ -1232,8 +1285,6 @@ blueprints:
     buildCost:
       cash: 3
       influence: 3
-    activationCost:
-      luck: 1
     activateActions:
       - set '$cardnames (map $owned-cards '(card-get $it 'name))
       - shop-reroll! '(in? $cardnames (card-get $card 'name))
@@ -1262,7 +1313,6 @@ blueprints:
     canActivate: false
     passiveVp: game-get 'influence
 
-
   - name: Greyhound Track
     flavor: This is worth ** for each % you have.
     buildCost:
@@ -1280,14 +1330,16 @@ blueprints:
     passiveVp: size (distinct (map $owned-cards '(card-get $it 'name)))
 
   - name: Boxing Ring
-    flavor: When you play an Action, it takes effect an additional time.
+    flavor: This turn, your Actions take effect an additional time.
     buildCost:
-      cash: 6
-      influence: 6
-    canActivate: false
-    initActions:
-      - fx-add! --lifetime 'game --desc "Your Actions take effect an additional time." '(if-true (card-has-type? $card 'action) '(card-trigger! $card))
+      cash: 4
+      influence: 4
+    activationCost:
+      cash: 2
+    activateActions:
+      - fx-add! --lifetime 'once --desc "Your next Action takes effect an additional time." --if '(card-has-type? $card 'action) '(card-trigger! $card)
 
+# Want to make this once a turn but for some reason it's not working now. Fix later.
 
   - name: Gleaming Skyscraper
     flavor: Whenever you play a Thief, this gains *.
