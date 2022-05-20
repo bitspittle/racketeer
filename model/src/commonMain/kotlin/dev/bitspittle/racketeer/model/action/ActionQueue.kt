@@ -24,6 +24,8 @@ class ActionQueue {
 
     suspend fun runEnqueuedActions() {
         if (isRunning) return
+        if (actionsToRun.isEmpty()) return
+
         isRunning = true
         try {
             while (actionsToRun.isNotEmpty()) {

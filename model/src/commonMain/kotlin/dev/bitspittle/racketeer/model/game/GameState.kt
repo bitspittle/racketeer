@@ -281,7 +281,13 @@ class MutableGameState internal constructor(
 
         // ... then execute their actions
         run {
-            unownedBeforeMove.filter { it.template.allInitActions.isNotEmpty() }.forEach { card -> enqueuers.card.enqueueInitActions(this, card) }
+            // Note that we don't want to run init actions for cards that move from jail to jail or from the shop into
+            // jail. We'll run those init actions if / when the card finally comes out of jail
+            val unownedAfterMove = cards.filter { !it.isOwned() }.toSet()
+            unownedBeforeMove
+                .filter { !unownedAfterMove.contains(it) }
+                .filter { it.template.allInitActions.isNotEmpty() }
+                .forEach { card -> enqueuers.card.enqueueInitActions(this, card) }
             enqueuers.actionQueue.runEnqueuedActions()
 
             // Trigger effects that are listening for new card effects
