@@ -25,7 +25,7 @@ import dev.bitspittle.racketeer.model.game.allPiles
 
 private const val DESC_WRAP_WIDTH = 60
 
-abstract class View(protected val ctx: GameContext) {
+abstract class View(protected val ctx: GameContext, private val initialCurrIndex: Int = 0) {
     // region Commands
     protected abstract fun createCommands(): List<Command>
     private var shouldRefreshCommands = true
@@ -39,7 +39,7 @@ abstract class View(protected val ctx: GameContext) {
                     val newIndex = refreshCursorPosition(cs.currIndex, cs.currCommand)
                     _commandsSection = CommandsSection(createCommands(), newIndex)
                 } ?: run {
-                    _commandsSection = CommandsSection(createCommands())
+                    _commandsSection = CommandsSection(createCommands(), initialCurrIndex)
                 }
             }
             return _commandsSection!!

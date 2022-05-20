@@ -33,7 +33,7 @@ class OptionsMenuView(ctx: GameContext) : View(ctx) {
             UserDataCommand(ctx),
             OpenDiscordCommand(ctx),
             object : Command(ctx) {
-                override val type = if (ctx.state.isGameInProgress) Type.Warning else Type.Hidden
+                override val type = Type.Warning
                 override val title = "Restart"
                 override val description: String = "End this game and start a new one. You will have one last chance to confirm."
                 override suspend fun invoke(): Boolean {

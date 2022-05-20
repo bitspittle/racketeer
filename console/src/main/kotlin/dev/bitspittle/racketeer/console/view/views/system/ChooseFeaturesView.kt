@@ -2,8 +2,10 @@ package dev.bitspittle.racketeer.console.view.views.system
 
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.choose.SelectItemCommand
+import dev.bitspittle.racketeer.console.command.commands.system.feature.FeatureSettingHandlers
 import dev.bitspittle.racketeer.console.command.commands.system.feature.isUnlocked
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.user.saveInto
 import dev.bitspittle.racketeer.console.utils.createNewGame
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.console.view.popAll
@@ -16,7 +18,7 @@ private fun GameContext.startNewGame(features: Set<Feature.Type> = emptySet()) {
     viewStack.replaceView(PreDrawView(this))
 }
 
-class ChooseFeaturesView private constructor(ctx: GameContext, private val features: List<Feature>) : View(ctx) {
+class ChooseFeaturesView private constructor(ctx: GameContext, private val features: List<Feature>) : View(ctx, initialCurrIndex = Int.MAX_VALUE) {
     override val showUpdateMessage = true // Let the user know there's a new version BEFORE they start a new game
 
     companion object {
@@ -32,7 +34,9 @@ class ChooseFeaturesView private constructor(ctx: GameContext, private val featu
 
     override val heading = "Choose the features you want and start a new game:"
 
-    private val selectFeaturesCommand = features.map { feature -> SelectItemCommand(ctx, feature, false) }
+    private val selectFeaturesCommand = features.map { feature ->
+        SelectItemCommand(ctx, feature, selected = FeatureSettingHandlers.instance.getValue(feature.id).get(ctx.settings.features))
+    }
     private val confirmCommand = object : Command(ctx) {
         override val type = Type.Accented
         override val title: String = "Confirm"
@@ -40,7 +44,24 @@ class ChooseFeaturesView private constructor(ctx: GameContext, private val featu
             get() = "Press ENTER to confirm the above choice(s)."
 
         override suspend fun invoke(): Boolean {
-            ctx.startNewGame(features.map { it.type }.toSet())
+            val selectedFeatures = features
+                .filterIndexed { i, _ -> selectFeaturesCommand[i].selected }
+                .map { it.type }.toSet()
+
+            var changedSettings = false
+            features.forEachIndexed { i, feature ->
+                val handler = FeatureSettingHandlers.instance.getValue(feature.id)
+                val isSelected = selectFeaturesCommand[i].selected
+                if (handler.get(ctx.settings.features) != isSelected) {
+                    handler.set(ctx.settings.features, isSelected)
+                    changedSettings = true
+                }
+            }
+            if (changedSettings) {
+                ctx.settings.saveInto(ctx.app.userDataDir)
+            }
+
+            ctx.startNewGame(selectedFeatures)
             return true
         }
     }
