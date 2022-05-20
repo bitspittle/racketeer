@@ -5,6 +5,25 @@ icons:
   luck: "🎲"
   card: "🃏"
   vp: "🌟"
+features:
+  - id: buildings
+    name: Blueprints & Buildings
+    description: |
+      Extend the base game with buildings.
+
+      Construct useful support structures and discover new strategies for dominating the street.
+unlocks:
+  - id: buildings
+    name: $feature
+    description: You can choose the "$feature" game mode the next time you select "New Game".
+    codename: realestate
+    vp: 200
+  - id: discord
+    name: Discord Access
+    description: Join the community! Share stories of your triumphs, trials, and tribulations.
+    codename: speakeasy
+    vp: 500
+
 numTurns: 20
 initialHandSize: 5
 initialCash: 0
