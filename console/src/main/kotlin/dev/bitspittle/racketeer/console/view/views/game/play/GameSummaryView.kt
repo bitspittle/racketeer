@@ -32,10 +32,7 @@ class GameSummaryView(ctx: GameContext) : View(ctx) {
             val prevTotalVp = ctx.userStats.games.totalVp
             ctx.userStats.games.add(GameStats.from(ctx.state))
 
-            val lockedBefore = ctx.data.unlocks.locked(ctx, prevTotalVp)
-            val lockedAfter = ctx.data.unlocks.locked(ctx, prevTotalVp + ctx.state.vp)
-
-            val toUnlock = lockedBefore - lockedAfter
+            val toUnlock = ctx.data.unlocks.locked(ctx, ctx.state.vp + prevTotalVp)
             if (toUnlock.isNotEmpty()) {
                 toUnlock.forEach {
                     ctx.app.logger.info("Congratulations! You unlocked: ${it.resolvedName(ctx.data)}")

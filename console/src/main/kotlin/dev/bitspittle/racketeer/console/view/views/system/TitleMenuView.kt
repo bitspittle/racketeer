@@ -12,10 +12,16 @@ import dev.bitspittle.racketeer.console.command.commands.system.ConfirmLoadComma
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataCommand
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataDir.Companion.QUICKSAVE_SLOT
 import dev.bitspittle.racketeer.console.command.commands.system.community.OpenDiscordCommand
+import dev.bitspittle.racketeer.console.command.commands.system.community.SendFeedbackCommand
 import dev.bitspittle.racketeer.console.command.commands.system.unlock.UnlockListCommand
+import dev.bitspittle.racketeer.console.command.commands.system.unlock.isUnlocked
+import dev.bitspittle.racketeer.console.command.commands.system.unlock.locked
+import dev.bitspittle.racketeer.console.command.commands.system.unlock.unlock
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.playtestId
 import dev.bitspittle.racketeer.console.game.version
+import dev.bitspittle.racketeer.console.user.saveInto
+import dev.bitspittle.racketeer.console.user.totalVp
 import dev.bitspittle.racketeer.console.view.View
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
@@ -23,6 +29,19 @@ import kotlin.io.path.exists
 class TitleMenuView(ctx: GameContext) : View(ctx) {
     override val allowEsc = false // No options access from title screen
     override val showUpdateMessage = true // Grab people's attention when they are starting a new game
+
+    init {
+        val totalVp = ctx.userStats.games.totalVp
+
+        // We normally unlock stuff after the end of the game. But if after a patch, we lower the VP requirement for
+        // some unlocks or add a new one, we might get some new unlocks in. We just do it quietly here since this
+        // shouldn't even happen normally anyway.
+        val toUnlock = ctx.data.unlocks.locked(ctx, totalVp)
+        if (toUnlock.isNotEmpty()) {
+            toUnlock.forEach { it.unlock(ctx) }
+            ctx.settings.saveInto(ctx.app.userDataDir)
+        }
+    }
 
     override fun MainRenderScope.renderContentUpper() {
         bold {
@@ -80,6 +99,7 @@ class TitleMenuView(ctx: GameContext) : View(ctx) {
             UnlockListCommand(ctx),
             UserDataCommand(ctx),
             OpenDiscordCommand(ctx),
+            SendFeedbackCommand(ctx),
             object : Command(ctx) {
                 override val title = "Quit"
                 override val description = "Actually, I'm feeling scared. Maybe this crime stuff isn't for me..."

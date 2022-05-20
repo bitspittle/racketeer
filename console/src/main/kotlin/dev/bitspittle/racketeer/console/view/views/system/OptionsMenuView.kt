@@ -10,6 +10,7 @@ import dev.bitspittle.racketeer.console.command.commands.system.BuildingListComm
 import dev.bitspittle.racketeer.console.command.commands.system.CardListCommand
 import dev.bitspittle.racketeer.console.command.commands.system.UserDataCommand
 import dev.bitspittle.racketeer.console.command.commands.system.community.OpenDiscordCommand
+import dev.bitspittle.racketeer.console.command.commands.system.community.SendFeedbackCommand
 import dev.bitspittle.racketeer.console.command.commands.system.unlock.UnlockListCommand
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.playtestId
@@ -32,6 +33,7 @@ class OptionsMenuView(ctx: GameContext) : View(ctx) {
             UnlockListCommand(ctx),
             UserDataCommand(ctx),
             OpenDiscordCommand(ctx),
+            SendFeedbackCommand(ctx),
             object : Command(ctx) {
                 override val type = Type.Warning
                 override val title = "Restart"

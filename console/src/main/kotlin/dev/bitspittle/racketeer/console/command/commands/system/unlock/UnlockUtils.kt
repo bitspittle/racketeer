@@ -10,6 +10,10 @@ class UnlockSettingHandlers(
 ) {
     companion object {
         val instance = mapOf(
+            "feedback" to UnlockSettingHandlers(
+                get = { feedback },
+                set = { value -> feedback = value }
+            ),
             "buildings" to UnlockSettingHandlers(
                 get = { buildings },
                 set = { value -> buildings = value }
@@ -28,7 +32,7 @@ fun Unlock.isUnlocked(ctx: GameContext): Boolean {
     } ?: false
 }
 
-fun Iterable<Unlock>.locked(ctx: GameContext, totalVp: Int) = this.filter { !it.isUnlocked(ctx) && it.vp > totalVp }
+fun Iterable<Unlock>.locked(ctx: GameContext, vpCutoff: Int = Int.MAX_VALUE) = this.filter { !it.isUnlocked(ctx) && it.vp <= vpCutoff }
 
 fun Unlock.unlock(ctx: GameContext): Boolean {
     return UnlockSettingHandlers.instance[this.id]?.let { settingsHandler ->
