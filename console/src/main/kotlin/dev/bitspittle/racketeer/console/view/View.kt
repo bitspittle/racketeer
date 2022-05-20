@@ -14,6 +14,7 @@ import dev.bitspittle.racketeer.console.game.version
 import dev.bitspittle.racketeer.console.utils.CloudFileService
 import dev.bitspittle.racketeer.console.utils.UploadThrottleCategory
 import dev.bitspittle.racketeer.console.utils.encodeToYaml
+import dev.bitspittle.racketeer.console.utils.wrap
 import dev.bitspittle.racketeer.console.view.views.admin.AdminMenuView
 import dev.bitspittle.racketeer.console.view.views.game.cards.BrowsePilesView
 import dev.bitspittle.racketeer.console.view.views.game.play.GameSummaryView
@@ -22,8 +23,6 @@ import dev.bitspittle.racketeer.console.view.views.game.play.PreDrawView
 import dev.bitspittle.racketeer.console.view.views.system.OptionsMenuView
 import dev.bitspittle.racketeer.model.game.GameStateStub
 import dev.bitspittle.racketeer.model.game.allPiles
-
-private const val DESC_WRAP_WIDTH = 60
 
 abstract class View(protected val ctx: GameContext, private val initialCurrIndex: Int = 0) {
     // region Commands
@@ -198,23 +197,7 @@ abstract class View(protected val ctx: GameContext, private val initialCurrIndex
 
             commandsSection.currCommand.description?.let { description ->
                 bordered(borderCharacters = BorderCharacters.CURVED, paddingLeftRight = 1) {
-                    val lines = description.split("\n").toMutableList()
-                    text(buildString {
-                        while (lines.isNotEmpty()) {
-                            val line = lines.removeFirst()
-                            if (line.length >= DESC_WRAP_WIDTH) {
-                                val charIndexToBreakAt = line.take(DESC_WRAP_WIDTH).lastIndexOf(' ')
-                                val firstPart = line.substring(0, charIndexToBreakAt)
-                                val secondPart = line.substring(charIndexToBreakAt + 1)
-                                lines.add(0, secondPart) // Return second part for further processing
-                                appendLine(firstPart)
-                            } else {
-                                appendLine(line)
-                            }
-                        }
-                        check(this.last() == '\n')
-                        this.deleteAt(this.lastIndex)
-                    })
+                    text(description.wrap())
                 }
                 textLine()
             }

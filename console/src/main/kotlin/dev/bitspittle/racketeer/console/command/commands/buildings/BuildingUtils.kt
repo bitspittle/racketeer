@@ -4,6 +4,7 @@ import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.foundation.text.yellow
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.utils.wrap
 import dev.bitspittle.racketeer.model.building.Blueprint
 import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.game.GameState
@@ -21,11 +22,14 @@ fun Building.renderCannotActivateReason(describer: Describer, state: GameState, 
     val self = this
     scope.apply {
         if (!isActivated) {
-            if (!state.canActivate(self) && blueprint.cannotActivateReason != null) {
-                yellow { textLine("This building can't be activated because ${describer.convertIcons(blueprint.cannotActivateReason!!)}.") }
-                textLine()
+            val msg = if (!state.canActivate(self) && blueprint.cannotActivateReason != null) {
+                "This building can't be activated because ${describer.convertIcons(blueprint.cannotActivateReason!!)}."
             } else if (!self.canAffordActivationCost(state)) {
-                yellow { textLine("This building can't be activated because you can't afford the activation cost.") }
+                "This building can't be activated because you can't afford the activation cost."
+            } else null
+
+            if (msg != null) {
+                yellow { textLine(msg.wrap()) }
                 textLine()
             }
         }
