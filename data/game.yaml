@@ -1395,7 +1395,7 @@ blueprints:
       luck: 1
     activateActions:
       - set '$treasures filter $owned-cards '(card-has-type? $it 'treasure)
-      - set '$low-tier-treasures filter $treasures '(lte? card-get $it 'tier 2)
+      - set '$low-tier-treasures filter $treasures '(lte? card-get $it 'tier $tier3)
       - cancel-if! empty? $low-tier-treasures
       - set '$copied-card (choose --prompt "Choose a Treasure to copy." $low-tier-treasures 1)
       - pile-copy-to! $street $copied-card
