@@ -100,7 +100,7 @@ class ExclusionSnapshot(val expr: String) {
     }
 
     suspend fun evaluate(env: Environment, evaluator: Evaluator) {
-        evaluator.evaluate(env, "shop-exclude! '$expr") as Exclusion
+        evaluator.evaluate(env, "shop-exclude! '$expr")
     }
 }
 
