@@ -86,9 +86,8 @@ object GameStateStub : GameState {
 }
 
 val GameState.lastTurnIndex get() = numTurns - 1
-val GameState.hasGameStarted get() = !(turn == 0 && history.isEmpty() && getOwnedCards().all { pileFor(it) == deck })
 val GameState.isGameOver get() = history.lastOrNull() is GameStateChange.GameOver
-val GameState.isGameInProgress get() = hasGameStarted && !isGameOver
+val GameState.isGameInProgress get() = !isGameOver
 val GameState.ownedPiles: Sequence<Pile> get() = sequenceOf(hand, deck, discard, street)
 val GameState.allPiles: Sequence<Pile> get() = ownedPiles + sequenceOf(jail, graveyard)
 val GameState.allCards: Sequence<Card> get() = allPiles.flatMap { it.cards }
@@ -339,7 +338,7 @@ class MutableGameState internal constructor(
 
         // We postpone applying the init delta because when we first construct this game state, we're not in a
         // suspend fun context
-        if (!hasGameStarted) {
+        if (history.isEmpty()) {
             history.add(GameStateChange.GameStarted())
         }
 
@@ -349,6 +348,5 @@ class MutableGameState internal constructor(
             history.add(history.indexOf(insertBefore), change)
         }
         change.applyTo(this)
-        check(hasGameStarted)
     }
 }
