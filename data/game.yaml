@@ -1119,7 +1119,7 @@ blueprints:
       influence: 3
     canActivate: false
     initActions:
-      - set '$all-tier-cards (filter buyable-card-list '(= 3 (card-get $it 'tier)))
+      - set '$all-tier-cards (filter buyable-card-list '(= $tier3 (card-get $it 'tier)))
       - set '$random-tier-cards (take --from 'random $all-tier-cards 3)
        # copy one at a time so they see which cards were created
       - pile-copy-to! $street list-get $random-tier-cards 0
