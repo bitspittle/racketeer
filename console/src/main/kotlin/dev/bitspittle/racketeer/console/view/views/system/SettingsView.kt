@@ -45,7 +45,7 @@ class SettingsView(ctx: GameContext, categories: List<Category>) : View(ctx) {
                 "Enable admin features",
                 "Uncheck this to disable access to the admin menu and clear other admin-specific features.\n" +
                         "\n" +
-                        "You can restore them by going into the options mode and typing \"admin\".",
+                        "You can restore them by going into the options mode and typing \"thegodfather\".",
                 { admin.enabled },
                 { value -> admin.enabled = value },
             )
