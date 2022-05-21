@@ -50,7 +50,9 @@ class CardSetMethod(private val getGameState: () -> GameState) : Method("card-se
                 env.expectConvert<Int>(evaluator.evaluate(env, setExpr))
             }
 
-            getGameState().apply(GameStateChange.AddCardAmount(property, card, newValue - currValue))
+            (newValue - currValue).takeIf { it != 0 }?.let { delta ->
+                getGameState().apply(GameStateChange.AddCardAmount(property, card, delta))
+            }
         }
 
         return Unit
