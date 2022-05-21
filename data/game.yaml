@@ -852,9 +852,10 @@ cards:
     flavor: Draw two cards, then discard two cards. Gain $ for every Cop you own.
     playActions:
       - game-draw! 2
-      - pile-move-to! $discard (choose --required _ --prompt "Discard two cards." $hand 2)
+      # It's rare but possible to pull a Dirty Sergeant when you have all (or all but 1) of your cards in the street
+      # (so your discard pile is empty and your deck is empty or only has a single card)
+      - pile-move-to! $discard (choose --required _ --prompt "Discard two cards." $hand (min 2 size $hand))
       - game-add! 'cash count $owned-cards '(card-has-type? $it 'cop)
-
 
   - name: Antiquarian
     tier: 3

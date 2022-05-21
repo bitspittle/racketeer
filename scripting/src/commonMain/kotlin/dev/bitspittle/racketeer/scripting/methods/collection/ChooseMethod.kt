@@ -49,7 +49,7 @@ class ChooseMethod(private val logger: Logger, private val chooseHandler: Choose
         }
 
         if (range.first <= 0 && range.last <= 0) {
-            logger.warn("Requested choosing no items at all. Was this intentional? Did you forget to use a `..` operator?")
+            logger.debug("Requested choosing no items at all. Was this intentional? Did you forget to use a `..` operator?")
             return listOf<Any>()
         }
 
