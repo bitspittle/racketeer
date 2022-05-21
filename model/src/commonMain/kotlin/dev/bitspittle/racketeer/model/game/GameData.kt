@@ -143,9 +143,10 @@ data class GameData(
 
         cards.forEach { card ->
             require(card.types.isNotEmpty()) { "Card named \"${card.name}\" needs to have a type." }
+            val lowercaseCardTypes = cardTypes.map { it.lowercase() }
             card.types.forEach { type ->
-                if (cardTypes.none { it.compareTo(type, ignoreCase = true) == 0 }) {
-                    error("The card named \"${card.name}\" has an invalid type \"$type\" defined on it. Should be one of: ${cardTypes.map { it.lowercase() }.sorted()}")
+                if (lowercaseCardTypes.none { it == type }) {
+                    error("The card named \"${card.name}\" has an invalid type \"$type\" defined on it. Should be one of: ${lowercaseCardTypes.sorted()}")
                 }
             }
             require(card.rarity in rarities.indices) { "Rarity value must be between 0 and ${rarities.lastIndex}"}

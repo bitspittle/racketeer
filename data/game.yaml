@@ -960,7 +960,7 @@ cards:
   - name: Three-Card Monte
     tier: 3
     rarity: 1
-    types: [Action]
+    types: [action]
     cost: 7
     flavor: Draw three cards, then discard one.
     playActions:
