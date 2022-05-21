@@ -19,6 +19,7 @@ class UserStats(cardStats: Iterable<CardStats>, buildingStats: Iterable<Building
 fun UserStats.clear() {
     cards.clear()
     buildings.clear()
+    games.clear()
 }
 
 fun UserStats.saveInto(userDataDir: UserDataDir) {

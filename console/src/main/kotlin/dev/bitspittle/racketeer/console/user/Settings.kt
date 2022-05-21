@@ -37,6 +37,8 @@ data class Settings(
     }
 }
 
+fun Settings.clear() = setFrom(Settings())
+
 val Settings.inAdminModeAndShowDebugInfo get() = admin.enabled && admin.showDebugInfo
 
 fun Settings.saveInto(userDataDir: UserDataDir) {
