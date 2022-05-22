@@ -20,7 +20,7 @@ class PlayCardsView(ctx: GameContext) : View(ctx) {
     }
 
     override fun createCommands(): List<Command> =
-        List(ctx.state.hand.cards.size) { i -> PlayCardCommand(ctx, i) } +
+        ctx.state.hand.cards.map { card -> PlayCardCommand(ctx, card) } +
         ctx.state.buildings.map { building -> ActivateBuildingCommand(ctx, building) } + listOf(
             VisitShopCommand(ctx),
             VisitBlueprintsCommand(ctx),
