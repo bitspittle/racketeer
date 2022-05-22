@@ -826,6 +826,8 @@ cards:
      - set '$discard-or-jail (union $discard $jail)
      - cancel-if! (empty? $discard-or-jail)
      - set '$card-to-play single (choose-across-piles "Choose a card to play and burn." $discard-or-jail 1)
+     # Move the card to the hand first which will trigger init actions as a side effect if the card is coming from jail
+     - pile-move-to! $hand $card-to-play
      - card-trigger! $card-to-play
      - run-later '(card-remove! $card-to-play)
 
