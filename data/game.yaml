@@ -667,7 +667,7 @@ cards:
     rarity: 2
     types: [spy, legend]
     cost: 4
-    flavor: Gain 2&. You may convert all your & to $.
+    flavor: Gain 3&. You may convert all your & to $.
     playActions:
       - game-add! 'influence 3
       - set '$convert (ask? "Would you like to convert your & into $?")
