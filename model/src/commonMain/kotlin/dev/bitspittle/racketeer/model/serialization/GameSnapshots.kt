@@ -203,6 +203,9 @@ class GameSnapshot(
     val influence: Int,
     val luck: Int,
     val handSize: Int,
+    val blueprints: List<BlueprintSnapshot>,
+    val buildings: List<BuildingSnapshot>,
+    val effects: List<EffectSnapshot>,
     val shop: ShopSnapshot,
     val deck: PileSnapshot,
     val hand: PileSnapshot,
@@ -210,9 +213,6 @@ class GameSnapshot(
     val discard: PileSnapshot,
     val jail: PileSnapshot,
     val graveyard: PileSnapshot,
-    val blueprints: List<BlueprintSnapshot>,
-    val buildings: List<BuildingSnapshot>,
-    val effects: List<EffectSnapshot>,
     val history: List<GameChangeSnapshot>,
 ) {
     companion object {
@@ -227,6 +227,9 @@ class GameSnapshot(
             gameState.influence,
             gameState.luck,
             gameState.handSize,
+            gameState.blueprints.map { blueprint -> BlueprintSnapshot.from(blueprint) },
+            gameState.buildings.map { building -> BuildingSnapshot.from(building) },
+            gameState.effects.items.map { effect -> EffectSnapshot.from(effect) },
             ShopSnapshot.from(gameState.shop),
             PileSnapshot.from(gameState.deck),
             PileSnapshot.from(gameState.hand),
@@ -234,9 +237,6 @@ class GameSnapshot(
             PileSnapshot.from(gameState.discard),
             PileSnapshot.from(gameState.jail),
             PileSnapshot.from(gameState.graveyard),
-            gameState.blueprints.map { blueprint -> BlueprintSnapshot.from(blueprint) },
-            gameState.buildings.map { building -> BuildingSnapshot.from(building) },
-            gameState.effects.items.map { effect -> EffectSnapshot.from(effect) },
             gameState.history.map { change -> GameChangeSnapshot.from(data, describer, gameState, change) }
         )
     }
