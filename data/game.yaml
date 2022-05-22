@@ -1223,7 +1223,7 @@ blueprints:
       influence: 2
     canActivate: false # Passive building
     initActions:
-      - fx-add! --lifetime 'game --event 'create --data (building-get $this 'id) '(building-add! building-with-id $data 'vp 1)
+      - fx-add! --desc (icon-convert "Whenever you get a card, gain *.") --lifetime 'game --event 'create --data (building-get $this 'id) '(building-add! building-with-id $data 'vp 1)
 
 
   - name: Police Station
@@ -1383,7 +1383,7 @@ blueprints:
       influence: 8
     canActivate: false
     initActions:
-      - fx-add! --lifetime 'game --desc (icon-convert "Gain * whenever you play a Thief.") --data (building-get $this 'id) '(if-true (card-has-type? $card 'thief) '(building-add! building-with-id $data 'vp 1))
+      - fx-add! --lifetime 'game --desc (icon-convert "Whenever you play a Thief, gain *.") --data (building-get $this 'id) '(if-true (card-has-type? $card 'thief) '(building-add! building-with-id $data 'vp 1))
 
   - name: Counterfeiting Press
     flavor: "Activate: Get a copy of a Treasure you own of Tier 3 or lower."
