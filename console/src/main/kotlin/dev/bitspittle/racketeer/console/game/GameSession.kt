@@ -82,7 +82,7 @@ class GameSession(
                 }
 
                 override fun debug(message: String) {
-                    if (settings.inAdminModeAndShowDebugInfo) {
+                    if (settings.inAdminModeAndShowDebugLogs) {
                         logRenderers.add { magenta { textLine(message) } }
                     }
                 }
@@ -168,7 +168,7 @@ class GameSession(
                 gameData,
                 settings,
                 UserStats.loadFrom(userDataDir),
-                Describer(gameData, showDebugInfo = { settings.inAdminModeAndShowDebugInfo }),
+                Describer(gameData, showDebugInfo = { settings.inAdminModeAndShowCode }),
                 GameStateStub,
                 env,
                 enqueuers,

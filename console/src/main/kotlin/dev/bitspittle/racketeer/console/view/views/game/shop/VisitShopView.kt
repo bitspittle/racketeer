@@ -6,7 +6,7 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.buildings.VisitBlueprintsCommand
 import dev.bitspittle.racketeer.console.command.commands.game.shop.*
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.user.inAdminModeAndShowDebugInfo
+import dev.bitspittle.racketeer.console.user.inAdminModeAndShowCode
 import dev.bitspittle.racketeer.console.view.View
 
 class VisitShopView(ctx: GameContext) : View(ctx) {
@@ -29,7 +29,7 @@ class VisitShopView(ctx: GameContext) : View(ctx) {
     }
 
     override fun MainRenderScope.renderContentUpper() {
-        if (ctx.settings.inAdminModeAndShowDebugInfo && ctx.state.shop.exclusions.isNotEmpty()) {
+        if (ctx.settings.inAdminModeAndShowCode && ctx.state.shop.exclusions.isNotEmpty()) {
             textLine("Exclusions:")
             ctx.state.shop.exclusions.forEach { exclusion ->
                 textLine("- ${exclusion.expr}")

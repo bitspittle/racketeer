@@ -14,7 +14,8 @@ data class Settings(
 ) {
     @Serializable
     data class Admin(
-        var showDebugInfo: Boolean = true,
+        var showDebugLogs: Boolean = true,
+        var showCode: Boolean = true,
         var enabled: Boolean = false,
     )
 
@@ -39,7 +40,8 @@ data class Settings(
 
 fun Settings.clear() = setFrom(Settings())
 
-val Settings.inAdminModeAndShowDebugInfo get() = admin.enabled && admin.showDebugInfo
+val Settings.inAdminModeAndShowCode get() = admin.enabled && admin.showCode
+val Settings.inAdminModeAndShowDebugLogs get() = admin.enabled && admin.showDebugLogs
 
 fun Settings.saveInto(userDataDir: UserDataDir) {
     val self = this

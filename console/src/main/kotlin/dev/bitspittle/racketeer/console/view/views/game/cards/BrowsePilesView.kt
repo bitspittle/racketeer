@@ -6,7 +6,7 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.buildings.BrowseBuildingsCommand
 import dev.bitspittle.racketeer.console.command.commands.game.cards.*
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.user.inAdminModeAndShowDebugInfo
+import dev.bitspittle.racketeer.console.user.inAdminModeAndShowCode
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.game.isGameOver
 import dev.bitspittle.racketeer.model.game.warningExpr
@@ -17,7 +17,7 @@ class BrowsePilesView(ctx: GameContext) : View(ctx) {
             textLine("Active effects:")
             ctx.state.effects.items.forEach { effect ->
                 textLine("- ${effect.desc ?: effect.warningExpr}")
-                if (ctx.settings.inAdminModeAndShowDebugInfo) {
+                if (ctx.settings.inAdminModeAndShowCode) {
                     textLine("  Lifetime: ${effect.lifetime.name.lowercase()}, Event: ${effect.event.name.lowercase()}")
                     if (effect.data != null) {
                         textLine("  Data: ${effect.data}")
