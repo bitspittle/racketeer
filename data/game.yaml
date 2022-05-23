@@ -192,7 +192,7 @@ cards:
         if (! card-has-upgrade? $this 'cash) '(card-upgrade! $this 'cash)
         '( if (! card-has-upgrade? $this 'influence) '(card-upgrade! $this 'influence)
         '( if (! card-has-upgrade? $this 'luck) '(card-upgrade! $this 'luck)
-        '( '(card-upgrade! $this 'veteran) )))
+        '( (card-upgrade! $this 'veteran) )))
 
   - name: Counterfeit Cash
     tier: 0
@@ -293,7 +293,7 @@ cards:
     playActions:
       - game-draw! 2
       - stop-if! empty? $hand
-      - pile-move-to! $discard (choose --required _ --prompt "Choose a card to discard." $hand 1)
+      - pile-move-to! $discard (choose --required _ --prompt "Discard a card." $hand 1)
 
   - name: I Know a Guy
     tier: 0
@@ -462,7 +462,7 @@ cards:
     flavor: Gain 2&. You may jail a card on the street.
     playActions:
       - game-add! 'influence 2
-      - pile-move-to! $jail (choose --prompt "Choose up to one card to jail." $street .. 0 1)
+      - pile-move-to! $jail (choose --prompt "You may jail a card." $street .. 0 1)
 
   - name: Grift
     tier: 1
@@ -628,8 +628,8 @@ cards:
     cost: 4
     flavor: When you play this, it becomes an exact copy of a card in your hand.
     playActions:
-      - cancel-if! empty? $hand
-      - set '$copied-card single (choose --prompt "Choose a card to copy." $hand 1)
+      - stop-if! empty? $hand
+      - set '$copied-card single (choose --prompt "Copy a card." $hand 1)
       - set '$my-name card-get $this 'name
       - if-true (= $my-name card-get $copied-card 'name) '(run '(info "Sorry, it is strictly forbidden by the sacred Mime Code to use one's powers on a fellow Mime.") '(cancel!))
       - card-remove! $this
@@ -641,7 +641,7 @@ cards:
     types: [trickster]
     cost: 3
     upgrades: [swift]
-    flavor: "Shuffle the discard pile into the deck, then discard all Treasures in it."
+    flavor: Shuffle the discard pile into the deck, then discard all Treasures in it.
     playActions:
      - pile-move-to! $deck $discard
      - shuffle! $deck
@@ -798,8 +798,8 @@ cards:
     rarity: 1
     types: [treasure]
     cost: 3
-    flavor: This is worth * for each three cards in jail.
-    passiveVp: / (size $jail) 3
+    flavor: This is worth ** for each five cards in jail.
+    passiveVp: * 2 (/ (size $jail) 5)
 
   - name: Pawnbroker
     tier: 3
@@ -808,7 +808,7 @@ cards:
     cost: 4
     flavor: You may choose a card on the street to jail. Gain $ equal to its tier plus 2.
     playActions:
-      - set '$maybe-card-to-jail (choose --prompt "Choose up to one card to jail." $street .. 0 1)
+      - set '$maybe-card-to-jail (choose --prompt "You may jail a card." $street .. 0 1)
       - game-add! 'cash 2
       - stop-if! empty? $maybe-card-to-jail
       - set '$card-to-jail single $maybe-card-to-jail
@@ -851,13 +851,9 @@ cards:
     rarity: 1
     types: [cop]
     cost: 4
-    flavor: Draw two cards, then discard two cards. Gain $ for every Cop you own.
+    flavor: Gain $ for every Cop you own. (max 8)
     playActions:
-      - game-draw! 2
-      # It's rare but possible to pull a Dirty Sergeant when you have all (or all but 1) of your cards in the street
-      # (so your discard pile is empty and your deck is empty or only has a single card)
-      - pile-move-to! $discard (choose --required _ --prompt "Discard two cards." $hand (min 2 size $hand))
-      - game-add! 'cash count $owned-cards '(card-has-type? $it 'cop)
+      - game-add! 'cash min 8 (count $owned-cards '(card-has-type? $it 'cop))
 
   - name: Antiquarian
     tier: 3
@@ -879,7 +875,7 @@ cards:
     flavor: Add a card from the shop to the street and a Constable to your hand.
     playActions:
       - stop-if! empty? $shop
-      - pile-move-to! $street (choose --format $fmt-card-with-cost --prompt "Choose a card to add to the street." $shop 1)
+      - pile-move-to! $street (choose --format $fmt-card-with-cost --prompt "Add a card to the street." $shop 1)
       - pile-copy-to! $hand (card-named "Constable")
 
 
@@ -952,23 +948,23 @@ cards:
 
   - name: Mr. Big
     tier: 2
-    rarity: 2
+    rarity: 1
     types: [thief, legend]
     cost: 6
-    flavor: Gain $ for each Thief on the street.
+    flavor: Gain $ for each Thief on the street. (max 8)
     playActions:
-      - game-add! 'cash count $street '(card-has-type? $it 'thief)
+      - game-add! 'cash min 8 (count $street '(card-has-type? $it 'thief))
 
   - name: Three-Card Monte
     tier: 3
     rarity: 1
     types: [action]
     cost: 7
-    flavor: Draw three cards, then discard one.
+    flavor: Draw three cards, then discard two.
     playActions:
       - game-draw! 3
       - stop-if! empty? $hand
-      - pile-move-to! $discard (choose --required _ --prompt "Choose a card to discard." $hand 1)
+      - pile-move-to! $discard (choose --required _ --prompt "Discard cards." $hand 2)
 
 # TIER 5
 
@@ -1005,9 +1001,9 @@ cards:
     rarity: 2
     types: [action]
     cost: 6
-    flavor: Put up to three cards from Jail into your hand. Burn this card.
+    flavor: Put up to two cards from Jail into your hand. Burn this card.
     playActions:
-      - pile-move-to! $hand (choose --prompt "Choose cards to get out of jail." $jail .. 0 3)
+      - pile-move-to! $hand (choose --prompt "Get cards out of jail." $jail .. 0 2)
       - card-remove! $this
 
   - name: Corner the Market
@@ -1029,11 +1025,13 @@ cards:
     rarity: 2
     types: [action]
     cost: 7
-    flavor: When you get this, burn it and get a random blueprint.
+    upgrades: [swift]
+    flavor: Get one of two random blueprints. Burn this card.
     initActions:
       - shop-exclude! '(= card-get $card 'name "Real Estate Fraud")
+    playActions:
+      - blueprint-own! single choose --prompt "Get a blueprint." --format $fmt-blueprint-with-cost --required _ (take --from 'random $unowned-blueprints 2) 1
       - card-remove! $this
-      - blueprint-own! single take --from 'random $unowned-blueprints 1
 
 
   - name: Kingpin
@@ -1077,10 +1075,10 @@ cards:
     tier: 4
     rarity: 1
     types: [action]
-    cost: 10
-    flavor: Draw three cards.
+    cost: 9
+    flavor: Add all Treasures from the shop to the street.
     playActions:
-      - game-draw! 3
+      - pile-move-to! $street (filter $shop '(card-has-type? $it 'treasure))
 
 #
 #
@@ -1099,7 +1097,7 @@ blueprints:
       influence: 2
     canActivate: ! empty? $jail
     activateActions:
-     - set '$card-to-play single (choose --prompt "Choose a card to play and burn." $jail 1)
+     - set '$card-to-play single (choose --prompt "Play and burn a card." $jail 1)
      - card-trigger! $card-to-play
      - run-later '(card-remove! $card-to-play)
 
@@ -1168,7 +1166,7 @@ blueprints:
       influence: 1
     canActivate: false # Passive building
     initActions:
-      - blueprint-own! single choose --prompt "Choose a blueprint." --format $fmt-blueprint-with-cost --required _ (take --from 'random $unowned-blueprints 3) 1
+      - blueprint-own! single choose --prompt "Get a blueprint." --format $fmt-blueprint-with-cost --required _ (take --from 'random $unowned-blueprints 3) 1
 
   - name: Interrogation Room
     flavor: At end of turn, jail one of two random cards you own.
@@ -1194,7 +1192,7 @@ blueprints:
     activateActions:
       - set '$students filter $hand '(card-has-any-of-types? $it (list "thief" "spy" "trickster" "cop"))
       - cancel-if! empty? $students
-      - set '$card-to-upgrade (single (choose --prompt "Choose a card to upgrade." $students 1))
+      - set '$card-to-upgrade (single (choose --prompt "Upgrade a card." $students 1))
       - if-true (card-has-type? $card-to-upgrade 'thief) '(card-upgrade! $card-to-upgrade 'cash)
       - if-true (card-has-type? $card-to-upgrade 'spy) '(card-upgrade! $card-to-upgrade 'influence)
       - if-true (card-has-type? $card-to-upgrade 'trickster) '(card-upgrade! $card-to-upgrade 'luck)
@@ -1284,6 +1282,7 @@ blueprints:
     buildCost:
       cash: 4
       influence: 4
+    canActivate: any? $hand '(= card-get $it 'name "Burglar")
     activateActions:
       - game-draw! count $hand '(= card-get $it 'name "Burglar")
 
@@ -1354,6 +1353,14 @@ blueprints:
     canActivate: false
     passiveVp: game-get 'influence
 
+  - name: Gleaming Skyscraper
+    flavor: This is worth 100 *.
+    buildCost:
+      cash: 20
+      influence: 20
+    canActivate: false
+    passiveVp: 100
+
   - name: Greyhound Track
     flavor: This is worth ** for each % you have.
     buildCost:
@@ -1378,7 +1385,7 @@ blueprints:
     activateActions:
       - fx-add! --lifetime 'once --desc "Your next Action takes effect an additional time." --if '(card-has-type? $card 'action) '(card-trigger! $card)
 
-  - name: Gleaming Skyscraper
+  - name: Mob Mansion
     flavor: Whenever you play a Thief, this gains *.
     buildCost:
       cash: 8
@@ -1388,16 +1395,17 @@ blueprints:
       - fx-add! --lifetime 'game --desc (icon-convert "Whenever you play a Thief, gain *.") --data (building-get $this 'id) '(if-true (card-has-type? $card 'thief) '(building-add! building-with-id $data 'vp 1))
 
   - name: Counterfeiting Press
-    flavor: "Activate: Get a copy of a Treasure you own of Tier 3 or lower."
+    flavor: "Activate: Get a copy of a Treasure you own that costs 3$ or less."
     buildCost:
       cash: 6
       influence: 6
     activationCost:
       cash: 3
       luck: 1
+    canActivate: ! empty? filter $owned-cards '(and? (card-has-type? $it 'treasure) (lte? card-get $it 'cost 3))
     activateActions:
       - set '$treasures filter $owned-cards '(card-has-type? $it 'treasure)
-      - set '$low-tier-treasures filter $treasures '(lte? card-get $it 'tier $tier3)
-      - cancel-if! empty? $low-tier-treasures
-      - set '$copied-card (choose --prompt "Choose a Treasure to copy." $low-tier-treasures 1)
+      - set '$low-cost-treasures filter $treasures '(lte? card-get $it 'cost 3)
+      - cancel-if! empty? $low-cost-treasures
+      - set '$copied-card (choose --prompt "Choose a Treasure to copy." $low-cost-treasures 1)
       - pile-copy-to! $street $copied-card
