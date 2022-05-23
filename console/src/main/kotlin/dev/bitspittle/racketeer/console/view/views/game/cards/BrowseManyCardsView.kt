@@ -13,6 +13,7 @@ import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.vpTotal
+import dev.bitspittle.racketeer.model.game.isGameOver
 
 /** A browse view for a large list of cards that you can sort and filter in different ways */
 class BrowseManyCardsView(ctx: GameContext, cards: List<Card>) : View(ctx) {
@@ -27,7 +28,7 @@ class BrowseManyCardsView(ctx: GameContext, cards: List<Card>) : View(ctx) {
     // sort patterns, they will still be sorted by name as a secondary sort
     private val cards = cards.sortedBy { it.template.name }
     private val pileNames = cards.associateWith { ctx.describer.describePileTitle(ctx.state, ctx.state.pileFor(it)!!) }
-    private var sortingOrder = SortingOrder.PILE
+    private var sortingOrder = if (!ctx.state.isGameOver) SortingOrder.PILE else SortingOrder.VICTORY_POINTS
     private var typeFilter: String? = null
     private val typeFilters = listOf<String?>(null) + ctx.data.cardTypes
 
