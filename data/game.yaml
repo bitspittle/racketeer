@@ -62,10 +62,13 @@ upgradeNames:
 rarities:
   - name: Common
     frequency: 4
+    shopCount: 10
   - name: Uncommon
     frequency: 2
+    shopCount: 8
   - name: Rare
     frequency: 1
+    shopCount: 6
 
 tierFrequencies:
   - 5
@@ -810,10 +813,12 @@ cards:
     rarity: 1
     types: [action]
     cost: 6
+    shopCount: 1
     description:
       ability: Set your hand size to 6. Burn this card.
     initActions:
-     - shop-exclude! '(= card-get $card 'name "Turf Expansion")
+      # TODO: Remove shop-exclude once shopCount is working
+      - shop-exclude! '(= card-get $card 'name "Turf Expansion")
     playActions:
      - game-set! 'hand-size 6
      - card-remove! $this
@@ -1085,10 +1090,12 @@ cards:
     rarity: 1
     types: [action]
     cost: 7
+    shopCount: 1
     flavor: Set your hand size to 7. Burn this card.
     description:
       ability: Set your hand size to 7. Burn this card.
     initActions:
+      # TODO: Remove shop-exclude once shopCount is working
      - shop-exclude! '(= card-get $card 'name "Turf Expansion")
      - shop-exclude! '(= card-get $card 'name "Corner the Market")
     playActions:
@@ -1102,9 +1109,11 @@ cards:
     types: [action]
     cost: 7
     upgrades: [swift]
+    shopCount: 1
     description:
       ability: Get one of two random blueprints. Burn this card.
     initActions:
+      # TODO: Remove shop-exclude once shopCount is working
       - shop-exclude! '(= card-get $card 'name "Real Estate Fraud")
     playActions:
       - blueprint-own! single choose --prompt "Get a blueprint." --format $fmt-blueprint-with-cost --required _ (take --from 'random $unowned-blueprints 2) 1

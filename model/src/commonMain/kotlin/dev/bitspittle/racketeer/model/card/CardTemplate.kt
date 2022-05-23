@@ -7,6 +7,8 @@ import kotlinx.serialization.Serializable
 /**
  * @param features Which feature expansions this card should be limited to. If empty, this card is considered part of
  *   the base set. If more than one feature is specified, ALL features have to be enabled for this to appear.
+ * @param shopCount An override to how many maximum instances of this card can ever be sold (or stolen!) from the shop.
+ *   See also [Rarity.shopCount].
  * @param cost How much this card costs to purchase. If a card has no cost, it means it [isPriceless], and it can't be
  *   sold in a shop.
  * @param vp How many active VP points this card has earned over its lifetime.
@@ -21,6 +23,7 @@ data class CardTemplate(
     val description: Description,
     val features: List<String> = emptyList(),
     val rarity: Int = 0,
+    val shopCount: Int? = null,
     val vp: Int = 0,
     val passiveVp: String? = null,
     val cost: Int = 0,
