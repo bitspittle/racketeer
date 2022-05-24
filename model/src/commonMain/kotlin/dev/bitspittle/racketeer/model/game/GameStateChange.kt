@@ -59,7 +59,11 @@ sealed class GameStateChange {
             if (card.isDexterous) apply(AddGameAmount(GameProperty.CASH, 1))
             if (card.isArtful) apply(AddGameAmount(GameProperty.INFLUENCE, 1))
             if (card.isLucky) apply(AddGameAmount(GameProperty.LUCK, 1))
-            if (card.isVeteran) apply(Draw(1))
+            if (card.isVeteran) {
+                apply(Draw(1))
+                enqueuers.expr.enqueue(this, "pile-move-to! \$discard (choose --required _ --prompt \"Discard a card.\" \$hand 1)")
+                enqueuers.actionQueue.runEnqueuedActions()
+            }
 
             // Trigger effects first. Once we play a card, it might install an additional effect, which we don't want
             // to immediately run against the card itself

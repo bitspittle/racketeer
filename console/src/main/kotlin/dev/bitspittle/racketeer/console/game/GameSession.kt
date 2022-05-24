@@ -36,6 +36,7 @@ import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.types.BuildingEnqueuerImpl
 import dev.bitspittle.racketeer.scripting.types.CardEnqueuerImpl
+import dev.bitspittle.racketeer.scripting.types.ExprEnqueuerImpl
 import dev.bitspittle.racketeer.scripting.types.GameService
 import dev.bitspittle.racketeer.scripting.utils.installGameLogic
 import kotlinx.coroutines.*
@@ -161,6 +162,7 @@ class GameSession(
             val actionQueue = ActionQueue()
             val enqueuers = Enqueuers(
                 actionQueue,
+                ExprEnqueuerImpl(env, exprCache, actionQueue),
                 CardEnqueuerImpl(env, exprCache, actionQueue),
                 BuildingEnqueuerImpl(env, exprCache, actionQueue),
             )

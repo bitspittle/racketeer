@@ -64,7 +64,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             UpgradeType.INFLUENCE -> "${data.upgradeNames.influence}: +1${data.icons.influence}."
             UpgradeType.LUCK -> "${data.upgradeNames.luck}: +1${data.icons.luck}."
             UpgradeType.SWIFT -> "${data.upgradeNames.swift}: Goes directly to hand."
-            UpgradeType.VETERAN -> "${data.upgradeNames.veteran}: Draw an extra card."
+            UpgradeType.VETERAN -> "${data.upgradeNames.veteran}: Draw a card, then discard one."
         }
     }
 
