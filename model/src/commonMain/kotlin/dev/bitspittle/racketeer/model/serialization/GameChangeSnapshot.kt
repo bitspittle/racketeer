@@ -67,7 +67,6 @@ sealed class GameChangeSnapshot {
                 is GameStateChange.AddBuildingAmount -> AddBuildingAmount.from(change)
                 is GameStateChange.AddGameAmount -> AddGameAmount.from(change)
                 is GameStateChange.AddEffect -> AddEffect.from(change)
-                is GameStateChange.AddShopExclusion -> AddShopExclusion.from(change)
                 is GameStateChange.RestockShop -> RestockShop.from(change)
                 is GameStateChange.UpgradeShop -> UpgradeShop.from(change)
                 is GameStateChange.AddBlueprint -> AddBlueprint.from(change)
@@ -249,19 +248,6 @@ sealed class GameChangeSnapshot {
                 action = { error("Dummy effect") })
             GameStateChange.AddEffect(dummyEffect)
         }
-    }
-
-    @Serializable
-    @SerialName("AddShopExclusion")
-    class AddShopExclusion(val expr: String) : GameChangeSnapshot() {
-        companion object {
-            fun from(change: GameStateChange.AddShopExclusion) = AddShopExclusion(change.exclusion.expr)
-        }
-
-        // Just create a dummy exclusion here. We're not really expecting to recreate anything here. We're just keeping
-        // the history so a human can look things over in the save file
-        override fun create(data: GameData, state: GameState) =
-            GameStateChange.AddShopExclusion(Exclusion(expr) { error("Not expected to get called") })
     }
 
     @Serializable

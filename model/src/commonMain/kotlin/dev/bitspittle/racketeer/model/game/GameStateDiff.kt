@@ -210,7 +210,6 @@ private class GameStateDiffReporter(
                     is GameStateChange.AddBuildingAmount -> report(change)
                     is GameStateChange.AddGameAmount -> Unit // Reported below, in aggregate
                     is GameStateChange.AddEffect -> report(change)
-                    is GameStateChange.AddShopExclusion -> Unit // Background magic, should be invisible to the user
                     is GameStateChange.RestockShop -> report(change)
                     is GameStateChange.UpgradeShop -> report(change)
                     is GameStateChange.AddBlueprint -> report(change)

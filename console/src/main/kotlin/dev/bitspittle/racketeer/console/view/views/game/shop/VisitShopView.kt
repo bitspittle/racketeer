@@ -27,14 +27,4 @@ class VisitShopView(ctx: GameContext) : View(ctx) {
         // last item in the list, so "oldIndex + 1" will just get clamped anyway
         return if (oldCommand is ExpandShopCommand) oldIndex + 1 else super.refreshCursorPosition(oldIndex, oldCommand)
     }
-
-    override fun MainRenderScope.renderContentUpper() {
-        if (ctx.settings.inAdminModeAndShowCode && ctx.state.shop.exclusions.isNotEmpty()) {
-            textLine("Exclusions:")
-            ctx.state.shop.exclusions.forEach { exclusion ->
-                textLine("- ${exclusion.expr}")
-            }
-            textLine()
-        }
-    }
 }

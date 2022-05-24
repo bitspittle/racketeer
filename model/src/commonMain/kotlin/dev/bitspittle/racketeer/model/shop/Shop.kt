@@ -3,6 +3,7 @@ package dev.bitspittle.racketeer.model.shop
 import com.benasher44.uuid.Uuid
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
+import dev.bitspittle.racketeer.model.card.Rarity
 import dev.bitspittle.racketeer.model.card.featureTypes
 import dev.bitspittle.racketeer.model.game.Feature
 import dev.bitspittle.racketeer.model.random.CopyableRandom
@@ -10,7 +11,14 @@ import dev.bitspittle.racketeer.model.random.CopyableRandom
 interface Shop {
     val tier: Int
     val stock: List<Card?>
-    val exclusions: List<Exclusion>
+
+    /**
+     * A count of how many times a player bought this card, by name.
+     *
+     * If the card is not in this map, then it means one hasn't been bought yet, at which points you can use
+     * [Rarity.shopCount] instead.
+     */
+    val bought: Map<String, Int>
 }
 
 class MutableShop internal constructor(
@@ -19,10 +27,10 @@ class MutableShop internal constructor(
     private val features: Set<Feature.Type>,
     private val shopSizes: List<Int>,
     private val tierFrequencies: List<Int>,
-    private val rarityFrequencies: List<Int>,
+    private val rarities: List<Rarity>,
     tier: Int,
     override val stock: MutableList<Card?>,
-    override val exclusions: MutableList<Exclusion>,
+    override val bought: MutableMap<String, Int>,
 ) : Shop {
     constructor(
         random: CopyableRandom,
@@ -30,17 +38,17 @@ class MutableShop internal constructor(
         features: Set<Feature.Type>,
         shopSizes: List<Int>,
         tierFrequencies: List<Int>,
-        rarityFrequencies: List<Int>
+        rarities: List<Rarity>,
     ) : this(
         random,
         allCards,
         features,
         shopSizes,
         tierFrequencies,
-        rarityFrequencies,
+        rarities,
         0,
         mutableListOf(),
-        mutableListOf(),
+        mutableMapOf(),
     ) {
         handleRestock(restockAll = true, filterAllCards { true })
     }
@@ -59,7 +67,7 @@ class MutableShop internal constructor(
         fun createUberStock(): MutableList<CardTemplate> {
             val uberStock = mutableListOf<CardTemplate>()
             possibleNewStock.forEach { card ->
-                repeat(tierFrequencies[card.tier] * rarityFrequencies[card.rarity]) { uberStock.add(card) }
+                repeat(tierFrequencies[card.tier] * rarities[card.rarity].frequency) { uberStock.add(card) }
             }
             return uberStock
         }
@@ -86,18 +94,27 @@ class MutableShop internal constructor(
                         && additionalFilter(card) }
     }
 
+    private fun maxStockFor(card: CardTemplate): Int {
+        return card.shopCount ?: rarities[card.rarity].shopCount
+    }
+
     suspend fun restock(restockAll: Boolean = true, additionalFilter: suspend (CardTemplate) -> Boolean = { true }) {
         handleRestock(
             restockAll,
-            filterAllCards { card -> additionalFilter(card) && exclusions.none { exclude -> exclude(card) } })
+            filterAllCards { card ->
+                additionalFilter(card) && (bought[card.name] ?: 0) < maxStockFor(card)
+            }
+        )
     }
-
-    fun addExclusion(exclusion: Exclusion) { exclusions.add(exclusion) }
 
     fun notifyBought(cardId: Uuid) {
         for (i in stock.indices) {
             stock[i]?.run {
                 if (this.id == cardId) {
+                    bought[this.template.name] = bought.getOrPut(this.template.name) { 0 } + 1
+                        // A card should not have been put up for sale if we already sold too many of them
+                        .also { check(it <= maxStockFor(this.template)) }
+
                     stock[i] = null
                     return
             }}
@@ -119,9 +136,9 @@ class MutableShop internal constructor(
         features,
         shopSizes,
         tierFrequencies,
-        rarityFrequencies,
+        rarities,
         tier,
         stock.toMutableList(),
-        exclusions.toMutableList()
+        bought.toMutableMap(),
     )
 }

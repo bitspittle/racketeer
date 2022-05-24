@@ -19,7 +19,6 @@ import dev.bitspittle.racketeer.scripting.methods.game.*
 import dev.bitspittle.racketeer.scripting.methods.pile.PileCopyToMethod
 import dev.bitspittle.racketeer.scripting.methods.pile.PileGetMethod
 import dev.bitspittle.racketeer.scripting.methods.pile.PileMoveToMethod
-import dev.bitspittle.racketeer.scripting.methods.shop.ShopExcludeMethod
 import dev.bitspittle.racketeer.scripting.methods.shop.ShopRerollMethod
 import dev.bitspittle.racketeer.scripting.methods.system.CancelMethod
 import dev.bitspittle.racketeer.scripting.methods.system.RunLaterMethod
@@ -95,7 +94,6 @@ fun Environment.installGameLogic(service: GameService) {
 
     // Shop
     addMethod(ShopRerollMethod(service::gameState))
-    addMethod(ShopExcludeMethod(service::gameState))
     (0..4).forEach { i -> storeValue("\$tier${i + 1}", i) }
 
     // Buildings

@@ -139,12 +139,6 @@ sealed class GameStateChange {
         }
     }
 
-    class AddShopExclusion(val exclusion: Exclusion) : GameStateChange() {
-        override suspend fun MutableGameState.apply() {
-            shop.addExclusion(exclusion)
-        }
-    }
-
     class RestockShop(private val additionalFilter: suspend (CardTemplate) -> Boolean = { true }) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             shop.restock(additionalFilter = additionalFilter)

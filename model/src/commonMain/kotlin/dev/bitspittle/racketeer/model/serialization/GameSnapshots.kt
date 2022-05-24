@@ -17,7 +17,6 @@ import dev.bitspittle.racketeer.model.building.MutableBuilding
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.random.CopyableRandom
-import dev.bitspittle.racketeer.model.shop.Exclusion
 import dev.bitspittle.racketeer.model.shop.MutableShop
 import dev.bitspittle.racketeer.model.shop.Shop
 import dev.bitspittle.racketeer.model.text.Describer
@@ -94,27 +93,16 @@ class BlueprintSnapshot(
 }
 
 @Serializable
-class ExclusionSnapshot(val expr: String) {
-    companion object {
-        fun from(exclusion: Exclusion) = ExclusionSnapshot(exclusion.expr)
-    }
-
-    suspend fun evaluate(env: Environment, evaluator: Evaluator) {
-        evaluator.evaluate(env, "shop-exclude! '$expr")
-    }
-}
-
-@Serializable
 class ShopSnapshot(
     val tier: Int,
     val stock: List<CardSnapshot?>,
-    val exclusions: List<ExclusionSnapshot>,
+    val bought: Map<String, Int>,
 ) {
     companion object {
         fun from(shop: Shop) = ShopSnapshot(
             shop.tier,
             shop.stock.map { card -> if (card != null) CardSnapshot.from(card) else null },
-            shop.exclusions.map { ExclusionSnapshot.from(it) },
+            shop.bought,
         )
     }
 
@@ -124,10 +112,10 @@ class ShopSnapshot(
         features,
         data.shopSizes,
         data.tierFrequencies,
-        data.rarities.map { it.frequency },
+        data.rarities,
         tier,
         stock.map { it?.create(data) }.toMutableList(),
-        exclusions = mutableListOf() // Populated by GameSnapshot
+        bought.toMutableMap(),
     )
 }
 
@@ -281,7 +269,6 @@ class GameSnapshot(
 
         env.scoped {
             val evaluator = Evaluator()
-            shop.exclusions.forEach { exclusion -> exclusion.evaluate(env, evaluator) }
             effects.forEach { effect -> effect.evaluate(env, evaluator) }
         }
         gs.onBoardChanged()

@@ -816,9 +816,6 @@ cards:
     shopCount: 1
     description:
       ability: Set your hand size to 6. Burn this card.
-    initActions:
-      # TODO: Remove shop-exclude once shopCount is working
-      - shop-exclude! '(= card-get $card 'name "Turf Expansion")
     playActions:
      - game-set! 'hand-size 6
      - card-remove! $this
@@ -1094,10 +1091,6 @@ cards:
     flavor: Set your hand size to 7. Burn this card.
     description:
       ability: Set your hand size to 7. Burn this card.
-    initActions:
-      # TODO: Remove shop-exclude once shopCount is working
-     - shop-exclude! '(= card-get $card 'name "Turf Expansion")
-     - shop-exclude! '(= card-get $card 'name "Corner the Market")
     playActions:
      - game-set! 'hand-size 7
      - card-remove! $this
@@ -1112,9 +1105,6 @@ cards:
     shopCount: 1
     description:
       ability: Get one of two random blueprints. Burn this card.
-    initActions:
-      # TODO: Remove shop-exclude once shopCount is working
-      - shop-exclude! '(= card-get $card 'name "Real Estate Fraud")
     playActions:
       - blueprint-own! single choose --prompt "Get a blueprint." --format $fmt-blueprint-with-cost --required _ (take --from 'random $unowned-blueprints 2) 1
       - card-remove! $this
