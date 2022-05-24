@@ -106,7 +106,7 @@ class MutableShop internal constructor(
 
     fun addExclusion(exclusion: Exclusion) { exclusions.add(exclusion) }
 
-    fun remove(cardId: Uuid) {
+    fun notifyBought(cardId: Uuid) {
         for (i in stock.indices) {
             stock[i]?.run {
                 if (this.id == cardId) {
