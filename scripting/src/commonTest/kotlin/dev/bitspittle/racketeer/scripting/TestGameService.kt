@@ -12,6 +12,7 @@ import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.MutableGameState
 import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.building.BuildingEnqueuer
+import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.random.CopyableRandom
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
@@ -57,10 +58,13 @@ private val FAKE_GAME_DATA_TEXT = """
     rarities:
       - name: Common
         frequency: 5
+        shopCount: 10
       - name: Uncommon
         frequency: 3
+        shopCount: 8
       - name: Rare
         frequency: 1
+        shopCount: 6
 
     tierFrequencies:
       - 1
@@ -98,41 +102,47 @@ private val FAKE_GAME_DATA_TEXT = """
       - name: Pickpocket
         tier: 0
         types: [thief]
-        flavor: ""
+        description:
+          ability: ""
         playActions: []
 
       - name: Rumormonger
         tier: 0
         types: [spy]
-        flavor: ""
+        description:
+          ability: ""
         playActions: []
 
       - name: Con Artist
         tier: 0
         types: [thief, spy]
         cost: 2
-        flavor: ""
+        description:
+          ability: ""
         playActions: []
 
       - name: Squealer
         tier: 0
         types: [spy]
         cost: 2
-        flavor: ""
+        description:
+          ability: ""
         playActions: []
 
       - name: Fool's Gold
         tier: 0
         types: [treasure]
         cost: 2
-        flavor: ""
+        description:
+          ability: ""
         playActions: []
 
       - name: Croupier
         tier: 0
         types: [thief]
         cost: 3
-        flavor: ""
+        description:
+          ability: ""
         playActions: []
 
       # TIER 2 (i.e. 1 when 0-indexed)
@@ -141,33 +151,38 @@ private val FAKE_GAME_DATA_TEXT = """
         tier: 1
         types: [action]
         cost: 2
-        flavor: ""
+        description:
+          ability: ""
         playActions: []
 
       - name: Cheese It!
         tier: 1
         types: [action]
         cost: 2
-        flavor: ""
+        description:
+          ability: ""
         playActions: []
 
       - name: Lady Thistledown
         tier: 1
         types: [spy, legend]
         cost: 3
-        flavor: ""
+        description:
+          ability: ""
         playActions: []
 
       - name: Embezzler
         tier: 1
         types: [thief, spy]
         cost: 4
-        flavor: ""
+        description:
+          ability: ""
         playActions: - fx-add! '(game-set! 'cash '(+ ${'$'}it 1))
 
     blueprints:
       - name: Wine Cellar
-        flavor: This gains * at the start of every turn.
+        description:
+          ability: This gains * at the start of every turn.
         buildCost:
           cash: 2
           influence: 2
@@ -176,7 +191,8 @@ private val FAKE_GAME_DATA_TEXT = """
           - fx-add! --lifetime 'game --event 'turn-start --data (building-get ${'$'}this 'id) '(building-add! building-with-id ${'$'}data 'vp 1)
 
       - name: City Hall
-        flavor: Gain 4&.
+        description:
+          ability: Gain 4&.
         buildCost:
           cash: 3
           influence: 3
@@ -186,7 +202,8 @@ private val FAKE_GAME_DATA_TEXT = """
           - game-add! 'influence 4
 
       - name: Stock Exchange
-        flavor: Gain 4${'$'}.
+        description:
+          ability: Gain 4${'$'}.
         rarity: 2
         buildCost:
           cash: 3
@@ -197,7 +214,8 @@ private val FAKE_GAME_DATA_TEXT = """
           - game-add! 'cash 4
 
       - name: Newsstand
-        flavor: Draw a card.
+        description:
+          ability: Draw a card.
         vp: 1
         buildCost:
           cash: 2
@@ -233,6 +251,25 @@ fun TestEnqueuers(env: Environment): Enqueuers {
         BuildingEnqueuerImpl(env, exprCache, actionQueue)
     )
 }
+
+fun TestCard(
+    name: String,
+    types: List<String> = listOf(""),
+    tier: Int = 0,
+    vp: Int = 0,
+    cost: Int = 0,
+    desc: CardTemplate.Description = CardTemplate.Description("dummy"),
+    playActions: List<String> = emptyList(),
+) = CardTemplate(
+    name,
+    types,
+    tier,
+    desc,
+    vp = vp,
+    cost = cost,
+    playActions = playActions,
+).instantiate()
+
 
 // Create a random with a fixed seed so tests run consistently
 class TestGameService(

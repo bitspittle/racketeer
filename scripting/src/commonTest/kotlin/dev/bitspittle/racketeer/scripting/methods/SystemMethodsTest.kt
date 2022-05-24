@@ -6,7 +6,7 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.system.DbgMethod
-import dev.bitspittle.racketeer.model.card.CardTemplate
+import dev.bitspittle.racketeer.scripting.TestCard
 import dev.bitspittle.racketeer.scripting.TestEnqueuers
 import dev.bitspittle.racketeer.scripting.TestGameService
 import dev.bitspittle.racketeer.scripting.methods.system.CancelMethod
@@ -29,10 +29,10 @@ class SystemMethodsTest {
 
         assertThat(service.logs).isEmpty()
         service.enqueuers.apply {
-            card.enqueuePlayActions(service.gameState, CardTemplate("Log #1", "", listOf(), tier = 0, playActions = listOf("dbg 1")).instantiate())
-            card.enqueuePlayActions(service.gameState, CardTemplate("Log #2", "", listOf(), tier = 0, playActions = listOf("dbg 2")).instantiate())
-            card.enqueuePlayActions(service.gameState, CardTemplate("Stop", "", listOf(), tier = 0, playActions = listOf("stop!")).instantiate())
-            card.enqueuePlayActions(service.gameState, CardTemplate("Log #3", "", listOf(), tier = 0, playActions = listOf("dbg 3")).instantiate())
+            card.enqueuePlayActions(service.gameState, TestCard("Log #1", playActions = listOf("dbg 1")))
+            card.enqueuePlayActions(service.gameState, TestCard("Log #2", playActions = listOf("dbg 2")))
+            card.enqueuePlayActions(service.gameState, TestCard("Stop", playActions = listOf("stop!")))
+            card.enqueuePlayActions(service.gameState, TestCard("Log #3", playActions = listOf("dbg 3")))
             actionQueue.runEnqueuedActions()
         }
 
@@ -58,11 +58,11 @@ class SystemMethodsTest {
 
         assertThat(service.logs).isEmpty()
         service.enqueuers.apply {
-            card.enqueuePlayActions(service.gameState, CardTemplate("Log #1", "", listOf(), tier = 0, playActions = listOf("dbg 1")).instantiate())
-            card.enqueuePlayActions(service.gameState, CardTemplate("Run Later #4", "", listOf(), tier = 0, playActions = listOf("run-later '(dbg 4)")).instantiate())
-            card.enqueuePlayActions(service.gameState, CardTemplate("Log #2", "", listOf(), tier = 0, playActions = listOf("dbg 2")).instantiate())
-            card.enqueuePlayActions(service.gameState, CardTemplate("Run Later #5", "", listOf(), tier = 0, playActions = listOf("run-later '(dbg 5)")).instantiate())
-            card.enqueuePlayActions(service.gameState, CardTemplate("Log #3", "", listOf(), tier = 0, playActions = listOf("dbg 3")).instantiate())
+            card.enqueuePlayActions(service.gameState, TestCard("Log #1", playActions = listOf("dbg 1")))
+            card.enqueuePlayActions(service.gameState, TestCard("Run Later #4", playActions = listOf("run-later '(dbg 4)")))
+            card.enqueuePlayActions(service.gameState, TestCard("Log #2", playActions = listOf("dbg 2")))
+            card.enqueuePlayActions(service.gameState, TestCard("Run Later #5", playActions = listOf("run-later '(dbg 5)")))
+            card.enqueuePlayActions(service.gameState, TestCard("Log #3", playActions = listOf("dbg 3")))
             actionQueue.runEnqueuedActions()
         }
 

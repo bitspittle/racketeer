@@ -12,11 +12,11 @@ import dev.bitspittle.limp.methods.system.DbgMethod
 import dev.bitspittle.limp.methods.system.RunMethod
 import dev.bitspittle.limp.methods.system.SetMethod
 import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.game.getOwnedCards
 import dev.bitspittle.racketeer.model.random.CopyableRandom
+import dev.bitspittle.racketeer.scripting.TestCard
 import dev.bitspittle.racketeer.scripting.TestEnqueuers
 import dev.bitspittle.racketeer.scripting.TestGameService
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
@@ -35,8 +35,8 @@ class CardMethodsTest {
         env.addMethod(MulMethod())
         env.addMethod(ListMethod())
 
-        val card = CardTemplate("test-card", "", listOf(), tier = 0).instantiate()
-        val card2 = CardTemplate("test-card2", "", listOf(), tier = 0).instantiate()
+        val card = TestCard("test-card")
+        val card2 = TestCard("test-card2")
         env.storeValue("card", card)
         env.storeValue("card2", card2)
 
@@ -84,7 +84,12 @@ class CardMethodsTest {
 
         val evaluator = Evaluator()
 
-        val card = CardTemplate("test-card", "", listOf("type-a", "type-b"), tier = 0, cost = 2, vp = 5).instantiate()
+        val card = TestCard(
+            "test-card",
+            listOf("type-a", "type-b"),
+            cost = 2,
+            vp = 5
+        )
         env.storeValue("card", card)
 
         assertThat(evaluator.evaluate(env, "card-get card 'cost")).isEqualTo(2)
@@ -101,7 +106,7 @@ class CardMethodsTest {
     @Test
     fun testRemoveMethod() = runTest {
         val env = Environment()
-        val service = TestGameService(CopyableRandom(123), )
+        val service = TestGameService(CopyableRandom(123))
 
         val gameState = service.gameState
         env.addMethod(CardRemoveMethod { gameState })
@@ -251,22 +256,18 @@ class CardMethodsTest {
         env.addMethod(CardGetMethod())
 
         // card-trigger! enqueues a card to be played later, so all actions in the current card finish first
-        val card1 = CardTemplate(
+        val card1 = TestCard(
             "Card #1",
-            "",
-            listOf(),
-            tier = 0,
             playActions = listOf("card-trigger! \$card2", "dbg card-get \$this 'name")
-        ).instantiate()
-        val card2 = CardTemplate(
+        )
+        val card2 = TestCard(
             "Card #2",
-            "",
-            listOf(),
-            tier = 0,
             playActions = listOf("card-trigger! \$card3", "dbg card-get \$this 'name")
-        ).instantiate()
-        val card3 =
-            CardTemplate("Card #3", "", listOf(), tier = 0, playActions = listOf("dbg card-get \$this 'name")).instantiate()
+        )
+        val card3 = TestCard(
+            "Card #3",
+            playActions = listOf("dbg card-get \$this 'name")
+        )
         env.storeValue("\$card1", card1)
         env.storeValue("\$card2", card2)
         env.storeValue("\$card3", card3)

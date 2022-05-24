@@ -6,8 +6,8 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.methods.math.PowMethod
-import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.game.GameStateChange
+import dev.bitspittle.racketeer.scripting.TestCard
 import dev.bitspittle.racketeer.scripting.TestGameService
 import dev.bitspittle.racketeer.scripting.methods.game.GameDrawMethod
 import dev.bitspittle.racketeer.scripting.methods.game.GameGetMethod
@@ -65,7 +65,7 @@ class GameMethodsTest {
         gameState.cash = 1
         gameState.influence = 2
         // As a side-effect, sets the gamestate's VP to 3
-        gameState.move(CardTemplate("Free VP", "", listOf(), tier = 0, vp = 3).instantiate(), gameState.hand)
+        gameState.move(TestCard("Free VP", vp = 3), gameState.hand)
         gameState.onBoardChanged()
 
         assertThat(evaluator.evaluate(env, "game-get 'cash")).isEqualTo(1)

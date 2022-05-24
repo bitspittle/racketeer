@@ -14,6 +14,7 @@ import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseMethod
 import dev.bitspittle.racketeer.scripting.types.CancelPlayException
 import kotlinx.coroutines.test.runTest
+import kotlin.math.log
 import kotlin.test.Test
 
 @Suppress("UNCHECKED_CAST")
@@ -50,17 +51,20 @@ class CollectionMethodsTest {
         assertThat(evaluator.evaluate(env, "choose \$ints _") as List<Int>).containsExactly(2, 3).inOrder()
 
         // The chooser isn't asked about the specific case when the list is empty
+        chooseResponse = { error("should not get called") }
         assertThat(evaluator.evaluate(env, "choose \$empty .. 0 _") as List<Int>).isEmpty()
 
+        // The requested size is clamped when asking outside the range of the list size
+
         // Can't request taking more items than what exists in the list
-        assertThrows<EvaluationException> {
-            evaluator.evaluate(env, "choose \$empty .. 1 _") as List<Int>
-        }
-        assertThrows<EvaluationException> {
-            evaluator.evaluate(env, "choose \$ints .. 99 100")
-        }
+        chooseResponse = { error("should not get called") }
+        assertThat(evaluator.evaluate(env, "choose \$empty .. 1 5") as List<Int>).isEmpty()
+
+        chooseResponse = { list -> list }
+        assertThat(evaluator.evaluate(env, "choose \$ints .. 500 505") as List<Int>).containsExactly(1, 2, 3, 4, 5).inOrder()
 
         // Yikes! It's a developer bug if the choosehandler returns a list whose size isn't in the requested range
+        chooseResponse = { list -> list.take(1) }
         assertThrows<EvaluationException> {
             evaluator.evaluate(env, "choose \$ints .. 3 _")
         }

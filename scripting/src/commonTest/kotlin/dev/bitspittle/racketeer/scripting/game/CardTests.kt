@@ -5,7 +5,7 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.methods.math.AddMethod
 import dev.bitspittle.limp.methods.system.DbgMethod
 import dev.bitspittle.limp.methods.system.SetMethod
-import dev.bitspittle.racketeer.model.card.CardTemplate
+import dev.bitspittle.racketeer.scripting.TestCard
 import dev.bitspittle.racketeer.scripting.TestEnqueuers
 import dev.bitspittle.racketeer.scripting.TestGameService
 import dev.bitspittle.racketeer.scripting.methods.card.CardGetMethod
@@ -28,11 +28,9 @@ class CardTests {
         // 2 - That cards don't interfere with each other's variables (e.g. $c defined in card1 is removed before
         //     card2 runs)
         // 3 - That the $this variable is correct for each card
-        val dummyCard1 = CardTemplate(
+        val dummyCard1 = TestCard(
             "Card1",
-            "unused",
             listOf("trickster"),
-            tier = 0,
             playActions = listOf(
                 "set '\$a 1",
                 "set '\$b 2",
@@ -40,18 +38,16 @@ class CardTests {
                 "dbg card-get \$this 'name",
                 "dbg \$c",
             )
-        ).instantiate()
-        val dummyCard2 = CardTemplate(
+        )
+        val dummyCard2 = TestCard(
             "Card2",
-            "unused",
             listOf("trickster"),
-            tier = 0,
             playActions = listOf(
                 "set '\$c 123",
                 "dbg card-get \$this 'name",
                 "dbg \$c",
             )
-        ).instantiate()
+        )
 
         service.enqueuers.card.enqueuePlayActions(service.gameState, dummyCard1)
         service.enqueuers.card.enqueuePlayActions(service.gameState, dummyCard2)

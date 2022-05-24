@@ -369,8 +369,12 @@ class CollectionMethodsTest {
         env.addMethod(SortedMethod())
         env.addMethod(CompareMethod())
         env.addMethod(ToIntMethod())
+        env.storeValue("empty", listOf<Int>())
         env.storeValue("ints", listOf(3, 1, 4, 5, 2))
         env.storeValue("str-numbers", listOf("3", "2", "1", "30", "20", "10", "20"))
+
+        assertThat(evaluator.evaluate(env, "sorted empty") as List<*>).isEmpty()
+        assertThat(evaluator.evaluate(env, "sorted --with '(compare \$a \$b) empty") as List<*>).isEmpty()
 
         assertThat(evaluator.evaluate(env, "sorted ints") as List<Int>)
             .containsExactly(1, 2, 3, 4, 5).inOrder()
