@@ -6,19 +6,26 @@ import com.varabyte.kotter.runtime.MainRenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.game.choose.SelectItemCommand
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.utils.wrap
 import dev.bitspittle.racketeer.console.view.View
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 
 class ChooseItemsView(
     ctx: GameContext,
-    prompt: String?,
+    private val prompt: String?,
     private val items: List<Any>,
     private val range: IntRange,
     private val choices: Continuation<List<Any>?>,
     private val requiredChoice: Boolean,
 ) : View(ctx) {
-    override val heading = (prompt ?: "Choose ${ctx.describer.describeRange(range)} item(s):")
+    override val heading = buildString {
+        if (prompt != null) {
+            append(prompt)
+            append(' ')
+        }
+        append("Choose ${ctx.describer.describeRange(range)}:")
+    }.wrap()
     override val allowEsc = !requiredChoice
 
     private val selectItemCommands = items.map { item -> SelectItemCommand(ctx, item) }
