@@ -48,20 +48,14 @@ class MutableShop internal constructor(
     override var tier: Int = tier
         private set
 
-    private fun handleRestock(restockAll: Boolean, possibleNewStock: List<CardTemplate>): Boolean {
-        // This should never happen, but fail fast in case game data is bad!
-        require(possibleNewStock.isNotEmpty()) {
-            "Received a request to restock a shop with no items provided; an overly aggressive filter, perhaps?"
-        }
-
-        if (!restockAll && stock.size == shopSizes[tier]) return false // Shop is full; incremental restock fails
-
+    private fun handleRestock(restockAll: Boolean, possibleNewStock: List<CardTemplate>) {
+        if (!restockAll && stock.size == shopSizes[tier]) return // Shop is full; incremental restock fails
         if (restockAll) {
             stock.clear()
         }
 
-        val numCardsToStock = shopSizes[tier] - stock.size
-
+        // Create an uber stock, which has all cards repeated a bunch of times as a lazy way to implement random
+        // frequency distribution
         fun createUberStock(): MutableList<CardTemplate> {
             val uberStock = mutableListOf<CardTemplate>()
             possibleNewStock.forEach { card ->
@@ -70,23 +64,17 @@ class MutableShop internal constructor(
             return uberStock
         }
 
-        // Create an uber stock, which has all cards repeated a bunch of times as a lazy way to implement random
-        // frequency distribution
-        var uberStock = createUberStock()
-        repeat(numCardsToStock) {
+        val uberStock = createUberStock()
+
+        var numCardsToStock = shopSizes[tier] - stock.size
+        while (numCardsToStock > 0 && uberStock.isNotEmpty()) {
             val template = uberStock.random(random())
             uberStock.removeAll { it === template } // Remove all instances, to encourage more variety
             stock.add(template.instantiate())
 
-            // In normal circumstances, our uber stock will never dry up, but in cases where a filter is added, it is
-            // possible. In that rare case, just recreate a new uberstock from scratch and continue as normal.
-            // Duplicates will show up but in that case it's OK since a filter is a positive thing
-            if (uberStock.isEmpty()) {
-                uberStock = createUberStock()
-            }
+            numCardsToStock--
         }
-
-        return true
+        repeat(numCardsToStock) { stock.add(null) }
     }
 
     private inline fun filterAllCards(additionalFilter: (CardTemplate) -> Boolean): List<CardTemplate> {
@@ -98,8 +86,8 @@ class MutableShop internal constructor(
                         && additionalFilter(card) }
     }
 
-    suspend fun restock(restockAll: Boolean = true, additionalFilter: suspend (CardTemplate) -> Boolean = { true }): Boolean {
-        return handleRestock(
+    suspend fun restock(restockAll: Boolean = true, additionalFilter: suspend (CardTemplate) -> Boolean = { true }) {
+        handleRestock(
             restockAll,
             filterAllCards { card -> additionalFilter(card) && exclusions.none { exclude -> exclude(card) } })
     }

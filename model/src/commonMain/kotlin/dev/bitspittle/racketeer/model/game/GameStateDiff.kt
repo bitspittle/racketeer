@@ -153,7 +153,12 @@ private class GameStateDiffReporter(
     }
 
     private fun StringBuilder.report(change: GameStateChange.RestockShop) = change.apply {
-        reportLine("The shop was restocked.")
+        reportLine(buildString {
+            append("The shop was restocked.")
+            if (diff.after.shop.stock.any { it == null }) {
+                append(" Due to supply issues, some shelves are empty.")
+            }
+        })
     }
 
     private fun StringBuilder.report(change: GameStateChange.UpgradeShop) = change.apply {
