@@ -3,7 +3,7 @@ package dev.bitspittle.racketeer.model.shop
 import com.benasher44.uuid.Uuid
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
-import dev.bitspittle.racketeer.model.card.featureType
+import dev.bitspittle.racketeer.model.card.featureTypes
 import dev.bitspittle.racketeer.model.game.Feature
 import dev.bitspittle.racketeer.model.random.CopyableRandom
 
@@ -94,7 +94,7 @@ class MutableShop internal constructor(
             .filter { card ->
                 card.cost > 0
                         && card.tier <= this.tier
-                        && (card.feature == null || features.contains(card.featureType))
+                        && features.containsAll(card.featureTypes)
                         && additionalFilter(card) }
     }
 

@@ -183,7 +183,7 @@ cards:
       - game-add! 'cash 1
 
   - name: Agent Magpie
-    feature: buildings
+    features: [buildings]
     tier: 0
     types: [thief, spy, trickster, cop]
     description:
@@ -1096,7 +1096,7 @@ cards:
      - card-remove! $this
 
   - name: Real Estate Fraud
-    feature: buildings
+    features: [buildings]
     tier: 4
     rarity: 2
     types: [action]

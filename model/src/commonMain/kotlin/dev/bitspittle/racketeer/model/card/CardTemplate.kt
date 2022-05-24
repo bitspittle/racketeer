@@ -5,8 +5,8 @@ import dev.bitspittle.racketeer.model.game.Feature
 import kotlinx.serialization.Serializable
 
 /**
- * @param feature Which feature expansion this card should be limited to. If not set, this card is considered part of
- *   the base set.
+ * @param features Which feature expansions this card should be limited to. If empty, this card is considered part of
+ *   the base set. If more than one feature is specified, ALL features have to be enabled for this to appear.
  * @param cost How much this card costs to purchase. If a card has no cost, it means it [isPriceless], and it can't be
  *   sold in a shop.
  * @param vp How many active VP points this card has earned over its lifetime.
@@ -19,7 +19,7 @@ data class CardTemplate(
     val types: List<String>,
     val tier: Int,
     val description: Description,
-    val feature: String? = null,
+    val features: List<String> = emptyList(),
     val rarity: Int = 0,
     val vp: Int = 0,
     val passiveVp: String? = null,
@@ -58,7 +58,10 @@ val CardTemplate.allPassiveActions: List<String> get() =
 val CardTemplate.allInitActions: List<String> get() =
     (if (upgradeTypes.contains(UpgradeType.SWIFT)) listOf("pile-move-to! \$hand \$this") else emptyList()) + initActions
 
-val CardTemplate.featureType: Feature.Type? get() = feature?.let { featureStr -> Feature.Type.values().first { it.toIdentifierName() == featureStr }}
+val CardTemplate.featureTypes: Set<Feature.Type>
+    get() = features.map { featureStr ->
+        Feature.Type.values().first { it.toIdentifierName() == featureStr }
+    }.toSet()
 
 val CardTemplate.upgradeTypes: Set<UpgradeType> get() = upgrades.map { upgradeStr ->
     UpgradeType.values().first { it.toIdentifierName() == upgradeStr }
