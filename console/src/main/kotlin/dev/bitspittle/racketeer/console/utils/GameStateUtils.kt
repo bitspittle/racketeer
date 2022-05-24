@@ -25,7 +25,7 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
             state = nextState
             block().also {
                 nextState.onBoardChanged()
-                GameStateDiff(prevState, nextState).reportTo(describer, app.logger)
+                GameStateDiff(prevState, nextState).reportTo(data, describer, app.logger)
             }
 
             // Update user stats based on new history

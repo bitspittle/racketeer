@@ -222,7 +222,7 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
         }
         refreshSymbolTextTree()
 
-        GameStateDiff(prevState, ctx.state).reportTo(ctx.describer, ctx.app.logger)
+        GameStateDiff(prevState, ctx.state).reportTo(ctx.data, ctx.describer, ctx.app.logger)
 
         inputSuffix = ""
         clearInput()

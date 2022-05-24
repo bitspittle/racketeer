@@ -3,7 +3,9 @@ package dev.bitspittle.racketeer.model.game
 import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.racketeer.model.building.BuildingProperty
+import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardProperty
+import dev.bitspittle.racketeer.model.shop.remaining
 import dev.bitspittle.racketeer.model.text.Describer
 
 /** Create a diff between two snapshots of a game state in time, useful for reporting changes to the user */
@@ -14,11 +16,12 @@ class GameStateDiff(val before: GameState, val after: GameState) {
 
 fun GameStateDiff.hasNoChanges() = changes.isEmpty()
 
-fun GameStateDiff.reportTo(describer: Describer, logger: Logger) {
-    GameStateDiffReporter(describer, this).reportTo(logger)
+fun GameStateDiff.reportTo(data: GameData, describer: Describer, logger: Logger) {
+    GameStateDiffReporter(data, describer, this).reportTo(logger)
 }
 
 private class GameStateDiffReporter(
+    private val data: GameData,
     private val describer: Describer,
     private val diff: GameStateDiff
 ) {
@@ -49,6 +52,13 @@ private class GameStateDiffReporter(
         }
     }
 
+    private fun StringBuilder.reportIfLastShopCard(card: Card) {
+        if (diff.before.shop.stock.filterNotNull().any { it.id == card.id } &&
+                diff.after.shop.remaining(card.template, data.rarities) == 0) {
+            reportLine("The shop will not sell any more copied of ${card.template.name}.")
+        }
+    }
+
     private fun StringBuilder.report(change: GameStateChange.MoveCards) = change.apply {
         if (intoPile == diff.after.graveyard) {
             reportLine("${cards.size} cards were removed from the game.")
@@ -67,6 +77,7 @@ private class GameStateDiffReporter(
                         } else {
                             reportLine("${cards.size} cards were created and moved ${listStrategy.toDesc()} $pileToDesc.")
                         }
+                        cards.forEach { card -> reportIfLastShopCard(card) }
                     } else {
                         report(GameStateChange.MoveCard(cards[0], intoPile, listStrategy))
                     }
@@ -92,6 +103,7 @@ private class GameStateDiffReporter(
             } else {
                 reportLine("$cardTitle was created and moved ${listStrategy.toDesc()} $pileToDesc.")
             }
+            reportIfLastShopCard(card)
         }
     }
 

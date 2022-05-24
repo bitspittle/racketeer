@@ -21,6 +21,11 @@ interface Shop {
     val bought: Map<String, Int>
 }
 
+fun Shop.remaining(card: CardTemplate, rarities: List<Rarity>): Int {
+    val maxStock = card.shopCount ?: rarities[card.rarity].shopCount
+    return maxStock - (bought[card.name] ?: 0)
+}
+
 class MutableShop internal constructor(
     private val random: CopyableRandom,
     private val allCards: List<CardTemplate>,
@@ -94,16 +99,10 @@ class MutableShop internal constructor(
                         && additionalFilter(card) }
     }
 
-    private fun maxStockFor(card: CardTemplate): Int {
-        return card.shopCount ?: rarities[card.rarity].shopCount
-    }
-
     suspend fun restock(restockAll: Boolean = true, additionalFilter: suspend (CardTemplate) -> Boolean = { true }) {
         handleRestock(
             restockAll,
-            filterAllCards { card ->
-                additionalFilter(card) && (bought[card.name] ?: 0) < maxStockFor(card)
-            }
+            filterAllCards { card -> remaining(card, rarities) > 0 && additionalFilter(card) }
         )
     }
 
@@ -113,7 +112,7 @@ class MutableShop internal constructor(
                 if (this.id == cardId) {
                     bought[this.template.name] = bought.getOrPut(this.template.name) { 0 } + 1
                         // A card should not have been put up for sale if we already sold too many of them
-                        .also { check(it <= maxStockFor(this.template)) }
+                        .also { check(remaining(this.template, rarities) >= 0) }
 
                     stock[i] = null
                     return
