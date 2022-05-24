@@ -214,7 +214,13 @@ class GameSession(
 
         viewStack.pushView(titleView)
         section {
-            viewStack.currentView.renderInto(this)
+            try {
+                // Due to threading issues (a rerender getting requested while the gamestate is changing), this might
+                // crash when reading data that's being concurrently written to. Note great but just ignore the
+                // exception for now, as we will get another rerender request soon
+                viewStack.currentView.renderInto(this)
+            } catch(ignored: Exception) { }
+
             if (logRenderers.isNotEmpty()) {
                 textLine()
                 logRenderers.forEach { it.invoke(this) }
