@@ -54,7 +54,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             UpgradeType.CASH -> if (icons) data.icons.cash else data.upgradeNames.cash
             UpgradeType.INFLUENCE -> if (icons) data.icons.influence else data.upgradeNames.influence
             UpgradeType.LUCK -> if (icons) data.icons.luck else data.upgradeNames.luck
-            UpgradeType.VETERAN -> if (icons) data.icons.card else data.upgradeNames.veteran
+            UpgradeType.VETERAN -> if (icons) data.icons.veteran else data.upgradeNames.veteran
             UpgradeType.SWIFT -> null
         }
     }
