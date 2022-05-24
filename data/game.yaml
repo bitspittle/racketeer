@@ -163,19 +163,22 @@ cards:
   - name: Constable
     tier: 0
     types: [cop]
-    flavor: Do nothing.
+    description:
+      ability: Do nothing.
 
   - name: Newsie
     tier: 0
     types: [spy]
-    flavor: Gain &.
+    description:
+      ability: Gain &.
     playActions:
       - game-add! 'influence 1
 
   - name: Pickpocket
     tier: 0
     types: [thief]
-    flavor: Gain $.
+    description:
+      ability: Gain $.
     playActions:
       - game-add! 'cash 1
 
@@ -183,7 +186,9 @@ cards:
     feature: buildings
     tier: 0
     types: [thief, spy, trickster, cop]
-    flavor: Gain $, &, and %. Then this gains either +$, +&, +%, or "Draw a card", in that order.
+    description:
+      ability: Gain $, &, and %. Then this gains either +$, +&, +%, or "Draw a card", in that order.
+
     playActions:
       - game-add! 'cash 1
       - game-add! 'influence 1
@@ -199,7 +204,8 @@ cards:
     rarity: 1
     types: [action]
     cost: 2
-    flavor: Gain 4$. Jail this card.
+    description:
+      ability: Gain 4$. Jail this card.
     playActions:
       - game-add! 'cash 4
       - pile-move-to! $jail $this
@@ -209,7 +215,8 @@ cards:
     rarity: 1
     types: [thief, spy]
     cost: 2
-    flavor: Gain $ and &.
+    description:
+      ability: Gain $ and &.
     playActions:
       - game-add! 'cash 1
       - game-add! 'influence 1
@@ -219,7 +226,8 @@ cards:
     rarity: 1
     types: [thief, trickster]
     cost: 2
-    flavor: Gain $ and %.
+    description:
+      ability: Gain $ and %.
     playActions:
       - game-add! 'cash 1
       - game-add! 'luck 1
@@ -230,7 +238,8 @@ cards:
     rarity: 1
     types: [treasure]
     cost: 2
-    flavor: Draw a card.
+    description:
+      ability: Draw a card.
     vp: 2
     playActions:
       - game-draw! 1
@@ -241,7 +250,8 @@ cards:
     types: [action]
     cost: 2
     upgrades: [swift]
-    flavor: "Jail this and two non-Cop cards you own."
+    description:
+      ability: "Jail this and two non-Cop cards you own."
     playActions:
       - pile-move-to! $jail $this
       - set '$ownednoncops filter $owned-cards '(! (card-has-type? $it 'cop))
@@ -253,7 +263,8 @@ cards:
     rarity: 0
     types: [thief]
     cost: 2
-    flavor: Gain 2$.
+    description:
+      ability: Gain 2$.
     playActions:
       - game-add! 'cash 2
 
@@ -262,7 +273,8 @@ cards:
     rarity: 1
     types: [spy]
     cost: 2
-    flavor: Gain 2&.
+    description:
+      ability: Gain 2&.
     playActions:
       - game-add! 'influence 2
 
@@ -271,7 +283,8 @@ cards:
     rarity: 1
     types: [trickster]
     cost: 3
-    flavor: Jail a card on the Street. Replace it with a random card of the same tier.
+    description:
+      ability: Jail a card on the Street. Replace it with a random card of the same tier.
     playActions:
       - set '$cardtoreplace (single (choose --prompt "Choose a card to jail." $street 1))
       - set '$newtier (card-get $cardtoreplace 'tier)
@@ -289,7 +302,8 @@ cards:
     rarity: 1
     types: [action]
     cost: 3
-    flavor: Draw two cards, then discard one.
+    description:
+      ability: Draw two cards, then discard one.
     playActions:
       - game-draw! 2
       - stop-if! empty? $hand
@@ -300,7 +314,8 @@ cards:
     rarity: 2
     types: [action]
     cost: 3
-    flavor: Create a Burglar (worth +2$) in your hand. Jail this after two uses.
+    description:
+      ability: Create a Burglar (worth +2$) in your hand. Jail this after two uses.
     initActions:
       - card-set! $this 'counter 2
     playActions:
@@ -314,7 +329,8 @@ cards:
     rarity: 1
     types: [thief, trickster]
     cost: 4
-    flavor: Gain 2$ and %.
+    description:
+      ability: Gain 2$ and %.
     playActions:
       - game-add! 'cash 2
       - game-add! 'luck 1
@@ -324,7 +340,8 @@ cards:
     rarity: 1
     types: [thief, trickster]
     cost: 4
-    flavor: Draw a card. Gain $.
+    description:
+      ability: Draw a card. Gain $.
     playActions:
       - game-draw! 1
       - game-add! 'cash 1
@@ -336,7 +353,8 @@ cards:
     rarity: 1
     types: [spy]
     cost: 2
-    flavor: Gain 2&. Gets another +& after one use.
+    description:
+      ability: Gain 2&. Gets another +& after one use.
     playActions:
       - game-add! 'influence 2
       - stop-if! card-has-upgrade? $this 'influence
@@ -347,7 +365,8 @@ cards:
     rarity: 1
     types: [action]
     cost: 3
-    flavor: Discard four cards at random, then draw that many plus one.
+    description:
+      ability: Discard four cards at random, then draw that many plus one.
     playActions:
       - set '$to-discard take --from 'random $hand 4
       - set '$to-draw-count (size $to-discard)
@@ -360,7 +379,8 @@ cards:
     types: [spy, legend]
     cost: 3
     upgrades: [swift]
-    flavor: "Give another Spy you own +&."
+    description:
+      ability: "Give another Spy you own +&."
     playActions:
       - set '$all-spies filter $owned-cards '(card-has-type? $it 'spy)
       - set '$some-spies filter $all-spies '(! (card-has-upgrade? $it 'influence))
@@ -374,7 +394,8 @@ cards:
     types: [thief, legend]
     cost: 3
     upgrades: [swift]
-    flavor: "Give another Thief you own +$."
+    description:
+      ability: "Give another Thief you own +$."
     playActions:
       - set '$all-thieves filter $owned-cards '(card-has-type? $it 'thief)
       - set '$some-thieves filter $all-thieves '(! (card-has-upgrade? $it 'cash))
@@ -387,7 +408,8 @@ cards:
     rarity: 1
     types: [thief, spy, trickster]
     cost: 3
-    flavor: Gain $, &, and %. At end of turn, shuffle this into your deck.
+    description:
+      ability: Gain $, &, and %. At end of turn, shuffle this into your deck.
     playActions:
       - game-add! 'cash 1
       - game-add! 'influence 1
@@ -400,7 +422,8 @@ cards:
     types: [treasure]
     cost: 3
     vp: 3
-    flavor: When you get this, it gains * for each other Gold Chain you own.
+    description:
+      ability: When you get this, it gains * for each other Gold Chain you own.
     initActions:
       - set '$num-chains count $owned-cards '(= card-get $it 'name "Gold Chain")
       - card-set! $this 'vp '(+ 2 $num-chains)
@@ -412,7 +435,8 @@ cards:
     rarity: 1
     types: [thief]
     cost: 3
-    flavor: Gain 2$. Gets another +$ after one use.
+    description:
+      ability: Gain 2$. Gets another +$ after one use.
     playActions:
       - game-add! 'cash 2
       - stop-if! card-has-upgrade? $this 'cash
@@ -424,7 +448,8 @@ cards:
     rarity: 1
     types: [thief, spy, trickster]
     cost: 3
-    flavor: "Choose one: Gain 2$, 2&, or 2%."
+    description:
+      ability: "Choose one: Gain 2$, 2&, or 2%."
     playActions:
       - set '$choices (map (list "Gain 2$." "Gain 2&." "Gain 2%") '(icon-convert $it))
       - set '$chosen-index (index-of $choices single choose $choices 1)
@@ -437,7 +462,8 @@ cards:
     rarity: 2
     types: [action]
     cost: 3
-    flavor: Draw three cards. Jail this card.
+    description:
+      ability: Draw three cards. Jail this card.
     playActions:
       - game-draw! 3
       - pile-move-to! $jail $this
@@ -447,7 +473,8 @@ cards:
     rarity: 1
     types: [cop]
     cost: 3
-    flavor: When you get this, give 2 Thieves you own +$.
+    description:
+      ability: When you get this, give 2 Thieves you own +$.
     initActions:
       - set '$all-thieves filter $owned-cards '(card-has-type? $it 'thief)
       - set '$thieves filter $all-thieves '(! (card-has-upgrade? $it 'cash))
@@ -459,7 +486,8 @@ cards:
     rarity: 1
     types: [spy, cop]
     cost: 4
-    flavor: Gain 2&. You may jail a card on the street.
+    description:
+      ability: Gain 2&. You may jail a card on the street.
     playActions:
       - game-add! 'influence 2
       - pile-move-to! $jail (choose --prompt "You may jail a card." $street .. 0 1)
@@ -469,7 +497,8 @@ cards:
     rarity: 1
     types: [action]
     cost: 4
-    flavor: Gain 3&. Add a card from the shop to the street. Jail this card.
+    description:
+      ability: Gain 3&. Add a card from the shop to the street. Jail this card.
     playActions:
       - game-add! 'influence 3
       - stop-if! empty? $shop
@@ -481,7 +510,8 @@ cards:
     rarity: 2
     types: [cop, legend]
     cost: 4
-    flavor: When you get this, gain nine &.
+    description:
+      ability: When you get this, gain nine &.
     initActions:
       - game-add! 'influence 9
 
@@ -490,7 +520,8 @@ cards:
     rarity: 2
     types: [cop, thief, legend]
     cost: 4
-    flavor: Gain 2$. You may convert all your $ to &.
+    description:
+      ability: Gain 2$. You may convert all your $ to &.
     playActions:
       - game-add! 'cash 2
       - set '$convert (ask? "Would you like to convert your $ into &?")
@@ -503,7 +534,8 @@ cards:
     rarity: 2
     types: [thief, trickster, legend]
     cost: 5
-    flavor: Gain $$. When you get this, gain 5%.
+    description:
+      ability: Gain $$. When you get this, gain 5%.
     initActions:
       - game-add! 'luck 5
     playActions:
@@ -514,7 +546,8 @@ cards:
     rarity: 0
     types: [spy]
     cost: 5
-    flavor: Draw a card. Gain 2&.
+    description:
+      ability: Draw a card. Gain 2&.
     playActions:
       - game-draw! 1
       - game-add! 'influence 2
@@ -524,7 +557,8 @@ cards:
     rarity: 2
     types: [action]
     cost: 5
-    flavor: Gain 3$. Add a random Legend to the street. Jail this card.
+    description:
+      ability: Gain 3$. Add a random Legend to the street. Jail this card.
     playActions:
       - game-add! 'cash 3
       - set '$all-legend-cards (filter buyable-card-list '(card-has-type? $it 'legend))
@@ -538,7 +572,8 @@ cards:
     rarity: 1
     types: [trickster]
     cost: 6
-    flavor: Draw two cards.
+    description:
+      ability: Draw two cards.
     playActions:
       - game-draw! 2
 
@@ -547,7 +582,8 @@ cards:
     rarity: 2
     types: [spy, legend]
     cost: 7
-    flavor: Gain 10 &.
+    description:
+      ability: Gain 10 &.
     playActions:
       - game-add! 'influence 10
 
@@ -559,7 +595,8 @@ cards:
     rarity: 0
     types: [treasure]
     cost: 3
-    flavor: This is worth * for each six cards you own.
+    description:
+      ability: This is worth * for each six cards you own.
     passiveVp: / (size $owned-cards) 6
 
   - name: Polished Gem
@@ -568,7 +605,8 @@ cards:
     types: [treasure]
     cost: 3
     vp: 1
-    flavor: When you play this card, it gains +2*.
+    description:
+      ability: When you play this card, it gains +2*.
     playActions:
      - card-add! $this 'vp 2
 
@@ -577,7 +615,8 @@ cards:
     rarity: 2
     types: [action]
     cost: 3
-    flavor: Discard your hand. Create that many plus one Burglars (worth +2$) in your hand.
+    description:
+      ability: Discard your hand. Create that many plus one Burglars (worth +2$) in your hand.
     playActions:
       - set '$num-burglars + 1 (size $hand)
       - pile-move-to! $discard $hand
@@ -591,7 +630,8 @@ cards:
 #    rarity: 2
 #    types: [action]
 #    cost: 3
-#    flavor: Gain %. Put a card from jail and a Constable into your hand.
+#    description:
+#      ability: Gain %. Put a card from jail and a Constable into your hand.
 #    playActions:
 #      - game-add! 'luck 1
 #      - stop-if! empty? $jail
@@ -604,14 +644,16 @@ cards:
     types: [treasure]
     cost: 4
     vp: 5
-    flavor: Do nothing.
+    description:
+      ability: Do nothing.
 
   - name: The Talented Mr. Tezuka
     tier: 2
     rarity: 2
     types: [thief, spy, legend]
     cost: 4
-    flavor: Gain 2$ and 2&. Jail this after three uses.
+    description:
+      ability: Gain 2$ and 2&. Jail this after three uses.
     initActions:
       - card-set! $this 'counter 3
     playActions:
@@ -626,7 +668,8 @@ cards:
     rarity: 1
     types: [trickster]
     cost: 4
-    flavor: When you play this, it becomes an exact copy of a card in your hand.
+    description:
+      ability: When you play this, it becomes an exact copy of a card in your hand.
     playActions:
       - stop-if! empty? $hand
       - set '$copied-card single (choose --prompt "Copy a card." $hand 1)
@@ -641,7 +684,8 @@ cards:
     types: [trickster]
     cost: 3
     upgrades: [swift]
-    flavor: Shuffle the discard pile into the deck, then discard all Treasures in it.
+    description:
+      ability: Shuffle the discard pile into the deck, then discard all Treasures in it.
     playActions:
      - pile-move-to! $deck $discard
      - shuffle! $deck
@@ -653,7 +697,8 @@ cards:
     rarity: 2
     types: [trickster, legend]
     cost: 4
-    flavor: Draw a card. Give another Trickster you own +%.
+    description:
+      ability: Draw a card. Give another Trickster you own +%.
     playActions:
       - game-draw! 1
       - set '$all-tricksters filter $owned-cards '(card-has-type? $it 'trickster)
@@ -667,7 +712,8 @@ cards:
     rarity: 2
     types: [spy, legend]
     cost: 4
-    flavor: Gain 3&. You may convert all your & to $.
+    description:
+      ability: Gain 3&. You may convert all your & to $.
     playActions:
       - game-add! 'influence 3
       - set '$convert (ask? "Would you like to convert your & into $?")
@@ -680,7 +726,8 @@ cards:
     rarity: 1
     types: [thief, trickster]
     cost: 4
-    flavor: Gain 2$. Gain 2% if you own 20 or more cards.
+    description:
+      ability: Gain 2$. Gain 2% if you own 20 or more cards.
     playActions:
       - game-add! 'cash 2
       - if-true (gte? (size $owned-cards) 20) '(game-add! 'luck 2)
@@ -693,20 +740,21 @@ cards:
 #    rarity: 2
 #    types: [thief, trickster]
 #    cost: 5
-#    flavor: Gain 2$. You may reroll your shop with cards you own.
+#    description:
+#      ability: Gain 2$. You may reroll your shop with cards you own.
 #    playActions:
 #      - game-add! 'cash 2
 #      - stop-if! (! (ask? "Reroll your shop with cards you own?" ))
 #      - set '$cardnames (map $owned-cards '(card-get $it 'name))
 #      - shop-reroll! '(in? $cardnames (card-get $card 'name))
 
-
   - name: Baby Teeth Nelson
     tier: 2
     rarity: 1
     types: [thief, legend]
     cost: 5
-    flavor: Burn this and all Cops you own. Draw a card for each.
+    description:
+      ability: Burn this and all Cops you own. Draw a card for each.
     playActions:
       - set '$owned-cops (filter $owned-cards '(card-has-type? $it 'cop))
       - card-remove! $owned-cops
@@ -718,7 +766,8 @@ cards:
     rarity: 0
     types: [trickster]
     cost: 5
-    flavor: Draw a card. Gain %.
+    description:
+      ability: Draw a card. Gain %.
     playActions:
       - game-draw! 1
       - game-add! 'luck 1
@@ -728,7 +777,8 @@ cards:
     rarity: 2
     types: [cop, legend]
     cost: 5
-    flavor: When you get this, jail all Pickpockets and Newsies.
+    description:
+      ability: When you get this, jail all Pickpockets and Newsies.
     initActions:
       - pile-move-to! $jail filter $owned-cards '(= card-get $it 'name "Pickpocket")
       - pile-move-to! $jail filter $owned-cards '(= card-get $it 'name "Newsie")
@@ -738,7 +788,8 @@ cards:
     rarity: 0
     types: [thief]
     cost: 5
-    flavor: Gain 3$.
+    description:
+      ability: Gain 3$.
     playActions:
       - game-add! 'cash 3
 
@@ -747,7 +798,8 @@ cards:
     rarity: 2
     types: [thief, trickster, legend]
     cost: 6
-    flavor: Gain 2$. You may reroll your shop with Treasures.
+    description:
+      ability: Gain 2$. You may reroll your shop with Treasures.
     playActions:
       - game-add! 'cash 2
       - stop-if! (! (ask? "Reroll your shop with Treasures?" ))
@@ -758,7 +810,8 @@ cards:
     rarity: 1
     types: [action]
     cost: 6
-    flavor: Set your hand size to 6. Burn this card.
+    description:
+      ability: Set your hand size to 6. Burn this card.
     initActions:
      - shop-exclude! '(= card-get $card 'name "Turf Expansion")
     playActions:
@@ -771,7 +824,8 @@ cards:
     types: [action]
     cost: 8
     upgrades: [swift]
-    flavor: "Gain two copies of a card you own that costs 3$ or less. Burn this card."
+    description:
+      ability: "Gain two copies of a card you own that costs 3$ or less. Burn this card."
     playActions:
       - card-remove! $this
       - set '$low-cost-owned (filter $owned-cards '(lte? (card-get $it 'cost) 3))
@@ -790,7 +844,8 @@ cards:
     rarity: 1
     types: [treasure]
     cost: 3
-    flavor: This is worth * for every Cop you own.
+    description:
+      ability: This is worth * for every Cop you own.
     passiveVp: count $owned-cards '(card-has-type? $it 'cop)
 
   - name: Gilded Cage
@@ -798,7 +853,8 @@ cards:
     rarity: 1
     types: [treasure]
     cost: 3
-    flavor: This is worth ** for each five cards in jail.
+    description:
+      ability: This is worth ** for each five cards in jail.
     passiveVp: * 2 (/ (size $jail) 5)
 
   - name: Pawnbroker
@@ -806,7 +862,8 @@ cards:
     rarity: 2
     types: [thief]
     cost: 4
-    flavor: You may choose a card on the street to jail. Gain $ equal to its tier plus 2.
+    description:
+      ability: You may choose a card on the street to jail. Gain $ equal to its tier plus 2.
     playActions:
       - set '$maybe-card-to-jail (choose --prompt "You may jail a card." $street .. 0 1)
       - game-add! 'cash 2
@@ -821,7 +878,8 @@ cards:
     rarity: 1
     types: [action]
     cost: 3
-    flavor: Play a card from jail or discard, then burn it.
+    description:
+      ability: Play a card from jail or discard, then burn it.
     playActions:
      - set '$discard-or-jail (union $discard $jail)
      - cancel-if! (empty? $discard-or-jail)
@@ -837,7 +895,8 @@ cards:
     types: [cop]
     cost: 4
     upgrades: [swift]
-    flavor: "Give another Cop you own \"Draw a card.\""
+    description:
+      ability: "Give another Cop you own \"Draw a card.\""
     playActions:
       - set '$all-cops filter $owned-cards '(card-has-type? $it 'cop)
       - set '$some-cops filter $all-cops '(! (card-has-upgrade? $it 'veteran))
@@ -851,7 +910,8 @@ cards:
     rarity: 1
     types: [cop]
     cost: 4
-    flavor: Gain $ for every Cop you own. (max 8)
+    description:
+      ability: Gain $ for every Cop you own. (max 8)
     playActions:
       - game-add! 'cash min 8 (count $owned-cards '(card-has-type? $it 'cop))
 
@@ -860,7 +920,8 @@ cards:
     rarity: 1
     types: [trickster]
     cost: 4
-    flavor: Gain %%. At end of turn, you may put a Thief from the street on top of your deck.
+    description:
+      ability: Gain %%. At end of turn, you may put a Thief from the street on top of your deck.
     playActions:
       - game-add! 'luck 2
       - fx-add! --desc "At end of turn, you may put a Thief from the street on top of your deck." --event 'turn-end '(if-false empty? (filter $street '(card-has-type? $it 'thief)) '(pile-move-to! --pos 'front $deck (choose --required _ --prompt "You may put a Thief on top of your deck." (filter $street '(card-has-type? $it 'thief)) .. 0 1)))
@@ -872,7 +933,8 @@ cards:
     rarity: 1
     types: [thief]
     cost: 5
-    flavor: Add a card from the shop to the street and a Constable to your hand.
+    description:
+      ability: Add a card from the shop to the street and a Constable to your hand.
     playActions:
       - stop-if! empty? $shop
       - pile-move-to! $street (choose --format $fmt-card-with-cost --prompt "Add a card to the street." $shop 1)
@@ -884,7 +946,8 @@ cards:
 #    rarity: 2
 #    types: [thief, legend]
 #    cost: 5
-#    flavor: Gain 2$. Gain * whenever you play a Pickpocket or Burglar this turn.
+#    description:
+#      ability: Gain 2$. Gain * whenever you play a Pickpocket or Burglar this turn.
 #    playActions:
 #      - game-add! 'cash 2
 #      - fx-add! --desc (icon-convert "Gain * whenever you play a Pickpocket or Burglar.") --data (card-get $this 'id) '(if-true or? (= card-get $card 'name "Pickpocket") (= card-get $card 'name "Burglar") '(card-add! card-with-id $data 'vp 1))
@@ -895,7 +958,8 @@ cards:
     rarity: 1
     types: [thief, trickster]
     cost: 5
-    flavor: Gain 2$. You may jail a Treasure you own. This gains its *.
+    description:
+      ability: Gain 2$. You may jail a Treasure you own. This gains its *.
     playActions:
      - game-add! 'cash 2
      - set '$treasures-to-jail (filter $owned-cards '(card-has-type? $it 'treasure))
@@ -911,7 +975,8 @@ cards:
     rarity: 0
     types: [treasure]
     cost: 6
-    flavor: Do nothing.
+    description:
+      ability: Do nothing.
     vp: 7
 
   - name: Bank Robber
@@ -919,7 +984,8 @@ cards:
     rarity: 1
     types: [thief]
     cost: 6
-    flavor: Gain 4$.
+    description:
+      ability: Gain 4$.
     playActions:
       - game-add! 'cash 4
 
@@ -928,7 +994,8 @@ cards:
     rarity: 1
     types: [spy, cop]
     cost: 6
-    flavor: Gain 3&. You may spend 6& to give this card 6*.
+    description:
+      ability: Gain 3&. You may spend 6& to give this card 6*.
     playActions:
       - game-add! 'influence 3
       - stop-if! < game-get 'influence 6
@@ -942,7 +1009,8 @@ cards:
     rarity: 2
     types: [action]
     cost: 6
-    flavor: Choose a card from your deck or discard pile to put into your hand.
+    description:
+      ability: Choose a card from your deck or discard pile to put into your hand.
     playActions:
       - pile-move-to! $hand (choose-across-piles "Choose a card to put into your hand." (union $deck $discard) 1)
 
@@ -951,7 +1019,8 @@ cards:
     rarity: 1
     types: [thief, legend]
     cost: 6
-    flavor: Gain $ for each Thief on the street. (max 8)
+    description:
+      ability: Gain $ for each Thief on the street. (max 8)
     playActions:
       - game-add! 'cash min 8 (count $street '(card-has-type? $it 'thief))
 
@@ -960,7 +1029,8 @@ cards:
     rarity: 1
     types: [action]
     cost: 7
-    flavor: Draw three cards, then discard two.
+    description:
+      ability: Draw three cards, then discard two.
     playActions:
       - game-draw! 3
       - stop-if! empty? $hand
@@ -973,7 +1043,8 @@ cards:
     rarity: 2
     types: [treasure]
     cost: 4
-    flavor: This is worth * for every Legend you own or in jail.
+    description:
+      ability: This is worth * for every Legend you own or in jail.
     passiveVp: size (filter (union $owned-cards $jail) '(card-has-type? $it 'legend))
 
   - name: Lucky Emerald
@@ -982,7 +1053,8 @@ cards:
     types: [treasure]
     cost: 5
     vp: 5
-    flavor: Gain 2%.
+    description:
+      ability: Gain 2%.
     playActions:
       - game-add! 'luck 2
 
@@ -991,7 +1063,8 @@ cards:
     rarity: 2
     types: [trickster, legend]
     cost: 6
-    flavor: Gain %. This is worth * for each upgraded card you own.
+    description:
+      ability: Gain %. This is worth * for each upgraded card you own.
     passiveVp: count $owned-cards '(card-has-any-upgrade? $it)
     playActions:
       - game-add! 'luck 1
@@ -1001,7 +1074,8 @@ cards:
     rarity: 2
     types: [action]
     cost: 6
-    flavor: Put up to two cards from Jail into your hand. Burn this card.
+    description:
+      ability: Put up to two cards from Jail into your hand. Burn this card.
     playActions:
       - pile-move-to! $hand (choose --prompt "Get cards out of jail." $jail .. 0 2)
       - card-remove! $this
@@ -1012,6 +1086,8 @@ cards:
     types: [action]
     cost: 7
     flavor: Set your hand size to 7. Burn this card.
+    description:
+      ability: Set your hand size to 7. Burn this card.
     initActions:
      - shop-exclude! '(= card-get $card 'name "Turf Expansion")
      - shop-exclude! '(= card-get $card 'name "Corner the Market")
@@ -1026,7 +1102,8 @@ cards:
     types: [action]
     cost: 7
     upgrades: [swift]
-    flavor: Get one of two random blueprints. Burn this card.
+    description:
+      ability: Get one of two random blueprints. Burn this card.
     initActions:
       - shop-exclude! '(= card-get $card 'name "Real Estate Fraud")
     playActions:
@@ -1039,7 +1116,8 @@ cards:
     rarity: 0
     types: [thief]
     cost: 7
-    flavor: Gain 5$.
+    description:
+      ability: Gain 5$.
     playActions:
       - game-add! 'cash 5
 
@@ -1049,7 +1127,8 @@ cards:
     types: [treasure]
     cost: 7
     vp: 12
-    flavor: Comes as a set of two Pearl Earrings worth 6 VP each.
+    description:
+      ability: Comes as a set of two Pearl Earrings worth 6 VP each.
     initActions:
       - pile-copy-to! $street card-named "Pearl Earring"
       - pile-copy-to! $street card-named "Pearl Earring"
@@ -1061,7 +1140,8 @@ cards:
     types: [treasure]
     cost: 0
     vp: 6
-    flavor: Do nothing.
+    description:
+      ability: Do nothing.
 
   - name: Diamond
     tier: 4
@@ -1069,14 +1149,16 @@ cards:
     types: [treasure]
     cost: 8
     vp: 10
-    flavor: Do nothing.
+    description:
+      ability: Do nothing.
 
   - name: Ultimate Heist
     tier: 4
     rarity: 1
     types: [action]
     cost: 9
-    flavor: Add all Treasures from the shop to the street.
+    description:
+      ability: Add all Treasures from the shop to the street.
     playActions:
       - pile-move-to! $street (filter $shop '(card-has-type? $it 'treasure))
 
@@ -1091,7 +1173,8 @@ cards:
 blueprints:
 
   - name: Opera House
-    flavor: "Activate: Play a card from jail, then burn it."
+    description:
+      ability: "Activate: Play a card from jail, then burn it."
     buildCost:
       cash: 2
       influence: 2
@@ -1103,7 +1186,8 @@ blueprints:
 
 
   - name: Forger's Workshop
-    flavor: "Activate: Get an extra copy of the next card you get this turn."
+    description:
+      ability: "Activate: Get an extra copy of the next card you get this turn."
     buildCost:
       cash: 3
       influence: 3
@@ -1114,7 +1198,8 @@ blueprints:
 
 
   - name: Flea Market
-    flavor: When you build this, get three random Tier 3 cards.
+    description:
+      ability: When you build this, get three random Tier 3 cards.
     buildCost:
       cash: 3
       influence: 3
@@ -1128,7 +1213,8 @@ blueprints:
       - pile-copy-to! $street list-get $random-tier-cards 2
 
   - name: Banana Stand
-    flavor: "This gets a banana counter at the start of every turn.\nActivate: sell bananas for $ each."
+    description:
+      ability: "This gets a banana counter at the start of every turn.\nActivate: sell bananas for $ each."
     buildCost:
       cash: 2
       influence: 2
@@ -1141,7 +1227,8 @@ blueprints:
 
 
   - name: Exclusive Lounge
-    flavor: "Activate: Reroll the shop with Legends."
+    description:
+      ability: "Activate: Reroll the shop with Legends."
     buildCost:
       cash: 4
       influence: 4
@@ -1150,7 +1237,8 @@ blueprints:
       - shop-reroll! '(card-has-type? $card 'legend)
 
   - name: Construction Company
-    flavor: When you build this, get two random blueprints.
+    description:
+      ability: When you build this, get two random blueprints.
     buildCost:
       cash: 2
       influence: 2
@@ -1160,7 +1248,8 @@ blueprints:
       - blueprint-own! single take --from 'random $unowned-blueprints 1
 
   - name: Zoning Board
-    flavor: When you build this, get one of three random blueprints.
+    description:
+      ability: When you build this, get one of three random blueprints.
     buildCost:
       cash: 1
       influence: 1
@@ -1169,7 +1258,8 @@ blueprints:
       - blueprint-own! single choose --prompt "Get a blueprint." --format $fmt-blueprint-with-cost --required _ (take --from 'random $unowned-blueprints 3) 1
 
   - name: Interrogation Room
-    flavor: At end of turn, jail one of two random cards you own.
+    description:
+      ability: At end of turn, jail one of two random cards you own.
     buildCost:
       cash: 3
       influence: 3
@@ -1182,7 +1272,8 @@ blueprints:
          )
 
   - name: School of Hard Knocks
-    flavor: "Activate: Fully upgrade a Thief, Spy, Trickster, or Cop in your hand."
+    description:
+      ability: "Activate: Fully upgrade a Thief, Spy, Trickster, or Cop in your hand."
     buildCost:
       cash: 4
       influence: 4
@@ -1199,7 +1290,8 @@ blueprints:
       - if-true (card-has-type? $card-to-upgrade 'cop) '(card-upgrade! $card-to-upgrade 'veteran)
 
   - name: Bureau Headquarters
-    flavor: When you build this, put Agent Magpie on the case.
+    description:
+      ability: When you build this, put Agent Magpie on the case.
     buildCost:
       cash: 4
       influence: 4
@@ -1208,7 +1300,8 @@ blueprints:
       - pile-copy-to! $street (card-named "Agent Magpie")
 
   - name: Wine Cellar
-    flavor: This gains ** at the start of every turn.
+    description:
+      ability: This gains ** at the start of every turn.
     buildCost:
       cash: 4
       influence: 4
@@ -1217,7 +1310,8 @@ blueprints:
       - fx-add! --desc (icon-convert "Gain ** at the start of every turn.") --lifetime 'game --event 'turn-start --data (building-get $this 'id) '(building-add! building-with-id $data 'vp 2)
 
   - name: Five and Dime
-    flavor: Whenever you get a card, this gains *.
+    description:
+      ability: Whenever you get a card, this gains *.
     buildCost:
       cash: 2
       influence: 2
@@ -1227,7 +1321,8 @@ blueprints:
 
 
   - name: Police Station
-    flavor: Whenever you get a Cop, gain $$ and &&.
+    description:
+      ability: Whenever you get a Cop, gain $$ and &&.
     buildCost:
       cash: 2
       influence: 2
@@ -1237,7 +1332,8 @@ blueprints:
 
 
   - name: Poker Parlor
-    flavor: Whenever you shuffle your deck, this gains ***.
+    description:
+      ability: Whenever you shuffle your deck, this gains ***.
     buildCost:
       cash: 2
       influence: 2
@@ -1247,7 +1343,8 @@ blueprints:
 
 
   - name: City Hall
-    flavor: "Activate: Gain 4&."
+    description:
+      ability: "Activate: Gain 4&."
     buildCost:
       cash: 3
       influence: 3
@@ -1258,7 +1355,8 @@ blueprints:
 
 
   - name: Stock Exchange
-    flavor: "Activate: Gain 4$."
+    description:
+      ability: "Activate: Gain 4$."
     buildCost:
       cash: 3
       influence: 3
@@ -1268,7 +1366,8 @@ blueprints:
       - game-add! 'cash 4
 
   - name: Newsstand
-    flavor: "Activate: Draw a card."
+    description:
+      ability: "Activate: Draw a card."
     buildCost:
       cash: 2
       influence: 2
@@ -1278,7 +1377,8 @@ blueprints:
       - game-draw! 1
 
   - name: Dark Alley
-    flavor: "Activate: Draw a card for each Burglar in your hand."
+    description:
+      ability: "Activate: Draw a card for each Burglar in your hand."
     buildCost:
       cash: 4
       influence: 4
@@ -1288,7 +1388,8 @@ blueprints:
 
 
   - name: Craps Den
-    flavor: "Activate: Roll a die. Gain that much $."
+    description:
+      ability: "Activate: Roll a die. Gain that much $."
     buildCost:
       cash: 4
       influence: 4
@@ -1298,7 +1399,8 @@ blueprints:
       - game-add! 'cash random .. 1 6
 
   - name: Cinema
-    flavor: At end of turn, choose a card from the street to put on top of your deck.
+    description:
+      ability: At end of turn, choose a card from the street to put on top of your deck.
     buildCost:
       cash: 6
       influence: 6
@@ -1308,7 +1410,8 @@ blueprints:
 
 
   - name: Jazz Club
-    flavor: At the beginning of every turn, randomly gain $$, &&, or %%.
+    description:
+      ability: At the beginning of every turn, randomly gain $$, &&, or %%.
     buildCost:
       cash: 2
       influence: 2
@@ -1321,7 +1424,8 @@ blueprints:
          '(if-true (= $chosen-index 2) '(game-add! 'luck 2)))
 
   - name: Pawn Shop
-    flavor: "Activate: Reroll the shop with cards you own."
+    description:
+      ability: "Activate: Reroll the shop with cards you own."
     buildCost:
       cash: 3
       influence: 3
@@ -1330,7 +1434,8 @@ blueprints:
       - shop-reroll! '(in? $cardnames (card-get $card 'name))
 
   - name: Chop Shop
-    flavor: "Activate: Jail a card you own. Get a random card one Tier higher."
+    description:
+      ability: "Activate: Jail a card you own. Get a random card one Tier higher."
     buildCost:
       cash: 3
       influence: 3
@@ -1346,7 +1451,8 @@ blueprints:
       - pile-copy-to! $street $random-tier-card
 
   - name: Swanky Ballroom
-    flavor: This is worth * for each & you have.
+    description:
+      ability: This is worth * for each & you have.
     buildCost:
       cash: 5
       influence: 5
@@ -1354,7 +1460,8 @@ blueprints:
     passiveVp: game-get 'influence
 
   - name: Gleaming Skyscraper
-    flavor: This is worth 100 *.
+    description:
+      ability: This is worth 100 *.
     buildCost:
       cash: 20
       influence: 20
@@ -1362,7 +1469,8 @@ blueprints:
     passiveVp: 100
 
   - name: Greyhound Track
-    flavor: This is worth ** for each % you have.
+    description:
+      ability: This is worth ** for each % you have.
     buildCost:
       cash: 6
       influence: 6
@@ -1370,7 +1478,8 @@ blueprints:
     passiveVp: * 2 (game-get 'luck)
 
   - name: Art Gallery
-    flavor: This is worth * for each differently named card you own.
+    description:
+      ability: This is worth * for each differently named card you own.
     buildCost:
       cash: 3
       influence: 3
@@ -1378,7 +1487,8 @@ blueprints:
     passiveVp: size (distinct (map $owned-cards '(card-get $it 'name)))
 
   - name: Boxing Ring
-    flavor: "Activate: The next Action you play this turn takes effect an additional time."
+    description:
+      ability: "Activate: The next Action you play this turn takes effect an additional time."
     buildCost:
       cash: 4
       influence: 4
@@ -1386,7 +1496,8 @@ blueprints:
       - fx-add! --lifetime 'once --desc "Your next Action takes effect an additional time." --if '(card-has-type? $card 'action) '(card-trigger! $card)
 
   - name: Mob Mansion
-    flavor: Whenever you play a Thief, this gains *.
+    description:
+      ability: Whenever you play a Thief, this gains *.
     buildCost:
       cash: 8
       influence: 8
@@ -1395,7 +1506,8 @@ blueprints:
       - fx-add! --lifetime 'game --desc (icon-convert "Whenever you play a Thief, gain *.") --data (building-get $this 'id) '(if-true (card-has-type? $card 'thief) '(building-add! building-with-id $data 'vp 1))
 
   - name: Counterfeiting Press
-    flavor: "Activate: Get a copy of a Treasure you own that costs 3$ or less."
+    description:
+      ability: "Activate: Get a copy of a Treasure you own that costs 3$ or less."
     buildCost:
       cash: 6
       influence: 6

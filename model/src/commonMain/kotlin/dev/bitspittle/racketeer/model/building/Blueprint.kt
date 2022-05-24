@@ -24,7 +24,7 @@ class ActivationCost(val cash: Int = 0, val influence: Int = 0, val luck: Int = 
 @Serializable
 data class Blueprint(
     val name: String,
-    val flavor: String,
+    val description: Description,
     val buildCost: BuildCost,
     val activationCost: ActivationCost = ActivationCost(),
     val rarity: Int = 0,
@@ -36,6 +36,16 @@ data class Blueprint(
     val cannotActivateReason: String? = null,
     val activateActions: List<String> = emptyList(),
 ): Comparable<Blueprint> {
+    /**
+     * @param ability Text which describes the ability of what this card does. See also: [flavor]
+     * @param flavor Text which adds color to the card but in no way affects its gameplay. See also: [ability]
+     */
+    @Serializable
+    data class Description(
+        val ability: String,
+        val flavor: String? = null,
+    )
+
     fun build() = MutableBuilding(this)
 
     override fun compareTo(other: Blueprint): Int = this.name.compareTo(other.name)

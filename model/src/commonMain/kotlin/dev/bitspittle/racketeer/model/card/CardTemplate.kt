@@ -16,9 +16,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CardTemplate(
     val name: String,
-    val flavor: String,
     val types: List<String>,
     val tier: Int,
+    val description: Description,
     val feature: String? = null,
     val rarity: Int = 0,
     val vp: Int = 0,
@@ -29,6 +29,16 @@ data class CardTemplate(
     val playActions: List<String> = emptyList(),
     val passiveActions: List<String> = emptyList(),
 ): Comparable<CardTemplate> {
+    /**
+     * @param ability Text which describes the ability of what this card does. See also: [flavor]
+     * @param flavor Text which adds color to the card but in no way affects its gameplay. See also: [ability]
+     */
+    @Serializable
+    data class Description(
+        val ability: String,
+        val flavor: String? = null,
+    )
+
     val isPriceless get() = cost == 0
 
     fun instantiate() = MutableCard(this)

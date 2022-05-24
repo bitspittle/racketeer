@@ -100,7 +100,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
     }
 
-    private fun StringBuilder.appendCardBody(template: CardTemplate, upgrades: Set<UpgradeType> = emptySet(), vp: Int = template.vp, counter: Int = 0) {
+    private fun StringBuilder.appendCardBody(template: CardTemplate, upgrades: Set<UpgradeType> = emptySet(), vp: Int = template.vp, counter: Int = 0, includeFlavor: Boolean = false) {
         if (vp > 0) {
             append(" ${describeVictoryPoints(vp)}")
         }
@@ -121,7 +121,14 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
 
         appendLine() // Newline
-        append(convertIcons(template.flavor))
+        append(convertIcons(template.description.ability))
+        if (includeFlavor) {
+            template.description.flavor?.let { flavor ->
+                appendLine() // Finish ability sentence
+                appendLine() // Newline
+                append(flavor)
+            }
+        }
 
         if (upgrades.isNotEmpty()) {
             appendLine() // Finish previous section
@@ -287,8 +294,15 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
     }
 
-    private fun StringBuilder.appendBlueprintBody(blueprint: Blueprint) {
-        append(convertIcons(blueprint.flavor))
+    private fun StringBuilder.appendBlueprintBody(blueprint: Blueprint, includeFlavor: Boolean = false) {
+        append(convertIcons(blueprint.description.ability))
+        if (includeFlavor) {
+            blueprint.description.flavor?.let { flavor ->
+                appendLine() // Finish ability
+                appendLine() // Newline
+                append(flavor)
+            }
+        }
 
         if (showDebugInfo()) {
             if (blueprint.canActivate.isNotBlank()) {
