@@ -42,22 +42,22 @@ class ChooseMethod(private val logger: Logger, private val chooseHandler: Choose
         } ?: false
 
         val list = env.expectConvert<List<Any>>(params[0])
-        val range = env.scoped {
+        var range = env.scoped {
             env.addConverter(PlaceholderConverter(1 .. Int.MAX_VALUE))
             env.addConverter(IntToIntRangeConverter())
             env.expectConvert<IntRange>(params[1])
         }
 
+        if (list.isEmpty()) return emptyList<Any>()
+
         if (range.first <= 0 && range.last <= 0) {
             logger.debug("Requested choosing no items at all. Was this intentional? Did you forget to use a `..` operator?")
-            return listOf<Any>()
+            return emptyList<Any>()
         }
-
-        if (list.isEmpty() && range.first <= 0) {
-            return listOf<Any>()
+        if (range.first > list.size) {
+            logger.debug("Requested choosing (at least) ${range.first} item(s) from a list that only has ${list.size} item(s) in it. Clamping the requested range.")
+            range = IntRange(range.first.coerceAtMost(list.size), range.last.coerceAtMost(list.size))
         }
-
-        if (range.first > list.size) throw IllegalArgumentException("Requested choosing ${range.first} item(s) from a list that only has ${list.size} item(s) in it.")
 
         val listFormatted = if (format != null) {
             list.map { item ->
