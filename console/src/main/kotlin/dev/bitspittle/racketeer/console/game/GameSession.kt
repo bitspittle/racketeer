@@ -19,6 +19,7 @@ import dev.bitspittle.racketeer.console.user.*
 import dev.bitspittle.racketeer.console.utils.DriveCloudFileService
 import dev.bitspittle.racketeer.console.utils.CloudFileService
 import dev.bitspittle.racketeer.console.utils.UploadThrottleCategory
+import dev.bitspittle.racketeer.console.utils.wrap
 import dev.bitspittle.racketeer.console.view.ViewStackImpl
 import dev.bitspittle.racketeer.console.view.views.game.choose.ChooseItemsView
 import dev.bitspittle.racketeer.console.view.views.game.choose.PickItemView
@@ -70,20 +71,20 @@ class GameSession(
 
             override val logger = object : Logger {
                 override fun info(message: String) {
-                    logRenderers.add { green { textLine(message) } }
+                    logRenderers.add { green { textLine(message.wrap()) } }
                 }
 
                 override fun warn(message: String) {
-                    logRenderers.add { yellow { textLine(message) } }
+                    logRenderers.add { yellow { textLine(message.wrap()) } }
                 }
 
                 override fun error(message: String) {
-                    logRenderers.add { red { textLine(message) } }
+                    logRenderers.add { red { textLine(message.wrap()) } }
                 }
 
                 override fun debug(message: String) {
                     if (settings.inAdminModeAndShowDebugLogs) {
-                        logRenderers.add { magenta { textLine(message) } }
+                        logRenderers.add { magenta { textLine(message.wrap()) } }
                     }
                 }
             }
