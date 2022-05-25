@@ -14,8 +14,8 @@ class ViewBuildingCommand(ctx: GameContext, private val building: Building) : Co
         !building.isActivated && canActivate && building.canAffordActivationCost(ctx.state) -> Type.Normal
         else -> Type.Disabled
     }
-    override val title = ctx.describer.describeBuilding(building, concise = true)
-    override val description = ctx.describer.describeBuilding(building, showActivatedState = true, concise = false)
+    override val title = ctx.describer.describeBuildingTitle(building)
+    override val description = ctx.describer.describeBuildingBody(building, showActivatedState = true)
 
     override fun renderContentLowerInto(scope: RenderScope) {
         building.renderCannotActivateReason(ctx.describer, ctx.state, scope)

@@ -15,7 +15,7 @@ class ViewCardTemplateCommand(
     private val shouldMaskCard = card.shouldMask(ctx)
 
     override val type = if (shouldMaskCard) Type.Disabled else Type.Normal
-    override val title = if (shouldMaskCard) "?".repeat(card.name.length) else ctx.describer.describeCard(card, concise = true)
+    override val title = if (shouldMaskCard) "?".repeat(card.name.length) else ctx.describer.describeCardTitle(card)
     override val extra = if (shouldMaskCard) null else extra
-    override val description = if (shouldMaskCard) "You must own this card at least once to see its details." else ctx.describer.describeCard(card)
+    override val description = if (shouldMaskCard) "You must own this card at least once to see its details." else ctx.describer.describeCardBody(card)
 }

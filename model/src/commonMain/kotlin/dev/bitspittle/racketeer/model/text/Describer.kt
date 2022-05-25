@@ -58,7 +58,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             UpgradeType.SWIFT -> null
         }
     }
-    fun describeUpgradeBody(upgrade: UpgradeType): String {
+    private fun describeUpgradeBody(upgrade: UpgradeType): String {
         return when (upgrade) {
             UpgradeType.CASH -> "${data.upgradeNames.cash}: +1${data.icons.cash}."
             UpgradeType.INFLUENCE -> "${data.upgradeNames.influence}: +1${data.icons.influence}."
@@ -68,14 +68,14 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
     }
 
-    fun describeUpgradesTitle(upgrades: Set<UpgradeType>, icons: Boolean = false): String? {
+    private fun describeUpgradesTitle(upgrades: Set<UpgradeType>, useIcons: Boolean = false): String? {
         return UpgradeType.values()
             .filter { upgrade -> upgrades.contains(upgrade) }
-            .mapNotNull { upgrade -> describeUpgradeTitle(upgrade, icons) }
-            .joinToString(if (icons) "" else " ").takeIf { it.isNotEmpty() }
+            .mapNotNull { upgrade -> describeUpgradeTitle(upgrade, useIcons) }
+            .joinToString(if (useIcons) "" else " ").takeIf { it.isNotEmpty() }
     }
 
-    fun describeUpgradesBody(upgrades: Set<UpgradeType>): String {
+    private fun describeUpgradesBody(upgrades: Set<UpgradeType>): String {
         return UpgradeType.values()
             .filter { upgrade -> upgrades.contains(upgrade) }
             .joinToString("\n") { upgrade -> describeUpgradeBody(upgrade) }
@@ -173,61 +173,69 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
     }
 
-    fun describeCard(template: CardTemplate, showCash: Boolean = false, concise: Boolean = false): String {
+    fun describeCardTitle(template: CardTemplate): String {
         return buildString {
-            appendCardName(template.name, emptySet(), concise)
-            if (showCash && template.cost > 0) {
-                append(" ${describeCash(template.cost)}")
-            }
-
-            if (!concise) {
-                appendCardBody(template, template.upgradeTypes)
-            }
+            appendCardName(template.name, emptySet())
         }
     }
-    private fun StringBuilder.appendCardName(name: String, upgrades: Set<UpgradeType>, concise: Boolean) {
-        val upgradesText = describeUpgradesTitle(upgrades, icons = concise)
+
+    fun describeCardBody(template: CardTemplate, showCash: Boolean = false): String {
+        return buildString {
+            appendCardName(template.name, emptySet(), price = template.cost.takeIf { showCash })
+            appendCardBody(template, template.upgradeTypes)
+        }
+    }
+
+    private fun StringBuilder.appendCardName(name: String, upgrades: Set<UpgradeType>, useIcons: Boolean = true, totalVp: Int? = null, price: Int? = null) {
+        val upgradesText = describeUpgradesTitle(upgrades, useIcons)
         if (upgradesText != null) {
             append(upgradesText)
             append(' ')
         }
         append(name)
+        if (totalVp != null && totalVp > 0) {
+            append(" ${describeVictoryPoints(totalVp)}")
+        }
+
+        if (price != null && price > 0) {
+            append(" ${describeCash(price)}")
+        }
+
     }
 
-    private fun StringBuilder.appendCardName(card: Card, concise: Boolean) {
-        appendCardName(card.template.name, card.upgrades, concise)
+    private fun StringBuilder.appendCardName(card: Card, useIcons: Boolean = true, totalVp: Int? = null, price: Int? = null) {
+        appendCardName(card.template.name, card.upgrades, useIcons, totalVp, price)
     }
 
-    fun describeCard(cards: List<Card>, concise: Boolean = false): String {
+    fun describeCardGroupTitle(cards: List<Card>): String {
         require(cards.isNotEmpty())
         val representativeCard = cards.first().template.instantiate()
         return buildString {
-            appendCardName(representativeCard, concise)
-            if (concise) {
-                append(" x${cards.size}")
-                val vpSum = cards.sumOf { it.vpTotal }
-                if (vpSum > 0) {
-                    append(" ${describeVictoryPoints(vpSum)}")
-                }
-            }
-            if (!concise) {
-                appendCardBody(representativeCard.template)
-            }
+            appendCardName(representativeCard)
+            append(" x${cards.size}")
         }
     }
 
-    fun describeCard(card: Card, concise: Boolean = false): String {
+    fun describeCardGroupBody(cards: List<Card>): String {
+        require(cards.isNotEmpty())
+        val representativeCard = cards.first().template.instantiate()
         return buildString {
-            appendCardName(card, concise)
+            appendCardName(representativeCard)
+            appendCardBody(representativeCard.template)
+        }
+    }
 
-            if (card.vpTotal > 0) {
-                append(" ${describeVictoryPoints(card.vpTotal)}")
-            }
+    fun describeCardTitle(card: Card): String {
+        return buildString {
+            appendCardName(card, useIcons = true, card.vpTotal)
+        }
+    }
 
-            if (!concise) {
-                // Don't re-report victory points, they were already reported as part of the name
-                appendCardBody(card.template, card.upgrades, counter = card.counter, vp = 0)
-            }
+    fun describeCardBody(card: Card): String {
+        return buildString {
+            appendCardName(card, useIcons = false, card.vpTotal)
+            // Don't re-report victory points, they were already reported as part of the name
+            appendCardBody(card.template, card.upgrades, counter = card.counter, vp = 0)
         }
     }
 
@@ -347,41 +355,49 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
     }
 
-    fun describeBlueprint(blueprint: Blueprint, concise: Boolean = false): String {
+    fun describeBlueprintTitle(blueprint: Blueprint): String {
         return buildString {
             append(blueprint.name)
-
-            if (!concise) {
-                appendLine() // Finish name row
-                appendActivationCost(blueprint)
-                appendLine() // Newline
-                appendBlueprintBody(blueprint)
-            }
         }
     }
 
-    fun describeBuilding(building: Building, showActivatedState: Boolean = false, concise: Boolean = false): String {
+    fun describeBlueprintBody(blueprint: Blueprint): String {
         return buildString {
-            append(building.blueprint.name)
+            appendLine(blueprint.name)
+            appendActivationCost(blueprint)
+            appendLine() // Newline
+            appendBlueprintBody(blueprint)
+        }
+    }
 
-            if (building.vpTotal > 0) {
-                append(" ${describeVictoryPoints(building.vpTotal)}")
+    private fun StringBuilder.appendBuildingName(building: Building) {
+        append(building.blueprint.name)
+        if (building.vpTotal > 0) {
+            append(" ${describeVictoryPoints(building.vpTotal)}")
+        }
+    }
+
+    fun describeBuildingTitle(building: Building): String {
+        return buildString {
+            appendBuildingName(building)
+        }
+    }
+
+    fun describeBuildingBody(building: Building, showActivatedState: Boolean = false): String {
+        return buildString {
+            appendBuildingName(building)
+            appendLine()
+            appendActivationCost(building.blueprint)
+            if (showActivatedState) {
+                appendLine("Activated this turn? " + if (building.isActivated) "Yes" else "No")
+            }
+            if (building.counter > 0) {
+                appendLine("Counters: ${building.counter}")
             }
 
-            if (!concise) {
-                appendLine() // Finish name row
-                appendActivationCost(building.blueprint)
-                if (showActivatedState) {
-                    appendLine("Activated this turn? " + if (building.isActivated) "Yes" else "No")
-                }
-                if (building.counter > 0) {
-                    appendLine("Counters: ${building.counter}")
-                }
+            appendLine()
 
-                appendLine()
-
-                appendBlueprintBody(building.blueprint)
-            }
+            appendBlueprintBody(building.blueprint)
         }
     }
 }

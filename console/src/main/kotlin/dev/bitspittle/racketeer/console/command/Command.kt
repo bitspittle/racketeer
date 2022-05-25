@@ -2,7 +2,6 @@ package dev.bitspittle.racketeer.console.command
 
 import com.varabyte.kotter.foundation.input.Key
 import com.varabyte.kotter.foundation.text.*
-import com.varabyte.kotter.runtime.MainRenderScope
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.model.building.Blueprint
@@ -76,10 +75,10 @@ abstract class Command(protected val ctx: GameContext) {
 
     protected fun describeForTitle(item: Any): String {
         return when (item) {
-            is Blueprint -> ctx.describer.describeBlueprint(item, concise = true)
-            is Building -> ctx.describer.describeBuilding(item, concise = true)
-            is Card -> ctx.describer.describeCard(item, concise = true)
-            is CardTemplate -> ctx.describer.describeCard(item, concise = true)
+            is Blueprint -> ctx.describer.describeBlueprintTitle(item)
+            is Building -> ctx.describer.describeBuildingTitle(item)
+            is Card -> ctx.describer.describeCardTitle(item)
+            is CardTemplate -> ctx.describer.describeCardTitle(item)
             is Feature -> item.name
             is FormattedItem -> item.displayText ?: describeForTitle(item.wrapped)
             else -> item.toString()
@@ -95,14 +94,13 @@ abstract class Command(protected val ctx: GameContext) {
 
     protected fun describeForDescription(item: Any): String? {
         return when (item) {
-            is Blueprint -> ctx.describer.describeBlueprint(item, concise = false)
-            is Building -> ctx.describer.describeBuilding(item, concise = false)
-            is Card -> ctx.describer.describeCard(item, concise = false )
-            is CardTemplate -> ctx.describer.describeCard(item, concise = false)
+            is Blueprint -> ctx.describer.describeBlueprintBody(item)
+            is Building -> ctx.describer.describeBuildingBody(item)
+            is Card -> ctx.describer.describeCardBody(item)
+            is CardTemplate -> ctx.describer.describeCardBody(item)
             is Feature -> item.description
             is FormattedItem -> describeForDescription(item.wrapped)
             else -> null
         }
     }
-
 }

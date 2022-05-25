@@ -18,8 +18,8 @@ class ActivateBuildingCommand(ctx: GameContext, private val building: Building) 
         else -> Type.Disabled
     }
 
-    override val title = "Activate: " + ctx.describer.describeBuilding(building, concise = true)
-    override val description = ctx.describer.describeBuilding(building, concise = false)
+    override val title = "Activate: " + ctx.describer.describeBuildingTitle(building)
+    override val description = ctx.describer.describeBuildingBody(building)
     override val extra: String = ctx.describer.describeActivationCost(building.blueprint)
 
     override fun renderContentLowerInto(scope: RenderScope) {

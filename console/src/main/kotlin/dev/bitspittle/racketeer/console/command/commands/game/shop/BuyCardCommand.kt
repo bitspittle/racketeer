@@ -15,10 +15,10 @@ class BuyCardCommand(ctx: GameContext, private val card: Card) : Command(ctx) {
 
     override val type = if (ctx.state.cash >= card.template.cost) Type.Emphasized else Type.Disabled
 
-    override val title get() = "Buy: ${ctx.describer.describeCard(card, concise = true)}"
+    override val title get() = "Buy: ${ctx.describer.describeCardTitle(card)}"
 
     override val extra = ctx.describer.describeCash(card.template.cost)
-    override val description = ctx.describer.describeCard(card.template)
+    override val description = ctx.describer.describeCardBody(card.template)
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {

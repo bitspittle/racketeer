@@ -10,8 +10,8 @@ import dev.bitspittle.racketeer.model.game.GameStateChange
 
 class CreateBuildingCommand(ctx: GameContext, private val blueprint: Blueprint) : Command(ctx) {
     override val type = Type.Warning
-    override val title = ctx.describer.describeBlueprint(blueprint, concise = true)
-    override val description = ctx.describer.describeBlueprint(blueprint, concise = false)
+    override val title = ctx.describer.describeBlueprintTitle(blueprint)
+    override val description = ctx.describer.describeBlueprintBody(blueprint)
 
     override suspend fun invoke(): Boolean {
         // Run this command in two separate state changing actions; otherwise, it gets reported weird since the

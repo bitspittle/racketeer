@@ -18,8 +18,8 @@ class BuildBlueprintCommand(ctx: GameContext, private val blueprint: Blueprint) 
 
     override val type = if (blueprint.canAffordBuildCost(ctx)) Type.Normal else Type.Disabled
 
-    override val title = ctx.describer.describeBlueprint(blueprint, concise = true)
-    override val description = ctx.describer.describeBlueprint(blueprint, concise = false)
+    override val title = ctx.describer.describeBlueprintTitle(blueprint)
+    override val description = ctx.describer.describeBlueprintBody(blueprint)
     override val extra = ctx.describer.describeBuildCost(blueprint)
 
     override suspend fun invoke(): Boolean {

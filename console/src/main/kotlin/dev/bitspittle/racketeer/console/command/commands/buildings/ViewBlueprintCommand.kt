@@ -9,10 +9,8 @@ fun Blueprint.shouldMask(ctx: GameContext) = !ctx.userStats.buildings.contains(t
 /**
  * A no-op command used when read-only viewing a blueprint
  */
-class ViewBlueprintCommand(ctx: GameContext, blueprint: Blueprint) : Command(ctx) {
-    private val shouldMaskCard = blueprint.shouldMask(ctx)
-
-    override val type = if (shouldMaskCard) Type.Disabled else Type.Normal
-    override val title = if (shouldMaskCard) "?".repeat(blueprint.name.length) else ctx.describer.describeBlueprint(blueprint, concise = true)
-    override val description = if (shouldMaskCard) "You must build this building at least once to see its details." else ctx.describer.describeBlueprint(blueprint, concise = false)
+class ViewBlueprintCommand(ctx: GameContext, blueprint: Blueprint, shouldMask: Boolean = blueprint.shouldMask(ctx)) : Command(ctx) {
+    override val type = if (shouldMask) Type.Disabled else Type.Normal
+    override val title = if (shouldMask) "?".repeat(blueprint.name.length) else ctx.describer.describeBlueprintTitle(blueprint)
+    override val description = if (shouldMask) "You must build this building at least once to see its details." else ctx.describer.describeBlueprintBody(blueprint)
 }

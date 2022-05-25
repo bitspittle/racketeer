@@ -9,9 +9,9 @@ import dev.bitspittle.racketeer.model.game.GameStateChange
 class PlayCardCommand(ctx: GameContext, private val card: Card) : Command(ctx) {
     override val type get() = if (ctx.enqueuers.actionQueue.isRunning) Type.Blocked else Type.Emphasized
 
-    override val title = "Play: ${ctx.describer.describeCard(card, concise = true)}"
+    override val title = "Play: ${ctx.describer.describeCardTitle(card)}"
 
-    override val description = ctx.describer.describeCard(card)
+    override val description = ctx.describer.describeCardBody(card)
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {
