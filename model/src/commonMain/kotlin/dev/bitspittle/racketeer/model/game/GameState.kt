@@ -249,6 +249,7 @@ class MutableGameState internal constructor(
     override suspend fun onBoardChanged() {
         val owned = getOwnedCards()
         owned.forEach { card -> enqueuers.card.enqueuePassiveActions(this, card) }
+        shop.stock.filterNotNull().forEach { card -> enqueuers.card.enqueuePassiveActions(this, card) }
         buildings.forEach { building -> enqueuers.building.enqueuePassiveActions(this, building) }
         enqueuers.actionQueue.runEnqueuedActions()
 
@@ -258,12 +259,10 @@ class MutableGameState internal constructor(
         }
     }
 
-    private fun Card.isOwned() = cardPiles[id].let { pile -> pile != null && pile in ownedPiles }
-
     @Suppress("NAME_SHADOWING")
     suspend fun move(cards: List<Card>, toPile: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
         // Any cards that go from being unowned to owned should be initialized; including cards from the jail
-        val unownedBeforeMove = cards.filter { !it.isOwned() }
+        val unownedBeforeMove = cards.filter { !it.isOwned(this) }
 
         // Move the cards
         run {
@@ -282,7 +281,7 @@ class MutableGameState internal constructor(
         run {
             // Note that we don't want to run init actions for cards that move from jail to jail or from the shop into
             // jail. We'll run those init actions if / when the card finally comes out of jail
-            val unownedAfterMove = cards.filter { !it.isOwned() }.toSet()
+            val unownedAfterMove = cards.filter { !it.isOwned(this) }.toSet()
             unownedBeforeMove
                 .filter { !unownedAfterMove.contains(it) }
                 .filter { it.template.allInitActions.isNotEmpty() }
@@ -350,3 +349,5 @@ class MutableGameState internal constructor(
         change.applyTo(this)
     }
 }
+
+fun Card.isOwned(state: GameState) = state.pileFor(this).let { pile -> pile != null && pile in state.ownedPiles }

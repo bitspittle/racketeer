@@ -113,6 +113,9 @@ private class GameStateDiffReporter(
     }
 
     private fun StringBuilder.report(change: GameStateChange.AddCardAmount) = change.apply {
+        // Only report changes for owned cards. If a card is in the store or jail, the user shouldn't know about what's happening to it.
+        if (!card.isOwned(diff.after)) return@apply
+
         when (property) {
             CardProperty.COUNTER -> {
                 when {

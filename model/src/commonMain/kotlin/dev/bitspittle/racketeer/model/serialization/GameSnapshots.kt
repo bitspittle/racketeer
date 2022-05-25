@@ -13,7 +13,9 @@ import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.building.Blueprint
 import dev.bitspittle.racketeer.model.building.Building
+import dev.bitspittle.racketeer.model.building.BuildingProperty
 import dev.bitspittle.racketeer.model.building.MutableBuilding
+import dev.bitspittle.racketeer.model.card.CardProperty
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.random.CopyableRandom
@@ -225,7 +227,17 @@ class GameSnapshot(
             PileSnapshot.from(gameState.discard),
             PileSnapshot.from(gameState.jail),
             PileSnapshot.from(gameState.graveyard),
-            gameState.history.map { change -> GameChangeSnapshot.from(data, describer, gameState, change) }
+            // No need to save "calculate VP passive" history; it'll get recalculated anyway, and sometimes this points
+            // to transient cards in the shop which would crash on load.
+            gameState.history
+                .filter { change ->
+                    when {
+                        change is GameStateChange.AddCardAmount && change.property == CardProperty.VP_PASSIVE -> false
+                        change is GameStateChange.AddBuildingAmount && change.property == BuildingProperty.VP_PASSIVE -> false
+                        else -> true
+                    }
+                }
+                .map { change -> GameChangeSnapshot.from(data, describer, gameState, change) }
         )
     }
 
