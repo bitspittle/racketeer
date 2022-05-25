@@ -1091,7 +1091,6 @@ cards:
     types: [action]
     cost: 7
     shopCount: 1
-    flavor: Set your hand size to 7. Burn this card.
     description:
       ability: Set your hand size to 7. Burn this card.
     playActions:
