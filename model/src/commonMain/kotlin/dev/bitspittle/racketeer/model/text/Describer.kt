@@ -179,10 +179,10 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
     }
 
-    fun describeCardBody(template: CardTemplate, showCash: Boolean = false): String {
+    fun describeCardBody(template: CardTemplate, showCash: Boolean = false, includeFlavor: Boolean = false): String {
         return buildString {
             appendCardName(template.name, emptySet(), price = template.cost.takeIf { showCash })
-            appendCardBody(template, template.upgradeTypes)
+            appendCardBody(template, template.upgradeTypes, includeFlavor = includeFlavor)
         }
     }
 
@@ -361,12 +361,12 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
     }
 
-    fun describeBlueprintBody(blueprint: Blueprint): String {
+    fun describeBlueprintBody(blueprint: Blueprint, includeFlavor: Boolean = false): String {
         return buildString {
             appendLine(blueprint.name)
             appendActivationCost(blueprint)
             appendLine() // Newline
-            appendBlueprintBody(blueprint)
+            appendBlueprintBody(blueprint, includeFlavor)
         }
     }
 

@@ -12,5 +12,5 @@ fun Blueprint.shouldMask(ctx: GameContext) = !ctx.userStats.buildings.contains(t
 class ViewBlueprintCommand(ctx: GameContext, blueprint: Blueprint, shouldMask: Boolean = blueprint.shouldMask(ctx)) : Command(ctx) {
     override val type = if (shouldMask) Type.Disabled else Type.Normal
     override val title = if (shouldMask) "?".repeat(blueprint.name.length) else ctx.describer.describeBlueprintTitle(blueprint)
-    override val description = if (shouldMask) "You must build this building at least once to see its details." else ctx.describer.describeBlueprintBody(blueprint)
+    override val description = if (shouldMask) "You must build this building at least once to see its details." else ctx.describer.describeBlueprintBody(blueprint, includeFlavor = true)
 }
