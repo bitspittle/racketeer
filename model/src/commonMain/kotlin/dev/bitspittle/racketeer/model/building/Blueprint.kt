@@ -27,7 +27,7 @@ data class Blueprint(
     val description: Description,
     val buildCost: BuildCost,
     val activationCost: ActivationCost = ActivationCost(),
-    val rarity: Int = 0,
+    val rarity: Int,
     val vp: Int = 0,
     val passiveVp: String? = null,
     val initActions: List<String> = emptyList(),
