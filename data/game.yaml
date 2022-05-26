@@ -1178,6 +1178,53 @@ cards:
 
 blueprints:
 
+  - name: Surveillance Company
+    description:
+      ability: Draw all Spies from the top five cards of the deck.
+    buildCost:
+      cash: 4
+      influence: 4
+    activateActions:
+      - run
+         '(info "You search the top five cards of the deck for spies...")
+         '(pile-move-to! $hand filter (take --from 'front $deck 5) '(card-has-type? $it 'spy))
+
+  - name: Dumpster
+    description:
+      ability: When you build this, choose one of eight random cards to get. Jail the rest.
+    buildCost:
+      cash: 2
+      influence: 2
+    canActivate: false
+    initActions:
+      - run
+         '(set '$potential-cards (take --from 'random buyable-card-list 8))
+         '(set '$card-to-copy choose --prompt "Get a card." $potential-cards 1)
+         '(set '$garbage filter $potential-cards '(! = (card-get $it 'name) (card-get (single $card-to-copy) 'name)))
+         '(pile-copy-to! $street $card-to-copy)
+         '(pile-copy-to! $jail $garbage)
+
+  - name: Ad Agency
+    description:
+      ability: When you build this, triple your &.
+    buildCost:
+      cash: 1
+      influence: 1
+    canActivate: false
+    initActions:
+      - game-add! 'influence (* 2 game-get 'influence)
+
+  - name: Factory
+    description:
+      ability: When you build this, get a copy of three cards you own.
+    buildCost:
+      cash: 6
+      influence: 6
+    canActivate: false
+    initActions:
+      - pile-copy-to! $street choose-across-piles "Copy cards." $owned-cards 3
+
+
   - name: Playground
     description:
       ability: Whenever you play a Pickpocket or Newsie, draw a card.
@@ -1191,8 +1238,8 @@ blueprints:
 
   - name: Aquarium
     description:
-      ability: "Activate: Burn a Cop you own. This gains 4*."
-      flavor: Technically, being eaten by an orca does not count as sleeping with the fishes.
+      ability: "Activate: Burn a Cop you own. This gains 5*."
+#      flavor: Technically, being eaten by an orca does not count as sleeping with the fishes.
     buildCost:
       cash: 2
       influence: 2
@@ -1201,7 +1248,7 @@ blueprints:
     canActivate: ! empty? (filter $owned-cards '(card-has-type? $it 'cop))
     activateActions:
       - card-remove! choose-across-piles "Burn a Cop." (filter $owned-cards '(card-has-type? $it 'cop)) 1
-      - building-add! $this 'vp 4
+      - building-add! $this 'vp 5
 
 
   - name: Junkyard
@@ -1538,8 +1585,8 @@ blueprints:
     description:
       ability: This is worth ** for each % you have.
     buildCost:
-      cash: 4
-      influence: 4
+      cash: 3
+      influence: 3
     canActivate: false
     passiveVp: * 2 (game-get 'luck)
 
