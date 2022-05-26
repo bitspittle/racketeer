@@ -23,6 +23,7 @@ import dev.bitspittle.racketeer.console.utils.wrap
 import dev.bitspittle.racketeer.console.view.ViewStackImpl
 import dev.bitspittle.racketeer.console.view.views.game.choose.ChooseItemsView
 import dev.bitspittle.racketeer.console.view.views.game.choose.PickItemView
+import dev.bitspittle.racketeer.console.view.views.game.choose.ReviewItemsView
 import dev.bitspittle.racketeer.console.view.views.system.TitleMenuView
 import dev.bitspittle.racketeer.model.action.ActionQueue
 import dev.bitspittle.racketeer.model.action.Enqueuers
@@ -200,9 +201,15 @@ class GameSession(
                     ): List<Any>? {
                         return suspendCoroutine { choices ->
                             viewStack.pushView(
-                                if (range.first == range.last && range.first == 1) {
+                                if (range.first == range.last && range.first == list.size) {
+                                    // You have to pick exactly the whole list. Not much of a choice actually!
+                                    ReviewItemsView(ctx, prompt, list, choices, requiredChoice)
+                                }
+                                else if (range.first == range.last && range.first == 1) {
+                                    // You have to pick exactly one item from a list, no need for a confirm button.
                                     PickItemView(ctx, prompt, list, choices, requiredChoice)
                                 } else {
+                                    // Normal multi-select choose screen.
                                     ChooseItemsView(ctx, prompt, list, range, choices, requiredChoice)
                                 }
                             )
