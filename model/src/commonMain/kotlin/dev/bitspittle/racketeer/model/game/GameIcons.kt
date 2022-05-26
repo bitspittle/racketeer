@@ -9,4 +9,5 @@ data class GameIcons(
     val luck: String,
     val veteran: String,
     val vp: String,
+    val flavor: String,
 )

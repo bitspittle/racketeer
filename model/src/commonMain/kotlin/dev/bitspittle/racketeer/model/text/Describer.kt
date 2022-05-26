@@ -126,7 +126,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             template.description.flavor?.let { flavor ->
                 appendLine() // Finish ability sentence
                 appendLine() // Newline
-                append(flavor)
+                append("${data.icons.flavor} $flavor")
             }
         }
 
@@ -308,7 +308,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             blueprint.description.flavor?.let { flavor ->
                 appendLine() // Finish ability
                 appendLine() // Newline
-                append(flavor)
+                append("${data.icons.flavor} $flavor")
             }
         }
 

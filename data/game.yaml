@@ -5,6 +5,7 @@ icons:
   luck: "🎲"
   veteran: "🚨"
   vp: "🌟"
+  flavor: "📜"
 
 features:
   - id: buildings
