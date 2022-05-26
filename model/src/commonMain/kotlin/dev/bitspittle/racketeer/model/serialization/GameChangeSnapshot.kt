@@ -103,7 +103,8 @@ sealed class GameChangeSnapshot {
     @SerialName("Draw")
     class Draw(val count: Int) : GameChangeSnapshot() {
         companion object {
-            fun from(change: GameStateChange.Draw) = Draw(change.count)
+            // Will always be non-null by this time, after the draw change was applied
+            fun from(change: GameStateChange.Draw) = Draw(change.count!!)
         }
 
         override fun create(data: GameData, state: GameState) = GameStateChange.Draw(count)

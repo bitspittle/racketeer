@@ -5,7 +5,7 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.utils.runStateChangingAction
 import dev.bitspittle.racketeer.console.view.views.game.play.ConfirmEndTurnView
 import dev.bitspittle.racketeer.console.view.views.game.play.GameSummaryView
-import dev.bitspittle.racketeer.console.view.views.game.play.PreDrawView
+import dev.bitspittle.racketeer.console.view.views.game.play.PlayCardsView
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.game.isGameOver
 
@@ -28,11 +28,16 @@ class EndTurnCommand(ctx: GameContext, private val showConfirmationIfNecessary: 
         } else {
             ctx.runStateChangingAction {
                 ctx.state.apply(GameStateChange.EndTurn())
-                if (!ctx.state.isGameOver) {
-                    ctx.viewStack.replaceView(PreDrawView(ctx))
-                } else {
-                    ctx.viewStack.replaceView(GameSummaryView(ctx))
+            }
+
+            if (!ctx.state.isGameOver) {
+                // Break up into two state changing actions for a better state diff report around reshuffling cards
+                ctx.runStateChangingAction {
+                    ctx.state.apply(GameStateChange.Draw())
+                    ctx.viewStack.replaceView(PlayCardsView(ctx))
                 }
+            } else {
+                ctx.viewStack.replaceView(GameSummaryView(ctx))
             }
         }
         return true

@@ -9,20 +9,23 @@ import dev.bitspittle.racketeer.console.user.saveInto
 import dev.bitspittle.racketeer.console.utils.createNewGame
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.console.view.popAll
-import dev.bitspittle.racketeer.console.view.views.game.play.PreDrawView
+import dev.bitspittle.racketeer.console.view.views.game.play.PlayCardsView
 import dev.bitspittle.racketeer.model.game.Feature
+import dev.bitspittle.racketeer.model.game.GameStateChange
 
-private fun GameContext.startNewGame(features: Set<Feature.Type> = emptySet()) {
+private suspend fun GameContext.startNewGame(features: Set<Feature.Type> = emptySet()) {
     this.state = createNewGame(features)
     viewStack.popAll()
-    viewStack.replaceView(PreDrawView(this))
+    viewStack.replaceView(PlayCardsView(this))
+    this.state.apply(GameStateChange.GameStarted())
+    this.state.apply(GameStateChange.Draw())
 }
 
 class ChooseFeaturesView private constructor(ctx: GameContext, private val features: List<Feature>) : View(ctx, initialCurrIndex = Int.MAX_VALUE) {
     override val showUpdateMessage = true // Let the user know there's a new version BEFORE they start a new game
 
     companion object {
-        fun enter(ctx: GameContext) {
+        suspend fun enter(ctx: GameContext) {
             val availableFeatures = ctx.data.features.sortedBy { it.name }.filter { it.isUnlocked(ctx) }
             if (availableFeatures.isEmpty()) {
                 ctx.startNewGame()

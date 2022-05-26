@@ -40,6 +40,7 @@ private class GameStateDiffReporter(
     }
 
     private fun StringBuilder.report(change: GameStateChange.Draw) = change.apply {
+        val count = count!! // Count will always be set AFTER a Draw change is applied
         if (count > 0) {
             val deckDesc = describer.describePile(diff.before, diff.before.deck)
             val handDesc = describer.describePile(diff.after, diff.after.hand)

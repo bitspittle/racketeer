@@ -183,7 +183,6 @@ class EffectSnapshot(
 class GameSnapshot(
     val random: CopyableRandom,
     val features: Set<Feature.Type>,
-    val isPreDraw: Boolean,
     val numTurns: Int,
     val turn: Int,
     // Note: We technically don't need to save "vp", as we don't read it back. But it's useful for humans reading the
@@ -206,10 +205,9 @@ class GameSnapshot(
     val history: List<GameChangeSnapshot>,
 ) {
     companion object {
-        fun from(data: GameData, describer: Describer, gameState: GameState, isPreDraw: Boolean) = GameSnapshot(
+        fun from(data: GameData, describer: Describer, gameState: GameState) = GameSnapshot(
             gameState.random,
             gameState.features,
-            isPreDraw,
             gameState.numTurns,
             gameState.turn,
             gameState.vp,

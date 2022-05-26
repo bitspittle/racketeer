@@ -19,7 +19,6 @@ import dev.bitspittle.racketeer.console.view.views.admin.AdminMenuView
 import dev.bitspittle.racketeer.console.view.views.game.cards.BrowsePilesView
 import dev.bitspittle.racketeer.console.view.views.game.play.GameSummaryView
 import dev.bitspittle.racketeer.console.view.views.game.play.PlayCardsView
-import dev.bitspittle.racketeer.console.view.views.game.play.PreDrawView
 import dev.bitspittle.racketeer.console.view.views.system.OptionsMenuView
 import dev.bitspittle.racketeer.model.game.GameStateStub
 import dev.bitspittle.racketeer.model.game.allPiles
@@ -73,7 +72,7 @@ abstract class View(protected val ctx: GameContext, private val initialCurrIndex
 
     private fun allowBrowsingCards(): Boolean {
         if (!hasGameStarted()) return false
-        return allowBrowseCards && ctx.viewStack.contains { view -> (view is PreDrawView || view is PlayCardsView || view is GameSummaryView) } && !ctx.viewStack.contains { view -> view is BrowsePilesView }
+        return allowBrowseCards && ctx.viewStack.contains { view -> (view is PlayCardsView || view is GameSummaryView) } && !ctx.viewStack.contains { view -> view is BrowsePilesView }
     }
 
     private suspend fun doHandleKeys(key: Key): Boolean {
@@ -275,6 +274,7 @@ abstract class View(protected val ctx: GameContext, private val initialCurrIndex
         }
     }
 
+    internal open suspend fun onEntered() = Unit
     protected open fun onEscRequested() = Unit
 }
 

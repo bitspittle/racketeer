@@ -4,7 +4,6 @@ import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.game.notifyBuilt
 import dev.bitspittle.racketeer.console.game.notifyOwnership
-import dev.bitspittle.racketeer.console.view.views.game.play.PreDrawView
 import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import dev.bitspittle.racketeer.scripting.types.CancelPlayException
@@ -71,5 +70,4 @@ fun GameContext.encodeToYaml() = GameSnapshot.from(
     data,
     describer,
     state,
-    isPreDraw = viewStack.contains { view -> view is PreDrawView }
 ).encodeToYaml()

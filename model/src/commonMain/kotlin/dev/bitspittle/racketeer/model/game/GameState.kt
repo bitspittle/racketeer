@@ -338,7 +338,7 @@ class MutableGameState internal constructor(
         // We postpone applying the init delta because when we first construct this game state, we're not in a
         // suspend fun context
         if (history.isEmpty()) {
-            history.add(GameStateChange.GameStarted())
+            require(change is GameStateChange.GameStarted)
         }
 
         if (insertBefore == null) {

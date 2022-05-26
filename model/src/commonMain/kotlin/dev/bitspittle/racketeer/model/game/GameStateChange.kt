@@ -24,7 +24,12 @@ sealed class GameStateChange {
         }
     }
 
-    class Draw(var count: Int) : GameStateChange() {
+    /**
+     * @param count How many cards to draw this turn. If no value is specified, the user's handsize will be drawn.
+     *   Note that calling [apply] will update the count value to how many cards were actually drawn, after which point
+     *   it will be guaranteed non-null.
+     */
+    class Draw(var count: Int? = null) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             val isFirstDrawThisTurn = run {
                 check(history.last() === this@Draw)
@@ -32,6 +37,7 @@ sealed class GameStateChange {
                 prevChange !is Draw
             }
 
+            var count = this@Draw.count ?: handSize
             if (deck.cards.size < count && discard.cards.isNotEmpty()) {
                 apply(ShuffleDiscardIntoDeck(), insertBefore = this@Draw)
             }
@@ -40,6 +46,8 @@ sealed class GameStateChange {
             deck.cards.take(count).let { cards ->
                 move(cards, hand)
             }
+
+            this@Draw.count = count
 
             if (isFirstDrawThisTurn) {
                 effects.processTurnStarted()
