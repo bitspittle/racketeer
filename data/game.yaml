@@ -1206,7 +1206,7 @@ blueprints:
   - name: Surveillance Company
     rarity: 0
     description:
-      ability: Draw all Spies from the top five cards of the deck.
+      ability: "Activate: Draw all Spies from the top five cards of the deck."
     buildCost:
       cash: 4
       influence: 4
