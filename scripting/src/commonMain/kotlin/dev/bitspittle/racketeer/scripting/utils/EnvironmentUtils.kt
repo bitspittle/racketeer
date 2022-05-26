@@ -56,6 +56,7 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(CardRemoveMethod(service::gameState))
     addMethod(CardTriggerMethod(service.enqueuers.card, service::gameState))
     addMethod(CardPileMethod(service::gameState))
+    addMethod(CardInstantiateMethod(service.enqueuers.actionQueue, service.enqueuers.card, service::gameState))
     storeValue("\$card-list", service.gameData.cards)
     addMethod(object : Method("\$owned-cards", 0) {
         override suspend fun invoke(

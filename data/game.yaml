@@ -163,6 +163,7 @@ globalActions:
   - set '$fmt-card-with-cost '(concat-to-string (list ";(" (card-get $it 'cost) (icon-convert "$") ")"))
   - set '$fmt-blueprint-with-cost '(icon-convert --expand false (concat-to-string (list (blueprint-get $it 'name) ";(" (blueprint-get $it 'build-cost-cash) "$ " (blueprint-get $it 'build-cost-influence) "&)")))
   - def 'buyable-card-list '(filter $card-list '(! (= 0 (card-get $it 'cost))))
+  - def 'cards-instantiate '$cards '(map $cards '(card-instantiate $it))
 
 cards:
   # TIER 1
@@ -311,11 +312,14 @@ cards:
       # We don't want to jail a card to simply replace it with itself, that doesn't feel fun
       - set '$most-tier-cards (filter $all-tier-cards '(! (= (card-get $cardtoreplace 'name) (card-get $it 'name))))
       # Graffiti Artists creating more Graffiti Artists is generally not fun
-      - set '$some-tier-cards (filter $most-tier-cards '(! (= (card-get $this 'name) (card-get $it 'name))))
+      # Instantiate cards so we can show up-to-date VP calculations
+      - set '$some-tier-cards cards-instantiate (filter $most-tier-cards '(! (= (card-get $this 'name) (card-get $it 'name))))
       # Force a choose screen so that the player can see what card they got
-      - "set '$random-tier-card (choose --prompt \"Your new card is:\" --required _ (take --from 'random $some-tier-cards 1) 1)"
-      - pile-copy-to! $street $random-tier-card
-
+      - |
+        run-later '(run
+          '(set '$random-tier-card (choose --prompt "Your new card is:" --required _ (take --from 'random $some-tier-cards 1) 1))
+          '(pile-copy-to! $street $random-tier-card)
+        )
 
   - name: Scrounge
     tier: 0
@@ -587,10 +591,16 @@ cards:
     playActions:
       - game-add! 'cash 3
       - set '$all-legend-cards (filter buyable-card-list '(card-has-type? $it 'legend))
-      # Force a choose screen so that the player can see what card they got
-      - "set '$random-legend (choose --prompt \"Wanted: Dead or Alive\" --required _ (take --from 'random $all-legend-cards 1) 1)"
-      - pile-copy-to! $street $random-legend
+      # Use card-instantiate so we can get an up-to-date VP calculation in the choose screen
+      - set '$random-legend card-instantiate (single take --from 'random $all-legend-cards 1)
       - pile-move-to! $jail $this
+      # Force a choose screen so that the player can see what card they got. Run it later to give VP calculations time
+      # to happen first
+      - |
+        run-later '(run
+          '(choose --prompt "Wanted: Dead or Alive:" --required _ (list $random-legend) 1)
+          '(pile-copy-to! $street $random-legend)
+        )
 
   - name: Hottie Mara
     tier: 1
@@ -1294,7 +1304,10 @@ blueprints:
     activationCost:
       cash: 2
     activateActions:
-      - pile-copy-to! $street choose --prompt "Get a card of your shop tier." --format $fmt-card-with-cost --required _ (take --from 'random (filter buyable-card-list '(= $shop-tier (card-get $it 'tier))) 2) 1
+      # Instantiate cards so that we'll have real VP counts when we make a choice
+      - set '$choices cards-instantiate take --from 'random (filter buyable-card-list '(= $shop-tier (card-get $it 'tier))) 2
+      # Run the choose later which gives VP points room to calculate first
+      - run-later '(pile-copy-to! $street choose --prompt "Get a card of your shop tier." --format $fmt-card-with-cost --required _ $choices 1)
 
 
   - name: Public Library
@@ -1606,10 +1619,15 @@ blueprints:
       - set '$cardtoreplace (single (choose-across-piles "Jail a card." $owned-cards 1))
       - set '$newtier min $tier5 (+ 1 card-get $cardtoreplace 'tier)
       - pile-move-to! $jail $cardtoreplace
-      - set '$all-tier-cards (filter buyable-card-list '(= $newtier (card-get $it 'tier)))
-  # Force a choose screen so that the player can see what card they got
-      - "set '$random-tier-card (choose --prompt \"Your new card is:\" --required _ (take --from 'random $all-tier-cards 1) 1)"
-      - pile-copy-to! $street $random-tier-card
+      # Use cards-instantiate so we can get up-to-date VP calculations in the choose screen
+      - set '$all-tier-cards cards-instantiate (filter buyable-card-list '(= $newtier (card-get $it 'tier)))
+      # Force a choose screen so that the player can see what card they got. Run it later to give VP calculations time
+      # to happen first
+      - |
+        run-later '(run
+          '(set '$random-tier-card (choose --prompt "Your new card is:" --required _ (take --from 'random $all-tier-cards 1) 1))
+          '(pile-copy-to! $street $random-tier-card)
+        )
 
   - name: Swanky Ballroom
     rarity: 1
