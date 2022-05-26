@@ -831,17 +831,19 @@ cards:
       - stop-if! (! (ask? "Reroll your shop with Treasures?" ))
       - shop-reroll! '(card-has-type? $card 'treasure)
 
-  - name: Turf Expansion
-    tier: 2
-    rarity: 1
-    types: [action]
-    cost: 6
-    shopCount: 1
-    description:
-      ability: Set your hand size to 6. Burn this card.
-    playActions:
-     - game-set! 'hand-size 6
-     - card-remove! $this
+# Too ubiquitous, trying without
+#
+#  - name: Turf Expansion
+#    tier: 2
+#    rarity: 1
+#    types: [action]
+#    cost: 6
+#    shopCount: 1
+#    description:
+#      ability: Set your hand size to 6. Burn this card.
+#    playActions:
+#     - game-set! 'hand-size 6
+#     - card-remove! $this
 
   - name: Bada Bing!
     tier: 2
@@ -1114,17 +1116,19 @@ cards:
       - pile-move-to! $hand (choose --prompt "Get cards out of jail." $jail .. 0 2)
       - card-remove! $this
 
-  - name: Corner the Market
-    tier: 4
-    rarity: 1
-    types: [action]
-    cost: 7
-    shopCount: 1
-    description:
-      ability: Set your hand size to 7. Burn this card.
-    playActions:
-     - game-set! 'hand-size 7
-     - card-remove! $this
+# Too ubiquitous, trying without
+#
+#  - name: Corner the Market
+#    tier: 4
+#    rarity: 1
+#    types: [action]
+#    cost: 7
+#    shopCount: 1
+#    description:
+#      ability: Set your hand size to 7. Burn this card.
+#    playActions:
+#     - game-set! 'hand-size 7
+#     - card-remove! $this
 
   - name: Real Estate Fraud
     features: [buildings]
@@ -1202,6 +1206,28 @@ cards:
 #
 
 blueprints:
+
+  - name: Tenement
+    rarity: 2
+    description:
+      ability: "At start of turn, draw two cards if your shop is tier 3 or lower."
+    buildCost:
+      cash: 3
+      influence: 3
+    canActivate: false
+    initActions:
+      - fx-add! --desc "At start of turn, draw two cards if your shop is tier 3 or lower." --lifetime 'game --event 'turn-start '(if-true (lte? $shop-tier $tier3) '(game-draw! 2))
+
+  - name: University
+    rarity: 0
+    description:
+      ability: Your hand size is 6.
+    buildCost:
+      cash: 6
+      influence: 6
+    initActions:
+     - game-set! 'hand-size 6
+
 
   - name: Surveillance Company
     rarity: 0
@@ -1561,8 +1587,8 @@ blueprints:
     description:
       ability: "Activate: Roll a die. Gain that much $."
     buildCost:
-      cash: 3
-      influence: 3
+      cash: 2
+      influence: 2
     activationCost:
       luck: 1
     activateActions:
