@@ -145,7 +145,7 @@ class MutableGameState internal constructor(
             val outputList = mutableListOf<Blueprint>()
             val inputList = mutableListOf<Blueprint>()
             data.blueprints.forEach { blueprint ->
-                repeat(data.rarities[blueprint.rarity].buildingFrequency) { inputList.add(blueprint) }
+                repeat(data.rarities[blueprint.rarity].blueprintFrequency) { inputList.add(blueprint) }
             }
 
             var numBlueprintsRemaining = data.initialBlueprintCount

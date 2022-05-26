@@ -62,15 +62,15 @@ upgradeNames:
 
 rarities:
   - name: Common
-    buildingFrequency: 1
+    blueprintFrequency: 1
     shopFrequency: 4
     shopCount: 10
   - name: Uncommon
-    buildingFrequency: 1
+    blueprintFrequency: 1
     shopFrequency: 2
     shopCount: 8
   - name: Rare
-    buildingFrequency: 1
+    blueprintFrequency: 1
     shopFrequency: 1
     shopCount: 6
 
