@@ -19,7 +19,7 @@ class VisitShopCommand(ctx: GameContext) : Command(ctx) {
 
     override val type = if (ctx.state.shop.canAffordSomething(ctx)) Type.Emphasized else Type.Normal
 
-    override val title = "Visit shop (Tier ${ctx.state.shop.tier + 1})"
+    override val title = "Visit shop [Tier ${ctx.state.shop.tier + 1}]"
     override val extra = expansionCost?.let { "(${ctx.describer.describeInfluence(expansionCost)})" }
     override val description = buildString {
         append("Look over the cards in the shop, or take other relevant actions.")
