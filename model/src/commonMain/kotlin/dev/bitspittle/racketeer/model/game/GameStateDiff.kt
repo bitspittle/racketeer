@@ -44,7 +44,7 @@ private class GameStateDiffReporter(
         if (count > 0) {
             val deckDesc = describer.describePile(diff.before, diff.before.deck)
             val handDesc = describer.describePile(diff.after, diff.after.hand)
-            if (count > 2) {
+            if (count > 1) {
                 reportLine("$count cards were drawn from $deckDesc into $handDesc.")
             } else {
                 check(count == 1)
