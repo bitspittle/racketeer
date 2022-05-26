@@ -72,7 +72,7 @@ class MutableShop internal constructor(
         fun createUberStock(): MutableList<CardTemplate> {
             val uberStock = mutableListOf<CardTemplate>()
             possibleNewStock.forEach { card ->
-                repeat(tierFrequencies[card.tier] * rarities[card.rarity].frequency) { uberStock.add(card) }
+                repeat(tierFrequencies[card.tier] * rarities[card.rarity].shopFrequency) { uberStock.add(card) }
             }
             return uberStock
         }

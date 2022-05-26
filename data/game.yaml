@@ -62,13 +62,16 @@ upgradeNames:
 
 rarities:
   - name: Common
-    frequency: 4
+    buildingFrequency: 1
+    shopFrequency: 4
     shopCount: 10
   - name: Uncommon
-    frequency: 2
+    buildingFrequency: 1
+    shopFrequency: 2
     shopCount: 8
   - name: Rare
-    frequency: 1
+    buildingFrequency: 1
+    shopFrequency: 1
     shopCount: 6
 
 tierFrequencies:
