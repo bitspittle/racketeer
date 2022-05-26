@@ -230,13 +230,15 @@ abstract class View(protected val ctx: GameContext, private val initialCurrIndex
         val state = ctx.state
 
         if (ctx.state !== GameStateStub) {
-            textLine(
-                "${ctx.describer.describeCash(state.cash)} ${ctx.describer.describeInfluence(state.influence)} ${
-                    ctx.describer.describeLuck(
-                        state.luck
-                    )
-                } ${ctx.describer.describeVictoryPoints(state.vp)} "
-            )
+            text(ctx.describer.describeCash(state.cash))
+            text(' ')
+            text(ctx.describer.describeInfluence(state.influence))
+            text(' ')
+            text(ctx.describer.describeLuck(state.luck))
+            text(' ')
+            text(ctx.describer.describeVictoryPoints(state.vp))
+            textLine()
+
             textLine()
             scopedState {
                 val numRemainingTurns = state.numTurns - state.turn
