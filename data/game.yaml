@@ -62,11 +62,11 @@ upgradeNames:
 
 rarities:
   - name: Common
-    blueprintFrequency: 1
+    blueprintFrequency: 3
     shopFrequency: 4
     shopCount: 10
   - name: Uncommon
-    blueprintFrequency: 1
+    blueprintFrequency: 2
     shopFrequency: 2
     shopCount: 8
   - name: Rare
@@ -172,12 +172,14 @@ cards:
     types: [cop]
     description:
       ability: Do nothing.
+      flavor: "He ain't got a lot of spare time for protecting or serving."
 
   - name: Newsie
     tier: 0
     types: [spy]
     description:
       ability: Gain &.
+      flavor: "'Extra! Extra! Read all about it!'"
     playActions:
       - game-add! 'influence 1
 
@@ -186,6 +188,7 @@ cards:
     types: [thief]
     description:
       ability: Gain $.
+      flavor: "'Oi, did I bump into you? Sorry, guvnah!'"
     playActions:
       - game-add! 'cash 1
 
@@ -195,7 +198,7 @@ cards:
     types: [thief, spy, trickster, cop, legend]
     description:
       ability: Gain $, &, and %. Then this gains either +$, +&, +%, or "Draw a card, then discard a card", in that order.
-
+      flavor: There's nothing more dangerous than a fed who learns from their mistakes.
     playActions:
       - game-add! 'cash 1
       - game-add! 'influence 1
@@ -213,6 +216,7 @@ cards:
     cost: 2
     description:
       ability: Gain 4$. Jail this card.
+      flavor: "Better spend these bills somewhere dark; they say 'In God We Crust'."
     playActions:
       - game-add! 'cash 4
       - pile-move-to! $jail $this
@@ -224,6 +228,7 @@ cards:
     cost: 2
     description:
       ability: Gain $ and &.
+      flavor: She enjoys embezzling mostly because the word 'embezzlement' is fun to say.
     playActions:
       - game-add! 'cash 1
       - game-add! 'influence 1
@@ -235,6 +240,7 @@ cards:
     cost: 2
     description:
       ability: Gain $ and %.
+      flavor: "'Although I was born a Prince in Nigeria, in this country, I am but the humble owner of the Brooklyn Bridge.'"
     playActions:
       - game-add! 'cash 1
       - game-add! 'luck 1
@@ -247,6 +253,7 @@ cards:
     cost: 2
     description:
       ability: Draw a card.
+      flavor: Like the grandma you inherited it from, it's ancient but classy.
     vp: 2
     playActions:
       - game-draw! 1
@@ -259,6 +266,7 @@ cards:
     upgrades: [swift]
     description:
       ability: "Jail this and two non-Cop cards you own."
+      flavor: "'Split up! They can't catch us both!'"
     playActions:
       - pile-move-to! $jail $this
       - set '$ownednoncops filter $owned-cards '(! (card-has-type? $it 'cop))
@@ -272,6 +280,7 @@ cards:
     cost: 2
     description:
       ability: Gain 2$.
+      flavor: People always complain about highway robbery, so he sticks to houses.
     playActions:
       - game-add! 'cash 2
 
@@ -282,6 +291,7 @@ cards:
     cost: 2
     description:
       ability: Gain 2&.
+      flavor: "'This stays between us, but...'"
     playActions:
       - game-add! 'influence 2
 
@@ -292,6 +302,7 @@ cards:
     cost: 3
     description:
       ability: Jail a card on the Street. Replace it with a random card of the same tier.
+      flavor: "'Yes, it's art. No, I don't care if you can read the font.'"
     playActions:
       - set '$cardtoreplace (single (choose --prompt "Choose a card to jail." $street 1))
       - set '$newtier (card-get $cardtoreplace 'tier)
@@ -313,6 +324,7 @@ cards:
     cost: 3
     description:
       ability: Draw two cards, then discard one.
+      flavor: "You'd be amazed what people throw out."
     playActions:
       - game-draw! 2
       - stop-if! empty? $hand
@@ -325,6 +337,7 @@ cards:
     cost: 3
     description:
       ability: Create a Burglar (worth +2$) in your hand. Jail this after two uses.
+      flavor: "'Actually, I know two guys. But not three.'"
     initActions:
       - card-set! $this 'counter 2
     playActions:
@@ -340,6 +353,7 @@ cards:
     cost: 4
     description:
       ability: Gain 2$ and %.
+      flavor: "'All bets in?'"
     playActions:
       - game-add! 'cash 2
       - game-add! 'luck 1
@@ -351,6 +365,7 @@ cards:
     cost: 4
     description:
       ability: Draw a card. Gain $.
+      flavor: "That's not an ace up his sleeve- it's your watch."
     playActions:
       - game-draw! 1
       - game-add! 'cash 1
@@ -512,7 +527,7 @@ cards:
     playActions:
       - game-add! 'influence 3
       - stop-if! empty? $shop
-      - pile-move-to! $street (choose --format $fmt-card-with-cost --prompt "Choose a card to add to your deck." $shop 1)
+      - pile-move-to! $street (choose --format $fmt-card-with-cost --prompt "Add a card to the street." $shop 1)
       - pile-move-to! $jail $this
 
   - name: Gentleman Gerald
@@ -1179,6 +1194,7 @@ cards:
 blueprints:
 
   - name: Surveillance Company
+    rarity: 0
     description:
       ability: Draw all Spies from the top five cards of the deck.
     buildCost:
@@ -1190,6 +1206,7 @@ blueprints:
          '(pile-move-to! $hand filter (take --from 'front $deck 5) '(card-has-type? $it 'spy))
 
   - name: Dumpster
+    rarity: 1
     description:
       ability: When you build this, choose one of eight random cards to get. Jail the rest.
     buildCost:
@@ -1205,6 +1222,7 @@ blueprints:
          '(pile-copy-to! $jail $garbage)
 
   - name: Ad Agency
+    rarity: 2
     description:
       ability: When you build this, triple your &.
     buildCost:
@@ -1215,6 +1233,7 @@ blueprints:
       - game-add! 'influence (* 2 game-get 'influence)
 
   - name: Factory
+    rarity: 1
     description:
       ability: When you build this, get a copy of three cards you own.
     buildCost:
@@ -1226,6 +1245,7 @@ blueprints:
 
 
   - name: Playground
+    rarity: 2
     description:
       ability: Whenever you play a Pickpocket or Newsie, draw a card.
     buildCost:
@@ -1237,6 +1257,7 @@ blueprints:
 
 
   - name: Aquarium
+    rarity: 1
     description:
       ability: "Activate: Burn a Cop you own. This gains 5*."
 #      flavor: Technically, being eaten by an orca does not count as sleeping with the fishes.
@@ -1252,6 +1273,7 @@ blueprints:
 
 
   - name: Junkyard
+    rarity: 1
     description:
       ability: "Activate: Shuffle a card from the street or discard pile into the deck."
     buildCost:
@@ -1263,6 +1285,7 @@ blueprints:
       - shuffle! $deck
 
   - name: Taxi Stand
+    rarity: 0
     description:
       ability: "Activate: Choose one of two random cards of your shop tier to add to the street."
     buildCost:
@@ -1275,6 +1298,7 @@ blueprints:
 
 
   - name: Public Library
+    rarity: 2
     description:
       ability: At start of turn, you may copy each card in your hand to the street.
     buildCost:
@@ -1286,6 +1310,7 @@ blueprints:
 
 
   - name: Opera House
+    rarity: 1
     description:
       ability: "Activate: Play a card from jail, then burn it."
     buildCost:
@@ -1294,11 +1319,13 @@ blueprints:
     canActivate: ! empty? $jail
     activateActions:
      - set '$card-to-play single (choose --prompt "Play and burn a card." $jail 1)
+     - pile-move-to! $hand $card-to-play
      - card-trigger! $card-to-play
      - run-later '(card-remove! $card-to-play)
 
 
   - name: Forger's Workshop
+    rarity: 1
     description:
       ability: "Activate: Get an extra copy of the next card you get this turn."
     buildCost:
@@ -1311,6 +1338,7 @@ blueprints:
 
 
   - name: Flea Market
+    rarity: 1
     description:
       ability: When you build this, get three random Tier 3 cards.
     buildCost:
@@ -1326,11 +1354,12 @@ blueprints:
       - pile-copy-to! $street list-get $random-tier-cards 2
 
   - name: Banana Stand
+    rarity: 1
     description:
       ability: "This gets a banana counter at the start of every turn.\nActivate: sell bananas for $ each."
     buildCost:
-      cash: 2
-      influence: 2
+      cash: 1
+      influence: 1
     canActivate: gt? (building-get $this 'counter) 0
     initActions:
       - fx-add! --desc "Get a banana counter at the start of every turn." --lifetime 'game --event 'turn-start --data (building-get $this 'id) '(building-add! building-with-id $data 'counter 1)
@@ -1340,6 +1369,7 @@ blueprints:
 
 
   - name: Exclusive Lounge
+    rarity: 2
     description:
       ability: "Activate: Reroll the shop with Legends."
     buildCost:
@@ -1350,6 +1380,7 @@ blueprints:
       - shop-reroll! '(card-has-type? $card 'legend)
 
   - name: Construction Company
+    rarity: 0
     description:
       ability: When you build this, get two random blueprints.
     buildCost:
@@ -1361,6 +1392,7 @@ blueprints:
       - blueprint-own! single take --from 'random $unowned-blueprints 1
 
   - name: Zoning Board
+    rarity: 0
     description:
       ability: When you build this, get one of three random blueprints.
     buildCost:
@@ -1371,6 +1403,7 @@ blueprints:
       - blueprint-own! single choose --prompt "Get a blueprint." --format $fmt-blueprint-with-cost --required _ (take --from 'random $unowned-blueprints 3) 1
 
   - name: Interrogation Room
+    rarity: 2
     description:
       ability: At end of turn, jail one of two random cards you own.
     buildCost:
@@ -1385,6 +1418,7 @@ blueprints:
          )
 
   - name: School of Hard Knocks
+    rarity: 1
     description:
       ability: "Activate: Fully upgrade a Thief, Spy, Trickster, or Cop in your hand."
     buildCost:
@@ -1403,6 +1437,7 @@ blueprints:
       - if-true (card-has-type? $card-to-upgrade 'cop) '(card-upgrade! $card-to-upgrade 'veteran)
 
   - name: Bureau Headquarters
+    rarity: 1
     description:
       ability: When you build this, put Agent Magpie on the case.
     buildCost:
@@ -1413,16 +1448,18 @@ blueprints:
       - pile-copy-to! $street (card-named "Agent Magpie")
 
   - name: Wine Cellar
+    rarity: 1
     description:
-      ability: This gains ** at the start of every turn.
+      ability: This gains *** at the start of every turn.
     buildCost:
       cash: 3
       influence: 3
     canActivate: false # Passive building
     initActions:
-      - fx-add! --desc (icon-convert "Gain ** at the start of every turn.") --lifetime 'game --event 'turn-start --data (building-get $this 'id) '(building-add! building-with-id $data 'vp 2)
+      - fx-add! --desc (icon-convert "Gain *** at the start of every turn.") --lifetime 'game --event 'turn-start --data (building-get $this 'id) '(building-add! building-with-id $data 'vp 3)
 
   - name: Five and Dime
+    rarity: 0
     description:
       ability: Whenever you get a card, this gains *.
     buildCost:
@@ -1434,6 +1471,7 @@ blueprints:
 
 
   - name: Police Station
+    rarity: 1
     description:
       ability: Whenever you get a Cop, gain $$ and &&.
     buildCost:
@@ -1445,6 +1483,7 @@ blueprints:
 
 
   - name: Poker Parlor
+    rarity: 1
     description:
       ability: Whenever you shuffle your deck, this gains ***.
     buildCost:
@@ -1456,6 +1495,7 @@ blueprints:
 
 
   - name: City Hall
+    rarity: 0
     description:
       ability: "Activate: Gain 4&."
     buildCost:
@@ -1468,6 +1508,7 @@ blueprints:
 
 
   - name: Stock Exchange
+    rarity: 0
     description:
       ability: "Activate: Gain 4$."
     buildCost:
@@ -1479,6 +1520,7 @@ blueprints:
       - game-add! 'cash 4
 
   - name: Newsstand
+    rarity: 0
     description:
       ability: "Activate: Draw a card."
     buildCost:
@@ -1490,6 +1532,7 @@ blueprints:
       - game-draw! 1
 
   - name: Dark Alley
+    rarity: 1
     description:
       ability: "Activate: Draw a card for each Burglar in your hand."
     buildCost:
@@ -1501,6 +1544,7 @@ blueprints:
 
 
   - name: Craps Den
+    rarity: 0
     description:
       ability: "Activate: Roll a die. Gain that much $."
     buildCost:
@@ -1512,6 +1556,7 @@ blueprints:
       - game-add! 'cash random .. 1 6
 
   - name: Cinema
+    rarity: 1
     description:
       ability: At end of turn, choose a card from the street to put on top of your deck.
     buildCost:
@@ -1523,6 +1568,7 @@ blueprints:
 
 
   - name: Jazz Club
+    rarity: 0
     description:
       ability: At the beginning of every turn, randomly gain $$, &&, or %%.
     buildCost:
@@ -1537,6 +1583,7 @@ blueprints:
          '(if-true (= $chosen-index 2) '(game-add! 'luck 2)))
 
   - name: Pawn Shop
+    rarity: 2
     description:
       ability: "Activate: Reroll the shop with cards you own."
     buildCost:
@@ -1547,6 +1594,7 @@ blueprints:
       - shop-reroll! '(in? $cardnames (card-get $card 'name))
 
   - name: Chop Shop
+    rarity: 0
     description:
       ability: "Activate: Jail a card you own. Get a random card one Tier higher."
     buildCost:
@@ -1564,6 +1612,7 @@ blueprints:
       - pile-copy-to! $street $random-tier-card
 
   - name: Swanky Ballroom
+    rarity: 1
     description:
       ability: This is worth * for each & you have.
     buildCost:
@@ -1573,6 +1622,7 @@ blueprints:
     passiveVp: game-get 'influence
 
   - name: Gleaming Skyscraper
+    rarity: 2
     description:
       ability: This is worth 100 *.
     buildCost:
@@ -1582,6 +1632,7 @@ blueprints:
     passiveVp: 100
 
   - name: Greyhound Track
+    rarity: 1
     description:
       ability: This is worth ** for each % you have.
     buildCost:
@@ -1591,6 +1642,7 @@ blueprints:
     passiveVp: * 2 (game-get 'luck)
 
   - name: Art Gallery
+    rarity: 1
     description:
       ability: This is worth * for each differently named card you own.
     buildCost:
@@ -1600,6 +1652,7 @@ blueprints:
     passiveVp: size (distinct (map $owned-cards '(card-get $it 'name)))
 
   - name: Boxing Ring
+    rarity: 0
     description:
       ability: "Activate: The next Action you play this turn takes effect an additional time."
     buildCost:
@@ -1609,6 +1662,7 @@ blueprints:
       - fx-add! --lifetime 'once --desc "Your next Action takes effect an additional time." --if '(card-has-type? $card 'action) '(card-trigger! $card)
 
   - name: Mob Mansion
+    rarity: 1
     description:
       ability: Whenever you play a Thief, this gains *.
     buildCost:
@@ -1619,6 +1673,7 @@ blueprints:
       - fx-add! --lifetime 'game --desc (icon-convert "Whenever you play a Thief, gain *.") --data (building-get $this 'id) '(if-true (card-has-type? $card 'thief) '(building-add! building-with-id $data 'vp 1))
 
   - name: Counterfeiting Press
+    rarity: 1
     description:
       ability: "Activate: Get a copy of a Treasure you own that costs 3$ or less."
     buildCost:
