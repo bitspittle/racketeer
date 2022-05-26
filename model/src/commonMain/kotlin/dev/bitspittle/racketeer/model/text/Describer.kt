@@ -363,7 +363,10 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
 
     fun describeBlueprintBody(blueprint: Blueprint, includeFlavor: Boolean = false): String {
         return buildString {
-            appendLine(blueprint.name)
+            append(blueprint.name)
+            append(" [${data.rarities[blueprint.rarity].name}]")
+            appendLine()
+
             appendActivationCost(blueprint)
             appendLine() // Newline
             appendBlueprintBody(blueprint, includeFlavor)
@@ -386,6 +389,8 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
     fun describeBuildingBody(building: Building, showActivatedState: Boolean = false): String {
         return buildString {
             appendBuildingName(building)
+            append(" [${data.rarities[building.blueprint.rarity].name}]")
+
             appendLine()
             appendActivationCost(building.blueprint)
             if (showActivatedState) {
