@@ -3,14 +3,11 @@ package dev.bitspittle.racketeer.model.game
 import com.benasher44.uuid.Uuid
 import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.racketeer.model.action.Enqueuers
-import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.card.MutableCard
-import dev.bitspittle.racketeer.model.card.vpTotal
 import dev.bitspittle.racketeer.model.building.Blueprint
 import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.building.MutableBuilding
 import dev.bitspittle.racketeer.model.building.vpTotal
-import dev.bitspittle.racketeer.model.card.allInitActions
+import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.random.CopyableRandom
@@ -145,7 +142,21 @@ class MutableGameState internal constructor(
         jail = MutablePile(),
         graveyard = MutablePile(),
         blueprints = if (features.contains(Feature.Type.BUILDINGS)) {
-            data.blueprints.shuffled(random()).take(data.initialBlueprintCount).toMutableList().also { it.sort() }
+            val outputList = mutableListOf<Blueprint>()
+            val inputList = mutableListOf<Blueprint>()
+            data.blueprints.forEach { blueprint ->
+                repeat(data.rarities[blueprint.rarity].buildingFrequency) { inputList.add(blueprint) }
+            }
+
+            var numBlueprintsRemaining = data.initialBlueprintCount
+            while (numBlueprintsRemaining > 0) {
+                val bp = inputList.random(random())
+                outputList.add(bp)
+                inputList.removeAll { it === bp }
+                --numBlueprintsRemaining
+            }
+
+            outputList.also { it.sort() }
         } else mutableListOf(),
         buildings = mutableListOf(),
         effects = MutableEffects(),
