@@ -1,8 +1,5 @@
 package dev.bitspittle.racketeer.console.view.views.game.choose
 
-import com.varabyte.kotter.foundation.text.textLine
-import com.varabyte.kotter.foundation.text.yellow
-import com.varabyte.kotter.runtime.MainRenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.utils.wrap
@@ -45,10 +42,6 @@ class ReviewItemsView(
                 return false // Refresh will be handled by the parent screen
             }
         }
-    }
-
-    override fun MainRenderScope.renderContentUpper() {
-        if (requiredChoice) yellow { textLine("This choice is not optional, so you cannot back out of it."); textLine() }
     }
 
     override fun onEscRequested() {
