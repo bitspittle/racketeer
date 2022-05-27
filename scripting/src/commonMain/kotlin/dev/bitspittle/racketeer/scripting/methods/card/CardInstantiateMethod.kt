@@ -14,7 +14,7 @@ import dev.bitspittle.racketeer.model.game.GameState
  * Create a card from a template AND calculate any passive VP calculations if it has any. This is useful for creating
  * VP cards from templates with actual, up-to-date VP values before showing them to the user.
  */
-class CardInstantiateMethod(private val actionQueue: ActionQueue, private val cardEnqueuer: CardEnqueuer, private val getGameState: () -> GameState) : Method("card-instantiate", 1) {
+class CardInstantiateMethod(private val cardEnqueuer: CardEnqueuer, private val getGameState: () -> GameState) : Method("card-instantiate", 1) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
@@ -25,7 +25,6 @@ class CardInstantiateMethod(private val actionQueue: ActionQueue, private val ca
         val template = env.expectConvert<CardTemplate>(params[0])
         val card = template.instantiate()
         cardEnqueuer.enqueuePassiveActions(getGameState(), card)
-        actionQueue.runEnqueuedActions()
 
         return card
     }
