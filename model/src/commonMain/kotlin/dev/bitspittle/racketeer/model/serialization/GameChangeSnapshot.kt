@@ -11,7 +11,6 @@ import dev.bitspittle.racketeer.model.card.CardProperty
 import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.pile.Pile
-import dev.bitspittle.racketeer.model.shop.Exclusion
 import dev.bitspittle.racketeer.model.text.Describer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -66,6 +65,7 @@ sealed class GameChangeSnapshot {
                 is GameStateChange.UpgradeCard -> UpgradeCard.from(change)
                 is GameStateChange.AddBuildingAmount -> AddBuildingAmount.from(change)
                 is GameStateChange.AddGameAmount -> AddGameAmount.from(change)
+                is GameStateChange.SetGameData -> SetGameData.from(change)
                 is GameStateChange.AddEffect -> AddEffect.from(change)
                 is GameStateChange.RestockShop -> RestockShop.from(change)
                 is GameStateChange.UpgradeShop -> UpgradeShop.from(change)
@@ -216,6 +216,16 @@ sealed class GameChangeSnapshot {
         }
 
         override fun create(data: GameData, state: GameState) = GameStateChange.AddGameAmount(property, amount)
+    }
+
+    @Serializable
+    @SerialName("SetGameData")
+    class SetGameData(val key: String, val value: String) : GameChangeSnapshot() {
+        companion object {
+            fun from(change: GameStateChange.SetGameData) = SetGameData(change.key, change.value)
+        }
+
+        override fun create(data: GameData, state: GameState) = GameStateChange.SetGameData(key, value)
     }
 
     @Serializable

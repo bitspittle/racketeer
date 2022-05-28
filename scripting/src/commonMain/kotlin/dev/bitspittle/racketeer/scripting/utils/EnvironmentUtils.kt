@@ -42,6 +42,9 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(GameGetMethod(service::gameState))
     addMethod(GameSetMethod(service::gameState))
     addMethod(GameDrawMethod(service::gameState))
+    addMethod(GameDataGetMethod(service::gameState))
+    addMethod(GameDataSetMethod(service::gameState))
+    addMethod(GameDataIsSetMethod(service::gameState))
     // We're supplanting the underlying shuffle method with our own specialized version (which delegates to the original
     // method when it can)
     addMethod(GameShuffleMethod(service::gameState), allowOverwrite = true)

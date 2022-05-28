@@ -143,4 +143,24 @@ class GameMethodsTest {
             evaluator.evaluate(env, "game-draw! -1")
         }
     }
+
+    @Test
+    fun testGameDataMethods() = runTest {
+        val env = Environment()
+        val service = TestGameService.create()
+        env.addMethod(GameDataIsSetMethod(service::gameState))
+        env.addMethod(GameDataGetMethod(service::gameState))
+        env.addMethod(GameDataSetMethod(service::gameState))
+
+        val evaluator = Evaluator()
+
+        assertThat(evaluator.evaluate(env, "game-data-is-set? \"some-val\"") as Boolean).isFalse()
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "game-data-get \"some-val\"")
+        }
+
+        evaluator.evaluate(env, "game-data-set! \"some-val\" \"hello\"")
+        assertThat(evaluator.evaluate(env, "game-data-is-set? \"some-val\"") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "game-data-get \"some-val\"")).isEqualTo("hello")
+    }
 }

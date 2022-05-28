@@ -202,6 +202,7 @@ class GameSnapshot(
     val discard: PileSnapshot,
     val jail: PileSnapshot,
     val graveyard: PileSnapshot,
+    val data: Map<String, String>,
     val history: List<GameChangeSnapshot>,
 ) {
     companion object {
@@ -225,6 +226,7 @@ class GameSnapshot(
             PileSnapshot.from(gameState.discard),
             PileSnapshot.from(gameState.jail),
             PileSnapshot.from(gameState.graveyard),
+            gameState.data,
             // No need to save "calculate VP passive" history; it'll get recalculated anyway, and sometimes this points
             // to transient cards in the shop which would crash on load.
             gameState.history
@@ -271,6 +273,7 @@ class GameSnapshot(
             blueprints.map { it.create(data) }.toMutableList(),
             buildings.map { it.create(data) }.toMutableList(),
             effects = MutableEffects(), // Populated shortly
+            this.data.toMutableMap(),
             history = mutableListOf(), // Populated shortly
         )
         gs.history.addAll(history.map { it.create(data, gs) })

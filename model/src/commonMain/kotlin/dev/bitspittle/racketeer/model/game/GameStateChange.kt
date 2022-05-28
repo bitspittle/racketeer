@@ -145,6 +145,12 @@ sealed class GameStateChange {
         }
     }
 
+    class SetGameData(val key: String, val value: String) : GameStateChange() {
+        override suspend fun MutableGameState.apply() {
+            data[key] = value
+        }
+    }
+
     class AddEffect(val effect: Effect<*>) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             effects.items.add(effect)

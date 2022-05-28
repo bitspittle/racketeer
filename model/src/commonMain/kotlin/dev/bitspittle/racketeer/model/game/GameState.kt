@@ -35,6 +35,7 @@ interface GameState {
     val blueprints: List<Blueprint>
     val buildings: List<Building>
     val effects: Effects
+    val data: Map<String, String>
     val history: List<GameStateChange>
 
     /**
@@ -73,6 +74,7 @@ object GameStateStub : GameState {
     override val blueprints: List<Blueprint> get() = throw NotImplementedError()
     override val buildings: List<Building> get() = throw NotImplementedError()
     override val effects: Effects get() = throw NotImplementedError()
+    override val data: Map<String, String> = throw NotImplementedError()
     override val history: List<GameStateChange> get() = throw NotImplementedError()
 
     override suspend fun onBoardChanged() = throw NotImplementedError()
@@ -112,6 +114,7 @@ class MutableGameState internal constructor(
     override val blueprints: MutableList<Blueprint>,
     override val buildings: MutableList<MutableBuilding>,
     override val effects: MutableEffects,
+    override val data: MutableMap<String, String>,
     override val history: MutableList<GameStateChange>,
 ): GameState {
     constructor(data: GameData, features: Set<Feature.Type>, enqueuers: Enqueuers, random: CopyableRandom = CopyableRandom()) : this(
@@ -160,6 +163,7 @@ class MutableGameState internal constructor(
         } else mutableListOf(),
         buildings = mutableListOf(),
         effects = MutableEffects(),
+        data = mutableMapOf(),
         history = mutableListOf()
     )
 
@@ -332,6 +336,7 @@ class MutableGameState internal constructor(
             blueprints.toMutableList(),
             buildings.map { it.copy() }.toMutableList(),
             effects.copy(),
+            data.toMutableMap(),
             history.toMutableList(),
         )
     }
