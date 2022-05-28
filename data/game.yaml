@@ -383,6 +383,7 @@ cards:
     cost: 2
     description:
       ability: Gain 2&. Gets another +& after one use.
+      flavor: He makes friends by volunteering to belay.
     playActions:
       - game-add! 'influence 2
       - stop-if! card-has-upgrade? $this 'influence
@@ -395,6 +396,7 @@ cards:
     cost: 3
     description:
       ability: Discard four cards at random, then draw that many plus one.
+      flavor: "Just shove them anywhere!"
     playActions:
       - set '$to-discard take --from 'random $hand 4
       - set '$to-draw-count (size $to-discard)
@@ -409,6 +411,7 @@ cards:
     upgrades: [swift]
     description:
       ability: "Give another Spy you own +&."
+      flavor: You do not know her, and rest assured, you never shall.
     playActions:
       - set '$all-spies filter $owned-cards '(card-has-type? $it 'spy)
       - set '$some-spies filter $all-spies '(! (card-has-upgrade? $it 'influence))
@@ -424,6 +427,7 @@ cards:
     upgrades: [swift]
     description:
       ability: "Give another Thief you own +$."
+      flavor: Her first name is Aspartamé, which is why she goes by Smitty.
     playActions:
       - set '$all-thieves filter $owned-cards '(card-has-type? $it 'thief)
       - set '$some-thieves filter $all-thieves '(! (card-has-upgrade? $it 'cash))
@@ -438,6 +442,7 @@ cards:
     cost: 3
     description:
       ability: Gain $, &, and %. At end of turn, shuffle this into your deck.
+      flavor: "What's the difference between 'roving' and 'roaming'? He doesn't know, and it haunts him."
     playActions:
       - game-add! 'cash 1
       - game-add! 'influence 1
@@ -453,6 +458,7 @@ cards:
     vp: 3
     description:
       ability: When you get this, it gains * for each other Gold Chain you own.
+      flavor: Always fashionable, and the more, the better!
     initActions:
       - set '$num-chains count $owned-cards '(= card-get $it 'name "Gold Chain")
       - card-set! $this 'vp '(+ 2 $num-chains)
@@ -466,6 +472,7 @@ cards:
     cost: 3
     description:
       ability: Gain 2$. Gets another +$ after one use.
+      flavor: "'Where there's a will, there's a way. And fortunately, there was a will.'"
     playActions:
       - game-add! 'cash 2
       - stop-if! card-has-upgrade? $this 'cash
@@ -479,6 +486,7 @@ cards:
     cost: 3
     description:
       ability: "Choose one: Gain 2$, 2&, or 2%."
+      flavor: Although you don't know it, he's also your wigmaker, sommelier, and second cousin.
     playActions:
       - set '$choices (map (list "Gain 2$." "Gain 2&." "Gain 2%") '(icon-convert $it))
       - set '$chosen-index (index-of $choices single choose $choices 1)
@@ -493,6 +501,7 @@ cards:
     cost: 3
     description:
       ability: Draw three cards. Jail this card.
+      flavor: Smuggling was invented in 1683 by Sir Percival Smug, who would pack dozens of illicit canaries into mahogany bureaus.
     playActions:
       - game-draw! 3
       - pile-move-to! $jail $this
@@ -1207,6 +1216,19 @@ cards:
 
 blueprints:
 
+
+  - name: Circus Tent
+    rarity: 2
+    description:
+      ability: Whenever you play a Trickster, discard your hand and draw that many cards.
+    buildCost:
+      cash: 6
+      influence: 6
+    canActivate: false
+    initActions:
+      - fx-add! --lifetime 'game --desc "Whenever you play a Trickster, discard your hand and draw that many cards." '(if-true (card-has-type? $card 'trickster) '(run '(set '$cardstodraw size $hand) '(pile-move-to! $discard $hand) '(game-draw! $cardstodraw)))
+
+
   - name: Tenement
     rarity: 2
     description:
@@ -1225,6 +1247,7 @@ blueprints:
     buildCost:
       cash: 6
       influence: 6
+    canActivate: false
     initActions:
      - game-set! 'hand-size 6
 
@@ -1252,7 +1275,7 @@ blueprints:
     initActions:
       - run
          '(set '$potential-cards (take --from 'random buyable-card-list 8))
-         '(set '$card-to-copy choose --prompt "Get a card." $potential-cards 1)
+         '(set '$card-to-copy choose --required true --prompt "Get a card." $potential-cards 1)
          '(set '$garbage filter $potential-cards '(! = (card-get $it 'name) (card-get (single $card-to-copy) 'name)))
          '(pile-copy-to! $street $card-to-copy)
          '(pile-copy-to! $jail $garbage)
@@ -1345,7 +1368,7 @@ blueprints:
       influence: 3
     canActivate: false
     initActions:
-      - fx-add! --desc "At start of turn, you may copy each card in your hand to the street." --lifetime 'game --event 'turn-start '(if-true (ask? "Copy your hand to the street? (Use \ to browse.)") '(pile-copy-to! $street $hand))
+      - fx-add! --desc "At start of turn, you may copy each card in your hand to the street." --lifetime 'game --event 'turn-start '(run '(choose --required true --prompt "This is your hand. Copy it to the street? (Answer on next screen.)" $hand size $hand) '(if-true (ask? "Copy your hand to the street?") '(pile-copy-to! $street $hand)))
 
 
   - name: Opera House
@@ -1387,10 +1410,8 @@ blueprints:
     initActions:
       - set '$all-tier-cards (filter buyable-card-list '(= $tier3 (card-get $it 'tier)))
       - set '$random-tier-cards (take --from 'random $all-tier-cards 3)
-       # copy one at a time so they see which cards were created
-      - pile-copy-to! $street list-get $random-tier-cards 0
-      - pile-copy-to! $street list-get $random-tier-cards 1
-      - pile-copy-to! $street list-get $random-tier-cards 2
+      - choose --required true --prompt "Here's what you found at the Flea Market." $random-tier-cards 3
+      - pile-copy-to! $street $random-tier-cards
 
   - name: Banana Stand
     rarity: 1
@@ -1484,7 +1505,9 @@ blueprints:
       influence: 3
     canActivate: false # Passive building
     initActions:
-      - pile-copy-to! $street (card-named "Agent Magpie")
+      - set '$magpie card-named "Agent Magpie"
+      - choose --required true --prompt "Agent Magpie is on the case!" (list $magpie) 1
+      - pile-copy-to! $street $magpie
 
   - name: Wine Cellar
     rarity: 1
