@@ -1639,7 +1639,7 @@ blueprints:
     canActivate: false
     initActions:
       - fx-add! --desc (icon-convert "At the beginning of every turn, randomly gain $$, &&, or %%.") --event 'turn-start --lifetime 'game '(run 
-         '(set '$chosen-index (random (list 0 1 2)))
+         '(set '$chosen-index (random .. 0 2))
          '(if-true (= $chosen-index 0) '(game-add! 'cash 2))
          '(if-true (= $chosen-index 1) '(game-add! 'influence 2))
          '(if-true (= $chosen-index 2) '(game-add! 'luck 2)))
