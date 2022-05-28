@@ -18,7 +18,7 @@ class PileMethodsTest {
     @Test
     fun testCopyToMethod() = runTest {
         val env = Environment()
-        val service = TestGameService()
+        val service = TestGameService.create()
         val gameState = service.gameState
         env.addMethod(PileCopyToMethod { gameState })
         env.addMethod(TakeMethod(service::random))
@@ -88,7 +88,7 @@ class PileMethodsTest {
     @Test
     fun testMoveToMethod() = runTest {
         val env = Environment()
-        val service = TestGameService()
+        val service = TestGameService.create()
         val gameState = service.gameState
         env.addMethod(PileMoveToMethod { gameState })
         env.addMethod(TakeMethod(service::random))

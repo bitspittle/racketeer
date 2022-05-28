@@ -9,9 +9,7 @@ import dev.bitspittle.limp.methods.math.PowMethod
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.scripting.TestCard
 import dev.bitspittle.racketeer.scripting.TestGameService
-import dev.bitspittle.racketeer.scripting.methods.game.GameDrawMethod
-import dev.bitspittle.racketeer.scripting.methods.game.GameGetMethod
-import dev.bitspittle.racketeer.scripting.methods.game.GameSetMethod
+import dev.bitspittle.racketeer.scripting.methods.game.*
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -19,7 +17,7 @@ class GameMethodsTest {
     @Test
     fun testGameSetMethod() = runTest {
         val env = Environment()
-        val service = TestGameService()
+        val service = TestGameService.create()
         env.addMethod(GameSetMethod(service::gameState))
         env.addMethod(PowMethod())
 
@@ -56,7 +54,7 @@ class GameMethodsTest {
     @Test
     fun testGameGetMethod() = runTest {
         val env = Environment()
-        val service = TestGameService()
+        val service = TestGameService.create()
         val gameState = service.gameState
         env.addMethod(GameGetMethod(service::gameState))
 
@@ -81,7 +79,7 @@ class GameMethodsTest {
     @Test
     fun testDrawMethod() = runTest {
         val env = Environment()
-        val service = TestGameService()
+        val service = TestGameService.create()
         val gameState = service.gameState
         gameState.numTurns = Int.MAX_VALUE // Don't want to worry about running out; using endTurn to reset discard
         env.addMethod(GameDrawMethod { gameState })

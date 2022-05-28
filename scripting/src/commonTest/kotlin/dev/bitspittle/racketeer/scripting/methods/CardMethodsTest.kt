@@ -30,7 +30,7 @@ class CardMethodsTest {
     @Test
     fun testCardSetMethod() = runTest {
         val env = Environment()
-        val service = TestGameService()
+        val service = TestGameService.create()
         env.addMethod(CardSetMethod(service::gameState))
         env.addMethod(MulMethod())
         env.addMethod(ListMethod())
@@ -106,7 +106,7 @@ class CardMethodsTest {
     @Test
     fun testRemoveMethod() = runTest {
         val env = Environment()
-        val service = TestGameService(CopyableRandom(123))
+        val service = TestGameService.create(CopyableRandom(123))
 
         val gameState = service.gameState
         env.addMethod(CardRemoveMethod { gameState })
@@ -150,7 +150,7 @@ class CardMethodsTest {
     @Test
     fun testUpgradeMethods() = runTest {
         val env = Environment()
-        val service = TestGameService()
+        val service = TestGameService.create()
 
         val gameState = service.gameState
         env.addMethod(CardUpgradeMethod { gameState })
@@ -197,7 +197,7 @@ class CardMethodsTest {
     @Test
     fun testHasTypeMethod() = runTest {
         val env = Environment()
-        val service = TestGameService()
+        val service = TestGameService.create()
 
         val gameState = service.gameState
         env.addMethod(CardHasTypeMethod(service.gameData.cardTypes))
@@ -248,7 +248,7 @@ class CardMethodsTest {
         val env = Environment()
 
 
-        val service = TestGameService(enqueuers = TestEnqueuers(env))
+        val service = TestGameService.create(enqueuers = TestEnqueuers(env))
 
         env.addMethod(CardTriggerMethod(service.enqueuers.card, service::gameState))
         env.addMethod(DbgMethod(service.logger))

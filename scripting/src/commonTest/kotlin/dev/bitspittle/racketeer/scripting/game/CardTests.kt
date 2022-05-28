@@ -16,7 +16,7 @@ class CardTests {
     @Test
     fun testEnqueuePlayActions() = runTest {
         val env = Environment()
-        val service = TestGameService(enqueuers = TestEnqueuers(env))
+        val service = TestGameService.create(enqueuers = TestEnqueuers(env))
 
         env.addMethod(SetMethod(service.logger))
         env.addMethod(DbgMethod(service.logger))

@@ -16,7 +16,7 @@ class ShopMethodsTest {
     @Test
     fun testRerollMethod() = runTest {
         val env = Environment()
-        val service = TestGameService()
+        val service = TestGameService.create()
         val shop = service.gameState.shop
         env.addMethod(ShopRerollMethod { service.gameState })
         env.addMethod(CardHasTypeMethod(service.gameData.cardTypes))

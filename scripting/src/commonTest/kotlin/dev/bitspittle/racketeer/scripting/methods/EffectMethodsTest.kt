@@ -22,7 +22,7 @@ class EffectMethodsTest {
     @Test
     fun testFxAddMethod() = runTest {
         val env = Environment()
-        val service = TestGameService(enqueuers = TestEnqueuers(env))
+        val service = TestGameService.create(enqueuers = TestEnqueuers(env))
         val gameState = service.gameState
         env.addMethod(FxAddMethod { gameState })
         env.addMethod(GameSetMethod { gameState })

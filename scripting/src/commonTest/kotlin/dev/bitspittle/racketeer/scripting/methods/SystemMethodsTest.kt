@@ -20,7 +20,7 @@ class SystemMethodsTest {
     @Test
     fun testStopAndCancelMethods() = runTest {
         val env = Environment()
-        val service = TestGameService(enqueuers = TestEnqueuers(env))
+        val service = TestGameService.create(enqueuers = TestEnqueuers(env))
         env.addMethod(StopMethod(service.enqueuers.actionQueue))
         env.addMethod(DbgMethod(service.logger))
         env.addMethod(CancelMethod())
@@ -52,7 +52,7 @@ class SystemMethodsTest {
     @Test
     fun testRunLaterMethod() = runTest {
         val env = Environment()
-        val service = TestGameService(enqueuers = TestEnqueuers(env))
+        val service = TestGameService.create(enqueuers = TestEnqueuers(env))
         env.addMethod(RunLaterMethod(service.enqueuers.actionQueue))
         env.addMethod(DbgMethod(service.logger))
 

@@ -7,18 +7,17 @@ import dev.bitspittle.racketeer.model.action.Enqueuers
 import dev.bitspittle.racketeer.model.action.ExprCache
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardEnqueuer
-import dev.bitspittle.racketeer.model.game.GameData
-import dev.bitspittle.racketeer.model.game.GameState
-import dev.bitspittle.racketeer.model.game.MutableGameState
 import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.building.BuildingEnqueuer
 import dev.bitspittle.racketeer.model.card.CardTemplate
+import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.random.CopyableRandom
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.types.CardEnqueuerImpl
 import dev.bitspittle.racketeer.scripting.types.GameService
 import dev.bitspittle.racketeer.scripting.types.BuildingEnqueuerImpl
+import dev.bitspittle.racketeer.scripting.types.ExprEnqueuerImpl
 import kotlin.random.Random
 
 private val FAKE_GAME_DATA_TEXT = """
@@ -27,8 +26,9 @@ private val FAKE_GAME_DATA_TEXT = """
       cash: "${'$'}"
       influence: "&"
       luck: "%"
-      card: "▯"
+      veteran: "!"
       vp: "*"
+      flavor: "~ "
     features: []
     unlocks: []
     numTurns: 3
@@ -57,13 +57,16 @@ private val FAKE_GAME_DATA_TEXT = """
 
     rarities:
       - name: Common
-        frequency: 5
+        blueprintFrequency: 3
+        shopFrequency: 5
         shopCount: 10
       - name: Uncommon
-        frequency: 3
+        blueprintFrequency: 2
+        shopFrequency: 3
         shopCount: 8
       - name: Rare
-        frequency: 1
+        blueprintFrequency: 1
+        shopFrequency: 1
         shopCount: 6
 
     tierFrequencies:
@@ -183,6 +186,7 @@ private val FAKE_GAME_DATA_TEXT = """
       - name: Wine Cellar
         description:
           ability: This gains * at the start of every turn.
+        rarity: 0
         buildCost:
           cash: 2
           influence: 2
@@ -193,6 +197,7 @@ private val FAKE_GAME_DATA_TEXT = """
       - name: City Hall
         description:
           ability: Gain 4&.
+        rarity: 0
         buildCost:
           cash: 3
           influence: 3
@@ -216,6 +221,7 @@ private val FAKE_GAME_DATA_TEXT = """
       - name: Newsstand
         description:
           ability: Draw a card.
+        rarity: 0
         vp: 1
         buildCost:
           cash: 2
@@ -228,6 +234,9 @@ private val FAKE_GAME_DATA_TEXT = """
 
 fun createFakeGameData() = GameData.decodeFromString(FAKE_GAME_DATA_TEXT)
 
+class StubExprEnqueuer : ExprEnqueuer {
+    override fun enqueue(gameState: GameState, code: String) { NotImplementedError() }
+}
 class StubCardEnqueuer : CardEnqueuer {
     override fun enqueueInitActions(gameState: GameState, card: Card) { NotImplementedError() }
     override fun enqueuePlayActions(gameState: GameState, card: Card) { NotImplementedError() }
@@ -247,6 +256,7 @@ fun TestEnqueuers(env: Environment): Enqueuers {
 
     return Enqueuers(
         actionQueue,
+        ExprEnqueuerImpl(env, exprCache, actionQueue),
         CardEnqueuerImpl(env, exprCache, actionQueue),
         BuildingEnqueuerImpl(env, exprCache, actionQueue)
     )
@@ -272,26 +282,43 @@ fun TestCard(
 
 
 // Create a random with a fixed seed so tests run consistently
-class TestGameService(
-    private val copyableRandom: CopyableRandom = CopyableRandom(0),
-    override val gameData: GameData = createFakeGameData(),
 
-    override val enqueuers: Enqueuers = Enqueuers(
-        ActionQueue(),
-        StubCardEnqueuer(),
-        StubBuildingEnqueuer(),
-    ),
-    override val chooseHandler: ChooseHandler = object : ChooseHandler {
-        override suspend fun query(
-            prompt: String?,
-            list: List<Any>,
-            range: IntRange,
-            requiredChoice: Boolean
-        ): List<Any> {
-            return emptyList()
-        }
-    },
+class TestGameService private constructor(
+    private val copyableRandom: CopyableRandom,
+    override val gameData: GameData,
+    override val enqueuers: Enqueuers,
+    override val chooseHandler: ChooseHandler,
 ) : GameService {
+    companion object {
+        suspend fun create(
+            copyableRandom: CopyableRandom = CopyableRandom(0),
+            gameData: GameData = createFakeGameData(),
+            enqueuers: Enqueuers = Enqueuers(
+                ActionQueue(),
+                StubExprEnqueuer(),
+                StubCardEnqueuer(),
+                StubBuildingEnqueuer(),
+            ),
+            chooseHandler: ChooseHandler = object : ChooseHandler {
+                override suspend fun query(
+                    prompt: String?,
+                    list: List<Any>,
+                    range: IntRange,
+                    requiredChoice: Boolean
+                ): List<Any> {
+                    return emptyList()
+                }
+            }
+        ) = TestGameService(
+            copyableRandom,
+            gameData,
+            enqueuers,
+            chooseHandler,
+        ).apply {
+            gameState.apply(GameStateChange.GameStarted())
+        }
+    }
+
     val random: Random get() = copyableRandom()
 
     override val describer: Describer = Describer(gameData, showDebugInfo = { true })

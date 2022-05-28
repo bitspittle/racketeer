@@ -15,7 +15,7 @@ class BuildingMethodsTest {
     @Test
     fun testBlueprintGetMethod() = runTest {
         val env = Environment()
-        val service = TestGameService()
+        val service = TestGameService.create()
         env.addMethod(BlueprintGetMethod())
 
         env.storeValue("\$city-hall", service.gameData.blueprints.single { it.name == "City Hall" })
