@@ -164,6 +164,8 @@ globalActions:
   - set '$fmt-blueprint-with-cost '(icon-convert --expand false (concat-to-string (list (blueprint-get $it 'name) ";(" (blueprint-get $it 'build-cost-cash) "$ " (blueprint-get $it 'build-cost-influence) "&)")))
   - def 'buyable-card-list '(filter $card-list '(! (= 0 (card-get $it 'cost))))
   - def 'cards-instantiate '$cards '(map $cards '(card-instantiate $it))
+  # Define keys used for game-data-set!
+#  - set '$key-nft-price "nftprice"
 
 cards:
   # TIER 1
@@ -174,6 +176,24 @@ cards:
     description:
       ability: Do nothing.
       flavor: "He ain't got a lot of spare time for protecting or serving."
+
+#  This card is only created as an example to show off the game-data- methods, and it is expected to be deleted /
+#  moved / significantly altered.
+#
+#  - name: Bad Ape Painting
+#    tier: 0
+#    cost: 1
+#    types: [treasure]
+#    description:
+#      ability: This card's VP randomly fluctuates wildly.
+#      flavor: A mediocre piece of digital art, but you think you might find a greater fool who will buy it from you later for more.
+#    passiveVp: game-data-get --default 0 $key-nft-price
+#    initActions:
+#      - |
+#        if-false (game-data-is-set? $key-nft-price) '(run
+#          '(game-data-set! $key-nft-price random .. 0 20)
+#          '(fx-add! --desc "At end of turn, the NFT market is updated." --lifetime 'game --event 'turn-end '(game-data-set! $key-nft-price random .. 0 20))
+#        )
 
   - name: Newsie
     tier: 0

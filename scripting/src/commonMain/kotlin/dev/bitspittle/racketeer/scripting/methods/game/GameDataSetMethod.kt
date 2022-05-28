@@ -8,7 +8,7 @@ import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.serialization.DataValue
 
 /**
- * game-data-set! (String) (Data)
+ * game-data-set! (key: String) (Data)
  *
  * Add some arbitrary data into the current game state which can later be fetched by the same string key name.
  */
