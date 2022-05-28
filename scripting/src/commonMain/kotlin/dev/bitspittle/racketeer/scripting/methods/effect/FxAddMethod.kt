@@ -8,10 +8,11 @@ import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.pile.Pile
+import dev.bitspittle.racketeer.model.serialization.DataValue
 import dev.bitspittle.racketeer.scripting.utils.setValuesFrom
 
 /**
- * fx-add! --desc (String) --lifetime ('lifetime) --event ('event) --data (data: String) --if ('Expr) (effect: 'Expr)
+ * fx-add! --desc (String) --lifetime ('lifetime) --event ('event) --data (DataValue) --if ('Expr) (effect: 'Expr)
  *
  * Create an effect and add it into the game.
  *
@@ -49,7 +50,7 @@ class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!",
         val event = options["event"]
             ?.let { env.expectConvert<Expr.Identifier>(it).toEnum(GameEvent.values()) } ?: GameEvent.PLAY
 
-        val data = options["data"]?.let { env.expectConvert<String>(it) }
+        val data = options["data"]?.let { DataValue.of(it) }
 
         val testExpr = options["if"]?.let { env.expectConvert<Expr>(it) }
 

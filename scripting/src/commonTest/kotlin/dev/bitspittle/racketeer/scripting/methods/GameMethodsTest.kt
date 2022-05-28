@@ -5,10 +5,14 @@ import com.varabyte.truthish.assertThrows
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.exceptions.EvaluationException
+import dev.bitspittle.limp.methods.math.AddMethod
 import dev.bitspittle.limp.methods.math.PowMethod
+import dev.bitspittle.limp.methods.text.ConcatMethod
 import dev.bitspittle.racketeer.model.game.GameStateChange
+import dev.bitspittle.racketeer.model.serialization.DataValue
 import dev.bitspittle.racketeer.scripting.TestCard
 import dev.bitspittle.racketeer.scripting.TestGameService
+import dev.bitspittle.racketeer.scripting.converters.DataValueToAnyConverter
 import dev.bitspittle.racketeer.scripting.methods.game.*
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -151,16 +155,31 @@ class GameMethodsTest {
         env.addMethod(GameDataIsSetMethod(service::gameState))
         env.addMethod(GameDataGetMethod(service::gameState))
         env.addMethod(GameDataSetMethod(service::gameState))
+        env.addConverter(DataValueToAnyConverter())
+
+        env.addMethod(AddMethod())
+        env.addMethod(ConcatMethod())
 
         val evaluator = Evaluator()
 
-        assertThat(evaluator.evaluate(env, "game-data-is-set? \"some-val\"") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "game-data-is-set? \"some-str-val\"") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "game-data-is-set? \"some-int-val\"") as Boolean).isFalse()
         assertThrows<EvaluationException> {
-            evaluator.evaluate(env, "game-data-get \"some-val\"")
+            evaluator.evaluate(env, "game-data-get \"some-str-val\"")
         }
 
-        evaluator.evaluate(env, "game-data-set! \"some-val\" \"hello\"")
-        assertThat(evaluator.evaluate(env, "game-data-is-set? \"some-val\"") as Boolean).isTrue()
-        assertThat(evaluator.evaluate(env, "game-data-get \"some-val\"")).isEqualTo("hello")
+        evaluator.evaluate(env, "game-data-set! \"some-str-val\" \"hello\"")
+        assertThat(evaluator.evaluate(env, "game-data-is-set? \"some-str-val\"") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "game-data-get \"some-str-val\"")).isEqualTo(DataValue.OfString("hello"))
+
+        evaluator.evaluate(env, "game-data-set! \"some-int-val\" 123")
+        assertThat(evaluator.evaluate(env, "game-data-is-set? \"some-int-val\"") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "game-data-get \"some-int-val\"")).isEqualTo(DataValue.OfInt(123))
+
+        // Make sure data value conversions work seamlessly in the scripts
+
+        assertThat(evaluator.evaluate(env, "concat (game-data-get \"some-str-val\") \" world\"")).isEqualTo("hello world")
+        assertThat(evaluator.evaluate(env, "+ (game-data-get \"some-int-val\") 321")).isEqualTo(444)
+
     }
 }

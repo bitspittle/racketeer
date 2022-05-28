@@ -139,13 +139,12 @@ class Environment {
 
     @Suppress("UNCHECKED_CAST")
     fun <T: Any> tryConvert(value: Any, typeChecker: TypeChecker<T>): T? {
-        typeChecker.cast(value)?.let { return it }
-
         return convertersStack.reversed().asSequence()
             .filterNotNull()
             .flatMap { converters -> converters.asSequence() }
             .mapNotNull { converter -> converter.convert(value)?.let { typeChecker.cast(it) } }
             .firstOrNull()
+            ?: typeChecker.cast(value)
     }
 
     fun expectMethod(name: String): Method {

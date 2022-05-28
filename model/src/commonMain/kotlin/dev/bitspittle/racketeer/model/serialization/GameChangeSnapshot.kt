@@ -220,7 +220,7 @@ sealed class GameChangeSnapshot {
 
     @Serializable
     @SerialName("SetGameData")
-    class SetGameData(val key: String, val value: String) : GameChangeSnapshot() {
+    class SetGameData(val key: String, val value: DataValue) : GameChangeSnapshot() {
         companion object {
             fun from(change: GameStateChange.SetGameData) = SetGameData(change.key, change.value)
         }
@@ -235,7 +235,7 @@ sealed class GameChangeSnapshot {
         val desc: String?,
         val lifetime: Lifetime,
         val event: GameEvent,
-        val data: String?,
+        val data: DataValue?,
         val testExpr: String?
     ) : GameChangeSnapshot() {
         companion object {

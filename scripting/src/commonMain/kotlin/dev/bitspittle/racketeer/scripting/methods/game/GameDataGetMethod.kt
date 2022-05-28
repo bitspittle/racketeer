@@ -6,7 +6,7 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.racketeer.model.game.GameState
 
 /**
- * game-data-get (String) -> String
+ * game-data-get (String) -> Data
  *
  * Returns data associated with the passed in key.
  *
@@ -17,6 +17,6 @@ class GameDataGetMethod(private val getGameState: () -> GameState) : Method("gam
     override suspend fun invoke(env: Environment, eval: Evaluator, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
         val key = env.expectConvert<String>(params[0])
 
-        return getGameState().data[key] ?: error("No game data associated with key $key")
+        return getGameState().data[key] ?: error("No game data associated with key \"$key\"")
     }
 }

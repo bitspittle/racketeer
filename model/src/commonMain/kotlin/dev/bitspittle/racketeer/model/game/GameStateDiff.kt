@@ -230,6 +230,7 @@ private class GameStateDiffReporter(
                     is GameStateChange.UpgradeCard -> report(change)
                     is GameStateChange.AddBuildingAmount -> report(change)
                     is GameStateChange.AddGameAmount -> Unit // Reported below, in aggregate
+                    is GameStateChange.SetGameData -> Unit // Game data is only for use by the designers, don't report it
                     is GameStateChange.AddEffect -> report(change)
                     is GameStateChange.RestockShop -> report(change)
                     is GameStateChange.UpgradeShop -> report(change)

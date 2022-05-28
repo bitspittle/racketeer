@@ -11,6 +11,7 @@ import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.random.CopyableRandom
+import dev.bitspittle.racketeer.model.serialization.DataValue
 import dev.bitspittle.racketeer.model.shop.MutableShop
 import dev.bitspittle.racketeer.model.shop.Shop
 import kotlin.math.max
@@ -35,7 +36,7 @@ interface GameState {
     val blueprints: List<Blueprint>
     val buildings: List<Building>
     val effects: Effects
-    val data: Map<String, String>
+    val data: Map<String, DataValue>
     val history: List<GameStateChange>
 
     /**
@@ -74,7 +75,7 @@ object GameStateStub : GameState {
     override val blueprints: List<Blueprint> get() = throw NotImplementedError()
     override val buildings: List<Building> get() = throw NotImplementedError()
     override val effects: Effects get() = throw NotImplementedError()
-    override val data: Map<String, String> = throw NotImplementedError()
+    override val data: Map<String, DataValue> get() = throw NotImplementedError()
     override val history: List<GameStateChange> get() = throw NotImplementedError()
 
     override suspend fun onBoardChanged() = throw NotImplementedError()
@@ -114,7 +115,7 @@ class MutableGameState internal constructor(
     override val blueprints: MutableList<Blueprint>,
     override val buildings: MutableList<MutableBuilding>,
     override val effects: MutableEffects,
-    override val data: MutableMap<String, String>,
+    override val data: MutableMap<String, DataValue>,
     override val history: MutableList<GameStateChange>,
 ): GameState {
     constructor(data: GameData, features: Set<Feature.Type>, enqueuers: Enqueuers, random: CopyableRandom = CopyableRandom()) : this(

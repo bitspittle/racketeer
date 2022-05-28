@@ -145,7 +145,7 @@ class EffectSnapshot(
     val desc: String?,
     val lifetime: Lifetime,
     val event: GameEvent,
-    val data: String?,
+    val data: DataValue?,
     val testExpr: String?
 ) {
     companion object {
@@ -167,7 +167,7 @@ class EffectSnapshot(
                 append("--event '${event.toIdentifierName()} ")
             }
             if (data != null) {
-                append("--data \"$data\" ")
+                append("--data ${data.asText}")
             }
             if (testExpr != null) {
                 append("--if '${testExpr} ")
@@ -202,7 +202,7 @@ class GameSnapshot(
     val discard: PileSnapshot,
     val jail: PileSnapshot,
     val graveyard: PileSnapshot,
-    val data: Map<String, String>,
+    val data: Map<String, DataValue>,
     val history: List<GameChangeSnapshot>,
 ) {
     companion object {

@@ -5,6 +5,7 @@ import dev.bitspittle.racketeer.model.card.Rarity
 import dev.bitspittle.racketeer.model.card.UpgradeNames
 import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.building.Blueprint
+import dev.bitspittle.racketeer.model.text.escapeQuotes
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import net.mamoe.yamlkt.Yaml
@@ -105,7 +106,7 @@ data class GameData(
                                 multilineIndentLength = line.indentLength
                             }
                             // Be careful of nesting quotes within quotes!
-                            val escapedLine = line.replace("\"", "\\\"")
+                            val escapedLine = line.escapeQuotes()
                             append(escapedLine.drop(multilineIndentLength))
                             prependNewline = true
                         }

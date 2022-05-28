@@ -6,7 +6,7 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.racketeer.model.game.GameState
 
 /**
- * game-data-is-set? (String) -> Boolean
+ * game-data-is-set? (Data) -> Boolean
  *
  * Returns true if there's data set for this game with the specified key, false otherwise.
  */

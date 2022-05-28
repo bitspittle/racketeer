@@ -5,6 +5,7 @@ import dev.bitspittle.racketeer.model.building.*
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
+import dev.bitspittle.racketeer.model.serialization.DataValue
 import dev.bitspittle.racketeer.model.shop.Exclusion
 
 @Suppress("CanSealedSubClassBeObject") // All subclasses not objects, for consistency / future proofing
@@ -145,7 +146,7 @@ sealed class GameStateChange {
         }
     }
 
-    class SetGameData(val key: String, val value: String) : GameStateChange() {
+    class SetGameData(val key: String, val value: DataValue) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             data[key] = value
         }

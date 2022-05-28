@@ -1,5 +1,6 @@
 package dev.bitspittle.racketeer.scripting.methods
 
+import com.benasher44.uuid.Uuid
 import com.varabyte.truthish.assertThat
 import com.varabyte.truthish.assertThrows
 import dev.bitspittle.limp.Environment
@@ -95,7 +96,7 @@ class CardMethodsTest {
         assertThat(evaluator.evaluate(env, "card-get card 'cost")).isEqualTo(2)
         assertThat(evaluator.evaluate(env, "card-get card 'vp")).isEqualTo(5)
         assertThat(evaluator.evaluate(env, "card-get card 'name")).isEqualTo("test-card")
-        assertThat(evaluator.evaluate(env, "card-get card 'id")).isInstanceOf<String>()
+        assertThat(evaluator.evaluate(env, "card-get card 'id")).isInstanceOf<Uuid>()
         assertThat(evaluator.evaluate(env, "card-get card 'types") as List<String>).containsExactly("type-a", "type-b").inOrder()
 
         assertThrows<EvaluationException> {

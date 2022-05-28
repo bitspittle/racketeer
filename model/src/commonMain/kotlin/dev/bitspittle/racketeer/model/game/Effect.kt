@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.model.game
 
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.pile.Pile
+import dev.bitspittle.racketeer.model.serialization.DataValue
 
 interface Effects {
     val items: List<Effect<*>>
@@ -40,7 +41,7 @@ class Effect<T : Any>(
     val desc: String?,
     val lifetime: Lifetime,
     val event: GameEvent,
-    val data: String?,
+    val data: DataValue?,
     val testExpr: String?,
     val expr: String,
     private val test: suspend (T) -> Boolean,
