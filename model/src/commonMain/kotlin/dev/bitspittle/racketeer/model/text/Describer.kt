@@ -101,7 +101,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
     }
 
     private fun StringBuilder.appendCardBody(template: CardTemplate, upgrades: Set<UpgradeType> = emptySet(), vp: Int = template.vp, counter: Int = 0, includeFlavor: Boolean = false) {
-        if (vp > 0) {
+        if (vp != 0) {
             append(" ${describeVictoryPoints(vp)}")
         }
         append(" [Tier ${template.tier + 1}]")
@@ -193,7 +193,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             append(' ')
         }
         append(name)
-        if (totalVp != null && totalVp > 0) {
+        if (totalVp != null && totalVp != 0) {
             append(" ${describeVictoryPoints(totalVp)}")
         }
 
@@ -375,7 +375,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
 
     private fun StringBuilder.appendBuildingName(building: Building) {
         append(building.blueprint.name)
-        if (building.vpTotal > 0) {
+        if (building.vpTotal != 0) {
             append(" ${describeVictoryPoints(building.vpTotal)}")
         }
     }

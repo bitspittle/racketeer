@@ -218,7 +218,9 @@ class MutableGameState internal constructor(
      * See also: [onBoardChanged].
      */
     override var vp = vp
-        private set
+        private set(value) {
+            field = value.coerceAtLeast(0)
+        }
 
     /**
      * How many cards get drawn at the beginning of the turn.
