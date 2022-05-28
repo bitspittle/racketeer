@@ -607,7 +607,7 @@ cards:
       # to happen first
       - |
         run-later '(run
-          '(choose --prompt "Wanted: Dead or Alive:" --required _ (list $random-legend) 1)
+          '(choose --prompt "Wanted: Dead or Alive:" --required _ $random-legend 1)
           '(pile-copy-to! $street $random-legend)
         )
 
@@ -1506,7 +1506,7 @@ blueprints:
     canActivate: false # Passive building
     initActions:
       - set '$magpie card-named "Agent Magpie"
-      - choose --required true --prompt "Agent Magpie is on the case!" (list $magpie) 1
+      - choose --required true --prompt "Agent Magpie is on the case!" $magpie 1
       - pile-copy-to! $street $magpie
 
   - name: Wine Cellar

@@ -4,6 +4,7 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.converters.IntToIntRangeConverter
+import dev.bitspittle.limp.converters.ItemToSingletonListConverter
 import dev.bitspittle.limp.converters.PlaceholderConverter
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.types.Logger
@@ -41,7 +42,10 @@ class ChooseMethod(private val logger: Logger, private val chooseHandler: Choose
             options["required"]?.let { env.expectConvert(it) }
         } ?: false
 
-        val list = env.expectConvert<List<Any>>(params[0])
+        val list = env.scoped {
+            env.addConverter(ItemToSingletonListConverter(Any::class))
+            env.expectConvert<List<Any>>(params[0])
+        }
         var range = env.scoped {
             env.addConverter(PlaceholderConverter(1 .. Int.MAX_VALUE))
             env.addConverter(IntToIntRangeConverter())
