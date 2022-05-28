@@ -139,12 +139,20 @@ class Environment {
 
     @Suppress("UNCHECKED_CAST")
     fun <T: Any> tryConvert(value: Any, typeChecker: TypeChecker<T>): T? {
-        return convertersStack.reversed().asSequence()
+        // Generally, we should see if the value is already in its final form and return it directly if so. However,
+        // users can register higher priority global converts which should be checked first. This is indicated by
+        // converters that convert to `Any`.
+        val searchConvertersSequence = convertersStack.reversed()
             .filterNotNull()
             .flatMap { converters -> converters.asSequence() }
-            .mapNotNull { converter -> converter.convert(value)?.let { typeChecker.cast(it) } }
-            .firstOrNull()
-            ?: typeChecker.cast(value)
+
+        return searchConvertersSequence
+            .filter { converter -> converter.toClass == Any::class }
+            .firstNotNullOfOrNull { converter -> converter.convert(value)?.let { typeChecker.cast(it) } }
+            ?: typeChecker.cast(value)?.let { return it }
+            ?: searchConvertersSequence
+                .filter { converter -> converter.toClass != Any::class }
+                .firstNotNullOfOrNull { converter -> converter.convert(value)?.let { typeChecker.cast(it) } }
     }
 
     fun expectMethod(name: String): Method {
