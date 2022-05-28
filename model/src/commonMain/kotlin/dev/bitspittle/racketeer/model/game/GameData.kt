@@ -13,6 +13,18 @@ import net.mamoe.yamlkt.Yaml
 private val String.indentLength: Int
     get() = this.takeWhile { c -> c == ' ' }.length
 
+private fun String.stripOutComment() = if (!this.contains('#')) this else buildString {
+    var inString = false
+    this.forEachIndexed { i, c ->
+        if (c == '#' && !inString) return@buildString
+        if (c == '"' && this.getOrNull(i - 1) != '\\') {
+            inString = !inString
+        }
+        append(c)
+    }
+}.trimEnd()
+
+
 /**
  * @param globalActions Option extra actions which are run once before the game started, into a global scope that
  *   lives across the whole game.
@@ -82,6 +94,8 @@ data class GameData(
                 }
 
                 unprocessed.lines().forEach { line ->
+                    val line = line.stripOutComment()
+
                     if (inMultilineString && parentIndentLength > 0 && line.isNotBlank() && line.indentLength <= parentIndentLength) {
                         closeMultilineString()
                     }
