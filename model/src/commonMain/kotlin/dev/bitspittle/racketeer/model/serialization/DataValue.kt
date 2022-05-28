@@ -56,6 +56,7 @@ sealed class DataValue {
                 is Boolean -> OfBoolean(value)
                 is Int -> OfInt(value)
                 is String -> {
+                    // When we load a game, we get ID values as a string
                     val unquoted = value.unquote()
                     try {
                         OfId(uuidFrom(unquoted))

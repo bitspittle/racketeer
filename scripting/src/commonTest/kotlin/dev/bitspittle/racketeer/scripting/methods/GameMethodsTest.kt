@@ -1,5 +1,6 @@
 package dev.bitspittle.racketeer.scripting.methods
 
+import com.benasher44.uuid.uuid4
 import com.varabyte.truthish.assertThat
 import com.varabyte.truthish.assertThrows
 import dev.bitspittle.limp.Environment
@@ -9,10 +10,8 @@ import dev.bitspittle.limp.methods.math.AddMethod
 import dev.bitspittle.limp.methods.math.PowMethod
 import dev.bitspittle.limp.methods.text.ConcatMethod
 import dev.bitspittle.racketeer.model.game.GameStateChange
-import dev.bitspittle.racketeer.model.serialization.DataValue
 import dev.bitspittle.racketeer.scripting.TestCard
 import dev.bitspittle.racketeer.scripting.TestGameService
-import dev.bitspittle.racketeer.scripting.converters.DataValueToAnyConverter
 import dev.bitspittle.racketeer.scripting.methods.game.*
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -155,7 +154,7 @@ class GameMethodsTest {
         env.addMethod(GameDataIsSetMethod(service::gameState))
         env.addMethod(GameDataGetMethod(service::gameState))
         env.addMethod(GameDataSetMethod(service::gameState))
-        env.addConverter(DataValueToAnyConverter())
+        env.storeValue("true", true)
 
         env.addMethod(AddMethod())
         env.addMethod(ConcatMethod())
@@ -164,22 +163,36 @@ class GameMethodsTest {
 
         assertThat(evaluator.evaluate(env, "game-data-is-set? \"some-str-val\"") as Boolean).isFalse()
         assertThat(evaluator.evaluate(env, "game-data-is-set? \"some-int-val\"") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "game-data-is-set? \"some-bool-val\"") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "game-data-is-set? \"some-id-val\"") as Boolean).isFalse()
         assertThrows<EvaluationException> {
             evaluator.evaluate(env, "game-data-get \"some-str-val\"")
         }
 
         evaluator.evaluate(env, "game-data-set! \"some-str-val\" \"hello\"")
         assertThat(evaluator.evaluate(env, "game-data-is-set? \"some-str-val\"") as Boolean).isTrue()
-        assertThat(evaluator.evaluate(env, "game-data-get \"some-str-val\"")).isEqualTo(DataValue.OfString("hello"))
+        assertThat(evaluator.evaluate(env, "game-data-get \"some-str-val\"")).isEqualTo("hello")
 
         evaluator.evaluate(env, "game-data-set! \"some-int-val\" 123")
         assertThat(evaluator.evaluate(env, "game-data-is-set? \"some-int-val\"") as Boolean).isTrue()
-        assertThat(evaluator.evaluate(env, "game-data-get \"some-int-val\"")).isEqualTo(DataValue.OfInt(123))
+        assertThat(evaluator.evaluate(env, "game-data-get \"some-int-val\"")).isEqualTo(123)
 
-        // Make sure data value conversions work seamlessly in the scripts
+        evaluator.evaluate(env, "game-data-set! \"some-bool-val\" true")
+        assertThat(evaluator.evaluate(env, "game-data-is-set? \"some-bool-val\"") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "game-data-get \"some-bool-val\"")).isEqualTo(true)
 
-        assertThat(evaluator.evaluate(env, "concat (game-data-get \"some-str-val\") \" world\"")).isEqualTo("hello world")
-        assertThat(evaluator.evaluate(env, "+ (game-data-get \"some-int-val\") 321")).isEqualTo(444)
+        // We can set IDs either directly OR via a string value
+        uuid4().let { randomUuid ->
+            env.scoped {
+                env.storeValue("\$id", randomUuid)
+                evaluator.evaluate(env, "game-data-set! \"some-id-val\" \$id")
+                assertThat(evaluator.evaluate(env, "game-data-get \"some-id-val\"")).isEqualTo(randomUuid)
+            }
+        }
 
+        uuid4().let { randomUuid ->
+            evaluator.evaluate(env, "game-data-set! \"some-id-val\" \"${randomUuid}\"")
+            assertThat(evaluator.evaluate(env, "game-data-get \"some-id-val\"")).isEqualTo(randomUuid)
+        }
     }
 }

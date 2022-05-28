@@ -9,7 +9,6 @@ import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.allCards
 import dev.bitspittle.racketeer.model.game.getOwnedCards
-import dev.bitspittle.racketeer.scripting.converters.DataValueToAnyConverter
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.converters.MutablePileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.building.*
@@ -35,9 +34,6 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(StopMethod(service.enqueuers.actionQueue))
     addMethod(CancelMethod())
     addMethod(RunLaterMethod(service.enqueuers.actionQueue))
-
-    // Data
-    addConverter(DataValueToAnyConverter())
 
     // Collection
     addMethod(ChooseMethod(service.logger, service.chooseHandler))

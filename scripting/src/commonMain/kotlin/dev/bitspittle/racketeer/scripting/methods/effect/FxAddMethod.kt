@@ -9,6 +9,7 @@ import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.serialization.DataValue
+import dev.bitspittle.racketeer.model.serialization.asAny
 import dev.bitspittle.racketeer.scripting.utils.setValuesFrom
 
 /**
@@ -54,7 +55,7 @@ class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!",
 
         val testExpr = options["if"]?.let { env.expectConvert<Expr>(it) }
 
-        val dataVariable = if (data != null) mapOf("\$data" to data) else emptyMap()
+        val dataVariable = if (data != null) mapOf("\$data" to data.asAny) else emptyMap()
 
         val effect = when(event) {
             GameEvent.PLAY -> Effect<Card>(desc, lifetime, event, data, testExpr?.ctx?.text, effectExpr.ctx.text,
