@@ -29,7 +29,7 @@ class BuildingGetMethod : Method("building-get", 2) {
         return when (property) {
             BuildingProperty.BLUEPRINT -> building.blueprint
             BuildingProperty.COUNTER -> building.counter
-            BuildingProperty.ID -> building.id.toString() // Strings rae easier to work with / pass around
+            BuildingProperty.ID -> building.id
             BuildingProperty.IS_ACTIVATED -> building.isActivated
             BuildingProperty.NAME -> building.blueprint.name
             BuildingProperty.RARITY -> building.blueprint.rarity
