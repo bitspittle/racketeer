@@ -28,12 +28,18 @@ class MutableCard internal constructor(
 ) : Card {
     internal constructor(template: CardTemplate) : this(
         template, template.vp, 0, 0,
-        template.upgradeTypes.toMutableSet(),
+        mutableSetOf(),
         uuid4(),
     )
 
     /** Create a clone of some target card */
-    constructor(other: Card): this(other.template, other.vpBase, other.vpPassive, other.counter, other.upgrades.toMutableSet())
+    constructor(other: Card) : this(
+        other.template,
+        other.vpBase,
+        other.vpPassive,
+        other.counter,
+        other.upgrades.toMutableSet()
+    )
 
     /**
      * Cards can earn victory points over the course of the game via upgrades and rewards from other cards.
@@ -56,7 +62,7 @@ class MutableCard internal constructor(
         vpBase: Int = this.vpBase,
         vpPassive: Int = this.vpPassive,
         counter: Int = this.counter,
-        upgrades: Set<UpgradeType> = this.upgrades
+        upgrades: Set<UpgradeType> = this.upgrades,
     ) = MutableCard(template, vpBase, vpPassive, counter, upgrades.toMutableSet(), id)
 
     override fun compareTo(other: Card): Int {
@@ -71,6 +77,6 @@ class MutableCard internal constructor(
 val Card.isDexterous get() = this.upgrades.contains(UpgradeType.CASH)
 val Card.isArtful get() = this.upgrades.contains(UpgradeType.INFLUENCE)
 val Card.isLucky get() = this.upgrades.contains(UpgradeType.LUCK)
-val Card.isSwift get() = this.upgrades.contains(UpgradeType.SWIFT)
+val Card.isSwift get() = this.template.traitTypes.contains(TraitType.SWIFT)
 val Card.isVeteran get() = this.upgrades.contains(UpgradeType.VETERAN)
 val Card.vpTotal get() = vpBase + vpPassive

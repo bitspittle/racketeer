@@ -1,10 +1,7 @@
 package dev.bitspittle.racketeer.model.game
 
-import dev.bitspittle.racketeer.model.card.CardTemplate
-import dev.bitspittle.racketeer.model.card.Rarity
-import dev.bitspittle.racketeer.model.card.UpgradeNames
-import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.building.Blueprint
+import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.text.escapeQuotes
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -42,6 +39,7 @@ data class GameData(
     val initialBlueprintCount: Int,
     val initialDeck: List<String>,
     val cardTypes: List<String>,
+    val traitNames: TraitNames,
     val upgradeNames: UpgradeNames,
     val rarities: List<Rarity>,
     val tierFrequencies: List<Int>,
@@ -166,9 +164,9 @@ data class GameData(
             }
             require(card.rarity in rarities.indices) { "Rarity value must be between 0 and ${rarities.lastIndex}"}
 
-            card.upgrades.forEach { upgrade ->
-                if (UpgradeType.values().map { it.name }.none { it.compareTo(upgrade, ignoreCase = true) == 0 }) {
-                    error("The card named \"${card.name}\" has an invalid upgrade \"$upgrade\" defined on it. Should be one of: ${UpgradeType.values().map { it.name.lowercase() }.sorted()}")
+            card.traits.forEach { trait ->
+                if (TraitType.values().map { it.name }.none { it.compareTo(trait, ignoreCase = true) == 0 }) {
+                    error("The card named \"${card.name}\" has an invalid upgrade \"$trait\" defined on it. Should be one of: ${TraitType.values().map { it.name.lowercase() }.sorted()}")
                 }
             }
         }

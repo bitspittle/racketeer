@@ -27,7 +27,7 @@ data class CardTemplate(
     val vp: Int = 0,
     val passiveVp: String? = null,
     val cost: Int = 0,
-    val upgrades: List<String> = emptyList(),
+    val traits: List<String> = emptyList(),
     val initActions: List<String> = emptyList(),
     val playActions: List<String> = emptyList(),
     val passiveActions: List<String> = emptyList(),
@@ -59,13 +59,13 @@ val CardTemplate.allPassiveActions: List<String> get() =
  * A collection of all init actions, both those written explicitly and also implicitly extracted from other fields
  */
 val CardTemplate.allInitActions: List<String> get() =
-    (if (upgradeTypes.contains(UpgradeType.SWIFT)) listOf("pile-move-to! \$hand \$this") else emptyList()) + initActions
+    (if (traitTypes.contains(TraitType.SWIFT)) listOf("pile-move-to! \$hand \$this") else emptyList()) + initActions
 
 val CardTemplate.featureTypes: Set<Feature.Type>
     get() = features.map { featureStr ->
         Feature.Type.values().first { it.toIdentifierName() == featureStr }
     }.toSet()
 
-val CardTemplate.upgradeTypes: Set<UpgradeType> get() = upgrades.map { upgradeStr ->
-    UpgradeType.values().first { it.toIdentifierName() == upgradeStr }
+val CardTemplate.traitTypes: Set<TraitType> get() = traits.map { traitStr ->
+    TraitType.values().first { it.toIdentifierName() == traitStr }
 }.toSet()

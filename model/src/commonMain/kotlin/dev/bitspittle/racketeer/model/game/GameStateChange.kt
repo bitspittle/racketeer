@@ -6,7 +6,6 @@ import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.serialization.DataValue
-import dev.bitspittle.racketeer.model.shop.Exclusion
 
 @Suppress("CanSealedSubClassBeObject") // All subclasses not objects, for consistency / future proofing
 sealed class GameStateChange {
@@ -115,9 +114,6 @@ sealed class GameStateChange {
     }
 
     class UpgradeCard(val card: Card, val upgradeType: UpgradeType) : GameStateChange() {
-        init {
-            check(!upgradeType.isInternal()) { "Unexpected request to upgrade card with internal upgrade type: $upgradeType"}
-        }
         override suspend fun MutableGameState.apply() {
             (card as MutableCard).upgrades.add(upgradeType)
         }

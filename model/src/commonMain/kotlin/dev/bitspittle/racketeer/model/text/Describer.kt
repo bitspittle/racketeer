@@ -49,13 +49,19 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
     fun describeInfluence(influence: Int) = "${data.icons.influence}$influence"
     fun describeLuck(luck: Int) = "${data.icons.luck}$luck"
     fun describeVictoryPoints(vp: Int) = "${data.icons.vp}$vp"
-    fun describeUpgradeTitle(upgrade: UpgradeType, icons: Boolean = true): String? {
+
+    private fun describeTraitBody(trait: TraitType): String {
+        return when (trait) {
+            TraitType.SWIFT -> "${data.traitNames.swift}: Goes directly to hand."
+        }
+    }
+
+    fun describeUpgradeTitle(upgrade: UpgradeType, icons: Boolean = true): String {
         return when (upgrade) {
             UpgradeType.CASH -> if (icons) data.icons.cash else data.upgradeNames.cash
             UpgradeType.INFLUENCE -> if (icons) data.icons.influence else data.upgradeNames.influence
             UpgradeType.LUCK -> if (icons) data.icons.luck else data.upgradeNames.luck
             UpgradeType.VETERAN -> if (icons) data.icons.veteran else data.upgradeNames.veteran
-            UpgradeType.SWIFT -> null
         }
     }
     private fun describeUpgradeBody(upgrade: UpgradeType): String {
@@ -63,16 +69,22 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             UpgradeType.CASH -> "${data.upgradeNames.cash}: +1${data.icons.cash}."
             UpgradeType.INFLUENCE -> "${data.upgradeNames.influence}: +1${data.icons.influence}."
             UpgradeType.LUCK -> "${data.upgradeNames.luck}: +1${data.icons.luck}."
-            UpgradeType.SWIFT -> "${data.upgradeNames.swift}: Goes directly to hand."
             UpgradeType.VETERAN -> "${data.upgradeNames.veteran}: Draw a card, then discard one."
         }
+    }
+
+    private fun describeTraitsBody(traits: Set<TraitType>): String {
+        return TraitType.values()
+            .filter { trait -> traits.contains(trait) }
+            .joinToString("\n") { trait -> describeTraitBody(trait) }
     }
 
     private fun describeUpgradesTitle(upgrades: Set<UpgradeType>, useIcons: Boolean = false): String? {
         return UpgradeType.values()
             .filter { upgrade -> upgrades.contains(upgrade) }
-            .mapNotNull { upgrade -> describeUpgradeTitle(upgrade, useIcons) }
-            .joinToString(if (useIcons) "" else " ").takeIf { it.isNotEmpty() }
+            .joinToString(if (useIcons) "" else " ") { upgrade ->
+                describeUpgradeTitle(upgrade, useIcons) }.takeIf { it.isNotEmpty()
+            }
     }
 
     private fun describeUpgradesBody(upgrades: Set<UpgradeType>): String {
@@ -130,9 +142,10 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             }
         }
 
-        if (upgrades.isNotEmpty()) {
+        if (template.traits.isNotEmpty() || upgrades.isNotEmpty()) {
             appendLine() // Finish previous section
             appendLine() // Newline
+            append(describeTraitsBody(template.traitTypes))
             append(describeUpgradesBody(upgrades))
         }
 
@@ -182,7 +195,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
     fun describeCardBody(template: CardTemplate, showCash: Boolean = false, includeFlavor: Boolean = false): String {
         return buildString {
             appendCardName(template.name, emptySet(), price = template.cost.takeIf { showCash })
-            appendCardBody(template, template.upgradeTypes, includeFlavor = includeFlavor)
+            appendCardBody(template, includeFlavor = includeFlavor)
         }
     }
 

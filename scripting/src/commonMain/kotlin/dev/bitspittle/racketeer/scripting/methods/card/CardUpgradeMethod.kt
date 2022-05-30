@@ -9,7 +9,6 @@ import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.UpgradeType
-import dev.bitspittle.racketeer.model.card.isInternal
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.GameStateChange
 
@@ -29,7 +28,6 @@ class CardUpgradeMethod(private val getGameState: () -> GameState) : Method("car
 
         val identifier = env.expectConvert<Expr.Identifier>(params[1])
         val upgradeType = identifier.toEnum(UpgradeType.values())
-        upgradeType.assertNotInternal()
 
         val gameState = getGameState()
         cards.forEach { card -> gameState.apply(GameStateChange.UpgradeCard(card, upgradeType)) }

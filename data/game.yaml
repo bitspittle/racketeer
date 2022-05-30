@@ -53,11 +53,13 @@ cardTypes:
   - Trickster
   - Legend
 
+traitNames:
+  swift: Swift
+
 upgradeNames:
   cash: Dextrous
   influence: Artful
   luck: Lucky
-  swift: Swift
   veteran: Veteran
 
 rarities:
@@ -284,7 +286,7 @@ cards:
     rarity: 1
     types: [action]
     cost: 2
-    upgrades: [swift]
+    traits: [swift]
     description:
       ability: "Jail this and two non-Cop cards you own."
       flavor: "'Split up! They can't catch us both!'"
@@ -428,7 +430,7 @@ cards:
     rarity: 2
     types: [spy, legend]
     cost: 3
-    upgrades: [swift]
+    traits: [swift]
     description:
       ability: "Give another Spy you own +&."
       flavor: You do not know her, and rest assured, you never shall.
@@ -444,7 +446,7 @@ cards:
     rarity: 2
     types: [thief, legend]
     cost: 3
-    upgrades: [swift]
+    traits: [swift]
     description:
       ability: "Give another Thief you own +$."
       flavor: Her first name is Aspartamé, which is why she goes by Smitty.
@@ -669,7 +671,7 @@ cards:
     rarity: 2
     types: [action]
     cost: 3
-    upgrades: [swift]
+    traits: [swift]
     description:
       ability: Discard your hand. Create that many plus one Burglars (worth +2$) in your hand.
     playActions:
@@ -738,7 +740,7 @@ cards:
     rarity: 2
     types: [trickster]
     cost: 3
-    upgrades: [swift]
+    traits: [swift]
     description:
       ability: Shuffle the discard pile into the deck, then discard all Treasures in it.
     playActions:
@@ -879,7 +881,7 @@ cards:
     rarity: 2
     types: [action]
     cost: 6
-    upgrades: [swift]
+    traits: [swift]
     description:
       ability: "Get two copies of a card you own that costs 3$ or less. Burn this card."
     playActions:
@@ -950,7 +952,7 @@ cards:
     rarity: 1
     types: [cop]
     cost: 4
-    upgrades: [swift]
+    traits: [swift]
     description:
       ability: "Give another Cop you own \"Draw a card, then discard a card.\""
     playActions:
@@ -1165,7 +1167,7 @@ cards:
     rarity: 2
     types: [action]
     cost: 7
-    upgrades: [swift]
+    traits: [swift]
     shopCount: 1
     description:
       ability: Get one of two random blueprints. Burn this card.

@@ -48,11 +48,12 @@ private val FAKE_GAME_DATA_TEXT = """
       - Spy
       - Legend
 
+    traitNames:
+      swift: Swift
     upgradeNames:
       cash: Dextrous
       influence: Artful
       luck: Lucky
-      swift: Swift
       veteran: Veteran
 
     rarities:
