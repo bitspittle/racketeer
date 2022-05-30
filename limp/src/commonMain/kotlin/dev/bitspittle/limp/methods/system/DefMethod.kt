@@ -8,7 +8,7 @@ import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.types.Expr
 
 /**
- * def --overwrite (Bool|Placeholder) --inline (Bool|Placeholder) (arg1: Any) (arg2: Any)... (body: 'Expr)
+ * def --overwrite (Bool|Placeholder) --inline (Bool|Placeholder) (name: 'Ident) (arg1: Any) (arg2: Any)... (body: 'Expr)
  *
  * Define a method.
  *
