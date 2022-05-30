@@ -160,7 +160,9 @@ globalActions:
   - def 'building-with-id '$id '(single --matching '(= building-get $it 'id $id) $buildings)
   - def 'compare-by-index '$list '$a '$b '(compare index-of $list $a index-of $list $b)
   - def 'pile-compare '$pileA '$pileB '(compare-by-index (list $hand $deck $discard $street $jail) $pileA $pileB)
-  - def 'choose-across-piles '$prompt '$cards '$count '(run '(stop-if! empty? $cards) '(choose --format $fmt-card-with-pile --prompt $prompt (sorted --with '(pile-compare card-pile $a card-pile $b) (sorted $cards)) $count))
+  - def --inline _ '_choose-across-piles '$required '$prompt '$cards '$count '(run '(stop-if! empty? $cards) '(choose --required $required --format $fmt-card-with-pile --prompt $prompt (sorted --with '(pile-compare card-pile $a card-pile $b) (sorted $cards)) $count))
+  - def 'choose-across-piles '$prompt '$cards '$count '(_choose-across-piles false $prompt $cards $count)
+  - def 'choose-across-piles! '$prompt '$cards '$count '(_choose-across-piles true $prompt $cards $count)
   - set '$fmt-card-with-pile '(concat-to-string (list ";(" (pile-get (card-pile $it) 'name) ")"))
   - set '$fmt-card-with-cost '(concat-to-string (list ";(" (card-get $it 'cost) (icon-convert "$") ")"))
   - set '$fmt-blueprint-with-cost '(icon-convert --expand false (concat-to-string (list (blueprint-get $it 'name) ";(" (blueprint-get $it 'build-cost-cash) "$ " (blueprint-get $it 'build-cost-influence) "&)")))
@@ -1496,7 +1498,7 @@ blueprints:
       - fx-add! --desc "At end of turn, jail one of two random cards you own." --lifetime 'game --event 'turn-end '(run
          '(cancel-if! (< (size $owned-cards) 2))
          '(set '$suspects (take --from 'random $owned-cards 2))
-         '(pile-move-to! $jail (choose-across-piles "Jail a card." $suspects 1))
+         '(pile-move-to! $jail (choose-across-piles! "An interrogation occurs. Jail a card." $suspects 1))
          )
 
   - name: School of Hard Knocks
