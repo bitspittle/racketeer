@@ -23,7 +23,9 @@ interface ChooseHandler {
 class FormattedItem(val wrapped: Any, val displayText: String?, val extraText: String?)
 
 /**
- * Ask a user to choose some values.
+ * choose --prompt (String) --format (Expr) --required (Bool|Placeholder) (List) (Range)
+ *
+ * Ask a user to choose some number of values from a list.
  *
  * This method is mostly a shell which delegates to a caller to fill out!
  */
@@ -42,10 +44,7 @@ class ChooseMethod(private val logger: Logger, private val chooseHandler: Choose
             options["required"]?.let { env.expectConvert(it) }
         } ?: false
 
-        val list = env.scoped {
-            env.addConverter(ItemToSingletonListConverter(Any::class))
-            env.expectConvert<List<Any>>(params[0])
-        }
+        val list = env.expectConvert<List<Any>>(params[0])
         var range = env.scoped {
             env.addConverter(PlaceholderConverter(1 .. Int.MAX_VALUE))
             env.addConverter(IntToIntRangeConverter())
