@@ -12,7 +12,7 @@ private val String.indentLength: Int
 
 private fun String.stripOutComment() = if (!this.contains('#')) this else buildString {
     var inString = false
-    this.forEachIndexed { i, c ->
+    this@stripOutComment.forEachIndexed { i, c ->
         if (c == '#' && !inString) return@buildString
         if (c == '"' && this.getOrNull(i - 1) != '\\') {
             inString = !inString
