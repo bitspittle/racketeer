@@ -56,7 +56,7 @@ private class GameStateDiffReporter(
     private fun StringBuilder.reportIfLastShopCard(card: Card) {
         if (diff.before.shop.stock.filterNotNull().any { it.id == card.id } &&
                 diff.after.shop.remaining(card.template, data.rarities) == 0) {
-            reportLine("The shop will not sell any more copied of ${card.template.name}.")
+            reportLine("The shop will not sell any more copies of ${card.template.name}.")
         }
     }
 
