@@ -69,15 +69,15 @@ rarities:
   - name: Common
     blueprintFrequency: 3
     shopFrequency: 4
-    shopCount: 10
+    shopCount: 12
   - name: Uncommon
     blueprintFrequency: 2
     shopFrequency: 2
-    shopCount: 8
+    shopCount: 10
   - name: Rare
     blueprintFrequency: 1
     shopFrequency: 1
-    shopCount: 6
+    shopCount: 8
 
 tierFrequencies:
   - 5
@@ -577,9 +577,9 @@ cards:
     types: [cop, legend]
     cost: 4
     description:
-      ability: When you get this, gain nine &.
+      ability: When you get this, gain seven &.
     initActions:
-      - game-add! 'influence 9
+      - game-add! 'influence 7
 
   - name: Big Bill Murphy
     tier: 1
@@ -610,7 +610,7 @@ cards:
   - name: Swindler
     tier: 1
     rarity: 0
-    types: [spy]
+    types: [spy, trickster]
     cost: 5
     description:
       ability: Draw a card. Gain 2&.
@@ -645,9 +645,9 @@ cards:
     types: [spy, legend]
     cost: 7
     description:
-      ability: Gain 10 &.
+      ability: Gain 9 &.
     playActions:
-      - game-add! 'influence 10
+      - game-add! 'influence 9
 
 
 # TIER 3
@@ -726,21 +726,6 @@ cards:
       - stop-if! gt? (card-get $this 'counter) 0
       - pile-move-to! $jail $this
 
-  - name: Mime
-    tier: 2
-    rarity: 1
-    types: [trickster]
-    cost: 4
-    description:
-      ability: When you play this, it becomes an exact copy of a card in your hand.
-    playActions:
-      - stop-if! empty? $hand
-      - set '$copied-card single (choose --prompt "Copy a card." $hand 1)
-      - set '$my-name card-get $this 'name
-      - if-true (= $my-name card-get $copied-card 'name) '(run '(info "Sorry, it is strictly forbidden by the sacred Mime Code to use one's powers on a fellow Mime.") '(cancel!))
-      - card-remove! $this
-      - pile-copy-to! $hand $copied-card
-
   - name: Fence
     tier: 2
     rarity: 2
@@ -769,20 +754,6 @@ cards:
       - set '$tricksters filter $some-tricksters '(!= $it $this)
       - stop-if! empty? $tricksters
       - card-upgrade! (choose-across-piles "Upgrade a Trickster." $tricksters 1) 'luck
-
-  - name: Ruthven Catsby, Esq.
-    tier: 2
-    rarity: 2
-    types: [spy, legend]
-    cost: 4
-    description:
-      ability: Gain 2&. You may convert all your & to $.
-    playActions:
-      - game-add! 'influence 2
-      - set '$convert (ask? "Would you like to convert your & into $?")
-      - stop-if! ! $convert
-      - game-add! 'cash game-get 'influence
-      - game-set! 'influence 0
 
   - name: Racketeer
     tier: 2
@@ -901,6 +872,22 @@ cards:
       # expect to happen (the first gold chain doesn't see the second).
       - run-later '(pile-copy-to! $street $card-to-copy)
 
+  - name: Mime
+    tier: 2
+    rarity: 2
+    types: [trickster]
+    cost: 6
+    description:
+      ability: When you play this, it becomes an exact copy of a card in your hand.
+    playActions:
+      - stop-if! empty? $hand
+      - set '$copied-card single (choose --prompt "Copy a card." $hand 1)
+      - set '$my-name card-get $this 'name
+      - if-true (= $my-name card-get $copied-card 'name) '(run '(info "Sorry, it is strictly forbidden by the sacred Mime Code to use one's powers on a fellow Mime.") '(cancel!))
+      - card-remove! $this
+      - pile-copy-to! $hand $copied-card
+
+
 # TIER 4
 
   - name: Patrolman's Badge
@@ -991,6 +978,20 @@ cards:
       - fx-add! --desc "At end of turn, you may put a Thief from the street on top of your deck." --event 'turn-end '(if-false empty? (filter $street '(card-has-type? $it 'thief)) '(pile-move-to! --pos 'front $deck (choose --required _ --prompt "You may put a Thief on top of your deck." (filter $street '(card-has-type? $it 'thief)) .. 0 1)))
 
 
+  - name: Ruthven Catsby, Esq.
+    tier: 3
+    rarity: 2
+    types: [spy, legend]
+    cost: 4
+    description:
+      ability: Gain 2&. You may convert all your & to $.
+    playActions:
+      - game-add! 'influence 2
+      - set '$convert (ask? "Would you like to convert your & into $?")
+      - stop-if! ! $convert
+      - game-add! 'cash game-get 'influence
+      - game-set! 'influence 0
+
   - name: Purse Snatcher
     tier: 3
     rarity: 1
@@ -1042,9 +1043,22 @@ cards:
       ability: Do nothing.
     vp: 7
 
+  - name: Looter
+    tier: 3
+    rarity: 2
+    types: [thief]
+    cost: 6
+    description:
+      ability: "Gain 3$. Draw all Treasures from the top five cards of the deck."
+    playActions:
+      - game-add! 'cash 3
+      - run
+         '(info "You search the top five cards of the deck for treasures...")
+         '(pile-move-to! $hand filter (take --from 'front $deck 5) '(card-has-type? $it 'treasure))
+
   - name: Bank Robber
     tier: 3
-    rarity: 1
+    rarity: 0
     types: [thief]
     cost: 6
     description:
@@ -1081,7 +1095,7 @@ cards:
     tier: 2
     rarity: 1
     types: [thief, legend]
-    cost: 6
+    cost: 5
     description:
       ability: Gain $ for each Thief on the street. (max 8)
     playActions:
@@ -1091,7 +1105,7 @@ cards:
     tier: 3
     rarity: 1
     types: [action]
-    cost: 7
+    cost: 5
     description:
       ability: Draw three cards, then discard two.
     playActions:
@@ -1125,7 +1139,7 @@ cards:
     tier: 4
     rarity: 1
     types: [trickster]
-    cost: 6
+    cost: 7
     description:
       ability: Draw two cards.
     playActions:
@@ -1244,6 +1258,82 @@ cards:
 
 blueprints:
 
+  - name: Clown College
+    rarity: 2
+    description:
+      ability: "Activate: Choose and discard three cards to add a Mime to your hand."
+    buildCost:
+      cash: 4
+      influence: 4
+    canActivate: gte? (size $hand) 3
+    activateActions: 
+      - pile-move-to! $discard (choose --prompt "Discard cards." $hand 3)
+      - pile-copy-to! $hand (card-named "Mime")
+
+
+
+# not working now, figure out later
+#
+#  - name: Fashion Runway
+#    rarity: 1
+#    description:
+#      ability: "When you build this, randomly choose a type. When you get a card of that type, gain ***."
+#    buildCost:
+#      cash: 3
+#      influence: 3
+#    canActivate: false
+#    initActions:
+#      - game-data-set! '$fashion-type random (list "action" "treasure" "cop" "thief" "spy" "trickster" "legend")
+#      - info "The hottest fashion trend of the season is:"
+#      - info (game-data-get $fashion-type)
+
+  - name: Speakeasy
+    rarity: 1
+    description:
+      ability: At end of turn, gain * for each card in your hand.
+    buildCost:
+      cash: 3
+      influence: 3
+    canActivate: false # Passive building
+    initActions:
+      - fx-add! --desc (icon-convert "At end of turn, gain * for each card in your hand.") --lifetime 'game --event 'turn-end --data (building-get $this 'id) '(building-add! building-with-id $data 'vp (size $hand))
+
+  - name: Docks
+    rarity: 1
+    description:
+      ability: At end of turn, gain * for each card in your hand.
+    buildCost:
+      cash: 3
+      influence: 3
+    canActivate: false # Passive building
+    initActions:
+      - fx-add! --desc (icon-convert "At end of turn, gain * for each card in your hand.") --lifetime 'game --event 'turn-end --data (building-get $this 'id) '(building-add! building-with-id $data 'vp (size $hand))
+
+
+  - name: Trinity Cathedral
+    rarity: 1
+    description:
+      ability: When you build this, the next card you play takes effect an additional three times.
+    buildCost:
+      cash: 3
+      influence: 3
+    canActivate: false
+    initActions:
+      - fx-add! --lifetime 'once --desc "Your next card takes effect an additional three times." '(run '(card-trigger! $card) '(card-trigger! $card) '(card-trigger! $card))
+
+
+  - name: Limousine Service
+    rarity: 2
+    description:
+      ability: "Activate: The next card you get this turn goes straight to your hand."
+    buildCost:
+      cash: 3
+      influence: 3
+    activationCost:
+      cash: 2
+    activateActions:
+      - fx-add! --desc "Get an extra copy of the next card you get this turn." --lifetime 'once --event 'create '(run-later '(pile-move-to! $hand $card))
+
 
   - name: Circus Tent
     rarity: 2
@@ -1336,8 +1426,8 @@ blueprints:
     description:
       ability: Whenever you play a Pickpocket or Newsie, draw a card.
     buildCost:
-      cash: 5
-      influence: 5
+      cash: 6
+      influence: 6
     canActivate: false
     initActions:
       - fx-add! --lifetime 'game --desc (icon-convert "Whenever you play a Pickpocket or Newsie, draw a card.") '(if-true or? (= card-get $card 'name "Pickpocket") (= card-get $card 'name "Newsie") '(game-draw! 1))
@@ -1347,7 +1437,7 @@ blueprints:
     rarity: 1
     description:
       ability: "Activate: Burn a Cop you own. This gains 5*."
-#      flavor: Technically, being eaten by an orca does not count as sleeping with the fishes.
+      flavor: Technically, being eaten by an orca does not count as sleeping with the fishes.
     buildCost:
       cash: 2
       influence: 2
@@ -1614,8 +1704,8 @@ blueprints:
     description:
       ability: "Activate: Draw a card."
     buildCost:
-      cash: 2
-      influence: 2
+      cash: 3
+      influence: 3
     activationCost:
       cash: 1
     activateActions:
@@ -1691,13 +1781,13 @@ blueprints:
       cash: 3
       influence: 3
     activationCost:
-      cash: 1
+      cash: 2
     activateActions:
       - set '$cardtoreplace (single (choose-across-piles "Jail a card." $owned-cards 1))
       - set '$newtier min $tier5 (+ 1 card-get $cardtoreplace 'tier)
       - pile-move-to! $jail $cardtoreplace
       # Use cards-instantiate so we can get up-to-date VP calculations in the choose screen
-      - set '$all-tier-cards cards-instantiate (filter buyable-card-list '(= $newtier (card-get $it 'tier)))
+      - set '$all-tier-cards cards-instantiate (filter buyable-card-list '(and? (! = (card-get $cardtoreplace 'name)(card-get $it 'name))(= $newtier (card-get $it 'tier))))
       # Force a choose screen so that the player can see what card they got. Run it later to give VP calculations time
       # to happen first
       - |
@@ -1751,8 +1841,8 @@ blueprints:
     description:
       ability: "Activate: The next Action you play this turn takes effect an additional time."
     buildCost:
-      cash: 3
-      influence: 3
+      cash: 4
+      influence: 4
     activateActions:
       - fx-add! --lifetime 'once --desc "Your next Action takes effect an additional time." --if '(card-has-type? $card 'action) '(card-trigger! $card)
 
