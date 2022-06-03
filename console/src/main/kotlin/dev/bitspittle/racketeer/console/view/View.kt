@@ -66,6 +66,7 @@ abstract class View(protected val ctx: GameContext, private val initialCurrIndex
     private fun hasGameStarted() = ctx.state !== GameStateStub && ctx.state.allPiles.any { it.cards.isNotEmpty() }
 
     private fun allowAdminAccess(): Boolean {
+        if (!allowEsc) return false
         if (!hasGameStarted()) return false
         return ctx.settings.admin.enabled && !(ctx.viewStack.contains { view -> view is AdminMenuView })
     }
