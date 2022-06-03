@@ -55,10 +55,10 @@ sealed class GameStateChange {
         }
     }
 
-    class Play(val handIndex: Int) : GameStateChange() {
+    class Play(val card: Card) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
-            require(handIndex in hand.cards.indices) { "Attempt to play card with an invalid hand index $handIndex, when hand is size ${hand.cards.size}" }
-            val card = hand.cards[handIndex]
+            val card = hand.cards.firstOrNull { it.id == card.id }
+                ?: error("You cannot play \"${card.template.name}\" as it is not in your hand.")
 
             if (card.isExpendable) {
                 apply(MoveCard(card, graveyard))
@@ -184,10 +184,9 @@ sealed class GameStateChange {
         }
     }
 
-    class Build(val blueprintIndex: Int) : GameStateChange() {
+    class Build(val blueprint: Blueprint) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
-            require(blueprintIndex in blueprints.indices) { "Attempt to build a blueprint with an invalid index $blueprintIndex, when blueprint count is ${blueprints.size}" }
-            val blueprint = blueprints[blueprintIndex]
+            require(blueprint in blueprints) { "You cannot build the blueprint \"${blueprint.name}\" as you don't own it." }
 
             blueprints.remove(blueprint)
             val building = blueprint.build()
@@ -198,11 +197,12 @@ sealed class GameStateChange {
         }
     }
 
-   class Activate(val buildingIndex: Int) : GameStateChange() {
+   class Activate(val building: Building) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
-            require(buildingIndex in buildings.indices) { "Attempt to activate a building with an invalid index $buildingIndex, when building count is ${buildings.size}" }
-            val building = buildings[buildingIndex]
-            require(!building.isActivated) { "Attempt to activate a building that was already activated" }
+            val building = buildings.firstOrNull { it.id == building.id } ?: error(
+                "You cannot activate the building \"${building.blueprint.name}\" as it hasn't been built yet."
+            )
+            require(!building.isActivated) { "You cannot activate the building \"${building.blueprint.name}\" as it has already been activated." }
             building.isActivated = true
 
             // Run its activate actions.

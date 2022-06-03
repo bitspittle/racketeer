@@ -24,9 +24,8 @@ class CreateBuildingCommand(ctx: GameContext, private val blueprint: Blueprint) 
         }
 
         ctx.runStateChangingAction {
-            val blueprintIndex = ctx.state.blueprints.indexOf(blueprint)
-            check(blueprintIndex >= 0)
-            ctx.state.apply(GameStateChange.Build(blueprintIndex))
+            check(ctx.state.blueprints.indexOf(blueprint) >= 0)
+            ctx.state.apply(GameStateChange.Build(blueprint))
             ctx.viewStack.popPast { view -> view is AdminMenuView }
         }
         return true

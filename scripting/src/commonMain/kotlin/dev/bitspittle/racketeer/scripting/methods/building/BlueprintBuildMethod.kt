@@ -3,10 +3,7 @@ package dev.bitspittle.racketeer.scripting.methods.building
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
-import dev.bitspittle.limp.types.Expr
-import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.racketeer.model.building.Blueprint
-import dev.bitspittle.racketeer.model.building.BlueprintProperty
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.GameStateChange
 
@@ -22,10 +19,7 @@ class BlueprintBuildMethod(private val getGameState: () -> GameState) : Method("
         env: Environment, eval: Evaluator, params: List<Any>, options: Map<String, Any>, rest: List<Any>
     ): Any {
         val blueprint = env.expectConvert<Blueprint>(params[0])
-        val state = getGameState()
-        val blueprintIndex = state.blueprints.indexOf(blueprint).takeIf { it >= 0 }
-            ?: error("You cannot build the blueprint \"${blueprint.name}\" as you don't own it.")
-        state.apply(GameStateChange.Build(blueprintIndex))
+        getGameState().apply(GameStateChange.Build(blueprint))
         return Unit
     }
 }

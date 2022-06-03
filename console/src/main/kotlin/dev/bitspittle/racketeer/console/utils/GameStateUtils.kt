@@ -47,8 +47,7 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
                         }
                     }
                     is GameStateChange.Build -> {
-                        val blueprint = prevState.blueprints[change.blueprintIndex]
-                        userStats.buildings.notifyBuilt(blueprint)
+                        userStats.buildings.notifyBuilt(change.blueprint)
                     }
                     else -> Unit // Doesn't affect user stats
                 }

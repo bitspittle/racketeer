@@ -199,7 +199,6 @@ private class GameStateDiffReporter(
     }
 
     private fun StringBuilder.report(change: GameStateChange.Build) = change.apply {
-        val blueprint = diff.before.blueprints[change.blueprintIndex]
         reportLine("${blueprint.name} was built.")
     }
 

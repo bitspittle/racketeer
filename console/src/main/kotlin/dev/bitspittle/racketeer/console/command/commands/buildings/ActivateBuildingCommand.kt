@@ -39,7 +39,7 @@ class ActivateBuildingCommand(ctx: GameContext, private val building: Building) 
                 ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.LUCK, -cost.luck))
             }
 
-            ctx.state.apply(GameStateChange.Activate(ctx.state.buildings.indexOfFirst { it.id == building.id }))
+            ctx.state.apply(GameStateChange.Activate(building))
         }
         return true
     }

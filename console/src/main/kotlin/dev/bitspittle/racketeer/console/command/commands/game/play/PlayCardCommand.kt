@@ -15,9 +15,7 @@ class PlayCardCommand(ctx: GameContext, private val card: Card) : Command(ctx) {
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {
-            ctx.state.apply(GameStateChange.Play(
-                ctx.state.hand.cards.indexOfFirst { it.id == card.id }
-            ))
+            ctx.state.apply(GameStateChange.Play(card))
         }
 
         return true

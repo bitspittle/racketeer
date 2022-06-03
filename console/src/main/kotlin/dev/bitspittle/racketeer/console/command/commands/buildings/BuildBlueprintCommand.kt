@@ -30,7 +30,7 @@ class BuildBlueprintCommand(ctx: GameContext, private val blueprint: Blueprint) 
             if (blueprint.buildCost.influence > 0) {
                 ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, -blueprint.buildCost.influence))
             }
-            ctx.state.apply(GameStateChange.Build(ctx.state.blueprints.indexOf(blueprint)))
+            ctx.state.apply(GameStateChange.Build(blueprint))
 
             if (ctx.state.blueprints.isEmpty()) ctx.viewStack.popView()
         }

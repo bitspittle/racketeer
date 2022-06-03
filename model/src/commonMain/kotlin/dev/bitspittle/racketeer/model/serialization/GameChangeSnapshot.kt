@@ -4,6 +4,7 @@ package dev.bitspittle.racketeer.model.serialization
 
 import com.benasher44.uuid.Uuid
 import dev.bitspittle.limp.types.ListStrategy
+import dev.bitspittle.racketeer.model.building.Blueprint
 import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.building.BuildingProperty
 import dev.bitspittle.racketeer.model.card.Card
@@ -16,6 +17,15 @@ import dev.bitspittle.racketeer.model.text.Describer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
+
+@Serializable
+class BlueprintPtr(val name: String) {
+    companion object {
+        fun from(blueprint: Blueprint) = BlueprintPtr(blueprint.name)
+    }
+
+    fun findIn(state: GameState) = state.blueprints.first { it.name == name }
+}
 
 // We don't technically need to save the name, but it's useful for humans browsing the file.
 @Serializable
@@ -115,12 +125,12 @@ sealed class GameChangeSnapshot {
 
     @Serializable
     @SerialName("Play")
-    class Play(val handIndex: Int) : GameChangeSnapshot() {
+    class Play(val cardPtr: CardPtr) : GameChangeSnapshot() {
         companion object {
-            fun from(change: GameStateChange.Play) = Play(change.handIndex)
+            fun from(change: GameStateChange.Play) = Play(CardPtr.from(change.card))
         }
 
-        override fun create(data: GameData, state: GameState) = GameStateChange.Play(handIndex)
+        override fun create(data: GameData, state: GameState) = GameStateChange.Play(cardPtr.findIn(state))
     }
 
     @Serializable
@@ -319,22 +329,22 @@ sealed class GameChangeSnapshot {
 
     @Serializable
     @SerialName("Build")
-    class Build(val blueprintIndex: Int) : GameChangeSnapshot() {
+    class Build(val blueprintPtr: BlueprintPtr) : GameChangeSnapshot() {
         companion object {
-            fun from(change: GameStateChange.Build) = Build(change.blueprintIndex)
+            fun from(change: GameStateChange.Build) = Build(BlueprintPtr.from(change.blueprint))
         }
 
-        override fun create(data: GameData, state: GameState) = GameStateChange.Build(blueprintIndex)
+        override fun create(data: GameData, state: GameState) = GameStateChange.Build(blueprintPtr.findIn(state))
     }
 
     @Serializable
     @SerialName("Activate")
-    class Activate(val buildingIndex: Int) : GameChangeSnapshot() {
+    class Activate(val buildingPtr: BuildingPtr) : GameChangeSnapshot() {
         companion object {
-            fun from(change: GameStateChange.Activate) = Activate(change.buildingIndex)
+            fun from(change: GameStateChange.Activate) = Activate(BuildingPtr.from(change.building))
         }
 
-        override fun create(data: GameData, state: GameState) = GameStateChange.Activate(buildingIndex)
+        override fun create(data: GameData, state: GameState) = GameStateChange.Activate(buildingPtr.findIn(state))
     }
 
     @Serializable
