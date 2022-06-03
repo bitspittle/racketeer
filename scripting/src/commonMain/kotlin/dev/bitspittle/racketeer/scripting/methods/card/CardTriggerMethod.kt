@@ -8,6 +8,14 @@ import dev.bitspittle.racketeer.model.card.CardEnqueuer
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.scripting.converters.CardTemplateToCardConverter
 
+/**
+ * card-trigger! (Card)
+ *
+ * Enqueue the target card's actions, effectively running it (without actually playing it) after this card finishes
+ * running. You can trigger a card in any pile, even the graveyard or the store if you wanted to.
+ *
+ * See also: card-play!
+ */
 class CardTriggerMethod(private val cardEnqueuer: CardEnqueuer, private val getGameState: () -> GameState) : Method("card-trigger!", 1) {
     override suspend fun invoke(
         env: Environment,

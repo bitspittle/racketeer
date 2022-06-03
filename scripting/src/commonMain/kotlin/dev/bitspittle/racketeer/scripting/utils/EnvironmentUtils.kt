@@ -61,6 +61,7 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(CardHasTypeMethod(service.gameData.cardTypes))
     addMethod(CardRemoveMethod(service::gameState))
     addMethod(CardTriggerMethod(service.enqueuers.card, service::gameState))
+    addMethod(CardPlayMethod(service::gameState))
     addMethod(CardPileMethod(service::gameState))
     addMethod(CardInstantiateMethod(service.enqueuers.card, service::gameState))
     storeValue("\$card-list", service.gameData.cards)
