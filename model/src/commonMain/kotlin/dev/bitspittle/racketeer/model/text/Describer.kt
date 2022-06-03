@@ -62,6 +62,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
     private fun describeTraitIcon(trait: TraitType): String? {
         return when (trait) {
             TraitType.EXPENDABLE -> data.icons.expendable
+            TraitType.SUSPICIOUS -> data.icons.suspicious
             else -> null
         }
     }

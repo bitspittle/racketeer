@@ -8,6 +8,7 @@ data class GameIcons(
     val expendable: String,
     val influence: String,
     val luck: String,
+    val suspicious: String,
     val veteran: String,
     val vp: String,
     val flavor: String,
