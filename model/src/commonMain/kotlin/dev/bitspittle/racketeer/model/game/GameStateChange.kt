@@ -60,7 +60,13 @@ sealed class GameStateChange {
             require(handIndex in hand.cards.indices) { "Attempt to play card with an invalid hand index $handIndex, when hand is size ${hand.cards.size}" }
             val card = hand.cards[handIndex]
 
-            apply(MoveCard(card, street))
+            if (card.isExpendable) {
+                apply(MoveCard(card, graveyard))
+            } else if (card.isSuspicious) {
+                apply(MoveCard(card, jail))
+            } else {
+                apply(MoveCard(card, street))
+            }
 
             // Apply upgrades *first*, as otherwise, playing a card may add an upgrade which shouldn't take effect until
             // a later turn.
@@ -116,6 +122,18 @@ sealed class GameStateChange {
     class UpgradeCard(val card: Card, val upgradeType: UpgradeType) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             (card as MutableCard).upgrades.add(upgradeType)
+        }
+    }
+
+    class AddTrait(val card: Card, val traitType: TraitType) : GameStateChange() {
+        override suspend fun MutableGameState.apply() {
+            (card as MutableCard).traits.add(traitType)
+        }
+    }
+
+    class RemoveTrait(val card: Card, val traitType: TraitType) : GameStateChange() {
+        override suspend fun MutableGameState.apply() {
+            (card as MutableCard).traits.remove(traitType)
         }
     }
 

@@ -49,7 +49,10 @@ private val FAKE_GAME_DATA_TEXT = """
       - Legend
 
     traitNames:
+      expendable: Expendable
+      suspicious: Suspicious
       swift: Swift
+
     upgradeNames:
       cash: Dextrous
       influence: Artful
@@ -153,6 +156,7 @@ private val FAKE_GAME_DATA_TEXT = """
 
       - name: Ditch the Goods
         tier: 1
+        traits: [swift]
         types: [action]
         cost: 2
         description:

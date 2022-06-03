@@ -1,5 +1,6 @@
 package dev.bitspittle.racketeer.model.text
 
+import dev.bitspittle.limp.utils.ifTrue
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameState
@@ -50,8 +51,25 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
     fun describeLuck(luck: Int) = "${data.icons.luck}$luck"
     fun describeVictoryPoints(vp: Int) = "${data.icons.vp}$vp"
 
+    fun describeTraitTitle(trait: TraitType): String {
+        return when (trait) {
+            TraitType.EXPENDABLE -> data.traitNames.expendable
+            TraitType.SUSPICIOUS -> data.traitNames.suspicious
+            TraitType.SWIFT -> data.traitNames.swift
+        }
+    }
+
+    private fun describeTraitIcon(trait: TraitType): String? {
+        return when (trait) {
+            TraitType.EXPENDABLE -> data.icons.expendable
+            else -> null
+        }
+    }
+
     private fun describeTraitBody(trait: TraitType): String {
         return when (trait) {
+            TraitType.EXPENDABLE -> "${data.traitNames.expendable}: When played, burn this card."
+            TraitType.SUSPICIOUS -> "${data.traitNames.suspicious}: When played, move to jail."
             TraitType.SWIFT -> "${data.traitNames.swift}: Goes directly to hand."
         }
     }
@@ -64,6 +82,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             UpgradeType.VETERAN -> if (icons) data.icons.veteran else data.upgradeNames.veteran
         }
     }
+
     private fun describeUpgradeBody(upgrade: UpgradeType): String {
         return when (upgrade) {
             UpgradeType.CASH -> "${data.upgradeNames.cash}: +1${data.icons.cash}."
@@ -71,6 +90,15 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             UpgradeType.LUCK -> "${data.upgradeNames.luck}: +1${data.icons.luck}."
             UpgradeType.VETERAN -> "${data.upgradeNames.veteran}: Draw a card, then discard one."
         }
+    }
+
+    private fun describeTraitsIcons(traits: Set<TraitType>): String? {
+        return TraitType.values()
+            .asSequence()
+            .filter { trait -> traits.contains(trait) }
+            .mapNotNull { trait -> describeTraitIcon(trait) }
+            .joinToString("")
+            .takeIf { it.isNotEmpty() }
     }
 
     private fun describeTraitsBody(traits: Set<TraitType>): String {
@@ -112,7 +140,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
     }
 
-    private fun StringBuilder.appendCardBody(template: CardTemplate, upgrades: Set<UpgradeType> = emptySet(), vp: Int = template.vp, counter: Int = 0, includeFlavor: Boolean = false) {
+    private fun StringBuilder.appendCardBody(template: CardTemplate, traits: Set<TraitType> = template.traitTypes, upgrades: Set<UpgradeType> = emptySet(), vp: Int = template.vp, counter: Int = 0, includeFlavor: Boolean = false) {
         if (vp != 0) {
             append(" ${describeVictoryPoints(vp)}")
         }
@@ -142,11 +170,15 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             }
         }
 
-        if (template.traits.isNotEmpty() || upgrades.isNotEmpty()) {
+        if (traits.isNotEmpty() || upgrades.isNotEmpty()) {
             appendLine() // Finish previous section
             appendLine() // Newline
-            append(describeTraitsBody(template.traitTypes))
-            append(describeUpgradesBody(upgrades))
+            val traitsBody = describeTraitsBody(traits)
+            val upgradesBody = describeUpgradesBody(upgrades)
+
+            append(traitsBody)
+            if (traitsBody.isNotEmpty() && upgradesBody.isNotEmpty()) appendLine()
+            append(upgradesBody)
         }
 
         if (showDebugInfo()) {
@@ -188,21 +220,23 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
 
     fun describeCardTitle(template: CardTemplate): String {
         return buildString {
-            appendCardName(template.name, emptySet())
+            appendCardName(template.name, template.traitTypes, emptySet())
         }
     }
 
     fun describeCardBody(template: CardTemplate, showCash: Boolean = false, includeFlavor: Boolean = false): String {
         return buildString {
-            appendCardName(template.name, emptySet(), price = template.cost.takeIf { showCash })
+            appendCardName(template.name, template.traitTypes, emptySet(), price = template.cost.takeIf { showCash })
             appendCardBody(template, includeFlavor = includeFlavor)
         }
     }
 
-    private fun StringBuilder.appendCardName(name: String, upgrades: Set<UpgradeType>, useIcons: Boolean = true, totalVp: Int? = null, price: Int? = null) {
+    private fun StringBuilder.appendCardName(name: String, traits: Set<TraitType>, upgrades: Set<UpgradeType>, useIcons: Boolean = true, totalVp: Int? = null, price: Int? = null) {
+        val traitIcons = useIcons.ifTrue { describeTraitsIcons(traits) }
         val upgradesText = describeUpgradesTitle(upgrades, useIcons)
-        if (upgradesText != null) {
-            append(upgradesText)
+        if (traitIcons != null || upgradesText != null) {
+            if (traitIcons != null) append(traitIcons)
+            if (upgradesText != null) append(upgradesText)
             append(' ')
         }
         append(name)
@@ -217,7 +251,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
     }
 
     private fun StringBuilder.appendCardName(card: Card, useIcons: Boolean = true, totalVp: Int? = null, price: Int? = null) {
-        appendCardName(card.template.name, card.upgrades, useIcons, totalVp, price)
+        appendCardName(card.template.name, card.traits, card.upgrades, useIcons, totalVp, price)
     }
 
     fun describeCardGroupTitle(cards: List<Card>): String {
@@ -248,7 +282,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         return buildString {
             appendCardName(card, useIcons = false, card.vpTotal)
             // Don't re-report victory points, they were already reported as part of the name
-            appendCardBody(card.template, card.upgrades, counter = card.counter, vp = 0)
+            appendCardBody(card.template, card.traits, card.upgrades, counter = card.counter, vp = 0)
         }
     }
 

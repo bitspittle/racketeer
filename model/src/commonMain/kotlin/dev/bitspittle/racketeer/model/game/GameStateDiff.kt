@@ -144,6 +144,14 @@ private class GameStateDiffReporter(
         reportLine("${card.template.name} was upgraded, adding: ${describer.describeUpgradeTitle(upgradeType, icons = false)}.")
     }
 
+    private fun StringBuilder.report(change: GameStateChange.AddTrait) = change.apply {
+        reportLine("${card.template.name} added: ${describer.describeTraitTitle(traitType)}.")
+    }
+
+    private fun StringBuilder.report(change: GameStateChange.RemoveTrait) = change.apply {
+        reportLine("${card.template.name} removed: ${describer.describeTraitTitle(traitType)}.")
+    }
+
     private fun StringBuilder.report(change: GameStateChange.AddBuildingAmount) = change.apply {
         val name = building.blueprint.name
         when (property) {
@@ -228,6 +236,8 @@ private class GameStateDiffReporter(
                     is GameStateChange.Shuffle -> report(change)
                     is GameStateChange.AddCardAmount -> report(change)
                     is GameStateChange.UpgradeCard -> report(change)
+                    is GameStateChange.AddTrait -> report(change)
+                    is GameStateChange.RemoveTrait -> report(change)
                     is GameStateChange.AddBuildingAmount -> report(change)
                     is GameStateChange.AddGameAmount -> Unit // Reported below, in aggregate
                     is GameStateChange.SetGameData -> Unit // Game data is only for use by the designers, don't report it

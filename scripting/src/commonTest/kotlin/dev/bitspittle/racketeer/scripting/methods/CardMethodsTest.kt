@@ -13,7 +13,9 @@ import dev.bitspittle.limp.methods.system.DbgMethod
 import dev.bitspittle.limp.methods.system.RunMethod
 import dev.bitspittle.limp.methods.system.SetMethod
 import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.card.TraitType
 import dev.bitspittle.racketeer.model.card.UpgradeType
+import dev.bitspittle.racketeer.model.card.traitTypes
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.game.getOwnedCards
 import dev.bitspittle.racketeer.model.random.CopyableRandom
@@ -146,6 +148,66 @@ class CardMethodsTest {
         }
 
         assertThat(ownedCountRemoveMultipleCards - 1).isEqualTo(ownedCountRemoveSingleCard)
+    }
+
+    @Test
+    fun testTraitMethods() = runTest {
+        val env = Environment()
+        val service = TestGameService.create()
+
+        val gameState = service.gameState
+        env.addMethod(CardAddTraitMethod { gameState })
+        env.addMethod(CardRemoveTraitMethod { gameState })
+        env.addMethod(CardHasTraitMethod())
+        env.addMethod(CardTraitsMethod())
+
+        val evaluator = Evaluator()
+        env.storeValue("\$card1", TestCard("Card1").apply {
+            traits.add(TraitType.SWIFT)
+        })
+        env.storeValue("\$card2", TestCard("Card2"))
+
+        service.gameData.cards.single { it.name == "Ditch the Goods" }.let { cardTemplate ->
+            // Check that trait methods work with card definitions that start with the trait set
+            assertThat(cardTemplate.traitTypes).contains(TraitType.SWIFT)
+            env.storeValue("\$card3", cardTemplate.instantiate())
+        }
+
+        assertThat(evaluator.evaluate(env, "card-traits \$card1") as List<TraitType>).containsExactly(TraitType.SWIFT)
+        assertThat(evaluator.evaluate(env, "card-traits \$card2") as List<TraitType>).isEmpty()
+        assertThat(evaluator.evaluate(env, "card-traits \$card3") as List<TraitType>).containsExactly(TraitType.SWIFT)
+
+        evaluator.evaluate(env, "card-add-trait! \$card1 'suspicious")
+        evaluator.evaluate(env, "card-add-trait! \$card2 'expendable")
+
+        assertThat(evaluator.evaluate(env, "card-has-trait? \$card1 'suspicious") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "card-has-trait? \$card2 'expendable") as Boolean).isTrue()
+        assertThat(evaluator.evaluate(env, "card-has-trait? \$card1 'expendable") as Boolean).isFalse()
+        assertThat(evaluator.evaluate(env, "card-has-trait? \$card2 'suspicious") as Boolean).isFalse()
+
+        assertThat(evaluator.evaluate(env, "card-traits \$card1") as List<TraitType>).containsExactly(TraitType.SWIFT, TraitType.SUSPICIOUS)
+        assertThat(evaluator.evaluate(env, "card-traits \$card2") as List<TraitType>).containsExactly(TraitType.EXPENDABLE)
+
+        evaluator.evaluate(env, "card-remove-trait! \$card1 'swift")
+        evaluator.evaluate(env, "card-remove-trait! \$card2 'expendable")
+
+        assertThat(evaluator.evaluate(env, "card-traits \$card1") as List<TraitType>).containsExactly(TraitType.SUSPICIOUS)
+        assertThat(evaluator.evaluate(env, "card-traits \$card2") as List<TraitType>).isEmpty()
+
+        // Removing a trait that isn't set is harmless
+        evaluator.evaluate(env, "card-remove-trait! \$card2 'swift")
+
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "card-has-trait? \$card 'invalid-property")
+        }
+
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "card-add-trait? \$card 'invalid-property")
+        }
+
+        assertThrows<EvaluationException> {
+            evaluator.evaluate(env, "card-remove-trait? \$card 'invalid-property")
+        }
     }
 
     @Test

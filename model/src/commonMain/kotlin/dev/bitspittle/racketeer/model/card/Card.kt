@@ -8,6 +8,7 @@ interface Card : Comparable<Card> {
     val vpBase: Int
     val vpPassive: Int
     val counter: Int
+    val traits: Set<TraitType>
     val upgrades: Set<UpgradeType>
     val id: Uuid
 }
@@ -23,13 +24,14 @@ class MutableCard internal constructor(
     vpBase: Int,
     override var vpPassive: Int,
     counter: Int,
+    override val traits: MutableSet<TraitType>,
     override val upgrades: MutableSet<UpgradeType>,
     override val id: Uuid = uuid4(),
 ) : Card {
     internal constructor(template: CardTemplate) : this(
         template, template.vp, 0, 0,
+        template.traitTypes.toMutableSet(),
         mutableSetOf(),
-        uuid4(),
     )
 
     /** Create a clone of some target card */
@@ -38,6 +40,7 @@ class MutableCard internal constructor(
         other.vpBase,
         other.vpPassive,
         other.counter,
+        other.traits.toMutableSet(),
         other.upgrades.toMutableSet()
     )
 
@@ -63,7 +66,15 @@ class MutableCard internal constructor(
         vpPassive: Int = this.vpPassive,
         counter: Int = this.counter,
         upgrades: Set<UpgradeType> = this.upgrades,
-    ) = MutableCard(template, vpBase, vpPassive, counter, upgrades.toMutableSet(), id)
+    ) = MutableCard(
+        template,
+        vpBase,
+        vpPassive,
+        counter,
+        traits.toMutableSet(),
+        upgrades.toMutableSet(),
+        id
+    )
 
     override fun compareTo(other: Card): Int {
         return template.compareTo(other.template).takeUnless { it == 0 }
@@ -74,9 +85,12 @@ class MutableCard internal constructor(
     }
 }
 
+val Card.isExpendable get() = this.traits.contains(TraitType.EXPENDABLE)
+val Card.isSuspicious get() = this.traits.contains(TraitType.SUSPICIOUS)
+val Card.isSwift get() = this.traits.contains(TraitType.SWIFT)
+
 val Card.isDexterous get() = this.upgrades.contains(UpgradeType.CASH)
 val Card.isArtful get() = this.upgrades.contains(UpgradeType.INFLUENCE)
 val Card.isLucky get() = this.upgrades.contains(UpgradeType.LUCK)
-val Card.isSwift get() = this.template.traitTypes.contains(TraitType.SWIFT)
 val Card.isVeteran get() = this.upgrades.contains(UpgradeType.VETERAN)
 val Card.vpTotal get() = vpBase + vpPassive

@@ -7,15 +7,12 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.utils.toIdentifierName
 import dev.bitspittle.racketeer.model.action.Enqueuers
-import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.card.MutableCard
-import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.building.Blueprint
 import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.building.BuildingProperty
 import dev.bitspittle.racketeer.model.building.MutableBuilding
-import dev.bitspittle.racketeer.model.card.CardProperty
+import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.random.CopyableRandom
@@ -31,7 +28,8 @@ class CardSnapshot(
     val name: String,
     val vp: Int,
     val counter: Int,
-    val upgrades: Set<UpgradeType>
+    val traits: Set<TraitType>,
+    val upgrades: Set<UpgradeType>,
 ) {
     companion object {
         fun from(card: Card) = CardSnapshot(
@@ -39,6 +37,7 @@ class CardSnapshot(
             card.template.name,
             card.vpBase,
             card.counter,
+            card.traits,
             card.upgrades,
         )
     }
@@ -48,6 +47,7 @@ class CardSnapshot(
         vp,
         vpPassive = 0, // Will be calculated later
         counter,
+        traits.toMutableSet(),
         upgrades.toMutableSet(),
         id
     )

@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GameIcons(
     val cash: String,
+    val expendable: String,
     val influence: String,
     val luck: String,
     val veteran: String,

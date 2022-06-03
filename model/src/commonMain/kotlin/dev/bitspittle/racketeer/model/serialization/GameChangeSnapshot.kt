@@ -8,6 +8,7 @@ import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.building.BuildingProperty
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardProperty
+import dev.bitspittle.racketeer.model.card.TraitType
 import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.pile.Pile
@@ -63,6 +64,8 @@ sealed class GameChangeSnapshot {
                 is GameStateChange.Shuffle -> Shuffle.from(describer, state, change)
                 is GameStateChange.AddCardAmount -> AddCardAmount.from(change)
                 is GameStateChange.UpgradeCard -> UpgradeCard.from(change)
+                is GameStateChange.AddTrait -> AddTrait.from(change)
+                is GameStateChange.RemoveTrait -> RemoveTrait.from(change)
                 is GameStateChange.AddBuildingAmount -> AddBuildingAmount.from(change)
                 is GameStateChange.AddGameAmount -> AddGameAmount.from(change)
                 is GameStateChange.SetGameData -> SetGameData.from(change)
@@ -193,6 +196,28 @@ sealed class GameChangeSnapshot {
 
         override fun create(data: GameData, state: GameState) =
             GameStateChange.UpgradeCard(cardPtr.findIn(state), upgradeType)
+    }
+
+    @Serializable
+    @SerialName("AddTrait")
+    class AddTrait(val cardPtr: CardPtr, val traitType: TraitType) : GameChangeSnapshot() {
+        companion object {
+            fun from(change: GameStateChange.AddTrait) = AddTrait(CardPtr.from(change.card), change.traitType)
+        }
+
+        override fun create(data: GameData, state: GameState) =
+            GameStateChange.AddTrait(cardPtr.findIn(state), traitType)
+    }
+
+    @Serializable
+    @SerialName("RemoveTrait")
+    class RemoveTrait(val cardPtr: CardPtr, val traitType: TraitType) : GameChangeSnapshot() {
+        companion object {
+            fun from(change: GameStateChange.RemoveTrait) = RemoveTrait(CardPtr.from(change.card), change.traitType)
+        }
+
+        override fun create(data: GameData, state: GameState) =
+            GameStateChange.RemoveTrait(cardPtr.findIn(state), traitType)
     }
 
     @Serializable
