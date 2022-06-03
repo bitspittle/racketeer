@@ -2,12 +2,13 @@ title: Do Crimes
 icons:
   cash: "💰"
   expendable: "💀"
+  flavor: "📜"
   influence: "🤝"
   luck: "🎲"
   suspicious: "🤔"
+  swift: ""
   veteran: "🚨"
   vp: "🌟"
-  flavor: "📜"
 
 features:
   - id: buildings

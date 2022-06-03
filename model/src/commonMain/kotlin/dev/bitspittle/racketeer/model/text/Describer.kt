@@ -59,11 +59,11 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
     }
 
-    private fun describeTraitIcon(trait: TraitType): String? {
+    private fun describeTraitIcon(trait: TraitType): String {
         return when (trait) {
             TraitType.EXPENDABLE -> data.icons.expendable
             TraitType.SUSPICIOUS -> data.icons.suspicious
-            else -> null
+            TraitType.SWIFT -> data.icons.swift
         }
     }
 
@@ -97,7 +97,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         return TraitType.values()
             .asSequence()
             .filter { trait -> traits.contains(trait) }
-            .mapNotNull { trait -> describeTraitIcon(trait) }
+            .map { trait -> describeTraitIcon(trait) }
             .joinToString("")
             .takeIf { it.isNotEmpty() }
     }
