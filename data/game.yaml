@@ -171,7 +171,7 @@ globalActions:
   - set '$fmt-blueprint-with-cost '(icon-convert --expand false (concat-to-string (list (blueprint-get $it 'name) ";(" (blueprint-get $it 'build-cost-cash) "$ " (blueprint-get $it 'build-cost-influence) "&)")))
   - def 'buyable-card-list '(filter $card-list '(! (= 0 (card-get $it 'cost))))
   - def 'cards-instantiate '$cards '(map $cards '(card-instantiate $it))
-  - def 'make-expendable! '$card '(run '(card-remove-trait! $card 'suspicious) '(card-add-trait! $card 'expendable))
+  - def 'card-make-expendable! '$card '(run '(card-remove-trait! $card 'suspicious) '(card-add-trait! $card 'expendable))
   # Define keys used for game-data-set!
 #  - set '$key-nft-price "nftprice"
 
