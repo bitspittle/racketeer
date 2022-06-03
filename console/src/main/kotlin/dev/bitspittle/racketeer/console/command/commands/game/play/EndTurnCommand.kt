@@ -1,13 +1,16 @@
 package dev.bitspittle.racketeer.console.command.commands.game.play
 
-import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.command.Command
+import dev.bitspittle.racketeer.console.command.commands.system.SaveGameCommand
+import dev.bitspittle.racketeer.console.command.commands.system.UserDataDir
+import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.utils.runStateChangingAction
 import dev.bitspittle.racketeer.console.view.views.game.play.ConfirmEndTurnView
 import dev.bitspittle.racketeer.console.view.views.game.play.GameSummaryView
 import dev.bitspittle.racketeer.console.view.views.game.play.PlayCardsView
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.game.isGameOver
+import kotlin.io.path.deleteIfExists
 
 class EndTurnCommand(ctx: GameContext, private val showConfirmationIfNecessary: Boolean = true) : Command(ctx) {
     override val type = Type.Accented
@@ -36,7 +39,18 @@ class EndTurnCommand(ctx: GameContext, private val showConfirmationIfNecessary: 
                     ctx.state.apply(GameStateChange.Draw())
                     ctx.viewStack.replaceView(PlayCardsView(ctx))
                 }
+
+                try {
+                    // Force an auto-save so user's don't lose their progress if they
+                    // crash or their program freezes
+                    SaveGameCommand(ctx, UserDataDir.QUICKSAVE_SLOT).invoke()
+                    ctx.app.logger.warn("\nGame auto-saved.")
+                } catch (ignored: Exception) {
+                    // Shouldn't ever happen but we don't want to risk an autosave failure stopping
+                    // someone from playing through the rest of the game
+                }
             } else {
+                ctx.app.userDataDir.pathForSlot(UserDataDir.QUICKSAVE_SLOT).deleteIfExists()
                 ctx.viewStack.replaceView(GameSummaryView(ctx))
             }
         }
