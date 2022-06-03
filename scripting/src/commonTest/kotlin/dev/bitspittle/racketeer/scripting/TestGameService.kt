@@ -24,11 +24,14 @@ private val FAKE_GAME_DATA_TEXT = """
     title: Do Crimes Test
     icons:
       cash: "${'$'}"
+      expendable: "x"
+      flavor: "Flavor - "
       influence: "&"
       luck: "%"
+      swift: ""
+      suspicious: ""
       veteran: "!"
       vp: "*"
-      flavor: "~ "
     features: []
     unlocks: []
     numTurns: 3
