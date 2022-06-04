@@ -9,8 +9,9 @@ data class TraitNames(
     val swift: String,
 )
 
+// Note: Order is intentional. If a card has multiple traits, we want to describe them in this order.
 enum class TraitType {
-    EXPENDABLE,
-    SUSPICIOUS,
     SWIFT,
+    SUSPICIOUS,
+    EXPENDABLE,
 }

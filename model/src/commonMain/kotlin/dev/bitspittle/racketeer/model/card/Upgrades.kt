@@ -10,6 +10,7 @@ data class UpgradeNames(
     val veteran: String,
 )
 
+// Note: Order is intentional. If a card has multiple traits, we want to describe them in this order.
 enum class UpgradeType {
     CASH,
     INFLUENCE,
