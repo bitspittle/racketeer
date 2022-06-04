@@ -43,9 +43,6 @@ initialCash: 0
 initialInfluence: 0
 initialLuck: 0
 initialBlueprintCount: 3
-initialDeck:
-  - Pickpocket 5
-  - Newsie 3
 cardTypes:
   # Ordered by how they should show up on a card, NOT alphabetically necessarily
   - Action
@@ -176,6 +173,11 @@ globalActions:
   - def 'card-make-expendable! '$card '(run '(card-remove-trait! $card 'suspicious) '(card-add-trait! $card 'expendable))
   # Define keys used for game-data-set!
 #  - set '$key-nft-price "nftprice"
+
+initActions:
+  - set '$pickpocket (card-named "Pickpocket")
+  - set '$newsie (card-named "Newsie")
+  - pile-copy-to! --pos 'random $deck (union repeat $pickpocket 5 repeat $newsie 3)
 
 cards:
   # TIER 1

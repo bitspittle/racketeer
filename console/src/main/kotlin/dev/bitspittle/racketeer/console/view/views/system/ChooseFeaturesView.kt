@@ -14,10 +14,9 @@ import dev.bitspittle.racketeer.model.game.Feature
 import dev.bitspittle.racketeer.model.game.GameStateChange
 
 private suspend fun GameContext.startNewGame(features: Set<Feature.Type> = emptySet()) {
-    this.state = createNewGame(features)
+    createNewGame(features)
     viewStack.popAll()
     viewStack.replaceView(PlayCardsView(this))
-    this.state.apply(GameStateChange.GameStarted())
     this.state.apply(GameStateChange.Draw())
 }
 

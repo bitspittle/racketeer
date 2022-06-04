@@ -226,7 +226,6 @@ private class GameStateDiffReporter(
 
             changes.forEach { change ->
                 when (change) {
-                    is GameStateChange.GameStarted -> Unit // Marker game state, no need to report
                     is GameStateChange.ShuffleDiscardIntoDeck -> report(change)
                     is GameStateChange.Draw -> report(change)
                     is GameStateChange.Play -> Unit // No need to report, obvious from user actions

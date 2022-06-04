@@ -12,11 +12,6 @@ sealed class GameStateChange {
     suspend fun applyTo(state: MutableGameState) = state.apply()
     protected abstract suspend fun MutableGameState.apply()
 
-    class GameStarted : GameStateChange() {
-        // Do nothing, this is just a marker game state
-        override suspend fun MutableGameState.apply() = Unit
-    }
-
     class ShuffleDiscardIntoDeck : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             move(discard.cards.shuffled(random()), deck)

@@ -65,7 +65,6 @@ sealed class GameChangeSnapshot {
     companion object {
         fun from(data: GameData, describer: Describer, state: GameState, change: GameStateChange): GameChangeSnapshot =
             when (change) {
-                is GameStateChange.GameStarted -> GameStarted.from(change)
                 is GameStateChange.ShuffleDiscardIntoDeck -> ShuffleDiscardIntoDeck.from(change)
                 is GameStateChange.Draw -> Draw.from(change)
                 is GameStateChange.Play -> Play.from(change)
@@ -91,16 +90,6 @@ sealed class GameChangeSnapshot {
     }
 
     abstract fun create(data: GameData, state: GameState): GameStateChange
-
-    @Serializable
-    @SerialName("GameStarted")
-    class GameStarted : GameChangeSnapshot() {
-        companion object {
-            fun from(change: GameStateChange.GameStarted) = GameStarted()
-        }
-
-        override fun create(data: GameData, state: GameState) = GameStateChange.GameStarted()
-    }
 
     @Serializable
     @SerialName("ShuffleDiscardIntoDeck")

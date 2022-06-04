@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.scripting
 
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.types.DelegatingLogger
+import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.racketeer.model.action.ActionQueue
 import dev.bitspittle.racketeer.model.action.Enqueuers
 import dev.bitspittle.racketeer.model.action.ExprCache
@@ -40,9 +41,6 @@ private val FAKE_GAME_DATA_TEXT = """
     initialInfluence: 0
     initialLuck: 5
     initialBlueprintCount: 3
-    initialDeck:
-      - Pickpocket 5
-      - Rumormonger 3
     cardTypes:
       # Ordered by how they should show up on a card, NOT alphabetically necessarily
       - Action
@@ -116,7 +114,7 @@ private val FAKE_GAME_DATA_TEXT = """
           ability: ""
         playActions: []
 
-      - name: Rumormonger
+      - name: Newsie
         tier: 0
         types: [spy]
         description:
@@ -243,7 +241,7 @@ private val FAKE_GAME_DATA_TEXT = """
 fun createFakeGameData() = GameData.decodeFromString(FAKE_GAME_DATA_TEXT)
 
 class StubExprEnqueuer : ExprEnqueuer {
-    override fun enqueue(gameState: GameState, code: String) { NotImplementedError() }
+    override fun enqueue(gameState: GameState, codeLines: List<String>) { NotImplementedError() }
 }
 class StubCardEnqueuer : CardEnqueuer {
     override fun enqueueInitActions(gameState: GameState, card: Card) { NotImplementedError() }
@@ -323,7 +321,18 @@ class TestGameService private constructor(
             enqueuers,
             chooseHandler,
         ).apply {
-            gameState.apply(GameStateChange.GameStarted())
+
+            // In production, this is done via game initActions, but as we don't have a real enqueuer for tests
+            // (and instead we just create a stub), we just manually set things up. A few tests care about an initial
+            // deck.
+            val pickpocket = gameData.cards.single { it.name == "Pickpocket" }
+            val newsie = gameData.cards.single { it.name == "Newsie" }
+
+            gameState.move(
+                List(5) { pickpocket.instantiate() } + List(3) { newsie.instantiate() },
+                gameState.deck,
+                ListStrategy.RANDOM
+            )
         }
     }
 

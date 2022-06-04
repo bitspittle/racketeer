@@ -130,16 +130,7 @@ class MutableGameState internal constructor(
         vp = 0,
         handSize = data.initialHandSize,
         shop = MutableShop(random, data.cards, features, data.shopSizes, data.tierFrequencies, data.rarities),
-        deck = MutablePile(data.initialDeck
-            .flatMap { entry ->
-                val cardName = entry.substringBeforeLast(' ')
-                val initialCount = entry.substringAfterLast(' ', missingDelimiterValue = "").toIntOrNull() ?: 1
-
-                val card = data.cards.single { it.name == cardName }
-                List(initialCount) { card.instantiate() }
-            }.shuffled(random())
-            .toMutableList(),
-        ),
+        deck = MutablePile(),
         hand = MutablePile(),
         street = MutablePile(),
         discard = MutablePile(),
@@ -353,12 +344,6 @@ class MutableGameState internal constructor(
      */
     suspend fun apply(change: GameStateChange, insertBefore: GameStateChange?) {
         if (history.lastOrNull() is GameStateChange.GameOver) return
-
-        // We postpone applying the init delta because when we first construct this game state, we're not in a
-        // suspend fun context
-        if (history.isEmpty()) {
-            require(change is GameStateChange.GameStarted)
-        }
 
         if (insertBefore == null) {
             history.add(change)

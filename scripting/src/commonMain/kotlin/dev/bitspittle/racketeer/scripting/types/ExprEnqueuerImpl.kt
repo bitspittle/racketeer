@@ -13,14 +13,13 @@ class ExprEnqueuerImpl(
     private val exprCache: ExprCache,
     private val actionQueue: ActionQueue,
 ) : ExprEnqueuer {
-    override fun enqueue(gameState: GameState, code: String) {
+    override fun enqueue(gameState: GameState, codeLines: List<String>) {
         val evaluator = Evaluator()
         actionQueue.enqueue {
             env.scoped {
                 env.setValuesFrom(gameState)
-                evaluator.evaluate(env, exprCache.parse(code))
+                codeLines.forEach { code -> evaluator.evaluate(env, exprCache.parse(code)) }
             }
-
         }
     }
 }

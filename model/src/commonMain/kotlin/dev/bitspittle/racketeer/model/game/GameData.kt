@@ -37,7 +37,6 @@ data class GameData(
     val initialInfluence: Int,
     val initialLuck: Int,
     val initialBlueprintCount: Int,
-    val initialDeck: List<String>,
     val cardTypes: List<String>,
     val traitNames: TraitNames,
     val upgradeNames: UpgradeNames,
@@ -48,7 +47,8 @@ data class GameData(
     val rankings: List<Ranking>,
     val cards: List<CardTemplate>,
     val blueprints: List<Blueprint>,
-    val globalActions: List<String> = listOf()
+    val globalActions: List<String> = listOf(),
+    val initActions: List<String> = listOf(),
 ) {
     companion object {
         fun decodeFromString(text: String): GameData {

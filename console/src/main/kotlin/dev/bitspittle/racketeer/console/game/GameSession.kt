@@ -158,6 +158,7 @@ class GameSession(
         gameData.blueprints.flatMap { it.allPassiveActions }.forEach { exprCache.parse(it) }
         gameData.blueprints.flatMap { it.activateActions }.forEach { exprCache.parse(it) }
         gameData.blueprints.map { it.canActivate }.filter { it.isNotBlank() }.forEach { exprCache.parse(it) }
+        gameData.initActions.forEach { exprCache.parse(it) }
 
         val ctx = run {
             val actionQueue = ActionQueue()

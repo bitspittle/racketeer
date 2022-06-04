@@ -8,7 +8,12 @@ import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import dev.bitspittle.racketeer.scripting.types.CancelPlayException
 
-fun GameContext.createNewGame(features: Set<Feature.Type> = setOf(Feature.Type.BUILDINGS)) = MutableGameState(data, features, enqueuers)
+suspend fun GameContext.createNewGame(features: Set<Feature.Type> = setOf(Feature.Type.BUILDINGS)) {
+    state = MutableGameState(data, features, enqueuers)
+
+    enqueuers.expr.enqueue(state, data.initActions)
+    enqueuers.actionQueue.runEnqueuedActions()
+}
 
 /**
  * Run some actions that are expected to change the game state somehow and, if so, report it.
@@ -30,10 +35,6 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
             // Update user stats based on new history
             state.history.drop(prevState.history.size).forEach { change ->
                 when (change) {
-                    is GameStateChange.GameStarted -> {
-                        // Add ownership stats for the default cards you get (e.g. Pickpockets etc.)
-                        state.getOwnedCards().forEach { card -> userStats.cards.notifyOwnership(card) }
-                    }
                     is GameStateChange.MoveCard -> {
                         if (prevState.pileFor(change.card) == null) {
                             userStats.cards.notifyOwnership(change.card)
