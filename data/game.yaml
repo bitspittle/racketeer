@@ -1,12 +1,12 @@
 title: Do Crimes
 icons:
   cash: "💰"
-  expendable: "💀"
+  expendable: "🔥"
   flavor: "📜"
   influence: "🤝"
   luck: "🎲"
-  suspicious: "🤔"
-  swift: ""
+  suspicious: "🚩"
+  swift: "🏃"
   veteran: "🚨"
   vp: "🌟"
 
@@ -29,13 +29,13 @@ unlocks:
     name: $feature
     description: You can choose the "$feature" game mode the next time you select "New Game".
     codename: realestate
-    vp: 120
+    vp: 40
 
   - id: discord
     name: Discord Access
     description: Join the community! Share stories of your triumphs, trials, and tribulations.
     codename: speakeasy
-    vp: 300
+    vp: 100
 
 numTurns: 20
 initialHandSize: 5
@@ -253,12 +253,12 @@ cards:
     rarity: 1
     types: [action]
     cost: 2
+    traits: [suspicious]
     description:
-      ability: Gain 4$. Jail this card.
+      ability: Gain 4$.
       flavor: "Better spend these bills somewhere dark; they say 'In God We Crust'."
     playActions:
       - game-add! 'cash 4
-      - pile-move-to! $jail $this
 
   - name: Embezzler
     tier: 0
@@ -302,12 +302,11 @@ cards:
     rarity: 1
     types: [action]
     cost: 2
-    traits: [swift]
+    traits: [swift, suspicious]
     description:
-      ability: "Jail this and two non-Cop cards you own."
+      ability: "Jail two non-Cop cards you own."
       flavor: "'Split up! They can't catch us both!'"
     playActions:
-      - pile-move-to! $jail $this
       - set '$ownednoncops filter $owned-cards '(! (card-has-type? $it 'cop))
       - pile-move-to! $jail choose-across-piles "Jail cards." $ownednoncops (min 2 size $ownednoncops)
 
@@ -537,12 +536,12 @@ cards:
     rarity: 2
     types: [action]
     cost: 3
+    traits: [suspicious]
     description:
-      ability: Draw three cards. Jail this card.
+      ability: Draw three cards.
       flavor: Smuggling was invented in 1683 by Sir Percival Smug, who would pack dozens of illicit canaries into mahogany bureaus.
     playActions:
       - game-draw! 3
-      - pile-move-to! $jail $this
 
   - name: Beat Cop
     tier: 1
@@ -573,13 +572,13 @@ cards:
     rarity: 1
     types: [action]
     cost: 4
+    traits: [suspicious]
     description:
-      ability: Gain 3&. Add a card from the shop to the street. Jail this card.
+      ability: Gain 3&. Add a card from the shop to the street.
     playActions:
       - game-add! 'influence 3
       - stop-if! empty? $shop
       - pile-move-to! $street (choose --format $fmt-card-with-cost --prompt "Add a card to the street." $shop 1)
-      - pile-move-to! $jail $this
 
   - name: Gentleman Gerald
     tier: 1
@@ -633,14 +632,14 @@ cards:
     rarity: 2
     types: [action]
     cost: 5
+    traits: [suspicious]
     description:
-      ability: Gain 3$. Add a random Legend to the street. Jail this card.
+      ability: Gain 3$. Add a random Legend to the street.
     playActions:
       - game-add! 'cash 3
       - set '$all-legend-cards (filter buyable-card-list '(card-has-type? $it 'legend))
       # Use card-instantiate so we can get an up-to-date VP calculation in the choose screen
       - set '$random-legend card-instantiate (single take --from 'random $all-legend-cards 1)
-      - pile-move-to! $jail $this
       # Force a choose screen so that the player can see what card they got. Run it later to give VP calculations time
       # to happen first
       - |
@@ -676,7 +675,7 @@ cards:
     rarity: 1
     types: [treasure]
     cost: 3
-    vp: 1
+    vp: 2
     description:
       ability: When you play this card, it gains +2*.
     playActions:
@@ -684,16 +683,19 @@ cards:
 
   - name: Crime Wave
     tier: 2
-    rarity: 2
+    rarity: 1
     types: [action]
     cost: 3
     traits: [swift]
     description:
-      ability: Discard your hand. Create that many plus one Burglars (worth +2$) in your hand.
+      ability: Discard your hand. Create that many plus one Burglars (worth +2$) in your hand. You may give them Suspicious.
     playActions:
+      - set '$burglars-sus ask? "Would you like to make your Burglars Suspicious? (Suspicious cards go to jail when played.)"
+      - set '$my-burglar single cards-instantiate (list card-named "Burglar")
+      - if-true $burglars-sus '(card-add-trait! $my-burglar 'suspicious)
       - set '$num-burglars + 1 (size $hand)
       - pile-move-to! $discard $hand
-      - set '$burglarlist map (.. 1 $num-burglars) '(card-named "Burglar")
+      - set '$burglarlist map (.. 1 $num-burglars) '$my-burglar
       - pile-copy-to! $hand $burglarlist
 
 # too busted
@@ -755,10 +757,10 @@ cards:
     rarity: 2
     types: [trickster, legend]
     cost: 4
+    traits: [swift]
     description:
-      ability: Draw a card. Give another Trickster you own +%.
+      ability: Give another Trickster you own +%.
     playActions:
-      - game-draw! 1
       - set '$all-tricksters filter $owned-cards '(card-has-type? $it 'trickster)
       - set '$some-tricksters filter $all-tricksters '(! (card-has-upgrade? $it 'luck))
       - set '$tricksters filter $some-tricksters '(!= $it $this)
@@ -797,12 +799,12 @@ cards:
     rarity: 1
     types: [thief, legend]
     cost: 5
+    traits: [expendable]
     description:
-      ability: Burn this and all Cops you own. Draw a card for each.
+      ability: Burn all Cops you own. Draw a card for each plus one for this.
     playActions:
       - set '$owned-cops (filter $owned-cards '(card-has-type? $it 'cop))
       - card-remove! $owned-cops
-      - card-remove! $this
       - game-draw! + 1 (size $owned-cops)
 
   - name: High Roller
@@ -868,9 +870,9 @@ cards:
     rarity: 2
     types: [action]
     cost: 6
-    traits: [swift]
+    traits: [swift, expendable]
     description:
-      ability: "Get two copies of a card you own that costs 3$ or less. Burn this card."
+      ability: "Get two copies of a card you own that costs 3$ or less."
     playActions:
       - card-remove! $this
       - set '$low-cost-owned (filter $owned-cards '(lte? (card-get $it 'cost) 3))
@@ -882,18 +884,19 @@ cards:
       # expect to happen (the first gold chain doesn't see the second).
       - run-later '(pile-copy-to! $street $card-to-copy)
 
-  - name: Mime
+  - name: Impersonate
     tier: 2
     rarity: 2
-    types: [trickster]
+    types: [action]
     cost: 6
+    traits: [expendable]
     description:
-      ability: When you play this, it becomes an exact copy of a card in your hand.
+      ability: Add an exact copy of a card in your hand to your hand.
     playActions:
       - stop-if! empty? $hand
       - set '$copied-card single (choose --prompt "Copy a card." $hand 1)
       - set '$my-name card-get $this 'name
-      - if-true (= $my-name card-get $copied-card 'name) '(run '(info "Sorry, it is strictly forbidden by the sacred Mime Code to use one's powers on a fellow Mime.") '(cancel!))
+      - if-true (= $my-name card-get $copied-card 'name) '(run '(info "How can you impersonate the act of impersonation? That just sounds confusing.") '(cancel!))
       - card-remove! $this
       - pile-copy-to! $hand $copied-card
 
@@ -940,15 +943,14 @@ cards:
     types: [action]
     cost: 3
     description:
-      ability: Play a card from jail or discard, then burn it.
+      ability: Return a card from discard or jail to your hand. It gains Expendable.
     playActions:
      - set '$discard-or-jail (union $discard $jail)
      - cancel-if! (empty? $discard-or-jail)
-     - set '$card-to-play single (choose-across-piles "Play and burn a card." $discard-or-jail 1)
+     - set '$card-to-play single (choose-across-piles "Get back a card and give it Expendable." $discard-or-jail 1)
      # Move the card to the hand first which will trigger init actions as a side effect if the card is coming from jail
      - pile-move-to! $hand $card-to-play
-     - card-trigger! $card-to-play
-     - run-later '(card-remove! $card-to-play)
+     - card-add-trait! $card-to-play 'expendable
 
   - name: Police Trainer
     tier: 3
@@ -1059,12 +1061,12 @@ cards:
     types: [thief]
     cost: 6
     description:
-      ability: "Gain 3$. Draw all Treasures from the top five cards of the deck."
+      ability: "Gain 3$. Draw all Treasures from the top seven cards of the deck."
     playActions:
       - game-add! 'cash 3
       - run
-         '(info "You search the top five cards of the deck for treasures...")
-         '(pile-move-to! $hand filter (take --from 'front $deck 5) '(card-has-type? $it 'treasure))
+         '(info "You search the top seven cards of the deck for treasures...")
+         '(pile-move-to! $hand filter (take --from 'front $deck 7) '(card-has-type? $it 'treasure))
 
   - name: Bank Robber
     tier: 3
@@ -1159,7 +1161,7 @@ cards:
     tier: 4
     rarity: 2
     types: [trickster, legend]
-    cost: 6
+    cost: 7
     description:
       ability: Gain %. This is worth * for each upgraded card you own.
     passiveVp: count $owned-cards '(card-has-any-upgrade? $it)
@@ -1171,8 +1173,9 @@ cards:
     rarity: 2
     types: [action]
     cost: 6
+    traits: [expendable]
     description:
-      ability: Put up to two cards from Jail into your hand. Burn this card.
+      ability: Put up to two cards from Jail into your hand.
     playActions:
       - pile-move-to! $hand (choose --prompt "Get cards out of jail." $jail .. 0 2)
       - card-remove! $this
@@ -1197,10 +1200,10 @@ cards:
     rarity: 2
     types: [action]
     cost: 7
-    traits: [swift]
+    traits: [swift, expendable]
     shopCount: 1
     description:
-      ability: Get one of two random blueprints. Burn this card.
+      ability: Get one of two random blueprints.
     playActions:
       - blueprint-own! single choose --prompt "Get a blueprint." --format $fmt-blueprint-with-cost --required _ (take --from 'random $unowned-blueprints 2) 1
       - card-remove! $this
@@ -1297,17 +1300,6 @@ blueprints:
 #      - info "The hottest fashion trend of the season is:"
 #      - info (game-data-get $fashion-type)
 
-  - name: Speakeasy
-    rarity: 1
-    description:
-      ability: At end of turn, gain * for each card in your hand.
-    buildCost:
-      cash: 3
-      influence: 3
-    canActivate: false # Passive building
-    initActions:
-      - fx-add! --desc (icon-convert "At end of turn, gain * for each card in your hand.") --lifetime 'game --event 'turn-end --data (building-get $this 'id) '(building-add! building-with-id $data 'vp (size $hand))
-
   - name: Docks
     rarity: 1
     description:
@@ -1323,13 +1315,14 @@ blueprints:
   - name: Trinity Cathedral
     rarity: 1
     description:
-      ability: When you build this, the next card you play takes effect an additional three times.
+      ability: "Activate: The next card you play takes effect an additional three times. (Once per game.)"
     buildCost:
       cash: 3
       influence: 3
-    canActivate: false
-    initActions:
+    canActivate: = (building-get $this 'counter) 0
+    activateActions:
       - fx-add! --lifetime 'once --desc "Your next card takes effect an additional three times." '(run '(card-trigger! $card) '(card-trigger! $card) '(card-trigger! $card))
+      - building-set! $this 'counter 1
 
 
   - name: Limousine Service
@@ -1411,13 +1404,15 @@ blueprints:
   - name: Ad Agency
     rarity: 2
     description:
-      ability: When you build this, triple your &.
+      ability: "Activate: Triple your &. (Once per game.)"
     buildCost:
-      cash: 1
-      influence: 1
-    canActivate: false
-    initActions:
+      cash: 3
+      influence: 3
+    canActivate: = (building-get $this 'counter) 0
+    activateActions:
       - game-add! 'influence (* 2 game-get 'influence)
+      - building-set! $this 'counter 1
+
 
   - name: Factory
     rarity: 1
@@ -1510,7 +1505,7 @@ blueprints:
     activateActions:
      - set '$card-to-play single (choose --prompt "Play and burn a card." $jail 1)
      - pile-move-to! $hand $card-to-play
-     - card-trigger! $card-to-play
+     - card-play! $card-to-play
      - run-later '(card-remove! $card-to-play)
 
 
