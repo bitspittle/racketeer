@@ -3,6 +3,7 @@ package dev.bitspittle.racketeer.console.command
 import com.varabyte.kotter.foundation.input.Key
 import com.varabyte.kotter.foundation.text.*
 import com.varabyte.kotter.runtime.render.RenderScope
+import dev.bitspittle.limp.utils.ifFalse
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.model.building.Blueprint
 import dev.bitspittle.racketeer.model.building.Building
@@ -101,6 +102,27 @@ abstract class Command(protected val ctx: GameContext) {
             is Feature -> item.description
             is FormattedItem -> describeForDescription(item.wrapped)
             else -> null
+        }
+    }
+
+    protected fun renderContentLowerInto(scope: RenderScope, item: Any) {
+        if (item is FormattedItem) {
+            renderContentLowerInto(scope, item.wrapped)
+            return
+        }
+
+        val message = when (item) {
+            is Blueprint -> ctx.userStats.buildings.contains(item.name).ifFalse { "You have never built this building before." }
+            is Card -> ctx.userStats.cards.contains(item.template.name).ifFalse { "You have never purchased this item before." }
+            is CardTemplate -> ctx.userStats.cards.contains(item.name).ifFalse { "You have never purchased this item before." }
+            else -> null
+        }
+
+        if (message != null) {
+            scope.apply {
+                yellow { textLine(message) }
+                textLine()
+            }
         }
     }
 }

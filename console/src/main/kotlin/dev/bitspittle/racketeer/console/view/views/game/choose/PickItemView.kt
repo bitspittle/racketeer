@@ -3,6 +3,7 @@ package dev.bitspittle.racketeer.console.view.views.game.choose
 import com.varabyte.kotter.foundation.text.textLine
 import com.varabyte.kotter.foundation.text.yellow
 import com.varabyte.kotter.runtime.MainRenderScope
+import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.utils.wrap
@@ -39,6 +40,10 @@ class PickItemView(
                 choices.resume(listOf(item))
                 goBack()
                 return false // Refresh will be handled by the parent screen
+            }
+
+            override fun renderContentLowerInto(scope: RenderScope) {
+                renderContentLowerInto(scope, item)
             }
         }
     }

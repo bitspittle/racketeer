@@ -38,4 +38,8 @@ class SelectItemCommand(
             text("Press "); cyan { text("SPACE") }; textLine(" to toggle the selected item.")
         }
     }
+
+    override fun renderContentLowerInto(scope: RenderScope) {
+        renderContentLowerInto(scope, item)
+    }
 }
