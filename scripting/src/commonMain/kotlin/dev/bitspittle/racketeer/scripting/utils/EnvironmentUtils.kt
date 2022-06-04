@@ -39,6 +39,7 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(ChooseMethod(service.logger, service.chooseHandler))
 
     // Game
+    addMethod(GameHasFeatureMethod(service::gameState))
     addMethod(GameGetMethod(service::gameState))
     addMethod(GameSetMethod(service::gameState))
     addMethod(GameDrawMethod(service::gameState))
@@ -112,6 +113,7 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(BlueprintBuildMethod(service::gameState))
     addMethod(BuildingGetMethod())
     addMethod(BuildingSetMethod(service::gameState))
+    addMethod(RandomBlueprintsMethod(service.gameData.blueprints, service.gameData.rarities) { service.gameState.random() })
     addMethod(object : Method("\$unowned-blueprints", 0) {
         override suspend fun invoke(
             env: Environment,

@@ -40,7 +40,7 @@ private val FAKE_GAME_DATA_TEXT = """
     initialCash: 0
     initialInfluence: 0
     initialLuck: 5
-    initialBlueprintCount: 3
+
     cardTypes:
       # Ordered by how they should show up on a card, NOT alphabetically necessarily
       - Action
@@ -321,7 +321,6 @@ class TestGameService private constructor(
             enqueuers,
             chooseHandler,
         ).apply {
-
             // In production, this is done via game initActions, but as we don't have a real enqueuer for tests
             // (and instead we just create a stub), we just manually set things up. A few tests care about an initial
             // deck.

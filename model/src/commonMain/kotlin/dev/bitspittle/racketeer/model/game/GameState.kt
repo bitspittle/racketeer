@@ -136,23 +136,7 @@ class MutableGameState internal constructor(
         discard = MutablePile(),
         jail = MutablePile(),
         graveyard = MutablePile(),
-        blueprints = if (features.contains(Feature.Type.BUILDINGS)) {
-            val outputList = mutableListOf<Blueprint>()
-            val inputList = mutableListOf<Blueprint>()
-            data.blueprints.forEach { blueprint ->
-                repeat(data.rarities[blueprint.rarity].blueprintFrequency) { inputList.add(blueprint) }
-            }
-
-            var numBlueprintsRemaining = data.initialBlueprintCount
-            while (numBlueprintsRemaining > 0) {
-                val bp = inputList.random(random())
-                outputList.add(bp)
-                inputList.removeAll { it === bp }
-                --numBlueprintsRemaining
-            }
-
-            outputList.also { it.sort() }
-        } else mutableListOf(),
+        blueprints = mutableListOf(),
         buildings = mutableListOf(),
         effects = MutableEffects(),
         data = mutableMapOf(),

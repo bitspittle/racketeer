@@ -36,7 +36,6 @@ data class GameData(
     val initialHandSize: Int,
     val initialInfluence: Int,
     val initialLuck: Int,
-    val initialBlueprintCount: Int,
     val cardTypes: List<String>,
     val traitNames: TraitNames,
     val upgradeNames: UpgradeNames,
@@ -177,8 +176,6 @@ data class GameData(
                 }
             }
         }
-
-        require(initialBlueprintCount <= blueprints.size) { "Not enough blueprints to satisfy initialBlueprintCount" }
     }
 
     @Transient

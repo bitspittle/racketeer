@@ -42,7 +42,7 @@ initialHandSize: 5
 initialCash: 0
 initialInfluence: 0
 initialLuck: 0
-initialBlueprintCount: 3
+
 cardTypes:
   # Ordered by how they should show up on a card, NOT alphabetically necessarily
   - Action
@@ -178,6 +178,12 @@ initActions:
   - set '$pickpocket (card-named "Pickpocket")
   - set '$newsie (card-named "Newsie")
   - pile-copy-to! --pos 'random $deck (union repeat $pickpocket 5 repeat $newsie 3)
+  - |
+    if-true (game-has-feature? 'buildings)
+      '(run
+         '(set '$initial-blueprints choose --prompt "Pick starting blueprints." --required _ (random-blueprints 4) 3)
+         '(for-each $initial-blueprints '(blueprint-own! $it))
+      )
 
 cards:
   # TIER 1
