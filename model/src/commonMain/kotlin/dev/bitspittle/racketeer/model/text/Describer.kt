@@ -108,11 +108,11 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             .joinToString("\n") { trait -> describeTraitBody(trait) }
     }
 
-    private fun describeUpgradesTitle(upgrades: Set<UpgradeType>, useIcons: Boolean = false): String? {
+    private fun describeUpgradesIcons(upgrades: Set<UpgradeType>): String? {
         return UpgradeType.values()
             .filter { upgrade -> upgrades.contains(upgrade) }
-            .joinToString(if (useIcons) "" else " ") { upgrade ->
-                describeUpgradeTitle(upgrade, useIcons) }.takeIf { it.isNotEmpty()
+            .joinToString("") { upgrade ->
+                describeUpgradeTitle(upgrade, icons = true) }.takeIf { it.isNotEmpty()
             }
     }
 
@@ -227,14 +227,14 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
 
     fun describeCardBody(template: CardTemplate, showCash: Boolean = false, includeFlavor: Boolean = false): String {
         return buildString {
-            appendCardName(template.name, template.traitTypes, emptySet(), price = template.cost.takeIf { showCash })
+            appendCardName(template.name, emptySet(), emptySet(), price = template.cost.takeIf { showCash })
             appendCardBody(template, includeFlavor = includeFlavor)
         }
     }
 
     private fun StringBuilder.appendCardName(name: String, traits: Set<TraitType>, upgrades: Set<UpgradeType>, useIcons: Boolean = true, totalVp: Int? = null, price: Int? = null) {
         val traitIcons = useIcons.ifTrue { describeTraitsIcons(traits) }
-        val upgradesText = describeUpgradesTitle(upgrades, useIcons)
+        val upgradesText = useIcons.ifTrue { describeUpgradesIcons(upgrades) }
         if (traitIcons != null || upgradesText != null) {
             if (traitIcons != null) append(traitIcons)
             if (upgradesText != null) append(upgradesText)
