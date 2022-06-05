@@ -63,15 +63,15 @@ private val FAKE_GAME_DATA_TEXT = """
     rarities:
       - name: Common
         blueprintFrequency: 3
-        shopFrequency: 5
+        cardFrequency: 5
         shopCount: 10
       - name: Uncommon
         blueprintFrequency: 2
-        shopFrequency: 3
+        cardFrequency: 3
         shopCount: 8
       - name: Rare
         blueprintFrequency: 1
-        shopFrequency: 1
+        cardFrequency: 1
         shopCount: 6
 
     tierFrequencies:

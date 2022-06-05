@@ -35,7 +35,7 @@ class RandomCardsMethod(private val cards: List<CardTemplate>, private val rarit
 
             if (shouldInclude) {
                 totalCount++
-                repeat(rarities[card.rarity].shopFrequency) { inputList.add(card) }
+                repeat(rarities[card.rarity].cardFrequency) { inputList.add(card) }
             }
         }
 
