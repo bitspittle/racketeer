@@ -9,8 +9,8 @@ import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.allCards
 import dev.bitspittle.racketeer.model.game.getOwnedCards
-import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.converters.MutablePileToCardsConverter
+import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 import dev.bitspittle.racketeer.scripting.methods.building.*
 import dev.bitspittle.racketeer.scripting.methods.card.*
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseMethod
@@ -65,6 +65,7 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(CardPlayMethod(service::gameState))
     addMethod(CardPileMethod(service::gameState))
     addMethod(CardInstantiateMethod(service.enqueuers.card, service::gameState))
+    addMethod(RandomCardsMethod(service.gameData.cards, service.gameData.rarities) { service.gameState.random() })
     storeValue("\$card-list", service.gameData.cards)
     addMethod(object : Method("\$owned-cards", 0) {
         override suspend fun invoke(

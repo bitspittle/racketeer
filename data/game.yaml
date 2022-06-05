@@ -181,7 +181,7 @@ initActions:
   - |
     if-true (game-has-feature? 'buildings)
       '(run
-         '(set '$initial-blueprints choose --prompt "Pick starting blueprints." --required _ (random-blueprints 4) 3)
+         '(set '$initial-blueprints choose --prompt "Pick starting blueprints." --required _ (sorted random-blueprints 4) 3)
          '(for-each $initial-blueprints '(blueprint-own! $it))
       )
 
