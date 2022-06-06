@@ -17,10 +17,10 @@ class BrowsePilesView(ctx: GameContext) : View(ctx) {
         if (ctx.state.effects.items.isNotEmpty() || ctx.state.tweaks.items.isNotEmpty()) {
             textLine("Active effects:")
             ctx.state.tweaks.items.forEach { tweak ->
-                textLine("- ${tweak.desc}")
+                textLine("- ${ctx.describer.convertIcons(tweak.desc)}")
             }
             ctx.state.effects.items.forEach { effect ->
-                textLine("- ${effect.desc ?: effect.warningExpr}")
+                textLine("- ${effect.desc?.let { ctx.describer.convertIcons(it) } ?: effect.warningExpr}")
                 if (ctx.settings.inAdminModeAndShowCode) {
                     textLine("  Lifetime: ${effect.lifetime.name.lowercase()}, Event: ${effect.event.name.lowercase()}")
                     if (effect.data != null) {

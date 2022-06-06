@@ -17,8 +17,9 @@ class VisitShopView(ctx: GameContext) : View(ctx) {
         if (ctx.state.shop.tweaks.items.isNotEmpty()) {
             textLine("Active effects:")
             ctx.state.shop.tweaks.items.forEach { tweak ->
-                textLine("- ${tweak.desc}")
+                textLine("- ${ctx.describer.convertIcons(tweak.desc)}")
             }
+            textLine()
         }
     }
 
