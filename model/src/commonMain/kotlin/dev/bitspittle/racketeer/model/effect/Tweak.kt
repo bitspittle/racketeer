@@ -91,10 +91,10 @@ sealed class Tweak {
                     append("Prices in the shop are randomized.")
                 } else {
                     if (amount.first < 0) {
-                        append("Prices in the shop are reduced by $.")
+                        append("Prices in the shop are reduced by ${-amount.first}$.")
                     }
                     else if (amount.first > 0) {
-                        append("Prices in the shop are increased by $.")
+                        append("Prices in the shop are increased by ${amount.first}$.")
                     }
                 }
             }
@@ -108,10 +108,10 @@ sealed class Tweak {
         ) : Shop() {
             override val desc = buildString {
                 if (amount < 0) {
-                    append("The size of the shop is increased by $amount.")
+                    append("The size of the shop is decreased by ${-amount}.")
                 }
                 else if (amount > 0) {
-                    append("The size of the shop is decreased by $amount.")
+                    append("The size of the shop is increased by $amount.")
                 }
             }
         }

@@ -24,6 +24,11 @@ interface Shop {
      * [Rarity.shopCount] instead.
      */
     val bought: Map<String, Int>
+
+    /**
+     * Check the price of a card, which MUST be in the shop or else this throws an [IllegalArgumentException].
+     */
+    fun priceFor(card: Card): Int
 }
 
 fun Shop.remaining(card: CardTemplate, rarities: List<Rarity>): Int {
@@ -111,6 +116,16 @@ class MutableShop internal constructor(
             restockAll,
             filterAllCards { card -> remaining(card, rarities) > 0 && additionalFilter(card) }
         )
+    }
+
+    override fun priceFor(card: Card): Int {
+        val cardIndex = stock
+            .indexOfFirst { it != null && it.id == card.id }
+            .takeIf { it >= 0 }
+            ?: throw IllegalArgumentException("Tried to get the price of card \"${card.template.name}\" (${card.id}) which is not in the shop.")
+
+        // TODO: Replace with actual price
+        return card.template.cost
     }
 
     fun notifyBought(cardId: Uuid) {

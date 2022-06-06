@@ -167,6 +167,8 @@ globalActions:
   - def 'choose-across-piles! '$prompt '$cards '$count '(_choose-across-piles true $prompt $cards $count)
   - set '$fmt-card-with-pile '(concat-to-string (list ";(" (pile-get (card-pile $it) 'name) ")"))
   - set '$fmt-card-with-cost '(concat-to-string (list ";(" (card-get $it 'cost) (icon-convert "$") ")"))
+  # You should only use $fmt-card-with-price for cards that are in the shop!!
+  - set '$fmt-card-with-price '(concat-to-string (list ";(" (shop-price-for $it) (icon-convert "$") ")"))
   - set '$fmt-blueprint-with-cost '(icon-convert --expand false (concat-to-string (list (blueprint-get $it 'name) ";(" (blueprint-get $it 'build-cost-cash) "$ " (blueprint-get $it 'build-cost-influence) "&)")))
   - def 'buyable-card-list '(filter $card-list '(! (= 0 (card-get $it 'cost))))
   - def 'cards-instantiate '$cards '(map $cards '(card-instantiate $it))
@@ -578,7 +580,7 @@ cards:
     playActions:
       - game-add! 'influence 3
       - stop-if! empty? $shop
-      - pile-move-to! $street (choose --format $fmt-card-with-cost --prompt "Add a card to the street." $shop 1)
+      - pile-move-to! $street (choose --format $fmt-card-with-price --prompt "Add a card to the street." $shop 1)
 
   - name: Gentleman Gerald
     tier: 1
@@ -1013,7 +1015,7 @@ cards:
       ability: Add a card from the shop to the street and a useless Constable to your hand.
     playActions:
       - stop-if! empty? $shop
-      - pile-move-to! $street (choose --format $fmt-card-with-cost --prompt "Add a card to the street." $shop 1)
+      - pile-move-to! $street (choose --format $fmt-card-with-price --prompt "Add a card to the street." $shop 1)
       - pile-copy-to! $hand (card-named "Constable")
 
 
