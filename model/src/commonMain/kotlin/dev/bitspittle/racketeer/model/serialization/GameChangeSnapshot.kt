@@ -26,7 +26,9 @@ class BlueprintPtr(val name: String) {
         fun from(blueprint: Blueprint) = BlueprintPtr(blueprint.name)
     }
 
-    fun findIn(state: GameState) = state.blueprints.first { it.name == name }
+    fun findIn(state: GameState) =
+        state.blueprints.firstOrNull { it.name == name }
+            ?: state.buildings.asSequence().map { it.blueprint }.first { it.name == name }
 }
 
 // We don't technically need to save the name, but it's useful for humans browsing the file.
@@ -363,7 +365,9 @@ sealed class GameChangeSnapshot {
             fun from(change: GameStateChange.Build) = Build(BlueprintPtr.from(change.blueprint))
         }
 
-        override fun create(data: GameData, state: GameState) = GameStateChange.Build(blueprintPtr.findIn(state))
+        override fun create(data: GameData, state: GameState): GameStateChange.Build {
+            return GameStateChange.Build(blueprintPtr.findIn(state))
+        }
     }
 
     @Serializable

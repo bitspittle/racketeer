@@ -14,9 +14,8 @@ class CreateBuildingCommand(ctx: GameContext, private val blueprint: Blueprint) 
     override val description = ctx.describer.describeBlueprintBody(blueprint)
 
     override suspend fun invoke(): Boolean {
-        // Run this command in two separate state changing actions; otherwise, it gets reported weird since the
-        // blueprintIndex (below) is referring to a building that the gamestatediff code can't see since it was created
-        // and then removed before the report got a chance to look at it
+        // Run this command in two separate state changing actions; you need to own the blueprint before you can
+        // build it.
         if (!ctx.state.blueprints.contains(blueprint)) {
             ctx.runStateChangingAction {
                 ctx.state.apply(GameStateChange.AddBlueprint(blueprint))
