@@ -245,7 +245,10 @@ sealed class GameStateChange {
             effects.processTurnEnded()
             move(street.cards, discard)
             move(hand.cards, discard)
-            shop.restock()
+
+            if (shop.tweaks.consumeIsNotSet<Tweak.Shop.Frozen>()) {
+                shop.restock()
+            }
 
             buildings.forEach { it.isActivated = false }
 
