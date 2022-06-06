@@ -1273,17 +1273,17 @@ cards:
 
 blueprints:
 
-  - name: Clown College
+  - name: Drama School
     rarity: 2
     description:
-      ability: "Activate: Choose and discard three cards to add a Mime to your hand."
+      ability: "Activate: Choose and discard three cards to add an Impersonate to your hand."
     buildCost:
       cash: 4
       influence: 4
     canActivate: gte? (size $hand) 3
     activateActions: 
       - pile-move-to! $discard (choose --prompt "Discard cards." $hand 3)
-      - pile-copy-to! $hand (card-named "Mime")
+      - pile-copy-to! $hand (card-named "Impersonate")
 
 
 
@@ -1694,7 +1694,7 @@ blueprints:
       - game-add! 'influence 4
 
 
-  - name: Stock Exchange
+  - name: Credit Union
     rarity: 0
     description:
       ability: "Activate: Gain 4$."
@@ -1813,7 +1813,7 @@ blueprints:
     canActivate: false
     passiveVp: game-get 'influence
 
-  - name: Gleaming Skyscraper
+  - name: Skyscraper
     rarity: 2
     description:
       ability: This is worth 100 *.
