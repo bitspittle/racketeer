@@ -5,6 +5,8 @@ import dev.bitspittle.racketeer.model.building.*
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.common.Tweak
 import dev.bitspittle.racketeer.model.common.consumeCollectInstances
+import dev.bitspittle.racketeer.model.common.consumeIsNotSet
+import dev.bitspittle.racketeer.model.common.isNotSet
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.serialization.DataValue
@@ -236,7 +238,7 @@ sealed class GameStateChange {
 
             turn++
 
-            if (tweaks.consumeCollectInstances<Tweak.Game.KeepUnspent>().isEmpty()) {
+            if (tweaks.consumeIsNotSet<Tweak.Game.KeepUnspent>()) {
                 cash = 0
             }
 

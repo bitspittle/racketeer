@@ -24,6 +24,14 @@ inline fun <reified T: Tweak> Tweaks<in T>.collectInstances(): List<T> {
     return this.collect { it is T } as List<T>
 }
 
+inline fun <reified T: Tweak> Tweaks<in T>.isSet(): Boolean {
+    return collectInstances().isNotEmpty()
+}
+
+inline fun <reified T: Tweak> Tweaks<in T>.isNotSet(): Boolean {
+    return !isSet()
+}
+
 class MutableTweaks<T: Tweak>(override val items: MutableList<T> = mutableListOf()) : Tweaks<T> {
     fun copy(): MutableTweaks<T> {
         return MutableTweaks(items.toMutableList())
@@ -55,6 +63,15 @@ inline fun <reified T: Tweak> MutableTweaks<in T>.consumeCollectInstances(): Lis
     @Suppress("UNCHECKED_CAST")
     return this.consumeCollect { it is T } as List<T>
 }
+
+inline fun <reified T: Tweak> MutableTweaks<in T>.consumeIsSet(): Boolean {
+    return consumeCollectInstances().isNotEmpty()
+}
+
+inline fun <reified T: Tweak> MutableTweaks<in T>.consumeIsNotSet(): Boolean {
+    return !consumeIsSet()
+}
+
 
 @Serializable
 sealed class Tweak {
