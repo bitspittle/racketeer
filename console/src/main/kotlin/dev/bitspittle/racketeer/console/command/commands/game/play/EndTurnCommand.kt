@@ -8,9 +8,10 @@ import dev.bitspittle.racketeer.console.utils.runStateChangingAction
 import dev.bitspittle.racketeer.console.view.views.game.play.ConfirmEndTurnView
 import dev.bitspittle.racketeer.console.view.views.game.play.GameSummaryView
 import dev.bitspittle.racketeer.console.view.views.game.play.PlayCardsView
+import dev.bitspittle.racketeer.model.common.Tweak
+import dev.bitspittle.racketeer.model.common.collectInstances
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.game.isGameOver
-import dev.bitspittle.racketeer.model.game.shouldKeepUnspent
 import kotlin.io.path.deleteIfExists
 
 class EndTurnCommand(ctx: GameContext, private val showConfirmationIfNecessary: Boolean = true) : Command(ctx) {
@@ -27,7 +28,7 @@ class EndTurnCommand(ctx: GameContext, private val showConfirmationIfNecessary: 
     }
 
     override suspend fun invoke(): Boolean {
-        if (showConfirmationIfNecessary && canStillBuyStuff() && !ctx.state.shouldKeepUnspent()) {
+        if (showConfirmationIfNecessary && canStillBuyStuff() && ctx.state.tweaks.collectInstances<Tweak.Game.KeepUnspent>().isEmpty()) {
             ctx.viewStack.pushView(ConfirmEndTurnView(ctx))
         } else {
             ctx.runStateChangingAction {

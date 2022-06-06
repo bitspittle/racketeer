@@ -15,16 +15,13 @@ interface Tweaks<T: Tweak> {
      * Return a list of all tweaks that match the passed in predicate.
      *
      * The list will be returned in the order that the tweaks were originally added.
-     *
-     * @param consume If true, any matching tweaks registered with the [Lifetime.ONCE] lifetime will be removed by this
-     *   operation.
      */
-    fun collect(consume: Boolean = false, predicate: (Tweak) -> Boolean): List<Tweak>
+    fun collect(predicate: (Tweak) -> Boolean): List<Tweak>
 }
 
-inline fun <reified T: Tweak> Tweaks<in T>.collectInstances(consume: Boolean = false): List<T> {
+inline fun <reified T: Tweak> Tweaks<in T>.collectInstances(): List<T> {
     @Suppress("UNCHECKED_CAST")
-    return this.collect(consume) { it is T } as List<T>
+    return this.collect { it is T } as List<T>
 }
 
 class MutableTweaks<T: Tweak>(override val items: MutableList<T> = mutableListOf()) : Tweaks<T> {
@@ -36,17 +33,27 @@ class MutableTweaks<T: Tweak>(override val items: MutableList<T> = mutableListOf
         items.removeAll { it.lifetime == Lifetime.TURN }
     }
 
-    override fun collect(consume: Boolean, predicate: (Tweak) -> Boolean): List<Tweak> {
+    override fun collect(predicate: (Tweak) -> Boolean): List<Tweak> {
+        return items.filter { predicate(it) }
+    }
+
+    /**
+     * Like [collect] but additionally consume any [Lifetime.ONCE] tweaks.
+     */
+    fun consumeCollect(predicate: (Tweak) -> Boolean): List<Tweak> {
         val matches = items.filter { predicate(it) }
-        if (consume) {
-            matches
-                .asSequence()
-                .filter { it.lifetime == Lifetime.ONCE }
-                .forEach { items.remove(it) }
-        }
+        matches
+            .asSequence()
+            .filter { it.lifetime == Lifetime.ONCE }
+            .forEach { items.remove(it) }
 
         return matches
     }
+}
+
+inline fun <reified T: Tweak> MutableTweaks<in T>.consumeCollectInstances(): List<T> {
+    @Suppress("UNCHECKED_CAST")
+    return this.consumeCollect { it is T } as List<T>
 }
 
 @Serializable

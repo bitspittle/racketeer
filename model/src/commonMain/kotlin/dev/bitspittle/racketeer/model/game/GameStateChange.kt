@@ -4,6 +4,7 @@ import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.racketeer.model.building.*
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.common.Tweak
+import dev.bitspittle.racketeer.model.common.consumeCollectInstances
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.serialization.DataValue
@@ -235,7 +236,7 @@ sealed class GameStateChange {
 
             turn++
 
-            if (!shouldKeepUnspent(consume = true)) {
+            if (tweaks.consumeCollectInstances<Tweak.Game.KeepUnspent>().isEmpty()) {
                 cash = 0
             }
 
