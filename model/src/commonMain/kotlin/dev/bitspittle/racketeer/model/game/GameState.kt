@@ -14,6 +14,7 @@ import dev.bitspittle.racketeer.model.card.vpTotal
 import dev.bitspittle.racketeer.model.common.MutableTweaks
 import dev.bitspittle.racketeer.model.common.Tweak
 import dev.bitspittle.racketeer.model.common.Tweaks
+import dev.bitspittle.racketeer.model.common.collectInstances
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.random.CopyableRandom
@@ -60,6 +61,10 @@ interface GameState {
     fun pileFor(card: Card): Pile?
 
     fun canActivate(building: Building): Boolean
+}
+
+fun GameState.shouldKeepUnspent(consume: Boolean = false): Boolean {
+    return tweaks.collectInstances<Tweak.Game.KeepUnspent>(consume).isNotEmpty()
 }
 
 object GameStateStub : GameState {

@@ -234,7 +234,10 @@ sealed class GameStateChange {
             }
 
             turn++
-            cash = 0
+
+            if (!shouldKeepUnspent(consume = true)) {
+                cash = 0
+            }
 
             effects.processTurnEnded()
             move(street.cards, discard)
