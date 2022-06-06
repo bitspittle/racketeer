@@ -245,6 +245,9 @@ sealed class GameStateChange {
             shop.restock()
 
             buildings.forEach { it.isActivated = false }
+
+            tweaks.notifyTurnEnded()
+            shop.tweaks.notifyTurnEnded()
         }
     }
 
