@@ -1,4 +1,4 @@
-package dev.bitspittle.racketeer.model.game
+package dev.bitspittle.racketeer.model.score
 
 import kotlinx.serialization.Serializable
 

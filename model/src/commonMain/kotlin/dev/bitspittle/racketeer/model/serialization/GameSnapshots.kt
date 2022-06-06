@@ -13,8 +13,7 @@ import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.building.BuildingProperty
 import dev.bitspittle.racketeer.model.building.MutableBuilding
 import dev.bitspittle.racketeer.model.card.*
-import dev.bitspittle.racketeer.model.common.MutableTweaks
-import dev.bitspittle.racketeer.model.common.Tweak
+import dev.bitspittle.racketeer.model.effect.*
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.random.CopyableRandom

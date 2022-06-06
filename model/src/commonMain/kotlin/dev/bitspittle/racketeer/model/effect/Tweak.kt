@@ -1,8 +1,7 @@
 @file:UseSerializers(IntRangeSerializer::class)
 
-package dev.bitspittle.racketeer.model.common
+package dev.bitspittle.racketeer.model.effect
 
-import dev.bitspittle.racketeer.model.game.Lifetime
 import dev.bitspittle.racketeer.model.serialization.IntRangeSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

@@ -18,7 +18,7 @@ import dev.bitspittle.racketeer.console.user.totalVp
 import dev.bitspittle.racketeer.console.utils.CloudFileService
 import dev.bitspittle.racketeer.console.utils.encodeToYaml
 import dev.bitspittle.racketeer.console.view.View
-import dev.bitspittle.racketeer.model.game.from
+import dev.bitspittle.racketeer.model.score.from
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter

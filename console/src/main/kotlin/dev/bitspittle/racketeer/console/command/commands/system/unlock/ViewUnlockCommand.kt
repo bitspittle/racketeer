@@ -3,7 +3,7 @@ package dev.bitspittle.racketeer.console.command.commands.system.unlock
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.user.totalVp
-import dev.bitspittle.racketeer.model.game.Unlock
+import dev.bitspittle.racketeer.model.score.Unlock
 
 class ViewUnlockCommand(ctx: GameContext, private val unlock: Unlock) : Command(ctx) {
     private val totalVp = ctx.userStats.games.totalVp

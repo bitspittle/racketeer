@@ -1,5 +1,6 @@
-package dev.bitspittle.racketeer.model.game
+package dev.bitspittle.racketeer.model.score
 
+import dev.bitspittle.racketeer.model.game.GameData
 import kotlinx.serialization.Serializable
 
 private val TEXT_RESOLVERS: Map<String, Unlock.(GameData) -> String> = mapOf(

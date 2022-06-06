@@ -11,9 +11,7 @@ import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.MutableCard
 import dev.bitspittle.racketeer.model.card.allInitActions
 import dev.bitspittle.racketeer.model.card.vpTotal
-import dev.bitspittle.racketeer.model.common.MutableTweaks
-import dev.bitspittle.racketeer.model.common.Tweak
-import dev.bitspittle.racketeer.model.common.Tweaks
+import dev.bitspittle.racketeer.model.effect.*
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.random.CopyableRandom

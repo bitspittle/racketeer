@@ -6,6 +6,8 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.utils.toEnum
 import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.effect.Effect
+import dev.bitspittle.racketeer.model.effect.Lifetime
 import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.serialization.DataValue

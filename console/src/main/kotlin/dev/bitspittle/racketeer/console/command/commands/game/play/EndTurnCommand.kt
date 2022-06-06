@@ -8,8 +8,8 @@ import dev.bitspittle.racketeer.console.utils.runStateChangingAction
 import dev.bitspittle.racketeer.console.view.views.game.play.ConfirmEndTurnView
 import dev.bitspittle.racketeer.console.view.views.game.play.GameSummaryView
 import dev.bitspittle.racketeer.console.view.views.game.play.PlayCardsView
-import dev.bitspittle.racketeer.model.common.Tweak
-import dev.bitspittle.racketeer.model.common.isNotSet
+import dev.bitspittle.racketeer.model.effect.Tweak
+import dev.bitspittle.racketeer.model.effect.isNotSet
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.game.isGameOver
 import kotlin.io.path.deleteIfExists

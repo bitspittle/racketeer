@@ -5,7 +5,8 @@ import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.racketeer.model.building.BuildingProperty
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardProperty
-import dev.bitspittle.racketeer.model.common.Tweak
+import dev.bitspittle.racketeer.model.effect.Tweak
+import dev.bitspittle.racketeer.model.effect.warningExpr
 import dev.bitspittle.racketeer.model.shop.remaining
 import dev.bitspittle.racketeer.model.text.Describer
 

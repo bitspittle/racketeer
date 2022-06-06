@@ -5,10 +5,10 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 import dev.bitspittle.limp.types.Expr
 import dev.bitspittle.limp.utils.toEnum
-import dev.bitspittle.racketeer.model.common.Tweak
+import dev.bitspittle.racketeer.model.effect.Tweak
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.GameStateChange
-import dev.bitspittle.racketeer.model.game.Lifetime
+import dev.bitspittle.racketeer.model.effect.Lifetime
 
 private enum class GameTweak {
     KEEP_UNSPENT,

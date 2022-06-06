@@ -2,7 +2,7 @@ package dev.bitspittle.racketeer.console.command.commands.system.unlock
 
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.user.Settings
-import dev.bitspittle.racketeer.model.game.Unlock
+import dev.bitspittle.racketeer.model.score.Unlock
 
 class UnlockSettingHandlers(
     val get: Settings.Unlocks.() -> Boolean,

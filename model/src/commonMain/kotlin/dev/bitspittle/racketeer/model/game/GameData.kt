@@ -2,6 +2,8 @@ package dev.bitspittle.racketeer.model.game
 
 import dev.bitspittle.racketeer.model.building.Blueprint
 import dev.bitspittle.racketeer.model.card.*
+import dev.bitspittle.racketeer.model.score.Ranking
+import dev.bitspittle.racketeer.model.score.Unlock
 import dev.bitspittle.racketeer.model.text.escapeQuotes
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient

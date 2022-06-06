@@ -1,4 +1,4 @@
-package dev.bitspittle.racketeer.model.game
+package dev.bitspittle.racketeer.model.effect
 
 enum class Lifetime {
     /** This effect should live for the entire game, once added. */

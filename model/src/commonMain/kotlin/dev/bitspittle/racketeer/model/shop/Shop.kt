@@ -5,9 +5,9 @@ import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.card.Rarity
 import dev.bitspittle.racketeer.model.card.featureTypes
-import dev.bitspittle.racketeer.model.common.MutableTweaks
-import dev.bitspittle.racketeer.model.common.Tweak
-import dev.bitspittle.racketeer.model.common.Tweaks
+import dev.bitspittle.racketeer.model.effect.MutableTweaks
+import dev.bitspittle.racketeer.model.effect.Tweak
+import dev.bitspittle.racketeer.model.effect.Tweaks
 import dev.bitspittle.racketeer.model.game.Feature
 import dev.bitspittle.racketeer.model.random.CopyableRandom
 

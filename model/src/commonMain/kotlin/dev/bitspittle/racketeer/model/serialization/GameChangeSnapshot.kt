@@ -11,7 +11,9 @@ import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardProperty
 import dev.bitspittle.racketeer.model.card.TraitType
 import dev.bitspittle.racketeer.model.card.UpgradeType
-import dev.bitspittle.racketeer.model.common.Tweak
+import dev.bitspittle.racketeer.model.effect.Effect
+import dev.bitspittle.racketeer.model.effect.Lifetime
+import dev.bitspittle.racketeer.model.effect.Tweak
 import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.shop.Shop

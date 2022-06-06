@@ -10,7 +10,7 @@ import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.user.inAdminModeAndShowCode
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.game.isGameOver
-import dev.bitspittle.racketeer.model.game.warningExpr
+import dev.bitspittle.racketeer.model.effect.warningExpr
 
 class BrowsePilesView(ctx: GameContext) : View(ctx) {
     override fun MainRenderScope.renderContentUpper() {

@@ -1,6 +1,7 @@
-package dev.bitspittle.racketeer.model.game
+package dev.bitspittle.racketeer.model.effect
 
 import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.game.GameEvent
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.serialization.DataValue
 

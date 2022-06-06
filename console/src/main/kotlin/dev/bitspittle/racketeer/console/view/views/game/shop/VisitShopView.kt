@@ -6,9 +6,7 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.buildings.VisitBlueprintsCommand
 import dev.bitspittle.racketeer.console.command.commands.game.shop.*
 import dev.bitspittle.racketeer.console.game.GameContext
-import dev.bitspittle.racketeer.console.user.inAdminModeAndShowCode
 import dev.bitspittle.racketeer.console.view.View
-import dev.bitspittle.racketeer.model.game.warningExpr
 
 class VisitShopView(ctx: GameContext) : View(ctx) {
     override val subtitle get() = "Shop (Tier ${ctx.state.shop.tier + 1})"

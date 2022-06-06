@@ -4,7 +4,7 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.racketeer.model.action.ActionQueue
 import dev.bitspittle.racketeer.model.action.ExprCache
-import dev.bitspittle.racketeer.model.game.ExprEnqueuer
+import dev.bitspittle.racketeer.model.action.ExprEnqueuer
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.scripting.utils.setValuesFrom
 
