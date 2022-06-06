@@ -3,6 +3,7 @@ package dev.bitspittle.racketeer.model.game
 import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.racketeer.model.building.*
 import dev.bitspittle.racketeer.model.card.*
+import dev.bitspittle.racketeer.model.common.Tweak
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.serialization.DataValue
@@ -164,6 +165,18 @@ sealed class GameStateChange {
     class AddEffect(val effect: Effect<*>) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             effects.items.add(effect)
+        }
+    }
+
+    class AddGameTweak(val tweak: Tweak.Game) : GameStateChange() {
+        override suspend fun MutableGameState.apply() {
+            tweaks.items.add(tweak)
+        }
+    }
+
+    class AddShopTweak(val tweak: Tweak.Shop) : GameStateChange() {
+        override suspend fun MutableGameState.apply() {
+            shop.tweaks.items.add(tweak)
         }
     }
 

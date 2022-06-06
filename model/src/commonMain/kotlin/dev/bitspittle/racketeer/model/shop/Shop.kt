@@ -5,12 +5,17 @@ import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.card.Rarity
 import dev.bitspittle.racketeer.model.card.featureTypes
+import dev.bitspittle.racketeer.model.common.MutableTweaks
+import dev.bitspittle.racketeer.model.common.Tweak
+import dev.bitspittle.racketeer.model.common.Tweaks
 import dev.bitspittle.racketeer.model.game.Feature
 import dev.bitspittle.racketeer.model.random.CopyableRandom
 
 interface Shop {
     val tier: Int
     val stock: List<Card?>
+
+    val tweaks: Tweaks<Tweak.Shop>
 
     /**
      * A count of how many times a player bought this card, by name.
@@ -35,6 +40,7 @@ class MutableShop internal constructor(
     private val rarities: List<Rarity>,
     tier: Int,
     override val stock: MutableList<Card?>,
+    override val tweaks: MutableTweaks<Tweak.Shop>,
     override val bought: MutableMap<String, Int>,
 ) : Shop {
     constructor(
@@ -53,6 +59,7 @@ class MutableShop internal constructor(
         rarities,
         0,
         mutableListOf(),
+        MutableTweaks(),
         mutableMapOf(),
     ) {
         handleRestock(restockAll = true, filterAllCards { true })
@@ -138,6 +145,7 @@ class MutableShop internal constructor(
         rarities,
         tier,
         stock.toMutableList(),
+        tweaks.copy(),
         bought.toMutableMap(),
     )
 }

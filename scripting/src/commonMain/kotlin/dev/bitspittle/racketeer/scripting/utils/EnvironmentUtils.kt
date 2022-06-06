@@ -20,6 +20,7 @@ import dev.bitspittle.racketeer.scripting.methods.pile.PileCopyToMethod
 import dev.bitspittle.racketeer.scripting.methods.pile.PileGetMethod
 import dev.bitspittle.racketeer.scripting.methods.pile.PileMoveToMethod
 import dev.bitspittle.racketeer.scripting.methods.shop.ShopRerollMethod
+import dev.bitspittle.racketeer.scripting.methods.shop.ShopTweakMethod
 import dev.bitspittle.racketeer.scripting.methods.system.CancelMethod
 import dev.bitspittle.racketeer.scripting.methods.system.RunLaterMethod
 import dev.bitspittle.racketeer.scripting.methods.system.StopMethod
@@ -46,6 +47,7 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(GameDataGetMethod(service::gameState))
     addMethod(GameDataSetMethod(service::gameState))
     addMethod(GameDataIsSetMethod(service::gameState))
+    addMethod(GameTweakMethod(service::gameState))
     // We're supplanting the underlying shuffle method with our own specialized version (which delegates to the original
     // method when it can)
     addMethod(GameShuffleMethod(service::gameState), allowOverwrite = true)
@@ -104,6 +106,7 @@ fun Environment.installGameLogic(service: GameService) {
 
     // Shop
     addMethod(ShopRerollMethod(service::gameState))
+    addMethod(ShopTweakMethod(service::gameState))
     (0..4).forEach { i -> storeValue("\$tier${i + 1}", i) }
 
     // Buildings

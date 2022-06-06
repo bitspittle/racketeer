@@ -13,6 +13,8 @@ import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.building.BuildingProperty
 import dev.bitspittle.racketeer.model.building.MutableBuilding
 import dev.bitspittle.racketeer.model.card.*
+import dev.bitspittle.racketeer.model.common.MutableTweaks
+import dev.bitspittle.racketeer.model.common.Tweak
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.random.CopyableRandom
@@ -98,12 +100,14 @@ class BlueprintSnapshot(
 class ShopSnapshot(
     val tier: Int,
     val stock: List<CardSnapshot?>,
+    val tweaks: List<Tweak.Shop>,
     val bought: Map<String, Int>,
 ) {
     companion object {
         fun from(shop: Shop) = ShopSnapshot(
             shop.tier,
             shop.stock.map { card -> if (card != null) CardSnapshot.from(card) else null },
+            shop.tweaks.items,
             shop.bought,
         )
     }
@@ -117,6 +121,7 @@ class ShopSnapshot(
         data.rarities,
         tier,
         stock.map { it?.create(data) }.toMutableList(),
+        MutableTweaks(tweaks.toMutableList()),
         bought.toMutableMap(),
     )
 }
@@ -195,6 +200,7 @@ class GameSnapshot(
     val blueprints: List<BlueprintSnapshot>,
     val buildings: List<BuildingSnapshot>,
     val effects: List<EffectSnapshot>,
+    val tweaks: List<Tweak.Game>,
     val shop: ShopSnapshot,
     val deck: PileSnapshot,
     val hand: PileSnapshot,
@@ -219,6 +225,7 @@ class GameSnapshot(
             gameState.blueprints.map { blueprint -> BlueprintSnapshot.from(blueprint) },
             gameState.buildings.map { building -> BuildingSnapshot.from(building) },
             gameState.effects.items.map { effect -> EffectSnapshot.from(effect) },
+            gameState.tweaks.items,
             ShopSnapshot.from(gameState.shop),
             PileSnapshot.from(gameState.deck),
             PileSnapshot.from(gameState.hand),
@@ -273,6 +280,7 @@ class GameSnapshot(
             blueprints.map { it.create(data) }.toMutableList(),
             buildings.map { it.create(data) }.toMutableList(),
             effects = MutableEffects(), // Populated shortly
+            tweaks = MutableTweaks(tweaks.toMutableList()),
             this.data.toMutableMap(),
             history = mutableListOf(), // Populated shortly
         )

@@ -7,7 +7,13 @@ import dev.bitspittle.racketeer.model.building.Blueprint
 import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.building.MutableBuilding
 import dev.bitspittle.racketeer.model.building.vpTotal
-import dev.bitspittle.racketeer.model.card.*
+import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.card.MutableCard
+import dev.bitspittle.racketeer.model.card.allInitActions
+import dev.bitspittle.racketeer.model.card.vpTotal
+import dev.bitspittle.racketeer.model.common.MutableTweaks
+import dev.bitspittle.racketeer.model.common.Tweak
+import dev.bitspittle.racketeer.model.common.Tweaks
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.random.CopyableRandom
@@ -36,6 +42,7 @@ interface GameState {
     val blueprints: List<Blueprint>
     val buildings: List<Building>
     val effects: Effects
+    val tweaks: Tweaks<Tweak.Game>
     val data: Map<String, DataValue>
     val history: List<GameStateChange>
 
@@ -75,6 +82,7 @@ object GameStateStub : GameState {
     override val blueprints: List<Blueprint> get() = throw NotImplementedError()
     override val buildings: List<Building> get() = throw NotImplementedError()
     override val effects: Effects get() = throw NotImplementedError()
+    override val tweaks: Tweaks<Tweak.Game> get() = throw NotImplementedError()
     override val data: Map<String, DataValue> get() = throw NotImplementedError()
     override val history: List<GameStateChange> get() = throw NotImplementedError()
 
@@ -115,6 +123,7 @@ class MutableGameState internal constructor(
     override val blueprints: MutableList<Blueprint>,
     override val buildings: MutableList<MutableBuilding>,
     override val effects: MutableEffects,
+    override val tweaks: MutableTweaks<Tweak.Game>,
     override val data: MutableMap<String, DataValue>,
     override val history: MutableList<GameStateChange>,
 ): GameState {
@@ -139,6 +148,7 @@ class MutableGameState internal constructor(
         blueprints = mutableListOf(),
         buildings = mutableListOf(),
         effects = MutableEffects(),
+        tweaks = MutableTweaks(),
         data = mutableMapOf(),
         history = mutableListOf()
     )
@@ -314,6 +324,7 @@ class MutableGameState internal constructor(
             blueprints.toMutableList(),
             buildings.map { it.copy() }.toMutableList(),
             effects.copy(),
+            tweaks.copy(),
             data.toMutableMap(),
             history.toMutableList(),
         )

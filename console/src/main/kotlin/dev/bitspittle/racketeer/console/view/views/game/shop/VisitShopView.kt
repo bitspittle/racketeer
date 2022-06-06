@@ -1,13 +1,26 @@
 package dev.bitspittle.racketeer.console.view.views.game.shop
 
+import com.varabyte.kotter.foundation.text.textLine
+import com.varabyte.kotter.runtime.MainRenderScope
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.command.commands.buildings.VisitBlueprintsCommand
 import dev.bitspittle.racketeer.console.command.commands.game.shop.*
 import dev.bitspittle.racketeer.console.game.GameContext
+import dev.bitspittle.racketeer.console.user.inAdminModeAndShowCode
 import dev.bitspittle.racketeer.console.view.View
+import dev.bitspittle.racketeer.model.game.warningExpr
 
 class VisitShopView(ctx: GameContext) : View(ctx) {
     override val subtitle get() = "Shop (Tier ${ctx.state.shop.tier + 1})"
+
+    override fun MainRenderScope.renderContentUpper() {
+        if (ctx.state.shop.tweaks.items.isNotEmpty()) {
+            textLine("Active effects:")
+            ctx.state.shop.tweaks.items.forEach { tweak ->
+                textLine("- ${tweak.desc}")
+            }
+        }
+    }
 
     override fun createCommands(): List<Command> = run {
         ctx.state.shop.stock.map { card ->

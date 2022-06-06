@@ -5,6 +5,7 @@ import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.racketeer.model.building.BuildingProperty
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardProperty
+import dev.bitspittle.racketeer.model.common.Tweak
 import dev.bitspittle.racketeer.model.shop.remaining
 import dev.bitspittle.racketeer.model.text.Describer
 
@@ -178,7 +179,20 @@ private class GameStateDiffReporter(
     }
 
     private fun StringBuilder.report(change: GameStateChange.AddEffect) = change.apply {
-        reportLine("You added the following effect onto the street:\n  ${effect.desc ?: effect.warningExpr}")
+        reportLine("You added the following effect:\n  ${effect.desc ?: effect.warningExpr}")
+    }
+
+    private fun StringBuilder.report(tweak: Tweak) {
+        // Report tweaks as "effects" since that reads better to the user.
+        reportLine("You added the following effect:\n  ${describer.convertIcons(tweak.desc)}")
+    }
+
+    private fun StringBuilder.report(change: GameStateChange.AddGameTweak) = change.apply {
+        report(tweak)
+    }
+
+    private fun StringBuilder.report(change: GameStateChange.AddShopTweak) = change.apply {
+        report(tweak)
     }
 
     private fun StringBuilder.report(change: GameStateChange.RestockShop) = change.apply {
@@ -240,6 +254,8 @@ private class GameStateDiffReporter(
                     is GameStateChange.AddGameAmount -> Unit // Reported below, in aggregate
                     is GameStateChange.SetGameData -> Unit // Game data is only for use by the designers, don't report it
                     is GameStateChange.AddEffect -> report(change)
+                    is GameStateChange.AddGameTweak -> report(change)
+                    is GameStateChange.AddShopTweak -> report(change)
                     is GameStateChange.RestockShop -> report(change)
                     is GameStateChange.UpgradeShop -> report(change)
                     is GameStateChange.AddBlueprint -> report(change)

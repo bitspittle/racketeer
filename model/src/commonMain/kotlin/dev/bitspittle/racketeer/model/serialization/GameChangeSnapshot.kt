@@ -11,8 +11,10 @@ import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardProperty
 import dev.bitspittle.racketeer.model.card.TraitType
 import dev.bitspittle.racketeer.model.card.UpgradeType
+import dev.bitspittle.racketeer.model.common.Tweak
 import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.pile.Pile
+import dev.bitspittle.racketeer.model.shop.Shop
 import dev.bitspittle.racketeer.model.text.Describer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -58,6 +60,18 @@ class PilePtr(val id: Uuid, val name: String) {
     fun findIn(state: GameState) = state.allPiles.first { it.id == id }
 }
 
+// We don't technically need to save the name, but it's useful for humans browsing the file.
+@Serializable
+class TweakPtr(val tweakIndex: Int) {
+    companion object {
+        fun from(state: GameState, tweak: Tweak) = TweakPtr(state.tweaks.items.indexOf(tweak))
+        fun from(shop: Shop, tweak: Tweak) = TweakPtr(shop.tweaks.items.indexOf(tweak))
+    }
+
+    fun findIn(state: GameState) = state.tweaks.items[tweakIndex]
+    fun findIn(shop: Shop) = shop.tweaks.items[tweakIndex]
+}
+
 // We leave in parameters for clarity
 @Suppress("UNUSED_PARAMETER")
 @Serializable
@@ -79,6 +93,8 @@ sealed class GameChangeSnapshot {
                 is GameStateChange.AddGameAmount -> AddGameAmount.from(change)
                 is GameStateChange.SetGameData -> SetGameData.from(change)
                 is GameStateChange.AddEffect -> AddEffect.from(change)
+                is GameStateChange.AddGameTweak -> AddGameTweak.from(state, change)
+                is GameStateChange.AddShopTweak -> AddShopTweak.from(state.shop, change)
                 is GameStateChange.RestockShop -> RestockShop.from(change)
                 is GameStateChange.UpgradeShop -> UpgradeShop.from(change)
                 is GameStateChange.AddBlueprint -> AddBlueprint.from(change)
@@ -282,6 +298,30 @@ sealed class GameChangeSnapshot {
                 test = { error("Dummy effect") },
                 action = { error("Dummy effect") })
             GameStateChange.AddEffect(dummyEffect)
+        }
+    }
+
+    @Serializable
+    @SerialName("AddGameTweak")
+    class AddGameTweak(val tweakPtr: TweakPtr) : GameChangeSnapshot() {
+        companion object {
+            fun from(state: GameState, change: GameStateChange.AddGameTweak): AddGameTweak = AddGameTweak(TweakPtr.from(state, change.tweak))
+        }
+
+        override fun create(data: GameData, state: GameState) = run {
+            GameStateChange.AddGameTweak(tweakPtr.findIn(state))
+        }
+    }
+
+    @Serializable
+    @SerialName("AddShopTweak")
+    class AddShopTweak(val tweakPtr: TweakPtr) : GameChangeSnapshot() {
+        companion object {
+            fun from(shop: Shop, change: GameStateChange.AddShopTweak): AddShopTweak = AddShopTweak(TweakPtr.from(shop, change.tweak))
+        }
+
+        override fun create(data: GameData, state: GameState) = run {
+            GameStateChange.AddShopTweak(tweakPtr.findIn(state.shop))
         }
     }
 

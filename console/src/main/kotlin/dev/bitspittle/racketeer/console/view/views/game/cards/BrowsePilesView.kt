@@ -14,8 +14,11 @@ import dev.bitspittle.racketeer.model.game.warningExpr
 
 class BrowsePilesView(ctx: GameContext) : View(ctx) {
     override fun MainRenderScope.renderContentUpper() {
-        if (ctx.state.effects.items.isNotEmpty()) {
+        if (ctx.state.effects.items.isNotEmpty() || ctx.state.tweaks.items.isNotEmpty()) {
             textLine("Active effects:")
+            ctx.state.tweaks.items.forEach { tweak ->
+                textLine("- ${tweak.desc}")
+            }
             ctx.state.effects.items.forEach { effect ->
                 textLine("- ${effect.desc ?: effect.warningExpr}")
                 if (ctx.settings.inAdminModeAndShowCode) {
