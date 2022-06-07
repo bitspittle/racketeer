@@ -84,8 +84,16 @@ class MutableShop internal constructor(
     override var tier: Int = tier
         private set
 
+    private val shopSize: Int get() {
+        return shopSizes[tier] + tweaks.consumeCollectInstances<Tweak.Shop.Size>().sumOf { it.amount }
+    }
+
     private fun handleRestock(restockAll: Boolean, possibleNewStock: List<CardTemplate>) {
-        if (!restockAll && stock.size == shopSizes[tier]) return // Shop is full; incremental restock fails
+        val shopSize = shopSize
+        // The shop size could have shrunk if a tweak increasing the shop size ran out
+        while (stock.size > shopSize) stock.removeLast()
+
+        if (!restockAll && stock.size == shopSize) return // Shop is full; incremental restock fails
         if (restockAll) {
             stock.clear()
             prices.clear()
@@ -103,7 +111,7 @@ class MutableShop internal constructor(
 
         val uberStock = createUberStock()
 
-        var numCardsToStock = shopSizes[tier] - stock.size
+        var numCardsToStock = shopSize - stock.size
         val random = random()
         while (numCardsToStock > 0 && uberStock.isNotEmpty()) {
             val template = uberStock.random(random)

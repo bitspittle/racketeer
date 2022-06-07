@@ -180,6 +180,7 @@ sealed class GameStateChange {
             shop.tweaks.items.add(tweak)
             when (tweak) {
                 is Tweak.Shop.Prices -> shop.refreshPrices()
+                is Tweak.Shop.Size -> shop.restock(restockAll = false)
                 else -> Unit
             }
         }
@@ -248,14 +249,17 @@ sealed class GameStateChange {
             move(street.cards, discard)
             move(hand.cards, discard)
 
-            if (shop.tweaks.consumeIsNotSet<Tweak.Shop.Frozen>()) {
-                shop.restock()
-            }
+            val shouldRestock = shop.tweaks.consumeIsNotSet<Tweak.Shop.Frozen>()
 
             buildings.forEach { it.isActivated = false }
 
             tweaks.notifyTurnEnded()
             shop.tweaks.notifyTurnEnded()
+
+            // Restock AFTER tweaks are updated, as it might affect the shop size at the end of the turn
+            if (shouldRestock) {
+                shop.restock()
+            }
         }
     }
 
