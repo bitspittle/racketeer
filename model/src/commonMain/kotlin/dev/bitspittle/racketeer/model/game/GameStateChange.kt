@@ -178,6 +178,10 @@ sealed class GameStateChange {
     class AddShopTweak(val tweak: Tweak.Shop) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             shop.tweaks.items.add(tweak)
+            when (tweak) {
+                is Tweak.Shop.Prices -> shop.refreshPrices()
+                else -> Unit
+            }
         }
     }
 

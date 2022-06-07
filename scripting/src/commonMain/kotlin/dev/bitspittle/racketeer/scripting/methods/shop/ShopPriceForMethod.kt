@@ -5,6 +5,7 @@ import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.shop.Shop
+import dev.bitspittle.racketeer.model.shop.priceFor
 
 /**
  * shop-price-for (Card) -> (price: Int)

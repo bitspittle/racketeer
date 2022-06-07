@@ -296,7 +296,7 @@ class MutableGameState internal constructor(
 
     private fun remove(card: Card) {
         cardPiles.remove(card.id)?.also { pileFrom -> pileFrom.cards.removeAll { it.id == card.id }}
-        shop.notifyBought(card.id)
+        shop.notifyOwned(card.id)
     }
 
     override fun copy(): MutableGameState {

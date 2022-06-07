@@ -99,6 +99,7 @@ class BlueprintSnapshot(
 class ShopSnapshot(
     val tier: Int,
     val stock: List<CardSnapshot?>,
+    val prices: Map<Uuid, Int>,
     val tweaks: List<Tweak.Shop>,
     val bought: Map<String, Int>,
 ) {
@@ -106,6 +107,7 @@ class ShopSnapshot(
         fun from(shop: Shop) = ShopSnapshot(
             shop.tier,
             shop.stock.map { card -> if (card != null) CardSnapshot.from(card) else null },
+            shop.prices,
             shop.tweaks.items,
             shop.bought,
         )
@@ -120,6 +122,7 @@ class ShopSnapshot(
         data.rarities,
         tier,
         stock.map { it?.create(data) }.toMutableList(),
+        prices.toMutableMap(),
         MutableTweaks(tweaks.toMutableList()),
         bought.toMutableMap(),
     )
