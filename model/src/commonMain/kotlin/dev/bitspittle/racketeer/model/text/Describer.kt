@@ -59,14 +59,6 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
     }
 
-    private fun describeTraitIcon(trait: TraitType): String {
-        return when (trait) {
-            TraitType.EXPENDABLE -> data.icons.expendable
-            TraitType.SUSPICIOUS -> data.icons.suspicious
-            TraitType.SWIFT -> data.icons.swift
-        }
-    }
-
     private fun describeTraitBody(trait: TraitType): String {
         return when (trait) {
             TraitType.EXPENDABLE -> "${data.traitNames.expendable}: When played, burn this card."
@@ -91,15 +83,6 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
             UpgradeType.LUCK -> "${data.upgradeNames.luck}: +1${data.icons.luck}."
             UpgradeType.VETERAN -> "${data.upgradeNames.veteran}: Draw a card, then discard one."
         }
-    }
-
-    private fun describeTraitsIcons(traits: Set<TraitType>): String? {
-        return TraitType.values()
-            .asSequence()
-            .filter { trait -> traits.contains(trait) }
-            .map { trait -> describeTraitIcon(trait) }
-            .joinToString("")
-            .takeIf { it.isNotEmpty() }
     }
 
     private fun describeTraitsBody(traits: Set<TraitType>): String {
@@ -221,23 +204,21 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
 
     fun describeCardTitle(template: CardTemplate): String {
         return buildString {
-            appendCardName(template.name, template.traitTypes, emptySet())
+            appendCardName(template.name, upgrades = emptySet())
         }
     }
 
     fun describeCardBody(template: CardTemplate, showCash: Boolean = false, includeFlavor: Boolean = false): String {
         return buildString {
-            appendCardName(template.name, emptySet(), emptySet(), price = template.cost.takeIf { showCash })
+            appendCardName(template.name, upgrades = emptySet(), price = template.cost.takeIf { showCash })
             appendCardBody(template, includeFlavor = includeFlavor)
         }
     }
 
-    private fun StringBuilder.appendCardName(name: String, traits: Set<TraitType>, upgrades: Set<UpgradeType>, useIcons: Boolean = true, totalVp: Int? = null, price: Int? = null) {
-        val traitIcons = useIcons.ifTrue { describeTraitsIcons(traits) }
-        val upgradesText = useIcons.ifTrue { describeUpgradesIcons(upgrades) }
-        if (traitIcons != null || upgradesText != null) {
-            if (traitIcons != null) append(traitIcons)
-            if (upgradesText != null) append(upgradesText)
+    private fun StringBuilder.appendCardName(name: String, upgrades: Set<UpgradeType>, useIcons: Boolean = true, totalVp: Int? = null, price: Int? = null) {
+        val upgradesIcons = useIcons.ifTrue { describeUpgradesIcons(upgrades) }
+        if (upgradesIcons != null) {
+            append(upgradesIcons)
             append(' ')
         }
         append(name)
@@ -252,7 +233,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
     }
 
     private fun StringBuilder.appendCardName(card: Card, useIcons: Boolean = true, totalVp: Int? = null, price: Int? = null) {
-        appendCardName(card.template.name, card.traits, card.upgrades, useIcons, totalVp, price)
+        appendCardName(card.template.name, card.upgrades, useIcons, totalVp, price)
     }
 
     fun describeCardGroupTitle(cards: List<Card>): String {
