@@ -85,7 +85,7 @@ class GameSession(
                 }
 
                 override fun debug(message: String) {
-                    if (settings.inAdminModeAndShowDebugLogs) {
+                    if (settings.admin.enabled) {
                         logRenderers.add { magenta { textLine(message.wrap()) } }
                     }
                 }
