@@ -31,14 +31,12 @@ object StringDataValueAsStringSerializer : KSerializer<DataValue.OfString> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("StringDataValue", PrimitiveKind.STRING)
     override fun serialize(encoder: Encoder, value: DataValue.OfString) = encoder.encodeString(value.str)
     override fun deserialize(decoder: Decoder): DataValue.OfString = DataValue.OfString(decoder.decodeString())
-        .also { println(it) }
 }
 
 object IdDataValueAsStringSerializer : KSerializer<DataValue.OfId> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("IdDataValue", PrimitiveKind.STRING)
     override fun serialize(encoder: Encoder, value: DataValue.OfId) = encoder.encodeString(value.id.toString())
     override fun deserialize(decoder: Decoder): DataValue.OfId = DataValue.OfId(uuidFrom(decoder.decodeString()))
-        .also { println(it) }
 }
 
 /**
