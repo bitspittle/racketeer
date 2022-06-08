@@ -22,6 +22,14 @@ enum class GameEvent {
     SHUFFLE,
 
     /**
+     * An event fired whenever the shop is restocked.
+     *
+     * This only happens for restocks triggered by the player, e.g. by cards that reroll your shop or by spending
+     * resources to do so. Rerolls that automatically occur at the end of turn don't count.
+     */
+    RESTOCK,
+
+    /**
      * An event fired just after a card becomes newly created.
      *
      * This happens when you buy a card from the store, jailbreak it, or a few other ways caused by card actions
@@ -30,4 +38,14 @@ enum class GameEvent {
      * Create events will include the newly created card set to the variable `$card`.
      */
     CREATE,
+
+    /**
+     * An event fired whenever one (or more) cards is discarded as the result of an action.
+     *
+     * This only happens for discards initialized by the player. Automatic discards that occur at the end of the turn
+     * don't count.
+     *
+     * All Discard events will include the list of discarded cards set to the variable `$cards`.
+     */
+    DISCARD,
 }

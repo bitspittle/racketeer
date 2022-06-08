@@ -28,7 +28,9 @@ class MutableEffects private constructor(
 
     suspend fun processCardPlayed(card: Card) = processForEvent(GameEvent.PLAY, card)
     suspend fun processCardCreated(card: Card) = processForEvent(GameEvent.CREATE, card)
+    suspend fun processCardsDiscarded(cards: List<Card>) = processForEvent(GameEvent.DISCARD, cards)
     suspend fun processPileShuffed(pile: Pile) = processForEvent(GameEvent.SHUFFLE, pile)
+    suspend fun processShopRestocked() = processForEvent(GameEvent.RESTOCK, Unit)
     suspend fun processTurnStarted() = processForEvent(GameEvent.TURN_START, Unit)
     suspend fun processTurnEnded() {
         processForEvent(GameEvent.TURN_END, Unit)

@@ -9,6 +9,16 @@ import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.serialization.DataValue
 
+private suspend fun MutableGameState.fireEventForAnyCardsDiscardedBy(block: suspend MutableGameState.() -> Unit) {
+    val discardBefore = discard.cards.toSet()
+    block()
+    val discardAfter = discard.cards.toSet()
+
+    (discardAfter - discardBefore).takeIf { it.isNotEmpty() }?.let { discarded ->
+        effects.processCardsDiscarded(discarded.toList())
+    }
+}
+
 @Suppress("CanSealedSubClassBeObject") // All subclasses not objects, for consistency / future proofing
 sealed class GameStateChange {
     suspend fun applyTo(state: MutableGameState) = state.apply()
@@ -79,8 +89,10 @@ sealed class GameStateChange {
             // Trigger effects first. Once we play a card, it might install an additional effect, which we don't want
             // to immediately run against the card itself
             effects.processCardPlayed(card)
-            enqueuers.card.enqueuePlayActions(this, card)
-            enqueuers.actionQueue.runEnqueuedActions()
+            fireEventForAnyCardsDiscardedBy {
+                enqueuers.card.enqueuePlayActions(this, card)
+                enqueuers.actionQueue.runEnqueuedActions()
+            }
         }
     }
 
@@ -189,6 +201,7 @@ sealed class GameStateChange {
     class RestockShop(private val additionalFilter: suspend (CardTemplate) -> Boolean = { true }) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             shop.restock(additionalFilter = additionalFilter)
+            effects.processShopRestocked()
         }
     }
 
@@ -220,8 +233,10 @@ sealed class GameStateChange {
             building.isActivated = true
 
             // Run its activate actions.
-            enqueuers.building.enqueueActivateActions(this, building)
-            enqueuers.actionQueue.runEnqueuedActions()
+            fireEventForAnyCardsDiscardedBy {
+                enqueuers.building.enqueueActivateActions(this, building)
+                enqueuers.actionQueue.runEnqueuedActions()
+            }
         }
     }
 

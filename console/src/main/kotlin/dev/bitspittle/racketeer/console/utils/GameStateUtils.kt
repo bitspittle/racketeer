@@ -13,6 +13,10 @@ suspend fun GameContext.createNewGame(features: Set<Feature.Type> = setOf(Featur
 
     enqueuers.expr.enqueue(state, data.initActions)
     enqueuers.actionQueue.runEnqueuedActions()
+
+    state.deck.cards.forEach { card ->
+        userStats.cards.notifyOwnership(card)
+    }
 }
 
 /**
