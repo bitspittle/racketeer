@@ -21,12 +21,6 @@ class BuildBlueprintCommand(ctx: GameContext, private val blueprint: Blueprint) 
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {
-            if (blueprint.buildCost.cash > 0) {
-                ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.CASH, -blueprint.buildCost.cash))
-            }
-            if (blueprint.buildCost.influence > 0) {
-                ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, -blueprint.buildCost.influence))
-            }
             ctx.state.apply(GameStateChange.Build(blueprint))
 
             if (ctx.state.blueprints.isEmpty()) ctx.viewStack.popView()

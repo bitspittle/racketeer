@@ -23,7 +23,7 @@ class CardRemoveMethod(private val getGameState: () -> GameState) : Method("card
         }
 
         val gameState = getGameState()
-        gameState.apply(GameStateChange.MoveCards(cards, gameState.graveyard))
+        gameState.apply(GameStateChange.MoveCards(gameState, cards, gameState.graveyard))
 
         return Unit
     }

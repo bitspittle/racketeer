@@ -11,10 +11,11 @@ import dev.bitspittle.racketeer.scripting.types.CancelPlayException
 suspend fun GameContext.createNewGame(features: Set<Feature.Type> = setOf(Feature.Type.BUILDINGS)) {
     state = MutableGameState(data, features, enqueuers)
 
-    state.startRecordingChanges()
-    enqueuers.expr.enqueue(state, data.initActions)
-    enqueuers.actionQueue.runEnqueuedActions()
-    state.finishRecordingChanges()
+    state.recordChanges {
+        state.apply(GameStateChange.GameStart())
+        enqueuers.expr.enqueue(state, data.initActions)
+        enqueuers.actionQueue.runEnqueuedActions()
+    }
 
     state.deck.cards.forEach { card ->
         userStats.cards.notifyOwnership(card)
@@ -33,13 +34,15 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
     env.scoped {
         try {
             state = nextState
-            state.startRecordingChanges()
-            block()
-            nextState.onBoardChanged()
-            if (state.finishRecordingChanges()) {
-                state.history.last().toSummaryText(describer, state, prevState.history.lastOrNull())?.let { summaryText ->
-                    app.logger.info(summaryText)
-                }
+
+            if (state.recordChanges {
+                    block()
+                    nextState.onBoardChanged()
+                }) {
+                state.history.last().toSummaryText(describer, state, prevState.history.lastOrNull())
+                    ?.let { summaryText ->
+                        app.logger.info(summaryText)
+                    }
             }
 
             // Update user stats based on new history
@@ -51,7 +54,7 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
                         }
                     }
                     is GameStateChange.MoveCards -> {
-                        change.cards.forEach { card ->
+                        change.cards.values.flatten().forEach { card ->
                             if (prevState.pileFor(card) == null) {
                                 userStats.cards.notifyOwnership(card)
                             }

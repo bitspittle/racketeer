@@ -20,7 +20,7 @@ class ChoosePileToCommand(
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {
-            ctx.state.apply(GameStateChange.MoveCards(cards, pile))
+            ctx.state.apply(GameStateChange.MoveCards(ctx.state, cards, pile))
             ctx.viewStack.popPast { view -> view is AdminMenuView }
         }
         return true

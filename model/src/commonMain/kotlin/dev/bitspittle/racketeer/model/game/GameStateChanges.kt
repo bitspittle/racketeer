@@ -30,12 +30,8 @@ class GameStateChanges {
     var vp: Int = 0
         internal set
 
-    fun add(change: GameStateChange, insertBefore: GameStateChange? = null) {
-        if (insertBefore == null) {
-            _changes.add(change)
-        } else {
-            _changes.add(_changes.indexOf(insertBefore), change)
-        }
+    fun add(change: GameStateChange) {
+        _changes.add(change)
     }
 
     fun snapshotResources(state: GameState) {
@@ -52,8 +48,9 @@ class GameStateChanges {
         // Convert "MoveCards" to "MoveCard" when possible, it reads better
         for (i in changes.indices) {
             val change = changes[i]
-            if (change is GameStateChange.MoveCards && change.cards.size == 1) {
-                changes[i] = GameStateChange.MoveCard(change.cards[0], change.intoPile, change.listStrategy)
+            if (change is GameStateChange.MoveCards && change.cards.values.sumOf { it.size } == 1) {
+                val (fromPile, card) = change.cards.entries.single()
+                changes[i] = GameStateChange.MoveCard(card[0], fromPile, change.intoPile, change.listStrategy)
             }
         }
 
@@ -63,8 +60,8 @@ class GameStateChanges {
             .groupBy { it.card }
             .filter { (_, cardMoves) -> cardMoves.size > 1 }
             .forEach { (_, cardMoves) ->
-                val transientMoves = cardMoves.dropLast(1)
-                changes.removeAll { transientMoves.contains(it) }
+                val intermediateMoves = cardMoves.dropLast(1)
+                changes.removeAll { intermediateMoves.contains(it) }
             }
 
         return changes
@@ -77,6 +74,7 @@ class GameStateChanges {
             val changes = _changes.mergeRelated()
             changes.forEach { change ->
                 when (change) {
+                    is GameStateChange.GameStart -> Unit // Marker game state, no need to report
                     is GameStateChange.ShuffleDiscardIntoDeck -> report(describer, state, change)
                     is GameStateChange.Draw -> report(describer, state, change)
                     is GameStateChange.Play -> Unit // No need to report, obvious from user actions
@@ -144,7 +142,7 @@ class GameStateChanges {
                     vpDiff < 0 -> reportLine("You lost ${describer.describeVictoryPoints(-vpDiff)}.")
                 }
             }
-        }
+        }.takeIf { it.isNotEmpty() }
     }
 
     private fun ListStrategy.toDesc(): String {
@@ -188,20 +186,19 @@ class GameStateChanges {
         } else {
             val pileToDesc = describer.describePile(state, intoPile)
             cards
-                .groupBy { card -> state.pileFor(card) }
                 // Ignore requests which end up moving a card back into its own pile; it looks weird.
                 // This could happen as part of a bigger collection of cards across piles being moved.
                 .filter { (pile, _) -> pile == null || pile.id != intoPile.id }
-                .forEach { (pile, cards) ->
+                .forEach { (fromPile, cards) ->
                     if (cards.size > 1) {
-                        if (pile != null) {
-                            val pileFromDesc = describer.describePile(state, pile)
+                        if (fromPile != null) {
+                            val pileFromDesc = describer.describePile(state, fromPile)
                             reportLine("${cards.size} cards moved from $pileFromDesc ${listStrategy.toDesc()} $pileToDesc.")
                         } else {
                             reportLine("${cards.size} cards were created and moved ${listStrategy.toDesc()} $pileToDesc.")
                         }
                     } else {
-                        report(describer, state, GameStateChange.MoveCard(cards[0], intoPile, listStrategy))
+                        report(describer, state, GameStateChange.MoveCard(cards[0], fromPile, intoPile, listStrategy))
                     }
                 }
         }
@@ -214,12 +211,10 @@ class GameStateChanges {
             reportLine("$cardTitle was removed from the game.")
         } else {
             val pileToDesc = describer.describePile(state, intoPile)
-
-            val pileFrom = state.pileFor(card)
-            if (pileFrom != null) {
+            if (fromPile != null) {
                 // Ignore requests which end up moving a card within its own pile; it looks weird
-                if (pileFrom.id != intoPile.id) {
-                    val pileFromDesc = describer.describePile(state, pileFrom)
+                if (fromPile.id != intoPile.id) {
+                    val pileFromDesc = describer.describePile(state, fromPile)
                     reportLine("$cardTitle was moved from $pileFromDesc ${listStrategy.toDesc()} $pileToDesc.")
                 }
             } else {

@@ -24,6 +24,7 @@ import dev.bitspittle.racketeer.model.card.CardProperty
 import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.game.GameProperty
 import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.game.recordChanges
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.types.PileProperty
@@ -203,27 +204,26 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
         val input = input + inputSuffix
         ctx.env.setValuesFrom(ctx.state)
         val prevChanges = ctx.state.history.lastOrNull()
-        ctx.state.startRecordingChanges()
-        val evaluator = Evaluator()
-        val result = evaluator.evaluate(ctx.env, input)
-        if (ctx.state.finishRecordingChanges()) {
+        if (ctx.state.recordChanges {
+                val evaluator = Evaluator()
+                val result = evaluator.evaluate(ctx.env, input)
+
+                previousActions.add(input)
+                while (previousActions.size > Constants.PAGE_SIZE) {
+                    previousActions.removeFirst()
+                }
+
+                lastResultLog = null
+                result.takeIf { it != Unit }?.let { result ->
+                    ctx.env.storeValue("\$last", result, allowOverwrite = true)
+                    lastResultLog = "\$last = ${stringifier.toString(result)}"
+                }
+                refreshSymbolTextTree()
+            }) {
             ctx.state.history.last().toSummaryText(ctx.describer, ctx.state, prevChanges)?.let { summaryText ->
                 ctx.app.logger.info(summaryText)
             }
         }
-
-        previousActions.add(input)
-        while (previousActions.size > Constants.PAGE_SIZE) {
-            previousActions.removeFirst()
-        }
-
-        lastResultLog = null
-        result.takeIf { it != Unit }?.let { result ->
-            ctx.env.storeValue("\$last", result, allowOverwrite = true)
-            lastResultLog = "\$last = ${stringifier.toString(result)}"
-        }
-        refreshSymbolTextTree()
-
 
         inputSuffix = ""
         clearInput()

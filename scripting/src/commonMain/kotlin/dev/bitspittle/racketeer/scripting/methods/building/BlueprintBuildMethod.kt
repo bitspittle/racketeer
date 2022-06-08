@@ -19,7 +19,7 @@ class BlueprintBuildMethod(private val getGameState: () -> GameState) : Method("
         env: Environment, eval: Evaluator, params: List<Any>, options: Map<String, Any>, rest: List<Any>
     ): Any {
         val blueprint = env.expectConvert<Blueprint>(params[0])
-        getGameState().apply(GameStateChange.Build(blueprint))
+        getGameState().apply(GameStateChange.Build(blueprint, free = true))
         return Unit
     }
 }

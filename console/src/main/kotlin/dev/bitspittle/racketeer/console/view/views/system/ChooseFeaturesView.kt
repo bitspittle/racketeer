@@ -12,12 +12,16 @@ import dev.bitspittle.racketeer.console.view.popAll
 import dev.bitspittle.racketeer.console.view.views.game.play.PlayCardsView
 import dev.bitspittle.racketeer.model.game.Feature
 import dev.bitspittle.racketeer.model.game.GameStateChange
+import dev.bitspittle.racketeer.model.game.recordChanges
 
 private suspend fun GameContext.startNewGame(features: Set<Feature.Type> = emptySet()) {
     createNewGame(features)
     viewStack.popAll()
     viewStack.replaceView(PlayCardsView(this))
-    this.state.apply(GameStateChange.Draw())
+
+    state.recordChanges {
+        state.apply(GameStateChange.Draw())
+    }
 }
 
 class ChooseFeaturesView private constructor(ctx: GameContext, private val features: List<Feature>) : View(ctx, initialCurrIndex = Int.MAX_VALUE) {

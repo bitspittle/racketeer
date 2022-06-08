@@ -26,6 +26,16 @@ sealed class GameStateChange {
     suspend fun applyTo(state: MutableGameState) = state.apply()
     protected abstract suspend fun MutableGameState.apply()
 
+    /**
+     * Some changes don't need to be saved into history, e.g. passive VP calculations
+     */
+    open val transient: Boolean = false
+
+    class GameStart : GameStateChange() {
+        // Doesn't do anything; just a marker that this game has started
+        override suspend fun MutableGameState.apply() = Unit
+    }
+
     class ShuffleDiscardIntoDeck(var discardSize: Int = 0) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             discardSize = discard.cards.size
@@ -41,16 +51,19 @@ sealed class GameStateChange {
      */
     class Draw(var count: Int? = null) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
+            // Multiple draws can happen in a single turn thanks to card actions. Here, we only want to do some stuff
+            // on the first draw per turn -- that is, the first "Draw" change after an "EndTurn"
             val isFirstDrawThisTurn = run {
-                val changes = history.last().items
-                check(changes.last() === this@Draw)
-                val prevChange = changes.dropLast(1).lastOrNull { it is Draw || it is EndTurn }
+                val prevChange = history
+                    .asSequence()
+                    .flatMap { changes -> changes.items.asSequence() }
+                    .lastOrNull { it is Draw || it is EndTurn }
                 prevChange !is Draw
             }
 
             var count = this@Draw.count ?: handSize
             if (deck.cards.size < count && discard.cards.isNotEmpty()) {
-                apply(ShuffleDiscardIntoDeck(), insertBefore = this@Draw)
+                apply(ShuffleDiscardIntoDeck())
             }
 
             count = count.coerceAtMost(deck.cards.size)
@@ -101,17 +114,28 @@ sealed class GameStateChange {
         }
     }
 
-    class MoveCard(val card: Card, val intoPile: Pile, val listStrategy: ListStrategy = ListStrategy.BACK) :
+    fun GameState.MoveCard(card: Card, intoPile: Pile, listStrategy: ListStrategy = ListStrategy.BACK) =
+        MoveCard(this, card, intoPile, listStrategy)
+
+    class MoveCard(val card: Card, val fromPile: Pile?, val intoPile: Pile, val listStrategy: ListStrategy = ListStrategy.BACK) :
         GameStateChange() {
+
+        constructor(state: GameState, card: Card, intoPile: Pile, listStrategy: ListStrategy = ListStrategy.BACK) :
+                this(card, state.pileFor(card), intoPile, listStrategy)
+
         override suspend fun MutableGameState.apply() {
             move(card, intoPile, listStrategy)
         }
     }
 
-    class MoveCards(val cards: List<Card>, val intoPile: Pile, val listStrategy: ListStrategy = ListStrategy.BACK) :
+    class MoveCards(val cards: Map<Pile?, List<Card>>, val intoPile: Pile, val listStrategy: ListStrategy = ListStrategy.BACK) :
         GameStateChange() {
+
+        constructor(state: GameState, cards: List<Card>, intoPile: Pile, listStrategy: ListStrategy = ListStrategy.BACK) :
+                this(cards.groupBy { card -> state.pileFor(card) }, intoPile, listStrategy)
+
         override suspend fun MutableGameState.apply() {
-            move(cards, intoPile, listStrategy)
+            move(cards.values.flatten(), intoPile, listStrategy)
         }
     }
 
@@ -123,6 +147,12 @@ sealed class GameStateChange {
     }
 
     class AddCardAmount(val property: CardProperty, val card: Card, val amount: Int) : GameStateChange() {
+        override val transient: Boolean
+            get() = when(property) {
+                CardProperty.VP_PASSIVE -> true
+                else -> false
+            }
+
         override suspend fun MutableGameState.apply() {
             when (property) {
                 CardProperty.COUNTER -> (card as MutableCard).counter += amount
@@ -152,6 +182,12 @@ sealed class GameStateChange {
     }
 
     class AddBuildingAmount(val property: BuildingProperty, val building: Building, val amount: Int) : GameStateChange() {
+        override val transient: Boolean
+            get() = when(property) {
+                BuildingProperty.VP_PASSIVE -> true
+                else -> false
+            }
+
         override suspend fun MutableGameState.apply() {
             when (property) {
                 BuildingProperty.COUNTER -> (building as MutableBuilding).counter += amount
@@ -232,15 +268,25 @@ sealed class GameStateChange {
         }
     }
 
-    class UpgradeShop : GameStateChange() {
+    class UpgradeShop(var tier: Int = 0) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             shop.upgrade()
+            tier = shop.tier
         }
     }
 
-    class Build(val blueprint: Blueprint) : GameStateChange() {
+    class Build(val blueprint: Blueprint, val free: Boolean = false) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             require(blueprint in blueprints) { "You cannot build the blueprint \"${blueprint.name}\" as you don't own it." }
+
+            if (!free) {
+                if (blueprint.buildCost.cash > 0) {
+                    apply(AddGameAmount(GameProperty.CASH, -blueprint.buildCost.cash))
+                }
+                if (blueprint.buildCost.influence > 0) {
+                    apply(AddGameAmount(GameProperty.INFLUENCE, -blueprint.buildCost.influence))
+                }
+            }
 
             blueprints.remove(blueprint)
             val building = blueprint.build()
@@ -257,6 +303,18 @@ sealed class GameStateChange {
                 "You cannot activate the building \"${building.blueprint.name}\" as it hasn't been built yet."
             )
             require(!building.isActivated) { "You cannot activate the building \"${building.blueprint.name}\" as it has already been activated." }
+
+            val cost = building.blueprint.activationCost
+            if (cost.cash > 0) {
+                apply(AddGameAmount(GameProperty.CASH, -cost.cash))
+            }
+            if (cost.influence > 0) {
+                apply(AddGameAmount(GameProperty.INFLUENCE, -cost.influence))
+            }
+            if (cost.luck > 0) {
+                apply(AddGameAmount(GameProperty.LUCK, -cost.luck))
+            }
+
             building.isActivated = true
 
             // Run its activate actions.

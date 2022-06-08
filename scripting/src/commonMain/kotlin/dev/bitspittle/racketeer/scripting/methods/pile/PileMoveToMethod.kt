@@ -35,6 +35,6 @@ class PileMoveToMethod(private val getGameState: () -> GameState) : Method("pile
         } ?: ListStrategy.BACK
 
         val gameState = getGameState()
-        return gameState.apply(GameStateChange.MoveCards(cards, toPile, strategy))
+        return gameState.apply(GameStateChange.MoveCards(gameState, cards, toPile, strategy))
     }
 }

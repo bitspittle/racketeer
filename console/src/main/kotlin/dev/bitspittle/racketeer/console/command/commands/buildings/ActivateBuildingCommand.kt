@@ -28,17 +28,6 @@ class ActivateBuildingCommand(ctx: GameContext, private val building: Building) 
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {
-            val cost = building.blueprint.activationCost
-            if (cost.cash > 0) {
-                ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.CASH, -cost.cash))
-            }
-            if (cost.influence > 0) {
-                ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, -cost.influence))
-            }
-            if (cost.luck > 0) {
-                ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.LUCK, -cost.luck))
-            }
-
             ctx.state.apply(GameStateChange.Activate(building))
         }
         return true

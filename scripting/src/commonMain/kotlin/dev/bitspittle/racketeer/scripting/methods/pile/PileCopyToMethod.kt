@@ -40,7 +40,7 @@ class PileCopyToMethod(private val getGameState: () -> GameState) : Method("pile
         } ?: ListStrategy.BACK
 
         val gameState = getGameState()
-        gameState.apply(GameStateChange.MoveCards(cards, toPile, strategy))
+        gameState.apply(GameStateChange.MoveCards(gameState, cards, toPile, strategy))
 
         return Unit
     }

@@ -17,6 +17,7 @@ import dev.bitspittle.racketeer.console.utils.encodeToYaml
 import dev.bitspittle.racketeer.console.utils.wrap
 import dev.bitspittle.racketeer.console.view.views.admin.AdminMenuView
 import dev.bitspittle.racketeer.console.view.views.game.cards.BrowsePilesView
+import dev.bitspittle.racketeer.console.view.views.game.history.ReviewHistoryView
 import dev.bitspittle.racketeer.console.view.views.game.play.GameSummaryView
 import dev.bitspittle.racketeer.console.view.views.game.play.PlayCardsView
 import dev.bitspittle.racketeer.console.view.views.system.OptionsMenuView
@@ -73,7 +74,7 @@ abstract class View(protected val ctx: GameContext, private val initialCurrIndex
 
     private fun allowBrowsingCards(): Boolean {
         if (!hasGameStarted()) return false
-        return allowBrowseCards && ctx.viewStack.contains { view -> (view is PlayCardsView || view is GameSummaryView) } && !ctx.viewStack.contains { view -> view is BrowsePilesView }
+        return allowBrowseCards && ctx.viewStack.contains { view -> (view is PlayCardsView || view is GameSummaryView) } && !ctx.viewStack.contains { view -> view is BrowsePilesView || view is ReviewHistoryView }
     }
 
     private suspend fun doHandleKeys(key: Key): Boolean {
@@ -100,6 +101,13 @@ abstract class View(protected val ctx: GameContext, private val initialCurrIndex
             Keys.BACKSLASH -> {
                 if (allowBrowsingCards()) {
                     ctx.viewStack.pushView(BrowsePilesView(ctx))
+                    true
+                } else false
+            }
+            Keys.EQUALS -> {
+                // Lazily re-use the same check for browsing cards; it should be good enough and avoids duplicating code
+                if (allowBrowsingCards()) {
+                    ctx.viewStack.pushView(ReviewHistoryView(ctx))
                     true
                 } else false
             }
@@ -266,6 +274,7 @@ abstract class View(protected val ctx: GameContext, private val initialCurrIndex
     private fun RenderScope.renderFooter() {
         if (allowBrowsingCards()) {
             text("Press "); cyan { text("\\") }; textLine(" to browse all card piles.")
+            text("Press "); cyan { text("=") }; textLine(" to review game history.")
         }
         if (allowAdminAccess()) {
             text("Press "); cyan { text("~") }; textLine(" to access the admin menu.")

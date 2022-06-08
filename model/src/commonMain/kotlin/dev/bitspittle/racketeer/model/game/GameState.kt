@@ -66,6 +66,12 @@ interface GameState {
     suspend fun apply(change: GameStateChange)
 }
 
+suspend fun GameState.recordChanges(block: suspend () -> Unit): Boolean {
+    startRecordingChanges()
+    block()
+    return finishRecordingChanges()
+}
+
 object GameStateStub : GameState {
     override val random get() = throw NotImplementedError()
     override val features get() = throw NotImplementedError()
@@ -337,32 +343,31 @@ class MutableGameState internal constructor(
         )
     }
 
-    override suspend fun apply(change: GameStateChange) = apply(change, null)
-
+    private var recordingChanges: GameStateChanges? = null
     override fun startRecordingChanges() {
-        history.add(GameStateChanges())
+        recordingChanges = GameStateChanges()
     }
 
     override fun finishRecordingChanges(): Boolean {
-        return if (history.last().items.isEmpty()) {
-            history.removeLast()
-            false
-        } else {
-            history.last().snapshotResources(this)
-            true
+        if ((recordingChanges?.items?.size ?: 0) == 0) {
+            recordingChanges = null
+            return false
         }
+
+        val changes = recordingChanges!!
+        changes.snapshotResources(this)
+        history.add(changes)
+        recordingChanges = null
+        return true
     }
 
-    /**
-     * @param insertBefore Sometimes it's useful for a change to delegate to another change, which should technically
-     *   happen before it does. This results in better reporting the game state to the user, but it should be relatively
-     *   rare.
-     */
-    suspend fun apply(change: GameStateChange, insertBefore: GameStateChange?) {
+    override suspend fun apply(change: GameStateChange) {
         if (isGameOver) return
 
-        val changes = history.lastOrNull() ?: error("apply called before calling startRecordingChanges()")
-        changes.add(change, insertBefore)
+        if (!change.transient) {
+            val changes = recordingChanges ?: error("apply() called before calling startRecordingChanges()")
+            changes.add(change)
+        }
         change.applyTo(this)
     }
 }

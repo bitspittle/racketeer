@@ -94,15 +94,7 @@ class GameChangesSnapshot(
             changes.vp,
             // No need to save "calculate VP passive" history; it'll get recalculated anyway, and sometimes this
             // points to transient cards in the shop which would crash on load.
-            changes.items
-                .filter { change ->
-                    when {
-                        change is GameStateChange.AddCardAmount && change.property == CardProperty.VP_PASSIVE -> false
-                        change is GameStateChange.AddBuildingAmount && change.property == BuildingProperty.VP_PASSIVE -> false
-                        else -> true
-                    }
-                }
-                .map { change -> GameChangeSnapshot.from(describer, state, change) }
+            changes.items.map { change -> GameChangeSnapshot.from(describer, state, change) }
         )
     }
 
@@ -126,6 +118,7 @@ sealed class GameChangeSnapshot {
     companion object {
         fun from(describer: Describer, state: GameState, change: GameStateChange): GameChangeSnapshot =
             when (change) {
+                is GameStateChange.GameStart -> GameStart.from(change)
                 is GameStateChange.ShuffleDiscardIntoDeck -> ShuffleDiscardIntoDeck.from(change)
                 is GameStateChange.Draw -> Draw.from(change)
                 is GameStateChange.Play -> Play.from(change)
@@ -154,6 +147,16 @@ sealed class GameChangeSnapshot {
     }
 
     abstract fun create(data: GameData, state: GameState): GameStateChange
+
+    @Serializable
+    @SerialName("GameStart")
+    class GameStart : GameChangeSnapshot() {
+        companion object {
+            fun from(change: GameStateChange.GameStart) = GameStart()
+        }
+
+        override fun create(data: GameData, state: GameState) = GameStateChange.GameStart()
+    }
 
     @Serializable
     @SerialName("ShuffleDiscardIntoDeck")
@@ -188,38 +191,55 @@ sealed class GameChangeSnapshot {
 
     @Serializable
     @SerialName("MoveCard")
-    class MoveCard(val cardPtr: CardPtr, val pilePtr: PilePtr, val listStrategy: ListStrategy = ListStrategy.BACK) :
+    class MoveCard(val cardPtr: CardPtr, val pileFromPtr: PilePtr?, val pileIntoPtr: PilePtr, val listStrategy: ListStrategy = ListStrategy.BACK) :
         GameChangeSnapshot() {
         companion object {
             fun from(describer: Describer, state: GameState, change: GameStateChange.MoveCard) = MoveCard(
                 CardPtr.from(change.card),
+                change.fromPile?.let { fromPile -> PilePtr.from(describer, state, fromPile) },
                 PilePtr.from(describer, state, change.intoPile),
                 change.listStrategy
             )
         }
 
         override fun create(data: GameData, state: GameState) =
-            GameStateChange.MoveCard(cardPtr.findIn(state), pilePtr.findIn(state), listStrategy)
+            GameStateChange.MoveCard(cardPtr.findIn(state), pileFromPtr?.findIn(state), pileIntoPtr.findIn(state), listStrategy)
     }
 
+    // Note: We separate pile and card pointers from each other instead of using a Map<PilePtr?, List<CardPtr>> because
+    // the YAML library we use doesn't handle maps with complex types correctly.
     @Serializable
     @SerialName("MoveCards")
     class MoveCards(
+        val pilePtrs: List<PilePtr?>,
         val cardPtrs: List<CardPtr>,
-        val pilePtr: PilePtr,
+        val pileIntoPtr: PilePtr,
         val listStrategy: ListStrategy = ListStrategy.BACK
     ) : GameChangeSnapshot() {
         companion object {
             fun from(describer: Describer, state: GameState, change: GameStateChange.MoveCards) = MoveCards(
-                change.cards.map { card -> CardPtr.from(card) },
+                change.cards
+                    .flatMap { (pile, cards) ->
+                        cards.map { pile?.let { PilePtr.from(describer, state, pile) } }
+                    },
+                change.cards.flatMap { (_, cards) -> cards.map { card -> CardPtr.from(card) } },
                 PilePtr.from(describer, state, change.intoPile),
                 change.listStrategy
             )
         }
 
         override fun create(data: GameData, state: GameState) = GameStateChange.MoveCards(
-            cardPtrs.map { cardPtr -> cardPtr.findIn(state) },
-            pilePtr.findIn(state),
+            pilePtrs.zip(cardPtrs).let { zipped ->
+                mutableMapOf<Pile?, MutableList<Card>>().apply {
+                    val cardsMap = this
+                    zipped.forEach { (pilePtr, cardPtr) ->
+                        val fromPile = pilePtr?.findIn(state)
+                        val card = cardPtr.findIn(state)
+                        cardsMap.getOrPut(fromPile) { mutableListOf() }.add(card)
+                    }
+                }
+            },
+            pileIntoPtr.findIn(state),
             listStrategy
         )
     }
@@ -395,12 +415,12 @@ sealed class GameChangeSnapshot {
 
     @Serializable
     @SerialName("UpgradeShop")
-    class UpgradeShop : GameChangeSnapshot() {
+    class UpgradeShop(val tier: Int) : GameChangeSnapshot() {
         companion object {
-            fun from(change: GameStateChange.UpgradeShop) = UpgradeShop()
+            fun from(change: GameStateChange.UpgradeShop) = UpgradeShop(tier = change.tier)
         }
 
-        override fun create(data: GameData, state: GameState) = GameStateChange.UpgradeShop()
+        override fun create(data: GameData, state: GameState) = GameStateChange.UpgradeShop(tier)
     }
 
     @Serializable
