@@ -60,24 +60,8 @@ class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!",
         val dataVariable = if (data != null) mapOf("\$data" to data.asAny) else emptyMap()
 
         val effect = when(event) {
-            GameEvent.PLAY -> Effect<Card>(desc, lifetime, event, data, testExpr?.ctx?.text, effectExpr.ctx.text,
-                test = { card ->
-                    if (testExpr != null) {
-                        env.expectConvert(env.scoped {
-                            env.setValuesFrom(getGameState())
-                            eval.extend(dataVariable + mapOf("\$card" to card)).evaluate(env, testExpr)
-                        })
-                    } else {
-                        true
-                    }
-                },
-                action = { card ->
-                    env.scoped {
-                        env.setValuesFrom(getGameState())
-                        eval.extend(dataVariable + mapOf("\$card" to card)).evaluate(env, effectExpr)
-                    }
-                }
-            )
+            // Card events
+            GameEvent.PLAY,
             GameEvent.CREATE -> Effect<Card>(desc, lifetime, event, data, testExpr?.ctx?.text, effectExpr.ctx.text,
                 test = { card ->
                     if (testExpr != null) {
@@ -96,6 +80,7 @@ class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!",
                     }
                 }
             )
+            // Multi-Card events
             GameEvent.DISCARD -> Effect<List<Card>>(desc, lifetime, event, data, testExpr?.ctx?.text, effectExpr.ctx.text,
                 test = { cards ->
                     if (testExpr != null) {
@@ -114,6 +99,7 @@ class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!",
                     }
                 }
             )
+            // Pile events
             GameEvent.SHUFFLE -> Effect<Pile>(desc, lifetime, event, data, testExpr?.ctx?.text, effectExpr.ctx.text,
                 test = { pile ->
                     if (testExpr != null) {
@@ -132,43 +118,11 @@ class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!",
                     }
                 }
             )
-            GameEvent.TURN_START -> Effect<Unit>(desc, lifetime, event, data, testExpr?.ctx?.text, effectExpr.ctx.text,
-                test = {
-                    if (testExpr != null) {
-                        env.expectConvert(env.scoped {
-                            env.setValuesFrom(getGameState())
-                            eval.extend(dataVariable).evaluate(env, testExpr)
-                        })
-                    } else {
-                        true
-                    }
-                },
-                action = {
-                    env.scoped {
-                        env.setValuesFrom(getGameState())
-                        eval.extend(dataVariable).evaluate(env, effectExpr)
-                    }
-                }
-            )
-            GameEvent.RESTOCK -> Effect<Unit>(desc, lifetime, event, data, testExpr?.ctx?.text, effectExpr.ctx.text,
-                test = {
-                    if (testExpr != null) {
-                        env.expectConvert(env.scoped {
-                            env.setValuesFrom(getGameState())
-                            eval.extend(dataVariable).evaluate(env, testExpr)
-                        })
-                    } else {
-                        true
-                    }
-                },
-                action = {
-                    env.scoped {
-                        env.setValuesFrom(getGameState())
-                        eval.extend(dataVariable).evaluate(env, effectExpr)
-                    }
-                }
-            )
-            GameEvent.TURN_END -> Effect<Unit>(desc, lifetime, event, data, testExpr?.ctx?.text, effectExpr.ctx.text,
+            // Game events
+            GameEvent.TURN_START,
+            GameEvent.TURN_END,
+            GameEvent.RESTOCK,
+            -> Effect<Unit>(desc, lifetime, event, data, testExpr?.ctx?.text, effectExpr.ctx.text,
                 test = {
                     if (testExpr != null) {
                         env.expectConvert(env.scoped {
