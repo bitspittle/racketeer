@@ -63,7 +63,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         return when (trait) {
             TraitType.EXPENDABLE -> "${data.traitNames.expendable}: When played, burn this card."
             TraitType.SUSPICIOUS -> "${data.traitNames.suspicious}: When played, move to jail."
-            TraitType.SWIFT -> "${data.traitNames.swift}: Goes directly to hand."
+            TraitType.SWIFT -> "${data.traitNames.swift}: When bought, goes into your hand."
         }
     }
 
