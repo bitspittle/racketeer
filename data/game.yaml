@@ -1273,6 +1273,23 @@ cards:
 
 blueprints:
 
+#  - name: Effects Test
+#    rarity: 2
+#    description:
+#      ability: "Testing testing 1 2 3"
+#    buildCost:
+#      cash: 0
+#      influence: 0
+#    canActivate: false
+#    initActions:
+#      - fx-add! --desc (icon-convert "Announce turn-start event.") --lifetime 'game --event 'turn-start '(dbg "Turn started")
+#      - fx-add! --desc (icon-convert "Announce turn-end event.") --lifetime 'game --event 'turn-end '(dbg "Turn ended")
+#      - fx-add! --desc (icon-convert "Announce create event.") --lifetime 'game --event 'create '(dbg concat-to-string (list "Created - " card-get $card 'name))
+#      - fx-add! --desc (icon-convert "Announce play event.") --lifetime 'game --event 'play '(dbg concat-to-string (list "Played - " card-get $card 'name))
+#      - fx-add! --desc (icon-convert "Announce discard event.") --lifetime 'game --event 'discard '(dbg concat-to-string (list "Discarded - " to-string size $cards " card(s)"))
+#      - fx-add! --desc (icon-convert "Announce shuffle event.") --lifetime 'game --event 'shuffle '(dbg concat-to-string (list "Shuffled - " pile-get $pile 'name))
+#      - fx-add! --desc (icon-convert "Announce restock event.") --lifetime 'game --event 'restock '(dbg "Shop rerolled")
+
   - name: Drama School
     rarity: 2
     description:
