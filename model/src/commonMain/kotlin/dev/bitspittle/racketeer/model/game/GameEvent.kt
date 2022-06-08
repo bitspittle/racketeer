@@ -25,7 +25,7 @@ enum class GameEvent {
      * An event fired just after a card becomes newly created.
      *
      * This happens when you buy a card from the store, jailbreak it, or a few other ways caused by card actions
-     * (e.g. mimes creating a new card, or pair of earings splitting into two, etc.)
+     * (e.g. mimes creating a new card, or a pair of earrings splitting into two, etc.)
      *
      * Create events will include the newly created card set to the variable `$card`.
      */
