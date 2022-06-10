@@ -159,7 +159,7 @@ sealed class GameStateChange {
         }
     }
 
-    class AddGameAmount(val property: GameProperty, val amount: Int) : GameStateChange() {
+    class AddGameAmount(val property: GameProperty, var amount: Int) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             when (property) {
                 GameProperty.CASH -> cash += amount
@@ -216,7 +216,7 @@ sealed class GameStateChange {
         }
     }
 
-    class RestockShop(private val additionalFilter: suspend (CardTemplate) -> Boolean = { true }) : GameStateChange() {
+    class RestockShop(private val additionalFilter: suspend (CardTemplate) -> Boolean = { true }, var limitedInventory: Boolean = false) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             shop.restock(additionalFilter = additionalFilter)
             effects.processShopRestocked()
