@@ -257,6 +257,7 @@ private class GameStateDiffReporter(
                     is GameStateChange.AddEffect -> report(change)
                     is GameStateChange.AddGameTweak -> report(change)
                     is GameStateChange.AddShopTweak -> report(change)
+                    is GameStateChange.Buy -> Unit // No need to report, obvious from user actions
                     is GameStateChange.RestockShop -> report(change)
                     is GameStateChange.UpgradeShop -> report(change)
                     is GameStateChange.AddBlueprint -> report(change)

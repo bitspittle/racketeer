@@ -5,7 +5,6 @@ import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.utils.runStateChangingAction
 import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.game.GameProperty
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.shop.priceFor
 
@@ -20,10 +19,7 @@ class BuyCardCommand(ctx: GameContext, private val card: Card) : Command(ctx) {
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {
-            if (price > 0) {
-                ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.CASH, -price))
-            }
-            ctx.state.apply(GameStateChange.MoveCard(card, ctx.state.street))
+            ctx.state.apply(GameStateChange.Buy(card))
         }
         return true
     }

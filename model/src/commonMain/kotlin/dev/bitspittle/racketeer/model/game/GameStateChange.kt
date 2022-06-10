@@ -8,6 +8,7 @@ import dev.bitspittle.racketeer.model.effect.*
 import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.serialization.DataValue
+import dev.bitspittle.racketeer.model.shop.priceFor
 
 private suspend fun MutableGameState.fireEventForAnyCardsDiscardedBy(block: suspend MutableGameState.() -> Unit) {
     val discardBefore = discard.cards.toSet()
@@ -64,8 +65,9 @@ sealed class GameStateChange {
 
     class Play(val card: Card) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
-            val card = hand.cards.firstOrNull { it.id == card.id }
-                ?: error("You cannot play \"${card.template.name}\" as it is not in your hand.")
+            require(hand.cards.firstOrNull { it.id == card.id } != null) {
+                "You cannot play \"${card.template.name}\" as it is not in your hand."
+            }
 
             if (card.isExpendable) {
                 apply(MoveCard(card, graveyard))
@@ -195,6 +197,22 @@ sealed class GameStateChange {
                 is Tweak.Shop.Size -> shop.restock(restockAll = false)
                 else -> Unit
             }
+        }
+    }
+
+    class Buy(val card: Card) : GameStateChange() {
+        override suspend fun MutableGameState.apply() {
+            require(shop.stock.asSequence().filterNotNull().firstOrNull { it.id == card.id } != null) {
+                "Trying to buy ${card.template.name} but it's not a card in the shop"
+            }
+
+            val price = shop.priceFor(card)
+            if (price > 0) {
+                // Apply the payment, ensuring that this change shows up in the game report.
+                apply(AddGameAmount(GameProperty.CASH, -price))
+            }
+
+            apply(MoveCard(card, if (card.isSwift) hand else street))
         }
     }
 

@@ -99,6 +99,7 @@ sealed class GameChangeSnapshot {
                 is GameStateChange.AddEffect -> AddEffect.from(change)
                 is GameStateChange.AddGameTweak -> AddGameTweak.from(state, change)
                 is GameStateChange.AddShopTweak -> AddShopTweak.from(state.shop, change)
+                is GameStateChange.Buy -> Buy.from(change)
                 is GameStateChange.RestockShop -> RestockShop.from(change)
                 is GameStateChange.UpgradeShop -> UpgradeShop.from(change)
                 is GameStateChange.AddBlueprint -> AddBlueprint.from(change)
@@ -327,6 +328,16 @@ sealed class GameChangeSnapshot {
         override fun create(data: GameData, state: GameState) = run {
             GameStateChange.AddShopTweak(tweakPtr.findIn(state.shop))
         }
+    }
+
+    @Serializable
+    @SerialName("Buy")
+    class Buy(val cardPtr: CardPtr) : GameChangeSnapshot() {
+        companion object {
+            fun from(change: GameStateChange.Buy) = Buy(CardPtr.from(change.card))
+        }
+
+        override fun create(data: GameData, state: GameState) = GameStateChange.Buy(cardPtr.findIn(state))
     }
 
     @Serializable
