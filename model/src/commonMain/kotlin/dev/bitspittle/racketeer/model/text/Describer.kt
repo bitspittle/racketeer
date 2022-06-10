@@ -166,13 +166,13 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
 
         if (showDebugInfo()) {
-            template.allInitActions.takeIf { it.isNotEmpty() }?.let { allInitActions ->
+            template.initActions.takeIf { it.isNotEmpty() }?.let { initActions ->
                 appendLine() // Finish previous section
                 appendLine() // Newline
                 appendLine("When first enters play:")
-                allInitActions.forEachIndexed { i, action ->
+                initActions.forEachIndexed { i, action ->
                     append("- $action")
-                    if (i < allInitActions.lastIndex) {
+                    if (i < initActions.lastIndex) {
                         appendLine()
                     }
                 }
