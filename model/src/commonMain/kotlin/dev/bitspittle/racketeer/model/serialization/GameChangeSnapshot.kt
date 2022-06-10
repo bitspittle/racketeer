@@ -76,12 +76,55 @@ class TweakPtr(val tweakIndex: Int) {
     fun findIn(shop: Shop) = shop.tweaks.items[tweakIndex]
 }
 
+@Serializable
+class GameChangesSnapshot(
+    val handSize: Int,
+    val cash: Int,
+    val influence: Int,
+    val luck: Int,
+    val vp: Int,
+    val items: List<GameChangeSnapshot>,
+) {
+    companion object {
+        fun from(describer: Describer, state: GameState, changes: GameStateChanges) = GameChangesSnapshot(
+            changes.handSize,
+            changes.cash,
+            changes.influence,
+            changes.luck,
+            changes.vp,
+            // No need to save "calculate VP passive" history; it'll get recalculated anyway, and sometimes this
+            // points to transient cards in the shop which would crash on load.
+            changes.items
+                .filter { change ->
+                    when {
+                        change is GameStateChange.AddCardAmount && change.property == CardProperty.VP_PASSIVE -> false
+                        change is GameStateChange.AddBuildingAmount && change.property == BuildingProperty.VP_PASSIVE -> false
+                        else -> true
+                    }
+                }
+                .map { change -> GameChangeSnapshot.from(describer, state, change) }
+        )
+    }
+
+    fun create(data: GameData, state: GameState) = GameStateChanges().apply {
+        handSize = this@GameChangesSnapshot.handSize
+        cash = this@GameChangesSnapshot.cash
+        influence = this@GameChangesSnapshot.influence
+        luck = this@GameChangesSnapshot.luck
+        vp = this@GameChangesSnapshot.vp
+
+        this@GameChangesSnapshot.items.forEach { change ->
+            add(change.create(data, state))
+        }
+    }
+}
+
 // We leave in parameters for clarity
 @Suppress("UNUSED_PARAMETER")
 @Serializable
 sealed class GameChangeSnapshot {
     companion object {
-        fun from(data: GameData, describer: Describer, state: GameState, change: GameStateChange): GameChangeSnapshot =
+        fun from(describer: Describer, state: GameState, change: GameStateChange): GameChangeSnapshot =
             when (change) {
                 is GameStateChange.ShuffleDiscardIntoDeck -> ShuffleDiscardIntoDeck.from(change)
                 is GameStateChange.Draw -> Draw.from(change)
@@ -114,12 +157,12 @@ sealed class GameChangeSnapshot {
 
     @Serializable
     @SerialName("ShuffleDiscardIntoDeck")
-    class ShuffleDiscardIntoDeck : GameChangeSnapshot() {
+    class ShuffleDiscardIntoDeck(var discardSize: Int) : GameChangeSnapshot() {
         companion object {
-            fun from(change: GameStateChange.ShuffleDiscardIntoDeck) = ShuffleDiscardIntoDeck()
+            fun from(change: GameStateChange.ShuffleDiscardIntoDeck) = ShuffleDiscardIntoDeck(change.discardSize)
         }
 
-        override fun create(data: GameData, state: GameState) = GameStateChange.ShuffleDiscardIntoDeck()
+        override fun create(data: GameData, state: GameState) = GameStateChange.ShuffleDiscardIntoDeck(discardSize)
     }
 
     @Serializable
@@ -332,22 +375,22 @@ sealed class GameChangeSnapshot {
 
     @Serializable
     @SerialName("Buy")
-    class Buy(val cardPtr: CardPtr) : GameChangeSnapshot() {
+    class Buy(val cardPtr: CardPtr, val soldOut: Boolean = false) : GameChangeSnapshot() {
         companion object {
-            fun from(change: GameStateChange.Buy) = Buy(CardPtr.from(change.card))
+            fun from(change: GameStateChange.Buy) = Buy(CardPtr.from(change.card), change.soldOut)
         }
 
-        override fun create(data: GameData, state: GameState) = GameStateChange.Buy(cardPtr.findIn(state))
+        override fun create(data: GameData, state: GameState) = GameStateChange.Buy(cardPtr.findIn(state), soldOut)
     }
 
     @Serializable
     @SerialName("RestockShop")
-    class RestockShop : GameChangeSnapshot() {
+    class RestockShop(val limitedInventory: Boolean = false) : GameChangeSnapshot() {
         companion object {
-            fun from(change: GameStateChange.RestockShop) = RestockShop()
+            fun from(change: GameStateChange.RestockShop) = RestockShop(change.limitedInventory)
         }
 
-        override fun create(data: GameData, state: GameState) = GameStateChange.RestockShop()
+        override fun create(data: GameData, state: GameState) = GameStateChange.RestockShop(limitedInventory = limitedInventory)
     }
 
     @Serializable

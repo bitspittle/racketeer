@@ -41,7 +41,7 @@ interface GameState {
     val effects: Effects
     val tweaks: Tweaks<Tweak.Game>
     val data: Map<String, DataValue>
-    val history: List<GameStateChange>
+    val history: List<GameStateChanges>
 
     /**
      * Inform this state that something changed and you'd like to recalculate any values that may change based on it,
@@ -51,12 +51,19 @@ interface GameState {
     // in a suspend context, so it requires a parent suspend function calling it right now. Maybe this can be revisited
     // later.
     suspend fun onBoardChanged()
-    suspend fun apply(change: GameStateChange)
+
     fun copy(): GameState
 
     fun pileFor(card: Card): Pile?
 
     fun canActivate(building: Building): Boolean
+
+    /** Opens a new change group in [history], which must be done before [apply] is called. */
+    fun startRecordingChanges()
+    /** Closed a change group opened by [startRecordingChanges], returning false if no changes were applied. */
+    fun finishRecordingChanges(): Boolean
+    /** Apply a change to this state. */
+    suspend fun apply(change: GameStateChange)
 }
 
 object GameStateStub : GameState {
@@ -81,17 +88,20 @@ object GameStateStub : GameState {
     override val effects: Effects get() = throw NotImplementedError()
     override val tweaks: Tweaks<Tweak.Game> get() = throw NotImplementedError()
     override val data: Map<String, DataValue> get() = throw NotImplementedError()
-    override val history: List<GameStateChange> get() = throw NotImplementedError()
+    override val history: List<GameStateChanges> get() = throw NotImplementedError()
 
     override suspend fun onBoardChanged() = throw NotImplementedError()
-    override suspend fun apply(change: GameStateChange) = throw NotImplementedError()
     override fun copy() = throw NotImplementedError()
     override fun pileFor(card: Card) = throw NotImplementedError()
     override fun canActivate(building: Building) = throw NotImplementedError()
+
+    override fun startRecordingChanges() = throw NotImplementedError()
+    override fun finishRecordingChanges() = throw NotImplementedError()
+    override suspend fun apply(change: GameStateChange) = throw NotImplementedError()
 }
 
 val GameState.lastTurnIndex get() = numTurns - 1
-val GameState.isGameOver get() = history.lastOrNull() is GameStateChange.GameOver
+val GameState.isGameOver get() = history.lastOrNull()?.items?.lastOrNull() is GameStateChange.GameOver
 val GameState.isGameInProgress get() = !isGameOver
 val GameState.ownedPiles: Sequence<Pile> get() = sequenceOf(hand, deck, discard, street)
 val GameState.allPiles: Sequence<Pile> get() = ownedPiles + sequenceOf(jail, graveyard)
@@ -122,7 +132,7 @@ class MutableGameState internal constructor(
     override val effects: MutableEffects,
     override val tweaks: MutableTweaks<Tweak.Game>,
     override val data: MutableMap<String, DataValue>,
-    override val history: MutableList<GameStateChange>,
+    override val history: MutableList<GameStateChanges>,
 ): GameState {
     constructor(data: GameData, features: Set<Feature.Type>, enqueuers: Enqueuers, random: CopyableRandom = CopyableRandom()) : this(
         random,
@@ -329,19 +339,30 @@ class MutableGameState internal constructor(
 
     override suspend fun apply(change: GameStateChange) = apply(change, null)
 
+    override fun startRecordingChanges() {
+        history.add(GameStateChanges())
+    }
+
+    override fun finishRecordingChanges(): Boolean {
+        return if (history.last().items.isEmpty()) {
+            history.removeLast()
+            false
+        } else {
+            history.last().snapshotResources(this)
+            true
+        }
+    }
+
     /**
      * @param insertBefore Sometimes it's useful for a change to delegate to another change, which should technically
      *   happen before it does. This results in better reporting the game state to the user, but it should be relatively
      *   rare.
      */
     suspend fun apply(change: GameStateChange, insertBefore: GameStateChange?) {
-        if (history.lastOrNull() is GameStateChange.GameOver) return
+        if (isGameOver) return
 
-        if (insertBefore == null) {
-            history.add(change)
-        } else {
-            history.add(history.indexOf(insertBefore), change)
-        }
+        val changes = history.lastOrNull() ?: error("apply called before calling startRecordingChanges()")
+        changes.add(change, insertBefore)
         change.applyTo(this)
     }
 }

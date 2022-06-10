@@ -9,6 +9,7 @@ import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.serialization.DataValue
 import dev.bitspittle.racketeer.model.shop.priceFor
+import dev.bitspittle.racketeer.model.shop.remaining
 
 private suspend fun MutableGameState.fireEventForAnyCardsDiscardedBy(block: suspend MutableGameState.() -> Unit) {
     val discardBefore = discard.cards.toSet()
@@ -25,8 +26,9 @@ sealed class GameStateChange {
     suspend fun applyTo(state: MutableGameState) = state.apply()
     protected abstract suspend fun MutableGameState.apply()
 
-    class ShuffleDiscardIntoDeck : GameStateChange() {
+    class ShuffleDiscardIntoDeck(var discardSize: Int = 0) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
+            discardSize = discard.cards.size
             move(discard.cards.shuffled(random()), deck)
             effects.processPileShuffed(deck)
         }
@@ -40,8 +42,9 @@ sealed class GameStateChange {
     class Draw(var count: Int? = null) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             val isFirstDrawThisTurn = run {
-                check(history.last() === this@Draw)
-                val prevChange = history.dropLast(1).lastOrNull { it is Draw || it is EndTurn }
+                val changes = history.last().items
+                check(changes.last() === this@Draw)
+                val prevChange = changes.dropLast(1).lastOrNull { it is Draw || it is EndTurn }
                 prevChange !is Draw
             }
 
@@ -200,7 +203,7 @@ sealed class GameStateChange {
         }
     }
 
-    class Buy(val card: Card) : GameStateChange() {
+    class Buy(val card: Card, var soldOut: Boolean = false) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             require(shop.stock.asSequence().filterNotNull().firstOrNull { it.id == card.id } != null) {
                 "Trying to buy ${card.template.name} but it's not a card in the shop"
@@ -213,13 +216,19 @@ sealed class GameStateChange {
             }
 
             apply(MoveCard(card, if (card.isSwift) hand else street))
+
+            soldOut = shop.remaining(card.template) == 0
         }
     }
 
-    class RestockShop(private val additionalFilter: suspend (CardTemplate) -> Boolean = { true }, var limitedInventory: Boolean = false) : GameStateChange() {
+    class RestockShop(var limitedInventory: Boolean = false, private val additionalFilter: suspend (CardTemplate) -> Boolean = { true }) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             shop.restock(additionalFilter = additionalFilter)
             effects.processShopRestocked()
+
+            // Should be really rare, but can happen if the filter is strict OR if due to some unlucky infinite bug,
+            // some user was able to buy all cards in the shop.
+            limitedInventory = shop.stock.any { it == null }
         }
     }
 

@@ -17,21 +17,25 @@ import dev.bitspittle.racketeer.model.text.Describer
  */
 class GameStateChanges {
     private val _changes = mutableListOf<GameStateChange>()
-    val changes: List<GameStateChange> = _changes
+    val items: List<GameStateChange> = _changes
 
     var handSize: Int = 0
-        private set
+        internal set
     var cash: Int = 0
-        private set
+        internal set
     var influence: Int = 0
-        private set
+        internal set
     var luck: Int = 0
-        private set
+        internal set
     var vp: Int = 0
-        private set
+        internal set
 
-    fun add(change: GameStateChange) {
-        _changes.add(change)
+    fun add(change: GameStateChange, insertBefore: GameStateChange? = null) {
+        if (insertBefore == null) {
+            _changes.add(change)
+        } else {
+            _changes.add(_changes.indexOf(insertBefore), change)
+        }
     }
 
     fun snapshotResources(state: GameState) {
@@ -66,7 +70,7 @@ class GameStateChanges {
         return changes
     }
 
-    fun toSummaryText(describer: Describer, state: GameState): String? {
+    fun toSummaryText(describer: Describer, state: GameState, prevChanges: GameStateChanges? = null): String? {
         if (_changes.isEmpty()) return null
 
         return buildString {
@@ -89,7 +93,7 @@ class GameStateChanges {
                     is GameStateChange.AddEffect -> report(change)
                     is GameStateChange.AddGameTweak -> report(describer, change)
                     is GameStateChange.AddShopTweak -> report(describer, change)
-                    is GameStateChange.Buy -> Unit // No need to report, obvious from user actions
+                    is GameStateChange.Buy -> report(change)
                     is GameStateChange.RestockShop -> report(change)
                     is GameStateChange.UpgradeShop -> report(change)
                     is GameStateChange.AddBlueprint -> report(change)
@@ -100,73 +104,48 @@ class GameStateChanges {
                 }
             }
 
-            run { // Report deltas
-                var handSize: Int = 0
-                var cash: Int = 0
-                var influence: Int = 0
-                var luck: Int = 0
-                var vp: Int = 0
+            // Game resource changes feel better reported in aggregate
 
-                changes.filterIsInstance<GameStateChange.AddGameAmount>().forEach { change ->
-                    when (change.property) {
-                        GameProperty.CASH -> cash += change.amount
-                        GameProperty.VP -> TODO()
-                        GameProperty.INFLUENCE -> TODO()
-                        GameProperty.LUCK -> TODO()
-                        GameProperty.HAND_SIZE -> TODO()
+            // Hand size message looks better when presented as an absolute diff:
+            if (prevChanges != null) {
+                (handSize - prevChanges.handSize).let { amount ->
+                    when {
+                        amount > 0 -> reportLine("Your hand size grew from ${prevChanges.handSize} to $handSize cards.")
+                        amount < 0 -> reportLine("Your hand size shrunk from ${prevChanges.handSize} to $handSize cards.")
                     }
+                }
+            }
 
+            (cash - (prevChanges?.cash ?: 0)).let { amount ->
+                when {
+                    amount > 0 -> reportLine("You earned ${describer.describeCash(amount)}.")
+                    amount < 0 -> reportLine("You spent ${describer.describeCash(-amount)}.")
+                }
+            }
+
+            (influence - (prevChanges?.influence ?: 0)).let { amount ->
+                when {
+                    amount > 0 -> reportLine("You earned ${describer.describeInfluence(amount)}.")
+                    amount < 0 -> reportLine("You spent ${describer.describeInfluence(-amount)}.")
+                }
+            }
+
+            (luck - (prevChanges?.luck ?: 0)).let { amount ->
+                when {
+                    amount > 0 -> reportLine("You earned ${describer.describeLuck(amount)}.")
+                    amount < 0 -> reportLine("You spent ${describer.describeLuck(-amount)}.")
+                }
+            }
+
+            // VP is passively calculated, so we have to manually check it
+            (vp - (prevChanges?.vp ?: 0)).let { vpDiff ->
+                when {
+                    vpDiff > 0 -> reportLine("You gained ${describer.describeVictoryPoints(vpDiff)}.")
+                    vpDiff < 0 -> reportLine("You lost ${describer.describeVictoryPoints(-vpDiff)}.")
                 }
             }
         }
     }
-//        (cash == 0 && influence == 0 && luck == 0 && vp == 0 && movedCards.isEmpty()).ifFalse {
-//            buildString {
-//                if (isEmpty()) {
-//                    append("No changes caused by this action.")
-//                    return@buildString
-//                }
-//
-//                movedCards.takeIf { it.isNotEmpty() }?.let { movedCards ->
-//                    movedCards.forEach { (piles, cards) ->
-//                        if (this.isNotEmpty()) appendLine()
-//
-//                        val (pileFrom, pileTo) = piles
-//                        val pileToName = describer.describePile(state, pileTo)
-//                        if (pileFrom == null) {
-//                            append("Created into $pileTo: ${cards.size} card(s)")
-//                        } else {
-//                            val pileFromName = describer.describePile(state, pileFrom)
-//                            append("Moved from $pileFromName to $pileToName: ${cards.size} card(s)")
-//                        }
-//                    }
-//                }
-//
-//                cash.takeIf { it != 0 }?.let { amount ->
-//                    if (this.isNotEmpty()) appendLine()
-//                    append(if (amount > 0) "Earned: " else "Spent: ")
-//                    append(describer.describeCash(amount.absoluteValue))
-//                }
-//
-//                influence.takeIf { it != 0 }?.let { amount ->
-//                    if (this.isNotEmpty()) appendLine()
-//                    append(if (amount > 0) "Gained: " else "Lost: ")
-//                    append(describer.describeInfluence(amount.absoluteValue))
-//                }
-//
-//                luck.takeIf { it != 0 }?.let { amount ->
-//                    if (this.isNotEmpty()) appendLine()
-//                    append(if (amount > 0) "Gained: " else "Lost: ")
-//                    append(describer.describeLuck(amount.absoluteValue))
-//                }
-//
-//                vp.takeIf { it != 0 }?.let { amount ->
-//                    if (this.isNotEmpty()) appendLine()
-//                    append(if (amount > 0) "Gained: " else "Lost: ")
-//                    append(describer.describeVictoryPoints(amount.absoluteValue))
-//                }
-//            }
-//        }
 
     private fun ListStrategy.toDesc(): String {
         return when (this) {
@@ -186,7 +165,7 @@ class GameStateChanges {
     private fun StringBuilder.report(describer: Describer, state: GameState, change: GameStateChange.ShuffleDiscardIntoDeck) = change.apply {
         val discardDesc = describer.describePile(state, state.discard)
         val deckDesc = describer.describePile(state, state.deck)
-        reportLine("${discardDesc.capitalize()} (${state.discard.cards.size}) was reshuffled into $deckDesc to refill it.")
+        reportLine("${discardDesc.capitalize()} (${change.discardSize}) was reshuffled into $deckDesc to refill it.")
     }
 
     private fun StringBuilder.report(describer: Describer, state: GameState, change: GameStateChange.Draw) = change.apply {
@@ -335,8 +314,20 @@ class GameStateChanges {
         report(describer, tweak)
     }
 
+    private fun StringBuilder.report(change: GameStateChange.Buy) = change.apply {
+        if (soldOut) {
+            reportLine("The shop will not sell any more copies of ${card.template.name}.")
+        }
+    }
+
+
     private fun StringBuilder.report(change: GameStateChange.RestockShop) = change.apply {
-        reportLine("The shop was restocked.")
+        reportLine(buildString {
+            append("The shop was restocked.")
+            if (limitedInventory) {
+                append(" Due to supply issues, some shelves are empty.")
+            }
+        })
     }
 
     private fun StringBuilder.report(change: GameStateChange.UpgradeShop) = change.apply {

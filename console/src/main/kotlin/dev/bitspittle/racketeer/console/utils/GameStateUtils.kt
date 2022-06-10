@@ -11,8 +11,10 @@ import dev.bitspittle.racketeer.scripting.types.CancelPlayException
 suspend fun GameContext.createNewGame(features: Set<Feature.Type> = setOf(Feature.Type.BUILDINGS)) {
     state = MutableGameState(data, features, enqueuers)
 
+    state.startRecordingChanges()
     enqueuers.expr.enqueue(state, data.initActions)
     enqueuers.actionQueue.runEnqueuedActions()
+    state.finishRecordingChanges()
 
     state.deck.cards.forEach { card ->
         userStats.cards.notifyOwnership(card)
@@ -31,13 +33,17 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
     env.scoped {
         try {
             state = nextState
-            block().also {
-                nextState.onBoardChanged()
-                GameStateDiff(prevState, nextState).reportTo(data, describer, app.logger)
+            state.startRecordingChanges()
+            block()
+            nextState.onBoardChanged()
+            if (state.finishRecordingChanges()) {
+                state.history.last().toSummaryText(describer, state, prevState.history.lastOrNull())?.let { summaryText ->
+                    app.logger.info(summaryText)
+                }
             }
 
             // Update user stats based on new history
-            state.history.drop(prevState.history.size).forEach { change ->
+            state.history.last().items.forEach { change ->
                 when (change) {
                     is GameStateChange.MoveCard -> {
                         if (prevState.pileFor(change.card) == null) {
@@ -59,7 +65,6 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
             }
         } catch (ex: Exception) {
             state = prevState
-            @Suppress("KotlinConstantConditions") // IntelliJ's warning is wrong here
             if (ex !is EvaluationException || ex.cause !is CancelPlayException) {
                 throw ex
             }
@@ -71,7 +76,6 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
 }
 
 fun GameContext.encodeToYaml() = GameSnapshot.from(
-    data,
     describer,
     state,
 ).encodeToYaml()

@@ -22,7 +22,8 @@ import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardProperty
 import dev.bitspittle.racketeer.model.card.CardTemplate
-import dev.bitspittle.racketeer.model.game.*
+import dev.bitspittle.racketeer.model.game.GameProperty
+import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.types.PileProperty
@@ -61,7 +62,6 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
     private var lastResultLog: String? = null
 
     private var stateSnapshot = ctx.state.copy()
-    private var latestDiff = GameStateDiff(ctx.state, stateSnapshot)
 
     private val symbolTextTree = MutableTextTree()
     init { refreshSymbolTextTree() }
@@ -99,20 +99,18 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
             { inEditingMode },
             "Take game snapshot",
             "Make a backup snapshot of the current game that you can restore to if you screw something up.",
-            isDisabled = { latestDiff.hasNoChanges() },
+            isDisabled = { ctx.state.history.size == stateSnapshot.history.size },
         ) {
             stateSnapshot = ctx.state.copy()
-            latestDiff = GameStateDiff(ctx.state, stateSnapshot)
         },
         ScriptingCommand(
             ctx,
             { inEditingMode },
             "Restore game snapshot",
             "Return to the last snapshot that you took.",
-            isDisabled = { latestDiff.hasNoChanges() },
+            isDisabled = { ctx.state.history.size == stateSnapshot.history.size },
         ) {
             ctx.state = stateSnapshot.copy()
-            latestDiff = GameStateDiff(ctx.state, stateSnapshot)
         },
     )
 
@@ -204,11 +202,15 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
     override suspend fun doHandleInputEntered(input: String, clearInput: () -> Unit) {
         val input = input + inputSuffix
         ctx.env.setValuesFrom(ctx.state)
-        val prevState = ctx.state.copy()
-
+        val prevChanges = ctx.state.history.lastOrNull()
+        ctx.state.startRecordingChanges()
         val evaluator = Evaluator()
         val result = evaluator.evaluate(ctx.env, input)
-        latestDiff = GameStateDiff(stateSnapshot, ctx.state)
+        if (ctx.state.finishRecordingChanges()) {
+            ctx.state.history.last().toSummaryText(ctx.describer, ctx.state, prevChanges)?.let { summaryText ->
+                ctx.app.logger.info(summaryText)
+            }
+        }
 
         previousActions.add(input)
         while (previousActions.size > Constants.PAGE_SIZE) {
@@ -222,7 +224,6 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
         }
         refreshSymbolTextTree()
 
-        GameStateDiff(prevState, ctx.state).reportTo(ctx.data, ctx.describer, ctx.app.logger)
 
         inputSuffix = ""
         clearInput()

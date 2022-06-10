@@ -25,10 +25,15 @@ interface Shop {
     /**
      * A count of how many times a player bought this card, by name.
      *
-     * If the card is not in this map, then it means one hasn't been bought yet, at which points you can use
+     * If the card is not in this map, then it means one hasn't been bought yet, at which point you can use
      * [Rarity.shopCount] instead.
      */
     val bought: Map<String, Int>
+
+    /**
+     * Rarity information which can be useful for querying card counts in the shop.
+     */
+    val rarities: List<Rarity>
 }
 
 /**
@@ -40,7 +45,7 @@ fun Shop.priceFor(card: Card): Int {
 }
 
 
-fun Shop.remaining(card: CardTemplate, rarities: List<Rarity>): Int {
+fun Shop.remaining(card: CardTemplate): Int {
     val maxStock = card.shopCount ?: rarities[card.rarity].shopCount
     return maxStock - (bought[card.name] ?: 0)
 }
@@ -51,7 +56,7 @@ class MutableShop internal constructor(
     private val features: Set<Feature.Type>,
     private val shopSizes: List<Int>,
     private val tierFrequencies: List<Int>,
-    private val rarities: List<Rarity>,
+    override val rarities: List<Rarity>,
     tier: Int,
     override val stock: MutableList<Card?>,
     override val prices: MutableMap<Uuid, Int>,
@@ -140,7 +145,7 @@ class MutableShop internal constructor(
     suspend fun restock(restockAll: Boolean = true, additionalFilter: suspend (CardTemplate) -> Boolean = { true }) {
         handleRestock(
             restockAll,
-            filterAllCards { card -> remaining(card, rarities) > 0 && additionalFilter(card) }
+            filterAllCards { card -> remaining(card) > 0 && additionalFilter(card) }
         )
     }
 
@@ -166,7 +171,7 @@ class MutableShop internal constructor(
                 if (this.id == cardId) {
                     bought[this.template.name] = bought.getOrPut(this.template.name) { 0 } + 1
                         // A card should not have been put up for sale if we already sold too many of them
-                        .also { check(remaining(this.template, rarities) >= 0) }
+                        .also { check(remaining(this.template) >= 0) }
 
                     stock[i] = null
                     return

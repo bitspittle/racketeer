@@ -10,7 +10,6 @@ import dev.bitspittle.racketeer.model.action.Enqueuers
 import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.building.Blueprint
 import dev.bitspittle.racketeer.model.building.Building
-import dev.bitspittle.racketeer.model.building.BuildingProperty
 import dev.bitspittle.racketeer.model.building.MutableBuilding
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.effect.*
@@ -211,10 +210,10 @@ class GameSnapshot(
     val jail: PileSnapshot,
     val graveyard: PileSnapshot,
     val data: Map<String, DataValue>,
-    val history: List<GameChangeSnapshot>,
+    val history: List<GameChangesSnapshot>,
 ) {
     companion object {
-        fun from(data: GameData, describer: Describer, gameState: GameState) = GameSnapshot(
+        fun from(describer: Describer, gameState: GameState) = GameSnapshot(
             gameState.random,
             gameState.features,
             gameState.numTurns,
@@ -236,17 +235,8 @@ class GameSnapshot(
             PileSnapshot.from(gameState.jail),
             PileSnapshot.from(gameState.graveyard),
             gameState.data,
-            // No need to save "calculate VP passive" history; it'll get recalculated anyway, and sometimes this points
-            // to transient cards in the shop which would crash on load.
             gameState.history
-                .filter { change ->
-                    when {
-                        change is GameStateChange.AddCardAmount && change.property == CardProperty.VP_PASSIVE -> false
-                        change is GameStateChange.AddBuildingAmount && change.property == BuildingProperty.VP_PASSIVE -> false
-                        else -> true
-                    }
-                }
-                .map { change -> GameChangeSnapshot.from(data, describer, gameState, change) }
+                .map { changes -> GameChangesSnapshot.from(describer, gameState, changes) }
         )
     }
 
@@ -286,6 +276,7 @@ class GameSnapshot(
             this.data.toMutableMap(),
             history = mutableListOf(), // Populated shortly
         )
+
         gs.history.addAll(history.map { it.create(data, gs) })
 
         onGameStateCreated(gs)
