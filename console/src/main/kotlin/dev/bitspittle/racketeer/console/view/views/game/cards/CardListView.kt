@@ -35,7 +35,13 @@ class CardListView(ctx: GameContext, private var sortingOrder: SortingOrder = So
         // Even if we sort by tier, it should still be name-sorted secondarily
         cards
             .let { cards -> if (sortingOrder == SortingOrder.TIER) cards.sortedBy { it.tier } else cards }
-            .map { ViewCardTemplateCommand(ctx, it, if (sortingOrder == SortingOrder.TIER) "(Tier ${it.tier + 1})" else null) }
+            .map { card ->
+                ViewCardTemplateCommand(
+                    ctx, card,
+                    if (sortingOrder == SortingOrder.TIER) "(Tier ${card.tier + 1})" else null,
+                    includeFlavor = true
+                )
+            }
 
     override suspend fun handleAdditionalKeys(key: Key): Boolean {
         return if (key is CharKey && (key.code.isLetter() || key.code == ' ') && sortingOrder == SortingOrder.NAME) {

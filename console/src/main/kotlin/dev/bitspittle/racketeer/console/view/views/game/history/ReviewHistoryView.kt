@@ -9,6 +9,8 @@ import com.varabyte.kotter.runtime.MainRenderScope
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.limp.utils.ifTrue
 import dev.bitspittle.racketeer.console.command.Command
+import dev.bitspittle.racketeer.console.command.commands.buildings.ViewBlueprintCommand
+import dev.bitspittle.racketeer.console.command.commands.game.cards.ViewCardTemplateCommand
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.game.GameState
@@ -17,8 +19,8 @@ import dev.bitspittle.racketeer.model.game.GameStateChanges
 
 private class HistoryCommand(
     ctx: GameContext,
-    changes: GameStateChanges,
-    prevChanges: GameStateChanges?,
+    private val changes: GameStateChanges,
+    private val prevChanges: GameStateChanges?,
 ) : Command(ctx) {
     override val title = with(changes.items.first()) {
         when (this) {
@@ -61,6 +63,46 @@ private class HistoryCommand(
     }
 
     override val extra = (changes.vp > (prevChanges?.vp ?: 0)).ifTrue { ctx.describer.describeVictoryPoints(changes.vp) }
+
+    override suspend fun invoke(): Boolean {
+        val commands = mutableListOf<Command>()
+        changes.items.forEach { change ->
+            when (change) {
+                is GameStateChange.Activate -> commands.add(ViewBlueprintCommand(ctx, change.building.blueprint))
+                is GameStateChange.AddBlueprint -> commands.add(ViewBlueprintCommand(ctx, change.blueprint))
+                is GameStateChange.AddBuildingAmount -> commands.add(ViewBlueprintCommand(ctx, change.building.blueprint))
+                is GameStateChange.AddCardAmount -> commands.add(ViewCardTemplateCommand(ctx, change.card.template))
+                is GameStateChange.AddEffect -> Unit
+                is GameStateChange.AddGameAmount -> Unit
+                is GameStateChange.AddGameTweak -> Unit
+                is GameStateChange.AddShopTweak -> Unit
+                is GameStateChange.AddTrait -> commands.add(ViewCardTemplateCommand(ctx, change.card.template))
+                is GameStateChange.Build -> commands.add(ViewBlueprintCommand(ctx, change.blueprint))
+                is GameStateChange.Buy -> commands.add(ViewCardTemplateCommand(ctx, change.card.template))
+                is GameStateChange.Draw -> Unit
+                is GameStateChange.EndTurn -> Unit
+                is GameStateChange.GameOver -> Unit
+                is GameStateChange.GameStart -> Unit
+                is GameStateChange.MoveCard -> commands.add(ViewCardTemplateCommand(ctx, change.card.template))
+                is GameStateChange.MoveCards -> commands.addAll(change.cards.values.flatten().map { ViewCardTemplateCommand(ctx, it.template) })
+                is GameStateChange.Play -> commands.add(ViewCardTemplateCommand(ctx, change.card.template))
+                is GameStateChange.RemoveTrait -> commands.add(ViewCardTemplateCommand(ctx, change.card.template))
+                is GameStateChange.RestockShop -> Unit
+                is GameStateChange.SetGameData -> Unit
+                is GameStateChange.Shuffle -> Unit
+                is GameStateChange.ShuffleDiscardIntoDeck -> Unit
+                is GameStateChange.UpgradeCard -> commands.add(ViewCardTemplateCommand(ctx, change.card.template))
+                is GameStateChange.UpgradeShop -> Unit
+            }
+        }
+
+        if (commands.isEmpty()) return false
+
+        ctx.viewStack.pushView(object : View(ctx) {
+            override fun createCommands() = commands.distinctBy { it.title }.sortedBy { it.title }
+        })
+        return true
+    }
 }
 
 /** Browse the target [state]'s history so far. */
@@ -110,9 +152,7 @@ class ReviewHistoryView(ctx: GameContext, private val state: GameState = ctx.sta
         text("Press "); cyan { text("LEFT") }; text(" and "); cyan { text("RIGHT") }; textLine( " to change the current turn.")
         text("Press "); cyan { text("0-9") }; textLine(" to select turns 1 through 10.");
         text("Press "); cyan { text("SHIFT + 0-9") }; textLine(" to select turns 11 through 20.");
-//        if (historyByTurn[turn][currIndex].second.movedCards.isNotEmpty()) {
-//            text("Press "); cyan { text("ENTER") }; textLine(" to see affected cards.");
-//        }
+        text("Press "); cyan { text("ENTER") }; textLine(" to review affected cards / buildings.");
     }
 
     override suspend fun handleAdditionalKeys(key: Key): Boolean {
@@ -145,12 +185,9 @@ class ReviewHistoryView(ctx: GameContext, private val state: GameState = ctx.sta
         }
 
         return if (turn != currTurn) {
+            currIndex = 0
             refreshCommands()
             true
         } else false
-    }
-
-    override fun refreshCursorPosition(oldIndex: Int, oldCommand: Command): Int {
-        return 0
     }
 }
