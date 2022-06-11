@@ -45,7 +45,20 @@ private class HistoryCommand(
         }
     }
 
-    override val description = changes.toSummaryText(ctx.describer, ctx.state, prevChanges)
+    override val description = buildString {
+        append(ctx.describer.describeCash(changes.cash))
+        append(' ')
+        append(ctx.describer.describeInfluence(changes.influence))
+        append(' ')
+        append(ctx.describer.describeLuck(changes.luck))
+        append(' ')
+        append(ctx.describer.describeVictoryPoints(changes.vp))
+        changes.toSummaryText(ctx.describer, ctx.state, prevChanges)?.let { summaryText ->
+            appendLine()
+            appendLine()
+            append(summaryText)
+        }
+    }
 
     override val extra = (changes.vp > (prevChanges?.vp ?: 0)).ifTrue { ctx.describer.describeVictoryPoints(changes.vp) }
 }
