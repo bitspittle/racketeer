@@ -79,7 +79,7 @@ private class HistoryCommand(
                 is GameStateChange.AddTrait -> commands.add(ViewCardTemplateCommand(ctx, change.card.template))
                 is GameStateChange.Build -> commands.add(ViewBlueprintCommand(ctx, change.blueprint))
                 is GameStateChange.Buy -> commands.add(ViewCardTemplateCommand(ctx, change.card.template))
-                is GameStateChange.Draw -> Unit
+                is GameStateChange.Draw -> commands.addAll(change.cards.map { ViewCardTemplateCommand(ctx, it.template) })
                 is GameStateChange.EndTurn -> Unit
                 is GameStateChange.GameOver -> Unit
                 is GameStateChange.GameStart -> Unit

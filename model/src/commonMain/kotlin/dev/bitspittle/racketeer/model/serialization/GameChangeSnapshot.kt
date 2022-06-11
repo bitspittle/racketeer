@@ -170,13 +170,13 @@ sealed class GameChangeSnapshot {
 
     @Serializable
     @SerialName("Draw")
-    class Draw(val count: Int) : GameChangeSnapshot() {
+    class Draw(val count: Int, val cards: List<CardPtr>) : GameChangeSnapshot() {
         companion object {
             // Will always be non-null by this time, after the draw change was applied
-            fun from(change: GameStateChange.Draw) = Draw(change.count!!)
+            fun from(change: GameStateChange.Draw) = Draw(change.count!!, change.cards.map { CardPtr.from(it) })
         }
 
-        override fun create(data: GameData, state: GameState) = GameStateChange.Draw(count)
+        override fun create(data: GameData, state: GameState) = GameStateChange.Draw(count, cards.map { it.findIn(state) })
     }
 
     @Serializable

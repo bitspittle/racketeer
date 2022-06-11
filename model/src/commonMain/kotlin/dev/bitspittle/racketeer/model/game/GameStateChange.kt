@@ -48,8 +48,10 @@ sealed class GameStateChange {
      * @param count How many cards to draw this turn. If no value is specified, the user's handsize will be drawn.
      *   Note that calling [apply] will update the count value to how many cards were actually drawn, after which point
      *   it will be guaranteed non-null.
+     *
+     * @param cards Will be set to the cards drawn by this command.
      */
-    class Draw(var count: Int? = null) : GameStateChange() {
+    class Draw(var count: Int? = null, var cards: List<Card> = emptyList()) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             // Multiple draws can happen in a single turn thanks to card actions. Here, we only want to do some stuff
             // on the first draw per turn -- that is, the first "Draw" change after an "EndTurn"
@@ -69,8 +71,8 @@ sealed class GameStateChange {
             count = count.coerceAtMost(deck.cards.size)
             deck.cards.take(count).let { cards ->
                 move(cards, hand)
+                this@Draw.cards = cards
             }
-
             this@Draw.count = count
 
             if (isFirstDrawThisTurn) {
