@@ -47,7 +47,7 @@ private class HistoryCommand(
 
     override val description = changes.toSummaryText(ctx.describer, ctx.state, prevChanges)
 
-    override val extra = (changes.vp > 0).ifTrue { ctx.describer.describeVictoryPoints(changes.vp) }
+    override val extra = (changes.vp > (prevChanges?.vp ?: 0)).ifTrue { ctx.describer.describeVictoryPoints(changes.vp) }
 }
 
 /** Browse the target [state]'s history so far. */
