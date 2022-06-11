@@ -3,7 +3,9 @@ package dev.bitspittle.racketeer.console.command.commands.system
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
 import dev.bitspittle.racketeer.console.view.popAll
+import dev.bitspittle.racketeer.console.view.views.game.play.GameSummaryView
 import dev.bitspittle.racketeer.console.view.views.game.play.PlayCardsView
+import dev.bitspittle.racketeer.model.game.isGameOver
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import net.mamoe.yamlkt.Yaml
 import kotlin.io.path.*
@@ -22,7 +24,12 @@ class ConfirmLoadCommand(ctx: GameContext, private val slot: Int) : Command(ctx)
         }
 
         ctx.viewStack.popAll()
-        ctx.viewStack.replaceView(PlayCardsView(ctx))
+
+        if (!ctx.state.isGameOver) {
+            ctx.viewStack.replaceView(PlayCardsView(ctx))
+        } else {
+            ctx.viewStack.replaceView(GameSummaryView(ctx))
+        }
 
         if (slot >= 0) {
             ctx.app.logger.info("Slot #${slot + 1} successfully loaded!")
