@@ -7,7 +7,7 @@ import dev.bitspittle.racketeer.model.game.getOwnedCards
 
 class BrowseOwnedCardsCommand(ctx: GameContext) : Command(ctx) {
     private val owned = ctx.state.getOwnedCards().toList()
-    override val type = if (owned.isNotEmpty()) Type.Normal else Type.Disabled
+    override val type = if (owned.isNotEmpty()) Type.Accented else Type.Disabled
     override val title = "Browse all owned (${owned.size})"
 
     override val description = "See all your owned cards (which are all piles excluding the jail)."
