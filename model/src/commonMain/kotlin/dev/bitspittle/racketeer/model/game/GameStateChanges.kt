@@ -175,7 +175,7 @@ class GameStateChanges {
                 reportLine("$count cards were drawn from $deckDesc into $handDesc.")
             } else {
                 check(count == 1)
-                reportLine("A card was drawn from $deckDesc into $handDesc.")
+                reportLine("\"${cards.first()}\" was drawn from $deckDesc into $handDesc.")
             }
         }
     }
