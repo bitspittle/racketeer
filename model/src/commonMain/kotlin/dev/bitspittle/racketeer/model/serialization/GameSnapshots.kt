@@ -281,10 +281,25 @@ class GameSnapshot(
 
         onGameStateCreated(gs)
 
+        // Normally the game won't be over but can be true for admins who save on the last screen
+        // We need to temporarily remove this or else the following requests to apply VP calculations will fail.
+        // See also GameState.apply's implementation.
+        val gameOverChange = if (gs.isGameOver) gs.history.removeLast() else null
+
+        // We need to create a temporary history group which needs to exist when adding effects and calculating passive
+        // VP.
+        gs.startRecordingChanges()
         env.scoped {
             val evaluator = Evaluator()
             effects.forEach { effect -> effect.evaluate(env, evaluator) }
         }
-        gs.onBoardChanged()
+        gs.onBoardChanged() // Trigger passive VP calculations
+        if (gs.finishRecordingChanges()) {
+            gs.history.removeLast()
+        }
+
+        if (gameOverChange != null) {
+            gs.history.add(gameOverChange)
+        }
     }
 }

@@ -21,14 +21,10 @@ private suspend fun MutableGameState.fireEventForAnyCardsDiscardedBy(block: susp
     }
 }
 
+@Suppress("CanSealedSubClassBeObject")
 sealed class GameStateChange {
     suspend fun applyTo(state: MutableGameState) = state.apply()
     protected abstract suspend fun MutableGameState.apply()
-
-    /**
-     * Some changes don't need to be saved into history, e.g. passive VP calculations
-     */
-    open val transient: Boolean = false
 
     class GameStart : GameStateChange() {
         // Doesn't do anything; just a marker that this game has started
@@ -148,12 +144,6 @@ sealed class GameStateChange {
     }
 
     class AddCardAmount(val property: CardProperty, val card: Card, val amount: Int) : GameStateChange() {
-        override val transient: Boolean
-            get() = when(property) {
-                CardProperty.VP_PASSIVE -> true
-                else -> false
-            }
-
         override suspend fun MutableGameState.apply() {
             when (property) {
                 CardProperty.COUNTER -> (card as MutableCard).counter += amount
@@ -183,12 +173,6 @@ sealed class GameStateChange {
     }
 
     class AddBuildingAmount(val property: BuildingProperty, val building: Building, val amount: Int) : GameStateChange() {
-        override val transient: Boolean
-            get() = when(property) {
-                BuildingProperty.VP_PASSIVE -> true
-                else -> false
-            }
-
         override suspend fun MutableGameState.apply() {
             when (property) {
                 BuildingProperty.COUNTER -> (building as MutableBuilding).counter += amount

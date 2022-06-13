@@ -362,15 +362,10 @@ class MutableGameState internal constructor(
     }
 
     override suspend fun apply(change: GameStateChange) {
-        // Allow transient changes to run even if the game is over, as they generally just run passive calculations
-        // This won't matter for normal games but can matter for admins who save their game on the very last screen
-        // for debugging purposes.
-        if (!change.transient) {
-            if (isGameOver) return
+        if (isGameOver) return
 
-            val changes = recordingChanges ?: error("apply() called before calling startRecordingChanges()")
-            changes.add(change)
-        }
+        val changes = recordingChanges ?: error("apply() called before calling startRecordingChanges()")
+        changes.add(change)
         change.applyTo(this)
     }
 }
