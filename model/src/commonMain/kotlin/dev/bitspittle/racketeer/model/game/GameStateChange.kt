@@ -21,7 +21,6 @@ private suspend fun MutableGameState.fireEventForAnyCardsDiscardedBy(block: susp
     }
 }
 
-@Suppress("CanSealedSubClassBeObject") // All subclasses not objects, for consistency / future proofing
 sealed class GameStateChange {
     suspend fun applyTo(state: MutableGameState) = state.apply()
     protected abstract suspend fun MutableGameState.apply()
