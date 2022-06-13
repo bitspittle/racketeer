@@ -167,7 +167,7 @@ class GameStateChanges {
     }
 
     private fun StringBuilder.report(describer: Describer, state: GameState, change: GameStateChange.Draw) = change.apply {
-        val count = count!! // Count will always be set AFTER a Draw change is applied
+        val count = cards.size
         if (count > 0) {
             val deckDesc = describer.describePile(state, state.deck)
             val handDesc = describer.describePile(state, state.hand)

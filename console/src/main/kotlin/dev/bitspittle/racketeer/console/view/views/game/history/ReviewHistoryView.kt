@@ -29,7 +29,7 @@ private class HistoryCommand(
             is GameStateChange.AddGameAmount -> "Add game resource(s)"
             is GameStateChange.Build -> "Build \"${blueprint.name}\""
             is GameStateChange.Buy -> "Buy \"${card.template.name}\""
-            is GameStateChange.Draw -> "Draw $count card(s)"
+            is GameStateChange.Draw -> "Draw ${cards.size} card(s)"
             is GameStateChange.EndTurn -> "End turn"
             is GameStateChange.GameStart -> "Start"
             is GameStateChange.MoveCard -> "Move \"${card.template.name}\""

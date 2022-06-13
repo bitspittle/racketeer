@@ -44,13 +44,14 @@ sealed class GameStateChange {
     }
 
     /**
-     * @param count How many cards to draw this turn. If no value is specified, the user's handsize will be drawn.
-     *   Note that calling [apply] will update the count value to how many cards were actually drawn, after which point
-     *   it will be guaranteed non-null.
+     * @param requestedCount How many cards we want to draw this turn. If no value is specified, the user's handsize
+     *   will be drawn. Note that we might not be able to draw this many cards, if the user's deck + discard pile don't
+     *   have enough cards in them to fulfill the request. Check the size of [cards] to know how many cards were
+     *   actually drawn.
      *
      * @param cards Will be set to the cards drawn by this command.
      */
-    class Draw(var count: Int? = null, var cards: List<Card> = emptyList()) : GameStateChange() {
+    class Draw(val requestedCount: Int? = null, var cards: List<Card> = emptyList()) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             // Multiple draws can happen in a single turn thanks to card actions. Here, we only want to do some stuff
             // on the first draw per turn -- that is, the first "Draw" change after an "EndTurn"
@@ -62,7 +63,7 @@ sealed class GameStateChange {
                 prevChange !is Draw
             }
 
-            var count = this@Draw.count ?: handSize
+            var count = this@Draw.requestedCount ?: handSize
             if (deck.cards.size < count && discard.cards.isNotEmpty()) {
                 apply(ShuffleDiscardIntoDeck())
             }
@@ -72,7 +73,6 @@ sealed class GameStateChange {
                 move(cards, hand)
                 this@Draw.cards = cards
             }
-            this@Draw.count = count
 
             if (isFirstDrawThisTurn) {
                 effects.processTurnStarted()
