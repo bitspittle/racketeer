@@ -11,16 +11,6 @@ import dev.bitspittle.racketeer.model.serialization.DataValue
 import dev.bitspittle.racketeer.model.shop.priceFor
 import dev.bitspittle.racketeer.model.shop.remaining
 
-private suspend fun MutableGameState.fireEventForAnyCardsDiscardedBy(block: suspend MutableGameState.() -> Unit) {
-    val discardBefore = discard.cards.toSet()
-    block()
-    val discardAfter = discard.cards.toSet()
-
-    (discardAfter - discardBefore).takeIf { it.isNotEmpty() }?.let { discarded ->
-        effects.processCardsDiscarded(discarded.toList())
-    }
-}
-
 @Suppress("CanSealedSubClassBeObject")
 sealed class GameStateChange {
     suspend fun applyTo(state: MutableGameState) = state.apply()
@@ -104,10 +94,8 @@ sealed class GameStateChange {
             // Trigger effects first. Once we play a card, it might install an additional effect, which we don't want
             // to immediately run against the card itself
             effects.processCardPlayed(card)
-            fireEventForAnyCardsDiscardedBy {
-                enqueuers.card.enqueuePlayActions(this, card)
-                enqueuers.actionQueue.runEnqueuedActions()
-            }
+            enqueuers.card.enqueuePlayActions(this, card)
+            enqueuers.actionQueue.runEnqueuedActions()
         }
     }
 
@@ -122,6 +110,9 @@ sealed class GameStateChange {
 
         override suspend fun MutableGameState.apply() {
             move(card, intoPile, listStrategy)
+            if (intoPile.id == discard.id) {
+                effects.processCardsDiscarded(listOf(card))
+            }
         }
     }
 
@@ -132,7 +123,13 @@ sealed class GameStateChange {
                 this(cards.groupBy { card -> state.pileFor(card) }, intoPile, listStrategy)
 
         override suspend fun MutableGameState.apply() {
-            move(cards.values.flatten(), intoPile, listStrategy)
+            val cards = cards.values.flatten()
+            if (cards.isNotEmpty()) {
+                move(cards, intoPile, listStrategy)
+                if (intoPile.id == discard.id) {
+                    effects.processCardsDiscarded(cards)
+                }
+            }
         }
     }
 
@@ -303,10 +300,8 @@ sealed class GameStateChange {
             building.isActivated = true
 
             // Run its activate actions.
-            fireEventForAnyCardsDiscardedBy {
-                enqueuers.building.enqueueActivateActions(this, building)
-                enqueuers.actionQueue.runEnqueuedActions()
-            }
+            enqueuers.building.enqueueActivateActions(this, building)
+            enqueuers.actionQueue.runEnqueuedActions()
         }
     }
 
