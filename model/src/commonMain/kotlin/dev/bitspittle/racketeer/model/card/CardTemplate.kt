@@ -55,6 +55,12 @@ data class CardTemplate(
 val CardTemplate.allPassiveActions: List<String> get() =
     (passiveVp?.let { expr -> listOf("card-set! \$this 'vp-passive ($expr)") } ?: emptyList()) + passiveActions
 
+/**
+ * A collection of all init actions, both those written explicitly and also implicitly extracted from other fields
+ */
+val CardTemplate.allInitActions: List<String> get() =
+    (if (traitTypes.contains(TraitType.SWIFT)) listOf("pile-move-to! \$hand \$this") else emptyList()) + initActions
+
 val CardTemplate.featureTypes: Set<Feature.Type>
     get() = features.map { featureStr ->
         Feature.Type.values().first { it.toIdentifierName() == featureStr }

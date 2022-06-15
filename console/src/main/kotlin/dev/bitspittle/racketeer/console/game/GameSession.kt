@@ -30,6 +30,7 @@ import dev.bitspittle.racketeer.model.action.Enqueuers
 import dev.bitspittle.racketeer.model.action.ExprCache
 import dev.bitspittle.racketeer.model.building.allPassiveActions
 import dev.bitspittle.racketeer.model.card.allPassiveActions
+import dev.bitspittle.racketeer.model.card.allInitActions
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.GameStateStub
 import dev.bitspittle.racketeer.model.text.Describer
@@ -150,7 +151,7 @@ class GameSession(
 
         val exprCache = ExprCache()
         // Compile early to suss out any syntax errors at startup time instead of runtime
-        gameData.cards.flatMap { it.initActions }.forEach { exprCache.parse(it) }
+        gameData.cards.flatMap { it.allInitActions }.forEach { exprCache.parse(it) }
         gameData.cards.flatMap { it.allPassiveActions }.forEach { exprCache.parse(it) }
         gameData.cards.flatMap { it.playActions }.forEach { exprCache.parse(it) }
         gameData.blueprints.flatMap { it.initActions }.forEach { exprCache.parse(it) }

@@ -63,7 +63,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         return when (trait) {
             TraitType.EXPENDABLE -> "${data.traitNames.expendable}: When played, burn this card."
             TraitType.SUSPICIOUS -> "${data.traitNames.suspicious}: When played, move to jail."
-            TraitType.SWIFT -> "${data.traitNames.swift}: When bought, goes into your hand."
+            TraitType.SWIFT -> "${data.traitNames.swift}: When you get this, goes into your hand."
         }
     }
 
@@ -166,7 +166,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
 
         if (showDebugInfo()) {
-            template.initActions.takeIf { it.isNotEmpty() }?.let { initActions ->
+            template.allInitActions.takeIf { it.isNotEmpty() }?.let { initActions ->
                 appendLine() // Finish previous section
                 appendLine() // Newline
                 appendLine("When first enters play:")

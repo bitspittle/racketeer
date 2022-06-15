@@ -9,6 +9,7 @@ import dev.bitspittle.racketeer.model.building.MutableBuilding
 import dev.bitspittle.racketeer.model.building.vpTotal
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.MutableCard
+import dev.bitspittle.racketeer.model.card.allInitActions
 import dev.bitspittle.racketeer.model.card.vpTotal
 import dev.bitspittle.racketeer.model.effect.*
 import dev.bitspittle.racketeer.model.pile.MutablePile
@@ -300,7 +301,7 @@ class MutableGameState internal constructor(
             val unownedAfterMove = cards.filter { !it.isOwned(this) }.toSet()
             unownedBeforeMove
                 .filter { !unownedAfterMove.contains(it) }
-                .filter { it.template.initActions.isNotEmpty() }
+                .filter { it.template.allInitActions.isNotEmpty() }
                 .forEach { card -> enqueuers.card.enqueueInitActions(this, card) }
             enqueuers.actionQueue.runEnqueuedActions()
 

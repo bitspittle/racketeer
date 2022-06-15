@@ -233,7 +233,7 @@ sealed class GameStateChange {
                 apply(AddGameAmount(GameProperty.CASH, -price))
             }
 
-            apply(MoveCard(card, if (card.isSwift) hand else street))
+            apply(MoveCard(card, street))
 
             soldOut = shop.remaining(card.template) == 0
         }
