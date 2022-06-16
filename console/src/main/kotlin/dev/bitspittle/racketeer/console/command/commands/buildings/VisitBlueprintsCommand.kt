@@ -13,7 +13,7 @@ class VisitBlueprintsCommand(ctx: GameContext) : Command(ctx) {
         ctx.state.blueprints.isNotEmpty() -> Type.Normal
         else -> Type.Hidden
     }
-    override val title = "View Blueprints"
+    override val title = "View blueprints"
 
     override val description = "Blueprints can be used to construct buildings when you have enough resources."
 
