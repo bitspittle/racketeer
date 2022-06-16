@@ -11,7 +11,7 @@ import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.effect.Lifetime
 
-private enum class ShopTweak {
+enum class ShopTweak {
     FROZEN,
     PRICES,
     SIZE,

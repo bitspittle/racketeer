@@ -9,6 +9,8 @@ import com.varabyte.kotter.foundation.text.*
 import com.varabyte.kotter.runtime.MainRenderScope
 import com.varabyte.kotter.runtime.render.RenderScope
 import dev.bitspittle.limp.Evaluator
+import dev.bitspittle.limp.types.ListStrategy
+import dev.bitspittle.limp.types.SortOrder
 import dev.bitspittle.limp.utils.toIdentifierName
 import dev.bitspittle.racketeer.console.command.Command
 import dev.bitspittle.racketeer.console.game.GameContext
@@ -18,15 +20,17 @@ import dev.bitspittle.racketeer.console.trie.TextTreeCursor
 import dev.bitspittle.racketeer.console.trie.intoWordTree
 import dev.bitspittle.racketeer.console.view.View
 import dev.bitspittle.racketeer.model.building.Blueprint
+import dev.bitspittle.racketeer.model.building.BlueprintProperty
 import dev.bitspittle.racketeer.model.building.Building
-import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.card.CardProperty
-import dev.bitspittle.racketeer.model.card.CardTemplate
-import dev.bitspittle.racketeer.model.game.GameProperty
-import dev.bitspittle.racketeer.model.game.GameState
-import dev.bitspittle.racketeer.model.game.recordChanges
+import dev.bitspittle.racketeer.model.building.BuildingProperty
+import dev.bitspittle.racketeer.model.card.*
+import dev.bitspittle.racketeer.model.effect.Lifetime
+import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.text.Describer
+import dev.bitspittle.racketeer.scripting.methods.game.GameTweak
+import dev.bitspittle.racketeer.scripting.methods.game.GameTweakMethod
+import dev.bitspittle.racketeer.scripting.methods.shop.ShopTweak
 import dev.bitspittle.racketeer.scripting.types.PileProperty
 import dev.bitspittle.racketeer.scripting.utils.setValuesFrom
 
@@ -69,11 +73,26 @@ class ScriptingView(ctx: GameContext) : View(ctx) {
     private val stringTextTree: TextTree = MutableTextTree().apply {
         ctx.data.cards.forEach { card -> this.add(card.name) }
     }
-    private val propertiesTextTree: TextTree = listOf(GameProperty.values(), CardProperty.values(), PileProperty.values())
+    private val propertiesTextTree: TextTree = listOf(
+        BlueprintProperty.values(),
+        BuildingProperty.values(),
+        CardProperty.values(),
+        Feature.Type.values(),
+        GameEvent.values(),
+        GameProperty.values(),
+        GameTweak.values(),
+        Lifetime.values(),
+        ListStrategy.values(),
+        PileProperty.values(),
+        ShopTweak.values(),
+        SortOrder.values(),
+        TraitType.values(),
+        UpgradeType.values(),
+    )
         .asSequence()
         .flatMap { it.asSequence() }
         .map { it.name.toIdentifierName() }
-        .toList()
+        .toSet()
         .intoWordTree()
 
     private var textCursor: TextTreeCursor? = null
