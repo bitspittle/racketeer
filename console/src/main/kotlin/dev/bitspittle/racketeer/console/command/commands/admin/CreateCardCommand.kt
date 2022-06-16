@@ -12,7 +12,7 @@ import dev.bitspittle.racketeer.model.game.GameStateChange
 class CreateCardCommand(ctx: GameContext, private val card: CardTemplate) : Command(ctx) {
     override val type = Type.Warning
     override val title = ctx.describer.describeCardTitle(card)
-    override val description = ctx.describer.describeCardBody(card, showCash = true)
+    override val description = ctx.describer.describeCardBody(card, showCost = true)
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {

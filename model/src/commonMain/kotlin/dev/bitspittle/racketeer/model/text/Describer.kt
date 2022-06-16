@@ -208,9 +208,9 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
     }
 
-    fun describeCardBody(template: CardTemplate, showCash: Boolean = false, includeFlavor: Boolean = false): String {
+    fun describeCardBody(template: CardTemplate, showCost: Boolean = false, includeFlavor: Boolean = false): String {
         return buildString {
-            appendCardName(template.name, upgrades = emptySet(), price = template.cost.takeIf { showCash })
+            appendCardName(template.name, upgrades = emptySet(), price = template.cost.takeIf { showCost })
             appendCardBody(template, includeFlavor = includeFlavor)
         }
     }
@@ -229,7 +229,6 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         if (price != null && price > 0) {
             append(" ${describeCash(price)}")
         }
-
     }
 
     private fun StringBuilder.appendCardName(card: Card, useIcons: Boolean = true, totalVp: Int? = null, price: Int? = null) {
@@ -260,9 +259,9 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
     }
 
-    fun describeCardBody(card: Card): String {
+    fun describeCardBody(card: Card, showCost: Boolean = false): String {
         return buildString {
-            appendCardName(card, useIcons = false, card.vpTotal)
+            appendCardName(card, useIcons = false, card.vpTotal, card.template.cost.takeIf { showCost })
             // Don't re-report victory points, they were already reported as part of the name
             appendCardBody(card.template, card.traits, card.upgrades, counter = card.counter, vp = 0)
         }
@@ -390,9 +389,15 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
     }
 
-    fun describeBlueprintBody(blueprint: Blueprint, includeFlavor: Boolean = false): String {
+    fun describeBlueprintBody(blueprint: Blueprint, includeFlavor: Boolean = false, showBuildCost: Boolean = false): String {
         return buildString {
             append(blueprint.name)
+            if (showBuildCost) {
+                describeBuildCost(blueprint).takeIf { it.isNotEmpty() }?.let { cost ->
+                    append(' ')
+                    append(cost)
+                }
+            }
             append(" [${data.rarities[blueprint.rarity].name}]")
             appendLine()
 

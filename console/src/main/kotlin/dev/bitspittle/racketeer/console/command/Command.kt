@@ -95,10 +95,10 @@ abstract class Command(protected val ctx: GameContext) {
 
     protected fun describeForDescription(item: Any): String? {
         return when (item) {
-            is Blueprint -> ctx.describer.describeBlueprintBody(item)
+            is Blueprint -> ctx.describer.describeBlueprintBody(item, showBuildCost = true)
             is Building -> ctx.describer.describeBuildingBody(item)
-            is Card -> ctx.describer.describeCardBody(item)
-            is CardTemplate -> ctx.describer.describeCardBody(item)
+            is Card -> ctx.describer.describeCardBody(item, showCost = true)
+            is CardTemplate -> ctx.describer.describeCardBody(item, showCost = true)
             is Feature -> item.description
             is FormattedItem -> describeForDescription(item.wrapped)
             else -> null
