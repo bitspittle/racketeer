@@ -21,6 +21,7 @@ class BrowseManyCardsView(ctx: GameContext, cards: List<Card>) : View(ctx) {
         NAME,
         TIER,
         PILE,
+        CASH,
         VICTORY_POINTS,
     }
 
@@ -34,6 +35,7 @@ class BrowseManyCardsView(ctx: GameContext, cards: List<Card>) : View(ctx) {
 
     override fun createCommands() = when (sortingOrder) {
         SortingOrder.PILE -> cards.sortedBy { card -> pileNames.getValue(card) }
+        SortingOrder.CASH -> cards.sortedBy { card -> card.template.cost }
         SortingOrder.TIER -> cards.sortedBy { it.template.tier }
         // For cards with same VP total and same name, sort by pile
         SortingOrder.VICTORY_POINTS -> cards.sortedBy { card -> pileNames.getValue(card) }.sortedByDescending { it.vpTotal }
@@ -44,6 +46,7 @@ class BrowseManyCardsView(ctx: GameContext, cards: List<Card>) : View(ctx) {
         ViewCardCommand(
             ctx, card, when (sortingOrder) {
                 SortingOrder.NAME -> null
+                SortingOrder.CASH -> "(${ctx.describer.describeCash(card.template.cost)})"
                 SortingOrder.TIER -> "(Tier ${card.template.tier + 1})"
                 SortingOrder.PILE, SortingOrder.VICTORY_POINTS -> "(${pileNames.getValue(card)})"
             }
@@ -63,18 +66,20 @@ class BrowseManyCardsView(ctx: GameContext, cards: List<Card>) : View(ctx) {
 
     override fun RenderScope.renderFooterUpper() {
         text("Press "); cyan { text("1") }; textLine( " to sort by name.")
-        text("Press "); cyan { text("2") }; textLine( " to sort by tier.")
-        text("Press "); cyan { text("3") }; textLine( " to sort by pile.")
-        text("Press "); cyan { text("4") }; textLine( " to sort by victory points.")
+        text("Press "); cyan { text("2") }; textLine( " to sort by cost.")
+        text("Press "); cyan { text("3") }; textLine( " to sort by tier.")
+        text("Press "); cyan { text("4") }; textLine( " to sort by pile.")
+        text("Press "); cyan { text("5") }; textLine( " to sort by victory points.")
         text("Press "); cyan { text("LEFT") }; text(" and "); cyan { text("RIGHT") }; textLine( " to change the current type filter.")
     }
 
     override suspend fun handleAdditionalKeys(key: Key): Boolean {
         when (key) {
             Keys.DIGIT_1 -> sortingOrder = SortingOrder.NAME
-            Keys.DIGIT_2 -> sortingOrder = SortingOrder.TIER
-            Keys.DIGIT_3 -> sortingOrder = SortingOrder.PILE
-            Keys.DIGIT_4 -> sortingOrder = SortingOrder.VICTORY_POINTS
+            Keys.DIGIT_2 -> sortingOrder = SortingOrder.CASH
+            Keys.DIGIT_3 -> sortingOrder = SortingOrder.TIER
+            Keys.DIGIT_4 -> sortingOrder = SortingOrder.PILE
+            Keys.DIGIT_5 -> sortingOrder = SortingOrder.VICTORY_POINTS
             Keys.LEFT -> typeFilter = typeFilters[(typeFilters.indexOf(typeFilter) - 1 + typeFilters.size) % typeFilters.size]
             Keys.RIGHT -> typeFilter = typeFilters[(typeFilters.indexOf(typeFilter) + 1) % typeFilters.size]
             else -> return false
