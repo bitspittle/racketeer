@@ -157,13 +157,7 @@ class ReviewHistoryView(ctx: GameContext, private val state: GameState = ctx.sta
         text("Press "); cyan { text("0-9") }; textLine(" to select turns 1 through 10.")
         text("Press "); cyan { text("SHIFT + 0-9") }; textLine(" to select turns 11 through 20.")
         if (historyByTurn[turn][currIndex].intoCardCommands(ctx).isNotEmpty()) {
-            text("Press "); cyan { text("ENTER") }; text(" to review involved ")
-            if (ctx.state.features.contains(Feature.Type.BUILDINGS)) {
-                text("cards / buildings")
-            } else {
-                text("cards")
-            }
-            textLine(".")
+            text("Press "); cyan { text("ENTER") }; textLine(" to review involved cards.")
         }
     }
 
