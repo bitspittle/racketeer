@@ -269,7 +269,7 @@ cards:
     cost: 2
     description:
       ability: Gain $ and &.
-      flavor: She enjoys embezzling mostly because the word 'embezzlement' is fun to say.
+      flavor: He enjoys embezzling mostly because the word 'embezzlement' is fun to say.
     playActions:
       - game-add! 'cash 1
       - game-add! 'influence 1
@@ -281,7 +281,7 @@ cards:
     cost: 2
     description:
       ability: Gain $ and %.
-      flavor: "'Although I was born a Prince in Nigeria, in this country, I am but the humble owner of the Brooklyn Bridge.'"
+      flavor: "'Of course they're real! You have my word as a Nigerian prince.'"
     playActions:
       - game-add! 'cash 1
       - game-add! 'luck 1
@@ -320,7 +320,7 @@ cards:
     cost: 2
     description:
       ability: Gain 2$.
-      flavor: People always complain about highway robbery, so he sticks to houses.
+      flavor: People always complain about highway robbery, so she sticks to houses.
     playActions:
       - game-add! 'cash 2
 
@@ -381,13 +381,9 @@ cards:
     description:
       ability: Create a Burglar (worth +2$) in your hand. Jail this after two uses.
       flavor: "'Actually, I know two guys. But not three.'"
-    initActions:
-      - card-set! $this 'counter 2
     playActions:
       - pile-copy-to! $hand (card-named "Burglar")
-      - card-sub! $this 'counter 1
-      - stop-if! gt? (card-get $this 'counter) 0
-      - pile-move-to! $jail $this
+      - card-add-trait! $this 'suspicious
 
   - name: Croupier
     tier: 0
@@ -404,7 +400,7 @@ cards:
   - name: Card Shark
     tier: 0
     rarity: 1
-    types: [thief, trickster]
+    types: [thief]
     cost: 4
     description:
       ability: Draw a card. Gain $.
@@ -518,7 +514,7 @@ cards:
       - card-upgrade! $this 'cash
 
 
-  - name: Master of Disguise
+  - name: Impostor
     tier: 1
     rarity: 1
     types: [thief, spy, trickster]
@@ -558,7 +554,7 @@ cards:
       - stop-if! empty? $thieves
       - card-upgrade! (choose-across-piles "Upgrade Thieves." $thieves .. 0 2) 'cash
 
-  - name: Shady Salesman
+  - name: Swindler
     tier: 1
     rarity: 1
     types: [thief]
@@ -630,10 +626,10 @@ cards:
     playActions:
       - game-add! 'cash 2
 
-  - name: Swindler
+  - name: Wiretapper
     tier: 1
     rarity: 0
-    types: [spy, trickster]
+    types: [spy]
     cost: 5
     description:
       ability: Draw a card. Gain 2&.
@@ -728,15 +724,11 @@ cards:
     types: [thief, spy, legend]
     cost: 4
     description:
-      ability: Gain 2$ and 2&. Jail this after three uses.
-    initActions:
-      - card-set! $this 'counter 3
+      ability: Gain 3$ and 3&. Jail this after two uses.
     playActions:
-      - game-add! 'cash 2
-      - game-add! 'influence 2
-      - card-sub! $this 'counter 1
-      - stop-if! gt? (card-get $this 'counter) 0
-      - pile-move-to! $jail $this
+      - game-add! 'cash 3
+      - game-add! 'influence 3
+      - card-add-trait! $this 'suspicious
 
   - name: Fence
     tier: 2
@@ -771,41 +763,26 @@ cards:
     tier: 2
     rarity: 1
     types: [thief, trickster]
-    cost: 4
+    cost: 5
     description:
-      ability: Gain 2$. Gain 2% if you own 20 or more cards.
+      ability: Gain 3$. Gain 2% if you own 20 or more cards.
     playActions:
-      - game-add! 'cash 2
+      - game-add! 'cash 3
       - if-true (gte? (size $owned-cards) 20) '(game-add! 'luck 2)
 
-
-# too busted
-
-#  - name: Art Forger
-#    tier: 2
-#    rarity: 2
-#    types: [thief, trickster]
-#    cost: 5
-#    description:
-#      ability: Gain 2$. You may reroll your shop with cards you own.
-#    playActions:
-#      - game-add! 'cash 2
-#      - stop-if! (! (ask? "Reroll your shop with cards you own?" ))
-#      - set '$cardnames (map $owned-cards '(card-get $it 'name))
-#      - shop-reroll! '(in? $cardnames (card-get $card 'name))
 
   - name: Baby Teeth Nelson
     tier: 2
     rarity: 1
     types: [thief, legend]
     cost: 5
-    traits: [expendable]
+    traits: [swift, expendable]
     description:
-      ability: Burn all Cops you own. Draw a card for each plus one for this.
+      ability: Burn all Cops you own. Draw a card for each.
     playActions:
       - set '$owned-cops (filter $owned-cards '(card-has-type? $it 'cop))
       - card-remove! $owned-cops
-      - game-draw! + 1 (size $owned-cops)
+      - game-draw! size $owned-cops
 
   - name: High Roller
     tier: 1
@@ -835,9 +812,9 @@ cards:
     types: [thief]
     cost: 5
     description:
-      ability: Gain 3$.
+      ability: Gain 4$.
     playActions:
-      - game-add! 'cash 3
+      - game-add! 'cash 4
 
   - name: Jalopy Judy
     tier: 2
@@ -845,10 +822,10 @@ cards:
     types: [thief, trickster, legend]
     cost: 6
     description:
-      ability: Gain 2$. You may reroll your shop with Loot.
+      ability: Gain 2$. You may restock your shop with Loot.
     playActions:
       - game-add! 'cash 2
-      - stop-if! (! (ask? "Reroll your shop with Loot?" ))
+      - stop-if! (! (ask? "Restock your shop with Loot?" ))
       - shop-reroll! '(card-has-type? $card 'loot)
 
 # Too ubiquitous, trying without
@@ -872,10 +849,9 @@ cards:
     cost: 6
     traits: [swift, expendable]
     description:
-      ability: "Get two copies of a card you own that costs 3$ or less."
+      ability: "Get two copies of a card you own that costs 4$ or less."
     playActions:
-      - card-remove! $this
-      - set '$low-cost-owned (filter $owned-cards '(lte? (card-get $it 'cost) 3))
+      - set '$low-cost-owned (filter $owned-cards '(lte? (card-get $it 'cost) 4))
       - cancel-if! empty? $low-cost-owned
       - set '$card-to-copy (choose-across-piles "Get two copies of a card." $low-cost-owned 1)
       - pile-copy-to! $street $card-to-copy
@@ -886,7 +862,7 @@ cards:
 
   - name: Impersonate
     tier: 2
-    rarity: 2
+    rarity: 1
     types: [action]
     cost: 6
     traits: [expendable]
@@ -916,10 +892,10 @@ cards:
     tier: 3
     rarity: 1
     types: [loot]
-    cost: 3
+    cost: 4
     description:
-      ability: This is worth ** for each five cards in jail.
-    passiveVp: * 2 (/ (size $jail) 5)
+      ability: This is worth * for each two cards in jail.
+    passiveVp: / (size $jail) 2
 
   - name: Pawnbroker
     tier: 3
@@ -959,13 +935,13 @@ cards:
     cost: 4
     traits: [swift]
     description:
-      ability: "Give another Cop you own \"Draw a card, then discard a card.\""
+      ability: "Give up to two other Cops you own \"Draw a card, then discard a card.\""
     playActions:
       - set '$all-cops filter $owned-cards '(card-has-type? $it 'cop)
       - set '$some-cops filter $all-cops '(! (card-has-upgrade? $it 'veteran))
       - set '$cops filter $some-cops '(!= $it $this)
       - stop-if! empty? $cops
-      - card-upgrade! (choose-across-piles "Upgrade a Cop." $cops 1) 'veteran
+      - card-upgrade! (choose-across-piles "Upgrade Cops." $cops .. 0 2) 'veteran
 
 
   - name: Dirty Sergeant
@@ -974,20 +950,9 @@ cards:
     types: [cop]
     cost: 4
     description:
-      ability: Gain $ for every Cop you own. (max 8)
+      ability: Gain $ for every Cop you own. (max 12)
     playActions:
-      - game-add! 'cash min 8 (count $owned-cards '(card-has-type? $it 'cop))
-
-  - name: Antiquarian
-    tier: 3
-    rarity: 1
-    types: [trickster]
-    cost: 4
-    description:
-      ability: Gain %%. At end of turn, you may put a Thief from the street on top of your deck.
-    playActions:
-      - game-add! 'luck 2
-      - fx-add! --desc "At end of turn, you may put a Thief from the street on top of your deck." --event 'turn-end '(if-false empty? (filter $street '(card-has-type? $it 'thief)) '(pile-move-to! --pos 'front $deck (choose --required _ --prompt "You may put a Thief on top of your deck." (filter $street '(card-has-type? $it 'thief)) .. 0 1)))
+      - game-add! 'cash min 12 (count $owned-cards '(card-has-type? $it 'cop))
 
 
   - name: Ruthven Catsby, Esq.
@@ -1015,18 +980,6 @@ cards:
       - stop-if! empty? $shop
       - pile-move-to! $street (choose --format $fmt-card-with-price --prompt "Add a card to the street." $shop 1)
       - pile-copy-to! $hand (card-named "Constable")
-
-
-#  - name: Old Gaffin
-#    tier: 3
-#    rarity: 2
-#    types: [thief, legend]
-#    cost: 5
-#    description:
-#      ability: Gain 2$. Gain * whenever you play a Pickpocket or Burglar this turn.
-#    playActions:
-#      - game-add! 'cash 2
-#      - fx-add! --desc (icon-convert "Gain * whenever you play a Pickpocket or Burglar.") --data (card-get $this 'id) '(if-true or? (= card-get $card 'name "Pickpocket") (= card-get $card 'name "Burglar") '(card-add! card-with-id $data 'vp 1))
 
 
   - name: Gem Cutter
@@ -1060,10 +1013,11 @@ cards:
     rarity: 2
     types: [thief]
     cost: 6
+    traits: [swift]
     description:
-      ability: "Gain 3$. Draw all Loot from the top seven cards of the deck."
+      ability: "Gain 2$. Draw all Loot from the top seven cards of the deck."
     playActions:
-      - game-add! 'cash 3
+      - game-add! 'cash 2
       - run
          '(info "You search the top seven cards of the deck for loot...")
          '(pile-move-to! $hand filter (take --from 'front $deck 7) '(card-has-type? $it 'loot))
@@ -1074,9 +1028,9 @@ cards:
     types: [thief]
     cost: 6
     description:
-      ability: Gain 4$.
+      ability: Gain 5$.
     playActions:
-      - game-add! 'cash 4
+      - game-add! 'cash 5
 
   - name: Corrupt Bailiff
     tier: 3
@@ -1093,10 +1047,10 @@ cards:
       - game-add! 'influence -6
       - card-add! $this 'vp 6
 
-  - name: Offer You Can't Refuse
+  - name: Gumshoe
     tier: 2
     rarity: 2
-    types: [action]
+    types: [spy, trickster]
     cost: 6
     description:
       ability: Choose a card from your deck or discard pile to put into your hand.
@@ -1208,6 +1162,16 @@ cards:
       - blueprint-own! single choose --prompt "Get a blueprint." --format $fmt-blueprint-with-cost --required _ (take --from 'random $unowned-blueprints 2) 1
       - card-remove! $this
 
+  - name: Pit Boss
+    tier: 4
+    rarity: 1
+    types: [thief, trickster]
+    cost: 6
+    description:
+      ability: Gain 4$ and 2%.
+    playActions:
+      - game-add! 'cash 4
+      - game-add! 'luck 2
 
   - name: Kingpin
     tier: 4
@@ -1215,9 +1179,9 @@ cards:
     types: [thief]
     cost: 7
     description:
-      ability: Gain 5$.
+      ability: Gain 6$.
     playActions:
-      - game-add! 'cash 5
+      - game-add! 'cash 6
 
   - name: Elegant Earrings
     tier: 4
@@ -1256,7 +1220,7 @@ cards:
     types: [action]
     cost: 9
     description:
-      ability: Add all Loot from the shop to the street. Reroll the shop.
+      ability: Add all Loot from the shop to the street. Restock the shop.
     playActions:
       - pile-move-to! $street (filter $shop '(card-has-type? $it 'loot))
       - shop-reroll! 'true
@@ -1271,16 +1235,57 @@ cards:
 
 blueprints:
 
-  - name: Save-a-Soul Mission
+
+
+  - name: Venture Capital Firm
+    rarity: 2
+    description:
+      ability: "When you build this, jail all cards you own and randomly replace them with cards of the same tier. Cards in the shop cost 2$ less."
+    buildCost:
+      cash: 5
+      influence: 5
+    canActivate: false # Passive building
+    initActions:
+      - |
+        set '$cards-by-tier (list
+          filter buyable-card-list '(= card-get $it 'tier $tier1)
+          filter buyable-card-list '(= card-get $it 'tier $tier2)
+          filter buyable-card-list '(= card-get $it 'tier $tier3)
+          filter buyable-card-list '(= card-get $it 'tier $tier4)
+          filter buyable-card-list '(= card-get $it 'tier $tier5)
+        )
+      - set '$new-deck map $deck '(random (list-get $cards-by-tier (card-get $it 'tier)))
+      - set '$new-hand map $hand '(random (list-get $cards-by-tier (card-get $it 'tier)))
+      - set '$new-street map $street '(random (list-get $cards-by-tier (card-get $it 'tier)))
+      - set '$new-discard map $discard '(random (list-get $cards-by-tier (card-get $it 'tier)))
+      - pile-move-to! $jail $owned-cards
+      - pile-copy-to! $deck $new-deck
+      - pile-copy-to! $hand $new-hand
+      - pile-copy-to! $street $new-street
+      - pile-copy-to! $discard $new-discard
+      - shop-tweak! 'prices -2
+
+  - name: Art Gallery
     rarity: 1
     description:
-      ability: Whenever you discard cards from your hand, this gains *.
+      ability: Whenever you restock the shop, this gains *.
     buildCost:
       cash: 2
       influence: 2
     canActivate: false # Passive building
     initActions:
-      - fx-add! --desc (icon-convert "Whenever you discard cards from your hand, this gains *.") --lifetime 'game --data (building-get $this 'id) --event 'discard '(building-add! building-with-id $data 'vp 1)
+      - fx-add! --desc (icon-convert "Whenever you restock the shop gain *.") --lifetime 'game --data (building-get $this 'id) --event 'restock '(building-add! building-with-id $data 'vp 1)
+
+  - name: Save-a-Soul Mission
+    rarity: 1
+    description:
+      ability: "Whenever you discard cards, this gains *."
+    buildCost:
+      cash: 2
+      influence: 2
+    canActivate: false # Passive building
+    initActions:
+      - fx-add! --desc (icon-convert "Whenever you discard cards, this gains *.") --lifetime 'game --data (building-get $this 'id) --event 'discard '(building-add! building-with-id $data 'vp 1)
 
 
   - name: Legitimate Laundromat
@@ -1295,7 +1300,7 @@ blueprints:
       - game-tweak! 'keep-unspent _
 
 
-  - name: Strip Mall
+  - name: Five and Dime
     rarity: 1
     description:
       ability: "Cards in the shop cost 1$ less."
@@ -1309,11 +1314,12 @@ blueprints:
   - name: Butcher Shop
     rarity: 1
     description:
-      ability: "Activate: The shop won't reroll at the end of this turn."
+      ability: "Activate: Gain $. The shop won't restock at the end of this turn."
     buildCost:
       cash: 1
       influence: 1
     activateActions:
+      - game-add! 'cash 1
       - shop-tweak! --lifetime 'turn 'frozen _ 
 
   - name: Department Store
@@ -1359,6 +1365,7 @@ blueprints:
       cash: 3
       influence: 3
     canActivate: gt? (building-get $this 'counter) 0
+    cannotActivateReason: "you've already used it five times"
     initActions:
       - building-set! $this 'counter 5
     activateActions:
@@ -1373,15 +1380,16 @@ blueprints:
       cash: 3
       influence: 3
     canActivate: any? $hand '(card-has-type? $it 'loot)
+    cannotActivateReason: "you don't have any Loot to discard"
     activateActions:
       - set '$cards-to-draw count $hand '(card-has-type? $it 'loot)
       - pile-move-to! $discard (filter $hand '(card-has-type? $it 'loot))
       - game-draw! $cards-to-draw
 
-  - name: Thrift Shop
+  - name: Docks
     rarity: 1
     description:
-      ability: "Activate: Move any number of the top five cards of the deck to the discard pile."
+      ability: "Activate: Discard any number of the top five cards of the deck."
     buildCost:
       cash: 3
       influence: 3
@@ -1389,10 +1397,10 @@ blueprints:
       - pile-move-to! $discard (choose --prompt "Move cards from the top of the deck to the discard pile." (take --from 'front $deck 5) .. 0 size (take --from 'front $deck 5))
 
 
-  - name: Gourmet Market
+  - name: Ritzy Hotel
     rarity: 2
     description:
-      ability: "Activate: Reroll the shop with cards of maximum tier."
+      ability: "Activate: Restock the shop with cards of maximum tier."
     buildCost:
       cash: 4
       influence: 4
@@ -1408,6 +1416,7 @@ blueprints:
       cash: 3
       influence: 3
     canActivate: and? (= (building-get $this 'counter) 0) (! empty? (filter $owned-cards '(card-has-type? $it 'loot)))
+    cannotActivateReason: "you don't have any Loot to jail"
     activateActions:
       - set '$loots-to-jail (filter $owned-cards '(card-has-type? $it 'loot))
       - set '$loots-vps (map $loots-to-jail '(card-get $it 'vp-total))
@@ -1424,6 +1433,7 @@ blueprints:
       cash: 2
       influence: 2
     canActivate: = (building-get $this 'counter) 0
+    cannotActivateReason: "you've already taken the money that was in the Banana Stand"
     activateActions:
       - game-add! 'cash 10
       - building-set! $this 'counter 1
@@ -1453,6 +1463,7 @@ blueprints:
       cash: 4
       influence: 4
     canActivate: gte? (size $hand) 3
+    cannotActivateReason: "you don't have three cards to discard"
     activateActions: 
       - pile-move-to! $discard (choose --prompt "Discard cards." $hand 3)
       - pile-copy-to! $hand (card-named "Impersonate")
@@ -1474,7 +1485,7 @@ blueprints:
 #      - info "The hottest fashion trend of the season is:"
 #      - info (game-data-get $fashion-type)
 
-  - name: Docks
+  - name: Drugstore
     rarity: 1
     description:
       ability: At end of turn, gain * for each card in your hand.
@@ -1494,6 +1505,7 @@ blueprints:
       cash: 3
       influence: 3
     canActivate: = (building-get $this 'counter) 0
+    cannotActivateReason: "God has already answered your prayers"
     activateActions:
       - fx-add! --lifetime 'once --desc "Your next card takes effect an additional three times." '(run '(card-trigger! $card) '(card-trigger! $card) '(card-trigger! $card))
       - building-set! $this 'counter 1
@@ -1509,7 +1521,7 @@ blueprints:
     activationCost:
       cash: 2
     activateActions:
-      - fx-add! --desc "Get an extra copy of the next card you get this turn." --lifetime 'once --event 'create '(run-later '(pile-move-to! $hand $card))
+      - fx-add! --desc "The next card you get this turn goes straight to your hand." --lifetime 'once --event 'create '(run-later '(pile-move-to! $hand $card))
 
 
   - name: Circus Tent
@@ -1550,19 +1562,19 @@ blueprints:
   - name: Surveillance Company
     rarity: 0
     description:
-      ability: "Activate: Draw all Spies from the top five cards of the deck."
+      ability: "Activate: Draw all Spies from the top six cards of the deck."
     buildCost:
       cash: 4
       influence: 4
     activateActions:
       - run
-         '(info "You search the top five cards of the deck for spies...")
-         '(pile-move-to! $hand filter (take --from 'front $deck 5) '(card-has-type? $it 'spy))
+         '(info "You search the top six cards of the deck for spies...")
+         '(pile-move-to! $hand filter (take --from 'front $deck 6) '(card-has-type? $it 'spy))
 
   - name: Dumpster
     rarity: 1
     description:
-      ability: When you build this, choose one of eight random cards to get. Jail the rest.
+      ability: When you build this, choose one of eight random cards to add to the street. Jail the rest.
     buildCost:
       cash: 2
       influence: 2
@@ -1583,6 +1595,7 @@ blueprints:
       cash: 3
       influence: 3
     canActivate: = (building-get $this 'counter) 0
+    cannotActivateReason: "you've already used it"
     activateActions:
       - game-add! 'influence (* 2 game-get 'influence)
       - building-set! $this 'counter 1
@@ -1623,6 +1636,7 @@ blueprints:
     activationCost:
       cash: 1
     canActivate: ! empty? (filter $owned-cards '(card-has-type? $it 'cop))
+    cannotActivateReason: "you don't have any Cops to feed to the fishes"
     activateActions:
       - card-remove! choose-across-piles "Burn a Cop." (filter $owned-cards '(card-has-type? $it 'cop)) 1
       - building-add! $this 'vp 5
@@ -1636,6 +1650,7 @@ blueprints:
       cash: 1
       influence: 1
     canActivate: ! empty? (union $street $discard)
+    cannotActivateReason: "your discard and street are empty"
     activateActions:
       - pile-move-to! $deck choose-across-piles "Shuffle a card into your deck." (union $street $discard) 1
       - shuffle! $deck
@@ -1659,13 +1674,13 @@ blueprints:
   - name: Public Library
     rarity: 2
     description:
-      ability: At start of turn, you may copy each card in your hand to the street.
+      ability: At start of turn, you may add a copy of your hand to the street.
     buildCost:
       cash: 3
       influence: 3
     canActivate: false
     initActions:
-      - fx-add! --desc "At start of turn, you may copy each card in your hand to the street." --lifetime 'game --event 'turn-start '(run '(choose --required true --prompt "This is your hand. Copy it to the street? (Answer on next screen.)" $hand size $hand) '(if-true (ask? "Copy your hand to the street?") '(pile-copy-to! $street $hand)))
+      - fx-add! --desc "At start of turn, you may add a copy of your hand to the street." --lifetime 'game --event 'turn-start '(run '(choose --required true --prompt "This is your hand. Copy it to the street? (Answer on next screen.)" $hand size $hand) '(if-true (ask? "Copy your hand to the street?") '(pile-copy-to! $street $hand)))
 
 
   - name: Opera House
@@ -1676,6 +1691,7 @@ blueprints:
       cash: 2
       influence: 2
     canActivate: ! empty? $jail
+    cannotActivateReason: "your jail is empty"
     activateActions:
      - set '$card-to-play single (choose --prompt "Play and burn a card." $jail 1)
      - pile-move-to! $hand $card-to-play
@@ -1718,6 +1734,7 @@ blueprints:
       cash: 1
       influence: 1
     canActivate: gt? (building-get $this 'counter) 0
+    cannotActivateReason: "you don't have any cash in the vault"
     initActions:
       - fx-add! --desc "Get a cash counter at the start of every turn." --lifetime 'game --event 'turn-start --data (building-get $this 'id) '(building-add! building-with-id $data 'counter 1)
     activateActions:
@@ -1728,11 +1745,12 @@ blueprints:
   - name: Exclusive Lounge
     rarity: 2
     description:
-      ability: "Activate: Reroll the shop with Legends."
+      ability: "Activate: Restock the shop with Legends."
     buildCost:
       cash: 4
       influence: 4
     canActivate: gt? $shop-tier 0
+    cannotActivateReason: "your shop tier is too low to find any Legends"
     activateActions:
       - shop-reroll! '(card-has-type? $card 'legend)
 
@@ -1782,6 +1800,7 @@ blueprints:
       cash: 4
       influence: 4
     canActivate: ! (empty? filter $hand '(card-has-any-of-types? $it (list "thief" "spy" "trickster" "cop")))
+    cannotActivateReason: "you don't have a Thief, Spy, Trickster, or Cop in your hand"
     activationCost:
       cash: 2
     activateActions:
@@ -1817,7 +1836,7 @@ blueprints:
     initActions:
       - fx-add! --desc (icon-convert "Gain *** at the start of every turn.") --lifetime 'game --event 'turn-start --data (building-get $this 'id) '(building-add! building-with-id $data 'vp 3)
 
-  - name: Five and Dime
+  - name: "Mom's Spaghetti"
     rarity: 0
     description:
       ability: Whenever you get a card, this gains *.
@@ -1898,6 +1917,7 @@ blueprints:
       cash: 4
       influence: 4
     canActivate: any? $hand '(= card-get $it 'name "Burglar")
+    cannotActivateReason: "you don't have any Burglars in your hand"
     activateActions:
       - game-draw! count $hand '(= card-get $it 'name "Burglar")
 
@@ -1944,7 +1964,7 @@ blueprints:
   - name: Pawn Shop
     rarity: 2
     description:
-      ability: "Activate: Reroll the shop with cards you own."
+      ability: "Activate: Restock the shop with cards you own."
     buildCost:
       cash: 3
       influence: 3
@@ -2005,15 +2025,15 @@ blueprints:
     canActivate: false
     passiveVp: * 2 (game-get 'luck)
 
-  - name: Art Gallery
+  - name: Zoo
     rarity: 1
     description:
-      ability: This is worth * for each differently named card you own.
+      ability: This is worth ** for each differently named card you own.
     buildCost:
-      cash: 3
-      influence: 3
+      cash: 6
+      influence: 6
     canActivate: false
-    passiveVp: size (distinct (map $owned-cards '(card-get $it 'name)))
+    passiveVp: * 2 (size (distinct (map $owned-cards '(card-get $it 'name))))
 
   - name: Boxing Ring
     rarity: 0
@@ -2039,17 +2059,18 @@ blueprints:
   - name: Counterfeiting Press
     rarity: 1
     description:
-      ability: "Activate: Get a copy of a Loot you own that costs 3$ or less."
+      ability: "Activate: Get a copy of a Loot you own that costs 4$ or less."
     buildCost:
       cash: 6
       influence: 6
     activationCost:
       cash: 3
       luck: 1
-    canActivate: ! empty? filter $owned-cards '(and? (card-has-type? $it 'loot) (lte? card-get $it 'cost 3))
+    canActivate: ! empty? filter $owned-cards '(and? (card-has-type? $it 'loot) (lte? card-get $it 'cost 4))
+    cannotActivateReason: "you don't have any Loot that costs 4$ or less"
     activateActions:
       - set '$loots filter $owned-cards '(card-has-type? $it 'loot)
-      - set '$low-cost-loots filter $loots '(lte? card-get $it 'cost 3)
+      - set '$low-cost-loots filter $loots '(lte? (card-get $it 'cost) 4)
       - cancel-if! empty? $low-cost-loots
       - set '$copied-card (choose --prompt "Choose a loot to copy." $low-cost-loots 1)
       - pile-copy-to! $street $copied-card
