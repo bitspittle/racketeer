@@ -15,14 +15,12 @@ import dev.bitspittle.racketeer.console.view.View
 
 class CardListView(ctx: GameContext, private var sortingOrder: SortingOrder = SortingOrder.NAME) : View(ctx) {
     enum class SortingOrder {
+        COST,
         NAME,
         TIER;
 
         fun next(): SortingOrder {
-            return when (this) {
-                NAME -> TIER
-                TIER -> NAME
-            }
+            return SortingOrder.values()[(this.ordinal + 1) % SortingOrder.values().size]
         }
     }
 
@@ -32,9 +30,14 @@ class CardListView(ctx: GameContext, private var sortingOrder: SortingOrder = So
     private var searchPrefix = ""
 
     override fun createCommands(): List<Command> =
-        // Even if we sort by tier, it should still be name-sorted secondarily
         cards
-            .let { cards -> if (sortingOrder == SortingOrder.TIER) cards.sortedBy { it.tier } else cards }
+            .let { cards ->
+                when (sortingOrder) {
+                    SortingOrder.COST -> cards.sortedBy { it.cost }
+                    SortingOrder.NAME -> cards // Already sorted by name
+                    SortingOrder.TIER -> cards.sortedBy { it.tier }
+                }
+            }
             .map { card ->
                 ViewCardTemplateCommand(
                     ctx, card,

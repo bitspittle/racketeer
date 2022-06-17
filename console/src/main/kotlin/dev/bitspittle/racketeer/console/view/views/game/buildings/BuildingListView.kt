@@ -15,22 +15,44 @@ import dev.bitspittle.racketeer.model.building.Blueprint
 
 fun Blueprint.shouldMask(ctx: GameContext) = !ctx.userStats.buildings.contains(this.name)
 
-class BuildingListView(ctx: GameContext) : View(ctx) {
+class BuildingListView(ctx: GameContext, private var sortingOrder: SortingOrder = SortingOrder.NAME) : View(ctx) {
+    enum class SortingOrder {
+        COST,
+        NAME;
+
+        fun next(): SortingOrder {
+            return SortingOrder.values()[(this.ordinal + 1) % SortingOrder.values().size]
+        }
+    }
+
     private val blueprints = ctx.data.blueprints.sortedBy { it.name }
 
     private val blueprintSearcher = BlueprintSearcher(blueprints.filter { !it.shouldMask(ctx) })
     private var searchPrefix = ""
 
     override fun createCommands(): List<Command> =
-        blueprints.map { ViewBlueprintCommand(ctx, it) }
+        blueprints
+            .let { blueprints ->
+                when (sortingOrder) {
+                    SortingOrder.COST -> blueprints.sortedBy { it.buildCost.cash + it.buildCost.influence }
+                    SortingOrder.NAME -> blueprints // Already sorted by name
+                }
+            }
+            .map { ViewBlueprintCommand(ctx, it) }
 
     override suspend fun handleAdditionalKeys(key: Key): Boolean {
-        return if (key is CharKey && (key.code.isLetter() || key.code == ' ')) {
+        return if (sortingOrder == SortingOrder.NAME && (key is CharKey && (key.code.isLetter() || key.code == ' '))) {
             searchPrefix += key.code.lowercase()
             currIndex = blueprintSearcher.search(searchPrefix)?.let { found -> blueprints.indexOf(found) } ?: 0
             true
-        } else if (key == Keys.BACKSPACE) {
+        } else if (sortingOrder == SortingOrder.NAME && key == Keys.BACKSPACE) {
             searchPrefix = searchPrefix.dropLast(1)
+            true
+        } else if (key == Keys.TAB) {
+            currIndex = 0
+            sortingOrder = sortingOrder.next()
+            searchPrefix = ""
+            refreshCommands()
             true
         } else {
             false
@@ -42,6 +64,9 @@ class BuildingListView(ctx: GameContext) : View(ctx) {
         yellow { textLine("You have built $numBuildingsBuilt out of ${ctx.data.blueprints.size} buildings.") }
         textLine()
 
+        textLine("Sorted by: ${sortingOrder.name.lowercase().capitalize()}")
+        textLine()
+
         if (searchPrefix.isNotEmpty()) {
             black(isBright = true) { textLine("Search: " + searchPrefix.lowercase()) }
             textLine()
@@ -49,6 +74,10 @@ class BuildingListView(ctx: GameContext) : View(ctx) {
     }
 
     override fun RenderScope.renderFooterUpper() {
-        text("Press "); cyan { text("A-Z") }; textLine(" to jump to buildings by name.")
+        val sortingWord = sortingOrder.next().name.lowercase()
+        text("Press "); cyan { text("TAB") }; textLine(" to sort by $sortingWord.")
+        if (sortingOrder == SortingOrder.NAME) {
+            text("Press "); cyan { text("A-Z") }; textLine(" to jump to buildings by name.")
+        }
     }
 }
