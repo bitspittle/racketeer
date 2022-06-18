@@ -1416,7 +1416,6 @@ blueprints:
       cash: 3
       influence: 3
     canActivate: and? (= (building-get $this 'counter) 0) (! empty? (filter $owned-cards '(card-has-type? $it 'loot)))
-    cannotActivateReason: "you don't have any Loot to jail"
     activateActions:
       - set '$loots-to-jail (filter $owned-cards '(card-has-type? $it 'loot))
       - set '$loots-vps (map $loots-to-jail '(card-get $it 'vp-total))
@@ -1433,7 +1432,6 @@ blueprints:
       cash: 2
       influence: 2
     canActivate: = (building-get $this 'counter) 0
-    cannotActivateReason: "you've already taken the money that was in the Banana Stand"
     activateActions:
       - game-add! 'cash 10
       - building-set! $this 'counter 1
@@ -1505,7 +1503,6 @@ blueprints:
       cash: 3
       influence: 3
     canActivate: = (building-get $this 'counter) 0
-    cannotActivateReason: "God has already answered your prayers"
     activateActions:
       - fx-add! --lifetime 'once --desc "Your next card takes effect an additional three times." '(run '(card-trigger! $card) '(card-trigger! $card) '(card-trigger! $card))
       - building-set! $this 'counter 1
@@ -1595,7 +1592,6 @@ blueprints:
       cash: 3
       influence: 3
     canActivate: = (building-get $this 'counter) 0
-    cannotActivateReason: "you've already used it"
     activateActions:
       - game-add! 'influence (* 2 game-get 'influence)
       - building-set! $this 'counter 1
