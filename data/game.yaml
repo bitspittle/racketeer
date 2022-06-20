@@ -563,7 +563,10 @@ cards:
       ability: Gain 2$. You may give a card you own Suspicious.
     playActions:
       - game-add! 'cash 2
-      - card-add-trait! single (choose-across-piles "Give a card Suspicious." (filter $owned-cards '(and? (! card-has-trait? $it 'expendable) (! card-has-trait? $it 'suspicious))) .. 0 1) 'suspicious
+      - set '$targets (filter $owned-cards '(and? (! card-has-trait? $it 'expendable) (! card-has-trait? $it 'suspicious)))
+      - set '$chosen (choose-across-piles "Give a card Suspicious." $targets .. 0 1)
+      - stop-if! empty? $chosen
+      - card-add-trait! single $chosen 'suspicious
     
 
   - name: Squealer
