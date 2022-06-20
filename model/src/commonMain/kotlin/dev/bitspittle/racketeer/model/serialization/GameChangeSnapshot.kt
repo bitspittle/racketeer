@@ -92,9 +92,15 @@ class GameChangesSnapshot(
             changes.influence,
             changes.luck,
             changes.vp,
-            // No need to save "calculate VP passive" history; it'll get recalculated anyway, and sometimes this
-            // points to transient cards in the shop which would crash on load.
-            changes.items.map { change -> GameChangeSnapshot.from(describer, state, change) }
+            changes.items
+                .filter { change ->
+                    when (change) {
+                        // Don't save passive VP updates for cards we don't own, as those would crash on load.
+                        is GameStateChange.AddCardAmount -> change.property != CardProperty.VP_PASSIVE || state.pileFor(change.card) != null
+                        else -> true
+                    }
+                }
+                .map { change -> GameChangeSnapshot.from(describer, state, change) }
         )
     }
 
