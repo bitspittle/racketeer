@@ -181,6 +181,8 @@ class GameStateChanges {
     }
 
     private fun StringBuilder.report(describer: Describer, state: GameState, change: GameStateChange.MoveCards) = change.apply {
+        if (cards.isEmpty()) return@apply
+
         if (intoPile == state.graveyard) {
             reportLine("${cards.size} cards were removed from the game.")
         } else {
