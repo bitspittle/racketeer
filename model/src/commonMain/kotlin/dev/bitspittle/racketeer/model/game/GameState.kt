@@ -108,7 +108,9 @@ object GameStateStub : GameState {
 }
 
 val GameState.lastTurnIndex get() = numTurns - 1
-val GameState.isGameOver get() = history.lastOrNull()?.items?.lastOrNull() is GameStateChange.GameOver
+// Note: Usually "GameOver" is the final marker but occasionally passive VP calculations get applied later. Anyway, as
+// long as there's a "GameOver" somewhere in the last group, the game is done.
+val GameState.isGameOver get() = history.lastOrNull()?.items?.any { it is GameStateChange.GameOver } ?: false
 val GameState.isGameInProgress get() = !isGameOver
 val GameState.ownedPiles: Sequence<Pile> get() = sequenceOf(hand, deck, discard, street)
 val GameState.allPiles: Sequence<Pile> get() = ownedPiles + sequenceOf(jail, graveyard)
