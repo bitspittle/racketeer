@@ -97,7 +97,7 @@ private class HistoryCommand(
         }
     }
 
-    override val extra = (changes.vp > (prevChanges?.vp ?: 0)).ifTrue { ctx.describer.describeVictoryPoints(changes.vp) }
+    override val extra = (changes.vp != (prevChanges?.vp ?: 0)).ifTrue { ctx.describer.describeVictoryPoints(changes.vp) }
 
     override suspend fun invoke(): Boolean {
         val commands = changes.intoCardCommands(ctx).takeIf { it.isNotEmpty() } ?: return false
