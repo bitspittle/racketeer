@@ -1243,7 +1243,7 @@ blueprints:
   - name: Venture Capital Firm
     rarity: 2
     description:
-      ability: "When you build this, jail all cards you own and randomly replace them with cards of the same tier. Cards in the shop cost 2$ less."
+      ability: "When you build this, jail all cards you own and randomly replace them with cards of the same tier. Cards in the shop cost 1$ less."
     buildCost:
       cash: 5
       influence: 5
@@ -1266,7 +1266,7 @@ blueprints:
       - pile-copy-to! $hand $new-hand
       - pile-copy-to! $street $new-street
       - pile-copy-to! $discard $new-discard
-      - shop-tweak! 'prices -2
+      - shop-tweak! 'prices -1
 
   - name: Art Gallery
     rarity: 1
@@ -1519,7 +1519,7 @@ blueprints:
       cash: 3
       influence: 3
     activationCost:
-      cash: 2
+      cash: 1
     activateActions:
       - fx-add! --desc "The next card you get this turn goes straight to your hand." --lifetime 'once --event 'create '(run-later '(pile-move-to! $hand $card))
 
@@ -2064,7 +2064,7 @@ blueprints:
       cash: 6
       influence: 6
     activationCost:
-      cash: 3
+      cash: 4
       luck: 1
     canActivate: ! empty? filter $owned-cards '(and? (card-has-type? $it 'loot) (lte? card-get $it 'cost 4))
     cannotActivateReason: "you don't have any Loot that costs 4$ or less"
