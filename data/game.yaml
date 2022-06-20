@@ -1694,7 +1694,8 @@ blueprints:
     activateActions:
      - set '$card-to-play single (choose --prompt "Play and burn a card." $jail 1)
      - pile-move-to! $hand $card-to-play
-     - card-play! $card-to-play
+     # Don't play the card immediately - let it finish running any init actions from the previous move, if any
+     - run-later '(card-play! $card-to-play)
      - run-later '(card-remove! $card-to-play)
 
 
