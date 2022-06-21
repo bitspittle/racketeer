@@ -1,8 +1,4 @@
-// import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import kotlinx.html.link
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.TimeZone
+//import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -11,36 +7,37 @@ plugins {
     alias(libs.plugins.kobwebx.markdown)
 }
 
+repositories {
+    mavenCentral()
+    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+    google()
+    maven("https://us-central1-maven.pkg.dev/varabyte-repos/public")
+}
+
 group = "dev.bitspittle.racketeer.site"
-version = SimpleDateFormat("yyyyMMdd.kkmm").apply {
-    timeZone = TimeZone.getTimeZone("UTC")
-}.format(Date())
+version = "1.0-SNAPSHOT"
 
 kobweb {
-    appGlobals.put("version", version.toString())
-
     index {
-        description.set("A Dominion-like game you can play by yourself -- powered by Kobweb")
+        description.set("Powered by Kobweb")
     }
 }
 
 kotlin {
-    /*
-    jvm {
-        tasks.withType<KotlinCompile> {
-            kotlinOptions.jvmTarget = "11"
-        }
-
-        tasks.named("jvmJar", Jar::class.java).configure {
-            archiveFileName.set("racketeer.jar")
-        }
-    }
-    */
+//    jvm {
+//        tasks.withType<KotlinCompile> {
+//            kotlinOptions.jvmTarget = "11"
+//        }
+//
+//        tasks.named("jvmJar", Jar::class.java).configure {
+//            archiveFileName.set("site.jar")
+//        }
+//    }
     js(IR) {
-        moduleName = "racketeer"
+        moduleName = "docrimes"
         browser {
             commonWebpackConfig {
-                outputFileName = "racketeer.js"
+                outputFileName = "docrimes.js"
             }
         }
         binaries.executable()
@@ -49,7 +46,6 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(compose.runtime)
-                implementation(project(":model"))
             }
         }
 
@@ -59,16 +55,13 @@ kotlin {
                 implementation(libs.kobweb.core)
                 implementation(libs.kobweb.silk.core)
                 implementation(libs.kobweb.silk.icons.fa)
-                implementation(libs.kobwebx.markdown)
              }
         }
 
-        /*
-        val jvmMain by getting {
-            dependencies {
-                implementation(libs.kobweb.api)
-             }
-        }
-        */
+//        val jvmMain by getting {
+//            dependencies {
+//                implementation(libs.kobweb.api)
+//             }
+//        }
     }
 }
