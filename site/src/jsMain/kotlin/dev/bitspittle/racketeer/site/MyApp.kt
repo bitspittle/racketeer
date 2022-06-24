@@ -2,7 +2,9 @@ package dev.bitspittle.racketeer.site
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.ui.Modifier
+import com.varabyte.kobweb.compose.ui.asStyleBuilder
 import com.varabyte.kobweb.compose.ui.modifiers.*
+import com.varabyte.kobweb.compose.ui.styleModifier
 import com.varabyte.kobweb.core.App
 import com.varabyte.kobweb.silk.InitSilk
 import com.varabyte.kobweb.silk.InitSilkContext
@@ -16,9 +18,19 @@ import org.jetbrains.compose.web.css.*
 
 private const val COLOR_MODE_KEY = "site:colorMode"
 
+val GAME_TEXT_FONT = "GameText"
+
 @InitSilk
 fun updateTheme(ctx: InitSilkContext) {
     ctx.config.initialColorMode = localStorage.getItem(COLOR_MODE_KEY)?.let { ColorMode.valueOf(it) } ?: ColorMode.LIGHT
+
+    ctx.config.registerBaseStyle("@font-face") {
+        Modifier
+            .fontFamily("GameText")
+            .styleModifier {
+                property("src", "url(fonts/CaslonAntiqueBold.ttf")
+            }
+    }
 
     ctx.config.registerBaseStyle("body") {
         Modifier.fontFamily(

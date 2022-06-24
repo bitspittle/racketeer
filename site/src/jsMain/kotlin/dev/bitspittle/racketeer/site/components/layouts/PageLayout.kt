@@ -10,7 +10,6 @@ import com.varabyte.kobweb.compose.ui.modifiers.*
 import dev.bitspittle.racketeer.site.components.sections.Footer
 import kotlinx.browser.document
 import org.jetbrains.compose.web.css.*
-import org.jetbrains.compose.web.dom.*
 
 @Composable
 fun PageLayout(title: String, content: @Composable () -> Unit) {
@@ -31,7 +30,6 @@ fun PageLayout(title: String, content: @Composable () -> Unit) {
             modifier = Modifier.fillMaxSize().textAlign(TextAlign.Center),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            H1 { Text(title) }
             content()
         }
         // Associate the footer with the row that will get pushed off the bottom of the page if it can't fit.
