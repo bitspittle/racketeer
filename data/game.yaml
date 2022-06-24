@@ -871,7 +871,7 @@ cards:
     tier: 3
     rarity: 1
     types: [loot]
-    cost: 3
+    cost: 2
     description:
       ability: This is worth * for every Cop you own.
     passiveVp: count $owned-cards '(card-has-type? $it 'cop)
@@ -880,10 +880,10 @@ cards:
     tier: 3
     rarity: 1
     types: [loot]
-    cost: 4
+    cost: 3
     description:
-      ability: This is worth * for each two cards in jail.
-    passiveVp: / (size $jail) 2
+      ability: This is worth * for each three cards in jail.
+    passiveVp: / (size $jail) 3
 
   - name: Pawnbroker
     tier: 3
@@ -1661,7 +1661,7 @@ blueprints:
       influence: 3
     canActivate: false
     initActions:
-      - fx-add! --desc "At start of turn, you may add a copy of your hand to the street." --lifetime 'game --event 'turn-start '(run '(choose --required true --prompt "This is your hand. Copy it to the street? (Answer on next screen.)" $hand size $hand) '(if-true (ask? "Copy your hand to the street?") '(pile-copy-to! $street $hand)))
+      - fx-add! --desc "At start of turn, you may add a copy of your hand to the street." --lifetime 'game --event 'turn-start '(run '(choose --required true --prompt "This is your hand. Copy it to the street? (Answer on next screen.)" $hand size $hand) '(if-true (ask?! "Copy your hand to the street?") '(pile-copy-to! $street $hand)))
 
 
   - name: Opera House
@@ -1799,8 +1799,8 @@ blueprints:
     description:
       ability: When you build this, put Agent Magpie on the case.
     buildCost:
-      cash: 3
-      influence: 3
+      cash: 2
+      influence: 2
     canActivate: false # Passive building
     initActions:
       - set '$magpie card-named "Agent Magpie"
