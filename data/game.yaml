@@ -174,7 +174,10 @@ globalActions:
   - def 'cards-instantiate '$cards '(map $cards '(card-instantiate $it))
   - def 'card-make-expendable! '$card '(run '(card-remove-trait! $card 'suspicious) '(card-add-trait! $card 'expendable))
   # Define keys used for game-data-set!
-#  - set '$key-nft-price "nftprice"
+  - set '$key-activated-ads "activated-ads"
+  - set '$key-activated-banana "activated-banana"
+  - set '$key-activated-trinity "activated-trinity"
+  - set '$key-activated-warehouse "activated-warehouse"
 
 initActions:
   - set '$pickpocket (card-named "Pickpocket")
@@ -196,24 +199,6 @@ cards:
     description:
       ability: Do nothing.
       flavor: "He ain't got a lot of spare time for protecting or serving."
-
-#  This card is only created as an example to show off the game-data- methods, and it is expected to be deleted /
-#  moved / significantly altered.
-#
-#  - name: Bad Ape Painting
-#    tier: 0
-#    cost: 1
-#    types: [loot]
-#    description:
-#      ability: This card's VP randomly fluctuates wildly.
-#      flavor: A mediocre piece of digital art, but you think you might find a greater fool who will buy it from you later for more.
-#    passiveVp: game-data-get --default 0 $key-nft-price
-#    initActions:
-#      - |
-#        if-false (game-data-is-set? $key-nft-price) '(run
-#          '(game-data-set! $key-nft-price random .. 0 20)
-#          '(fx-add! --desc "At end of turn, the NFT market is updated." --lifetime 'game --event 'turn-end '(game-data-set! $key-nft-price random .. 0 20))
-#        )
 
   - name: Newsie
     tier: 0
@@ -1418,14 +1403,13 @@ blueprints:
     buildCost:
       cash: 3
       influence: 3
-    canActivate: and? (= (building-get $this 'counter) 0) (! empty? (filter $owned-cards '(card-has-type? $it 'loot)))
+    canActivate: and? (! game-data-get --default false $key-activated-warehouse) (! empty? (filter $owned-cards '(card-has-type? $it 'loot)))
     activateActions:
       - set '$loots-to-jail (filter $owned-cards '(card-has-type? $it 'loot))
       - set '$loots-vps (map $loots-to-jail '(card-get $it 'vp-total))
       - for-each $loots-vps '(building-add! $this 'vp $it)
       - pile-move-to! $jail $loots-to-jail
-      - building-set! $this 'counter 1
-
+      - game-data-set! $key-activated-warehouse true
 
   - name: Banana Stand
     rarity: 1
@@ -1434,10 +1418,10 @@ blueprints:
     buildCost:
       cash: 2
       influence: 2
-    canActivate: = (building-get $this 'counter) 0
+    canActivate: ! game-data-get --default false $key-activated-banana
     activateActions:
       - game-add! 'cash 10
-      - building-set! $this 'counter 1
+      - game-data-set! $key-activated-banana true
 
 #  - name: Effects Test
 #    rarity: 2
@@ -1505,11 +1489,10 @@ blueprints:
     buildCost:
       cash: 3
       influence: 3
-    canActivate: = (building-get $this 'counter) 0
+    canActivate: ! game-data-get --default false $key-activated-trinity
     activateActions:
       - fx-add! --lifetime 'once --desc "Your next card takes effect an additional three times." '(run '(card-trigger! $card) '(card-trigger! $card) '(card-trigger! $card))
-      - building-set! $this 'counter 1
-
+      - game-data-set! $key-activated-trinity true
 
   - name: Limousine Service
     rarity: 2
@@ -1594,11 +1577,10 @@ blueprints:
     buildCost:
       cash: 3
       influence: 3
-    canActivate: = (building-get $this 'counter) 0
+    canActivate: ! game-data-get --default false $key-activated-ads
     activateActions:
       - game-add! 'influence (* 2 game-get 'influence)
-      - building-set! $this 'counter 1
-
+      - game-data-set! $key-activated-ads true
 
   - name: Factory
     rarity: 1
