@@ -342,7 +342,7 @@ cards:
       - |
         run-later '(run
           '(set '$random-tier-card (choose --prompt "Your new card is:" --required _ (take --from 'random $some-tier-cards 1) 1))
-          '(pile-copy-to! $street $random-tier-card)
+          '(pile-move-to! $street $random-tier-card)
         )
 
   - name: Scrounge
@@ -643,7 +643,7 @@ cards:
       - |
         run-later '(run
           '(choose --prompt "Wanted: Dead or Alive:" --required _ (list $random-legend) 1)
-          '(pile-copy-to! $street $random-legend)
+          '(pile-move-to! $street $random-legend)
         )
 
   - name: Hottie Mara
@@ -689,7 +689,7 @@ cards:
       ability: Discard your hand. Create that many plus one Burglars (worth +2$) in your hand. You may give them Suspicious.
     playActions:
       - set '$burglars-sus ask? "Would you like to make your Burglars Suspicious? (Suspicious cards go to jail when played.)"
-      - set '$my-burglar single cards-instantiate (list card-named "Burglar")
+      - set '$my-burglar card-instantiate single (list card-named "Burglar")
       - if-true $burglars-sus '(card-add-trait! $my-burglar 'suspicious)
       - set '$num-burglars + 1 (size $hand)
       - pile-move-to! $discard $hand
@@ -1340,9 +1340,9 @@ blueprints:
       cash: 3
       influence: 3
     activateActions:
-      - set '$my-card single cards-instantiate take --from 'random (filter buyable-card-list '(= $shop-tier (card-get $it 'tier))) 1
-      - card-add-trait! $my-card 'suspicious
+      - set '$my-card card-instantiate single take --from 'random (filter buyable-card-list '(= $shop-tier (card-get $it 'tier))) 1
       - pile-move-to! $hand $my-card
+      - card-add-trait! $my-card 'suspicious
 
 
   - name: Speakeasy
@@ -1649,7 +1649,7 @@ blueprints:
       # Instantiate cards so that we'll have real VP counts when we make a choice
       - set '$choices cards-instantiate take --from 'random (filter buyable-card-list '(= $shop-tier (card-get $it 'tier))) 2
       # Run the choose later which gives VP points room to calculate first
-      - run-later '(pile-copy-to! $street choose --prompt "Get a card of your shop tier." --format $fmt-card-with-cost --required _ $choices 1)
+      - run-later '(pile-move-to! $street choose --prompt "Get a card of your shop tier." --format $fmt-card-with-cost --required _ $choices 1)
 
 
   - name: Public Library
@@ -1974,7 +1974,7 @@ blueprints:
       - |
         run-later '(run
           '(set '$random-tier-card (choose --prompt "Your new card is:" --required _ (take --from 'random $all-tier-cards 1) 1))
-          '(pile-copy-to! $street $random-tier-card)
+          '(pile-move-to! $street $random-tier-card)
         )
 
   - name: Swanky Ballroom
