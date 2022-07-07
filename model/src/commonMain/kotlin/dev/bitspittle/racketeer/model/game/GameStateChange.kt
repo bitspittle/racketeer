@@ -42,10 +42,7 @@ sealed class GameStateChange {
             // Multiple draws can happen in a single turn thanks to card actions. Here, we only want to do some stuff
             // on the first draw per turn -- that is, the first "Draw" change after an "EndTurn"
             val isFirstDrawThisTurn = run {
-                val prevChange = history
-                    .asSequence()
-                    .flatMap { changes -> changes.items.asSequence() }
-                    .lastOrNull { it is Draw || it is EndTurn }
+                val prevChange = allChanges.lastOrNull { it !== this@Draw && (it is Draw || it is EndTurn) }
                 prevChange !is Draw
             }
 

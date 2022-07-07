@@ -346,6 +346,14 @@ class MutableGameState internal constructor(
         )
     }
 
+    val allChanges: Sequence<GameStateChange>
+        get() {
+            val prevChanges = history.asSequence().flatMap { it.items.asSequence() }
+            val inProgressChanges = (recordingChanges?.items?.asSequence() ?: emptySequence())
+
+            return prevChanges + inProgressChanges
+        }
+
     private var recordingChanges: GameStateChanges? = null
     override fun startRecordingChanges() {
         recordingChanges = GameStateChanges()
