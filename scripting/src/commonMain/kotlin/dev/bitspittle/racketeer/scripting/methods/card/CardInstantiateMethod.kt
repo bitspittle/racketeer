@@ -7,6 +7,7 @@ import dev.bitspittle.racketeer.model.action.ActionQueue
 import dev.bitspittle.racketeer.model.card.CardEnqueuer
 import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.game.GameState
+import dev.bitspittle.racketeer.model.game.GameStateChange
 
 /**
  * card-instantiate (CardTemplate) -> Card
@@ -24,7 +25,12 @@ class CardInstantiateMethod(private val cardEnqueuer: CardEnqueuer, private val 
     ): Any {
         val template = env.expectConvert<CardTemplate>(params[0])
         val card = template.instantiate()
-        cardEnqueuer.enqueuePassiveActions(getGameState(), card)
+
+        val gs = getGameState()
+        cardEnqueuer.enqueuePassiveActions(gs, card)
+        // Put the new card inside the graveyard. Otherwise, a script might call a method that references the card but
+        // will crash on load because it doesn't exist anywhere in the save file.
+        gs.apply(GameStateChange.MoveCards(gs, listOf(card), gs.graveyard))
 
         return card
     }
