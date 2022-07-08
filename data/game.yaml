@@ -156,6 +156,7 @@ globalActions:
   - def 'card-has-any-of-types? '$card '$types '(any? (card-get $card 'types) '(in? $types $it))
   - def 'card-has-all-types? '$card '$types '(all? (card-get $card 'types) '(in? $types $it))
   - def 'card-upgrade-count '$card '(size card-upgrades $card)
+  - def 'check-for-shuffle '$num-cards '(if-true (and? (lt? size $deck $num-cards) (! empty? $discard)) '(run '(shuffle! $discard) '(pile-move-to! $deck $discard)))
   - def 'card-has-any-upgrade? '$card '(gt? (card-upgrade-count $card) 0)
   - def 'card-named '$name '(single --matching '(= card-get $it 'name $name) $card-list)
   - def 'card-with-id '$id '(single --matching '(= card-get $it 'id $id) $all-cards)
@@ -284,19 +285,6 @@ cards:
     playActions:
       - game-draw! 1
 
-  - name: Cheese It!
-    tier: 0
-    rarity: 1
-    types: [action]
-    cost: 2
-    traits: [swift, suspicious]
-    description:
-      ability: "Jail two non-Cop cards you own."
-      flavor: "'Split up! They can't catch us both!'"
-    playActions:
-      - set '$ownednoncops filter $owned-cards '(! (card-has-type? $it 'cop))
-      - pile-move-to! $jail choose-across-piles "Jail cards." $ownednoncops (min 2 size $ownednoncops)
-
 
   - name: Burglar
     tier: 0
@@ -324,7 +312,7 @@ cards:
     tier: 0
     rarity: 1
     types: [trickster]
-    cost: 3
+    cost: 2
     description:
       ability: Jail a card on the Street. Replace it with a random card of the same tier.
       flavor: "'Yes, it's art. No, I don't care if you can read the font.'"
@@ -344,6 +332,22 @@ cards:
           '(set '$random-tier-card (choose --prompt "Your new card is:" --required _ (take --from 'random $some-tier-cards 1) 1))
           '(pile-move-to! $street $random-tier-card)
         )
+
+
+  - name: Cheese It!
+    tier: 0
+    rarity: 1
+    types: [action]
+    cost: 3
+    traits: [swift, suspicious]
+    description:
+      ability: "Jail two non-Cop cards you own."
+      flavor: "'Split up! They can't catch us both!'"
+    playActions:
+      - set '$ownednoncops filter $owned-cards '(! (card-has-type? $it 'cop))
+      - pile-move-to! $jail choose-across-piles "Jail cards." $ownednoncops (min 2 size $ownednoncops)
+
+
 
   - name: Scrounge
     tier: 0
@@ -532,7 +536,7 @@ cards:
     types: [cop]
     cost: 3
     description:
-      ability: When you get this, give 2 Thieves you own +$.
+      ability: When you get this, give two Thieves you own +$.
     initActions:
       - set '$all-thieves filter $owned-cards '(card-has-type? $it 'thief)
       - set '$thieves filter $all-thieves '(! (card-has-upgrade? $it 'cash))
@@ -608,7 +612,7 @@ cards:
     types: [thief, trickster, legend]
     cost: 5
     description:
-      ability: Gain $$. When you get this, gain 5%.
+      ability: Gain 2$. When you get this, gain 5%.
     initActions:
       - game-add! 'luck 5
     playActions:
@@ -679,6 +683,24 @@ cards:
     playActions:
      - card-add! $this 'vp 2
 
+
+  - name: Life of Crime
+    tier: 2
+    rarity: 1
+    types: [action]
+    cost: 3
+    traits: [swift, suspicious]
+    description:
+      ability: Fully upgrade a Thief, Spy, Trickster, or Cop you own.
+    playActions:
+      - set '$students filter $owned-cards '(card-has-any-of-types? $it (list "thief" "spy" "trickster" "cop"))
+      - cancel-if! empty? $students
+      - set '$card-to-upgrade (single (choose --prompt "Upgrade a card." $students 1))
+      - if-true (card-has-type? $card-to-upgrade 'thief) '(card-upgrade! $card-to-upgrade 'cash)
+      - if-true (card-has-type? $card-to-upgrade 'spy) '(card-upgrade! $card-to-upgrade 'influence)
+      - if-true (card-has-type? $card-to-upgrade 'trickster) '(card-upgrade! $card-to-upgrade 'luck)
+      - if-true (card-has-type? $card-to-upgrade 'cop) '(card-upgrade! $card-to-upgrade 'veteran)
+
   - name: Crime Wave
     tier: 2
     rarity: 1
@@ -686,16 +708,15 @@ cards:
     cost: 3
     traits: [swift]
     description:
-      ability: Discard your hand. Create that many plus one Burglars (worth +2$) in your hand. You may give them Suspicious.
+      ability: Discard your hand. Create that many plus one Burglars (worth +2$) in your hand. You may give them Expendable.
     playActions:
-      - set '$burglars-sus ask? "Would you like to make your Burglars Suspicious? (Suspicious cards go to jail when played.)"
+      - set '$burglars-exp ask? "Would you like to make your Burglars Expendable? (Expendable cards are removed when played.)"
       - set '$my-burglar single (list card-named "Burglar")
       - set '$num-burglars + 1 (size $hand)
       - pile-move-to! $discard $hand
       - set '$burglarlist map (.. 1 $num-burglars) '(card-instantiate $my-burglar)
-      - if-true $burglars-sus '(for-each $burglarlist '(card-add-trait! $it 'suspicious))
       - pile-move-to! $hand $burglarlist
-
+      - if-true $burglars-exp '(for-each $burglarlist '(card-add-trait! $it 'expendable))
 
   - name: Opal
     tier: 2
@@ -1006,9 +1027,9 @@ cards:
       ability: "Gain 2$. Draw all Loot from the top seven cards of the deck."
     playActions:
       - game-add! 'cash 2
-      - run
-         '(info "You search the top seven cards of the deck for loot...")
-         '(pile-move-to! $hand filter (take --from 'front $deck 7) '(card-has-type? $it 'loot))
+      - check-for-shuffle 7
+      - info "You search the top seven cards of the deck for loot..."
+      - pile-move-to! $hand filter (take --from 'front $deck 7) '(card-has-type? $it 'loot)
 
   - name: Bank Robber
     tier: 3
@@ -1077,6 +1098,18 @@ cards:
     description:
       ability: This is worth * for every Legend you own or in jail.
     passiveVp: size (filter (union $owned-cards $jail) '(card-has-type? $it 'legend))
+
+
+  - name: Calling All Cars
+    tier: 4
+    rarity: 2
+    types: [action]
+    cost: 5
+    traits: [swift]
+    description:
+      ability: Draw three random Cops from your deck.
+    playActions:
+      - pile-move-to! $hand (take --from 'random (filter $deck '(card-has-type? $it 'cop)) 3)
 
   - name: Lucky Emerald
     tier: 4
@@ -1222,6 +1255,17 @@ cards:
 #
 
 blueprints:
+
+  - name: The Blue Hound
+    rarity: 1
+    description:
+      ability: Gain $ and * for each Cop in the discard pile.
+    buildCost:
+      cash: 3
+      influence: 3
+    activateActions:
+      - game-add! 'cash (count $discard '(card-has-type? $it 'cop))
+      - building-add! $this 'vp (count $discard '(card-has-type? $it 'cop))
 
 
 
@@ -1382,6 +1426,7 @@ blueprints:
       cash: 3
       influence: 3
     activateActions:
+      - check-for-shuffle 5
       - pile-move-to! $discard (choose --prompt "Move cards from the top of the deck to the discard pile." (take --from 'front $deck 5) .. 0 size (take --from 'front $deck 5))
 
 
@@ -1541,7 +1586,6 @@ blueprints:
     initActions:
      - game-set! 'hand-size 6
 
-
   - name: Surveillance Company
     rarity: 0
     description:
@@ -1550,9 +1594,9 @@ blueprints:
       cash: 4
       influence: 4
     activateActions:
-      - run
-         '(info "You search the top six cards of the deck for spies...")
-         '(pile-move-to! $hand filter (take --from 'front $deck 6) '(card-has-type? $it 'spy))
+      - check-for-shuffle 6
+      - info "You search the top six cards of the deck for spies..."
+      - pile-move-to! $hand filter (take --from 'front $deck 6) '(card-has-type? $it 'spy)
 
   - name: Dumpster
     rarity: 1
@@ -1762,7 +1806,7 @@ blueprints:
   - name: Interrogation Room
     rarity: 2
     description:
-      ability: At end of turn, jail one of two random cards you own.
+      ability: At end of turn, you may jail one of two random cards you own.
     buildCost:
       cash: 3
       influence: 3
@@ -1771,7 +1815,7 @@ blueprints:
       - fx-add! --desc "At end of turn, jail one of two random cards you own." --lifetime 'game --event 'turn-end '(run
          '(cancel-if! (< (size $owned-cards) 2))
          '(set '$suspects (take --from 'random $owned-cards 2))
-         '(pile-move-to! $jail (choose-across-piles! "An interrogation occurs. Jail a card." $suspects 1))
+         '(pile-move-to! $jail (choose-across-piles! "An interrogation occurs. You may jail a card." $suspects .. 0 1))
          )
 
   - name: School of Hard Knocks
