@@ -210,10 +210,12 @@ class GameStateChanges {
         val cardTitle = card.template.name
 
         if (intoPile == state.graveyard) {
-            reportLine("$cardTitle was removed from the game.")
+            if (fromPile != null) {
+                reportLine("$cardTitle was removed from the game.")
+            }
         } else {
             val pileToDesc = describer.describePile(state, intoPile)
-            if (fromPile != null) {
+            if (fromPile != null && fromPile.id != state.graveyard.id) {
                 // Ignore requests which end up moving a card within its own pile; it looks weird
                 if (fromPile.id != intoPile.id) {
                     val pileFromDesc = describer.describePile(state, fromPile)
