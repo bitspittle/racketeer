@@ -689,12 +689,12 @@ cards:
       ability: Discard your hand. Create that many plus one Burglars (worth +2$) in your hand. You may give them Suspicious.
     playActions:
       - set '$burglars-sus ask? "Would you like to make your Burglars Suspicious? (Suspicious cards go to jail when played.)"
-      - set '$my-burglar card-instantiate single (list card-named "Burglar")
-      - if-true $burglars-sus '(card-add-trait! $my-burglar 'suspicious)
+      - set '$my-burglar single (list card-named "Burglar")
       - set '$num-burglars + 1 (size $hand)
       - pile-move-to! $discard $hand
-      - set '$burglarlist map (.. 1 $num-burglars) '$my-burglar
-      - pile-copy-to! $hand $burglarlist
+      - set '$burglarlist map (.. 1 $num-burglars) '(card-instantiate $my-burglar)
+      - if-true $burglars-sus '(for-each $burglarlist '(card-add-trait! $it 'suspicious))
+      - pile-move-to! $hand $burglarlist
 
 
   - name: Opal

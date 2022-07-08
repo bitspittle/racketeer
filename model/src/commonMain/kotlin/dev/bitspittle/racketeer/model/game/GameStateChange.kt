@@ -139,6 +139,11 @@ sealed class GameStateChange {
 
     class AddCardAmount(val property: CardProperty, val card: Card, val amount: Int) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
+            require(pileFor(card) != null) {
+                // This requirement prevents this change from crashing at load-time later
+                "Can't modify property $property of card \"${card.template.name}\" as it is temporary."
+            }
+
             when (property) {
                 CardProperty.COUNTER -> (card as MutableCard).counter += amount
                 CardProperty.VP -> (card as MutableCard).vpBase += amount
@@ -150,12 +155,21 @@ sealed class GameStateChange {
 
     class UpgradeCard(val card: Card, val upgradeType: UpgradeType) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
+            require(pileFor(card) != null) {
+                // This requirement prevents this change from crashing at load-time later
+                "Can't upgrade card \"${card.template.name}\" as it is temporary."
+            }
+
             (card as MutableCard).upgrades.add(upgradeType)
         }
     }
 
     class AddTrait(val card: Card, val traitType: TraitType) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
+            require(pileFor(card) != null) {
+                // This requirement prevents this change from crashing at load-time later
+                "Can't add trait $traitType to card \"${card.template.name}\" as the card is temporary."
+            }
             (card as MutableCard).traits.add(traitType)
         }
     }
