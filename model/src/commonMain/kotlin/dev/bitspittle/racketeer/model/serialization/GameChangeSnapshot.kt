@@ -95,8 +95,9 @@ class GameChangesSnapshot(
             changes.items
                 .filter { change ->
                     when (change) {
-                        // Don't save passive VP updates for cards we don't own, as those would crash on load.
-                        is GameStateChange.AddCardAmount -> change.property != CardProperty.VP_PASSIVE || state.pileFor(change.card) != null
+                        // Don't save passive VP updates; those are transient and get recalculated at load-time anyway
+                        is GameStateChange.AddCardAmount -> change.property != CardProperty.VP_PASSIVE
+                        is GameStateChange.AddBuildingAmount -> change.property != BuildingProperty.VP_PASSIVE
                         else -> true
                     }
                 }
