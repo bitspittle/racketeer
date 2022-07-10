@@ -11,6 +11,15 @@ import dev.bitspittle.racketeer.model.serialization.DataValue
 import dev.bitspittle.racketeer.model.shop.priceFor
 import dev.bitspittle.racketeer.model.shop.remaining
 
+/**
+ * Check if the current card is safe to reference in the context of a change.
+ *
+ * If not, then it means that this change would crash if you saved your game and then attempted to reload it.
+ */
+fun Card.isSafeToReference(state: GameState): Boolean {
+    return state.pileFor(this) != null || state.shop.stock.contains(this)
+}
+
 @Suppress("CanSealedSubClassBeObject")
 sealed class GameStateChange {
     suspend fun applyTo(state: MutableGameState) = state.apply()
@@ -139,7 +148,7 @@ sealed class GameStateChange {
 
     class AddCardAmount(val property: CardProperty, val card: Card, val amount: Int) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
-            require(pileFor(card) != null) {
+            require(card.isSafeToReference(this)) {
                 // This requirement prevents this change from crashing at load-time later
                 "Can't modify property $property of card \"${card.template.name}\" as it is temporary."
             }
@@ -155,7 +164,7 @@ sealed class GameStateChange {
 
     class UpgradeCard(val card: Card, val upgradeType: UpgradeType) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
-            require(pileFor(card) != null) {
+            require(card.isSafeToReference(this)) {
                 // This requirement prevents this change from crashing at load-time later
                 "Can't upgrade card \"${card.template.name}\" as it is temporary."
             }
@@ -166,7 +175,7 @@ sealed class GameStateChange {
 
     class AddTrait(val card: Card, val traitType: TraitType) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
-            require(pileFor(card) != null) {
+            require(card.isSafeToReference(this)) {
                 // This requirement prevents this change from crashing at load-time later
                 "Can't add trait $traitType to card \"${card.template.name}\" as the card is temporary."
             }
