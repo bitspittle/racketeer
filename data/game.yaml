@@ -768,6 +768,21 @@ cards:
       - stop-if! empty? $tricksters
       - card-upgrade! (choose-across-piles "Upgrade a Trickster." $tricksters 1) 'luck
 
+  - name: The Usual Suspects
+    tier: 2
+    rarity: 1
+    types: [action]
+    cost: 5
+    description:
+      ability: "Add a random Expendable Thief and Spy to your hand."
+    playActions:
+      - set '$my-thief card-instantiate single take --from 'random (filter buyable-card-list '(card-has-type? $it 'thief)) 1
+      - pile-move-to! $hand $my-thief
+      - card-add-trait! $my-thief 'expendable
+      - set '$my-spy card-instantiate single take --from 'random (filter buyable-card-list '(card-has-type? $it 'spy)) 1
+      - pile-move-to! $hand $my-spy
+      - card-add-trait! $my-spy 'expendable
+
   - name: Racketeer
     tier: 2
     rarity: 1
@@ -937,12 +952,12 @@ cards:
      - pile-move-to! $hand $card-to-play
      - card-add-trait! $card-to-play 'expendable
 
-  - name: Police Trainer
+  - name: Training Day
     tier: 3
     rarity: 1
-    types: [cop]
+    types: [action]
     cost: 4
-    traits: [swift]
+    traits: [swift, suspicious]
     description:
       ability: "Give up to two other Cops you own \"Draw a card, then discard a card.\""
     playActions:
@@ -1246,6 +1261,19 @@ cards:
       - pile-move-to! $street (filter $shop '(card-has-type? $it 'loot))
       - shop-reroll! 'true
 
+  - name: Robbery Spree
+    tier: 4
+    rarity: 1
+    types: [action]
+    cost: 9
+    description:
+      ability: "Add three random Expendable Thieves to your hand."
+    playActions:
+      - set '$my-thieves cards-instantiate take --from 'random (filter buyable-card-list '(card-has-type? $it 'thief)) 3
+      - pile-move-to! $hand $my-thieves
+      - for-each $my-thieves '(card-add-trait! $it 'expendable)
+
+
 #
 #
 #
@@ -1255,6 +1283,40 @@ cards:
 #
 
 blueprints:
+
+  - name: Gemstone Museum
+    rarity: 1
+    description:
+      ability: Choose one of two random Loots to add to your hand.
+    buildCost:
+      cash: 4
+      influence: 4
+    activationCost:
+      influence: 3
+    activateActions:
+      # Instantiate cards so that we'll have real VP counts when we make a choice
+      - set '$choices cards-instantiate take --from 'random (filter buyable-card-list '(card-has-type? $it 'loot)) 2
+      # Run the choose later which gives VP points room to calculate first
+      - run-later '(pile-move-to! $hand choose --prompt "Get a Loot." --required _ $choices 1)
+
+
+  - name: Witness Protection Program
+    rarity: 1
+    description:
+      ability: Give a Thief, Spy, or Trickster in your hand Suspicious. Create a copy of it in your hand.
+    buildCost:
+      cash: 3
+      influence: 3
+    activationCost:
+      cash: 1
+    canActivate: ! (empty? filter $hand '(card-has-any-of-types? $it (list "thief" "spy" "trickster")))
+    cannotActivateReason: "you don't have a Thief, Spy, or Trickster in your hand"
+    activateActions:
+      - set '$criminals filter $hand '(card-has-any-of-types? $it (list "thief" "spy" "trickster"))
+      - set '$copied-card single (choose --prompt "Choose a Thief, Spy, or Trickster to copy." $criminals 1)
+      - card-add-trait! $copied-card 'suspicious
+      - pile-copy-to! $hand $copied-card
+
 
   - name: The Blue Hound
     rarity: 1
@@ -1266,8 +1328,6 @@ blueprints:
     activateActions:
       - game-add! 'cash (count $discard '(card-has-type? $it 'cop))
       - building-add! $this 'vp (count $discard '(card-has-type? $it 'cop))
-
-
 
   - name: Venture Capital Firm
     rarity: 2
