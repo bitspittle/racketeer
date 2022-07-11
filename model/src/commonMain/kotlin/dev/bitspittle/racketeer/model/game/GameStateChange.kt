@@ -148,7 +148,8 @@ sealed class GameStateChange {
 
     class AddCardAmount(val property: CardProperty, val card: Card, val amount: Int) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
-            require(card.isSafeToReference(this)) {
+            // VP_PASSIVE changes aren't saved to disk
+            require(property == CardProperty.VP_PASSIVE || card.isSafeToReference(this)) {
                 // This requirement prevents this change from crashing at load-time later
                 "Can't modify property $property of card \"${card.template.name}\" as it is temporary."
             }
