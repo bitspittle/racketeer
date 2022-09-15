@@ -1,6 +1,5 @@
 {
   "hosting": {
-    "site": "racketeer",
     "public": ".kobweb/site",
     "ignore": [
       "firebase.json",
