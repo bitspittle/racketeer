@@ -1,6 +1,7 @@
 package dev.bitspittle.racketeer.site.components.widgets
 
 import androidx.compose.runtime.*
+import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.ui.Alignment
@@ -27,10 +28,32 @@ private val CardStyleCommon =
         .borderRadius(10.percent)
         .backgroundColor(rgb(0xc9c1c1))
         .color(Colors.Black)
+        .outlineStyle(LineStyle.None)
 
-val CardStyleMinimum = ComponentStyle.base("card-min") {
-    CardStyleCommon
-        .width(150.px).height(210.px)
+private val CardStyleCommonHover =
+    Modifier
+        .boxShadow(blurRadius = 10.px, spreadRadius = 2.px, color = Colors.Yellow)
+        .cursor(Cursor.Pointer)
+
+private val CardStyleCommonFocus =
+    Modifier
+        .boxShadow(blurRadius = 10.px, spreadRadius = 2.px, color = Colors.Black)
+
+
+val CardStyleMinimum = ComponentStyle("card-min") {
+    base {
+        CardStyleCommon
+            .width(150.px).height(210.px)
+    }
+
+    hover {
+        CardStyleCommonHover
+    }
+
+    focus {
+        CardStyleCommonFocus
+    }
+
 }
 
 val PortraitStyle = ComponentStyle.base("portrait") {
@@ -38,7 +61,6 @@ val PortraitStyle = ComponentStyle.base("portrait") {
         .border(width = 5.px, style = LineStyle.Solid, color = rgb(0x968f8f).toCssColor())
         .borderRadius(2.percent)
         .backgroundColor(Colors.White)
-
 }
 
 enum class CardLayout {
@@ -48,7 +70,7 @@ enum class CardLayout {
 
 @Composable
 fun Card(modifier: Modifier = Modifier, layout: CardLayout = CardLayout.MINIMAL) {
-    val finalModifier = CardStyleMinimum.toModifier().then(modifier)
+    val finalModifier = CardStyleMinimum.toModifier().tabIndex(0).then(modifier)
 
     Column(finalModifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Box(Modifier.fillMaxWidth().height(33.px), contentAlignment = Alignment.Center) {
