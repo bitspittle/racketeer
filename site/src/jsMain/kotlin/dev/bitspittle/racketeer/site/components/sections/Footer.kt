@@ -9,7 +9,7 @@ import com.varabyte.kobweb.silk.components.navigation.Link
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.theme.SilkTheme
 import org.jetbrains.compose.web.css.*
-import org.jetbrains.compose.web.dom.Text
+import org.jetbrains.compose.web.dom.*
 
 val FooterStyle = ComponentStyle.base("footer") {
     Modifier

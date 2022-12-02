@@ -2,7 +2,6 @@ package dev.bitspittle.racketeer.site
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.ui.Modifier
-import com.varabyte.kobweb.compose.ui.asStyleBuilder
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.styleModifier
 import com.varabyte.kobweb.core.App
@@ -34,7 +33,7 @@ fun updateTheme(ctx: InitSilkContext) {
 
     ctx.config.registerBaseStyle("body") {
         Modifier.fontFamily(
-	    "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+            "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
             "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "sans-serif"
         )
     }

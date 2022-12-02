@@ -86,8 +86,8 @@ fun Card(modifier: Modifier = Modifier, layout: CardLayout = CardLayout.MINIMAL)
                 Modifier
                     .margin(7.px)
                     .styleModifier {
-                    property("text-shadow", "0px 0px 4px #000000")
-                })
+                        property("text-shadow", "0px 0px 4px #000000")
+                    })
         }
     }
 }
