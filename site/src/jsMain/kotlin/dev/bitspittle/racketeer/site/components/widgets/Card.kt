@@ -6,17 +6,13 @@ import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
-import com.varabyte.kobweb.compose.ui.asAttributesBuilder
-import com.varabyte.kobweb.compose.ui.graphics.Color
 import com.varabyte.kobweb.compose.ui.graphics.Color.Companion.rgb
 import com.varabyte.kobweb.compose.ui.graphics.Colors
-import com.varabyte.kobweb.compose.ui.graphics.toCssColor
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.styleModifier
-import com.varabyte.kobweb.silk.components.forms.Button
+import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
-import com.varabyte.kobweb.silk.theme.SilkTheme
 import dev.bitspittle.racketeer.site.GAME_TEXT_FONT
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
@@ -58,7 +54,7 @@ val CardStyleMinimum = ComponentStyle("card-min") {
 
 val PortraitStyle = ComponentStyle.base("portrait") {
     Modifier
-        .border(width = 5.px, style = LineStyle.Solid, color = rgb(0x968f8f).toCssColor())
+        .border(width = 5.px, style = LineStyle.Solid, color = rgb(0x968f8f))
         .borderRadius(2.percent)
         .backgroundColor(Colors.White)
 }
@@ -82,7 +78,7 @@ fun Card(modifier: Modifier = Modifier, layout: CardLayout = CardLayout.MINIMAL)
                 .styleModifier {
                     property("image-rendering", "pixelated")
                 }
-                .asAttributesBuilder())
+                .toAttrs())
         }
         Box(Modifier.fillMaxWidth().height(33.px), contentAlignment = Alignment.TopCenter) {
             SpanText("\uD83D\uDCB0 \uD83E\uDD1D",
