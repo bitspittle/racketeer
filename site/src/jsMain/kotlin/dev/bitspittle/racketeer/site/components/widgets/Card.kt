@@ -33,7 +33,7 @@ private val CardStyleCommonHover =
 
 private val CardStyleCommonFocus =
     Modifier
-        .boxShadow(blurRadius = 10.px, spreadRadius = 2.px, color = Colors.Black)
+        .boxShadow(blurRadius = 10.px, spreadRadius = 2.px, color = Colors.Red)
 
 
 val CardStyleMinimum = ComponentStyle("card-min") {
