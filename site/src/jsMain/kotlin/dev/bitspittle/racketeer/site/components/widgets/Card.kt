@@ -13,14 +13,14 @@ import com.varabyte.kobweb.compose.ui.styleModifier
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
-import dev.bitspittle.racketeer.site.GAME_TEXT_FONT
+import dev.bitspittle.racketeer.site.G
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
 private val CardStyleCommon =
     Modifier
-        .fontFamily(GAME_TEXT_FONT)
-        .fontSize(20.px)
+        .fontFamily(G.Font.NAME)
+        .fontSize(G.Font.Sizes.Normal)
         .borderRadius(10.percent)
         .backgroundColor(rgb(0xc9c1c1))
         .color(Colors.Black)

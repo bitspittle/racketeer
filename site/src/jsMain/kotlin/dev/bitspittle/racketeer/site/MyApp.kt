@@ -17,8 +17,6 @@ import org.jetbrains.compose.web.css.*
 
 private const val COLOR_MODE_KEY = "site:colorMode"
 
-val GAME_TEXT_FONT = "GameText"
-
 @InitSilk
 fun updateTheme(ctx: InitSilkContext) {
     ctx.config.initialColorMode = localStorage.getItem(COLOR_MODE_KEY)?.let { ColorMode.valueOf(it) } ?: ColorMode.LIGHT
