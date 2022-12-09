@@ -3,6 +3,9 @@ package dev.bitspittle.racketeer.site
 import org.jetbrains.compose.web.css.*
 
 object G {
+    object Widths {
+        val Group = 50.vw
+    }
     object Font {
         const val NAME = "GameText"
 

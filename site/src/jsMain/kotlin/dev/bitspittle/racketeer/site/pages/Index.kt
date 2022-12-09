@@ -8,6 +8,7 @@ import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.core.Page
 import dev.bitspittle.racketeer.site.components.layouts.PageLayout
+import dev.bitspittle.racketeer.site.components.widgets.Card
 import dev.bitspittle.racketeer.site.components.widgets.CardGroup
 import org.jetbrains.compose.web.css.*
 
@@ -17,8 +18,13 @@ fun HomePage() {
     PageLayout("Do Crimes") {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(Modifier.gap(20.px)) {
-                CardGroup("The Street")
-                CardGroup("Your Hand")
+                CardGroup("The Street") {
+                    Card(); Card()
+                }
+                CardGroup("Your Hand") {
+                    Card(); Card()
+                    Card()
+                }
             }
         }
     }
