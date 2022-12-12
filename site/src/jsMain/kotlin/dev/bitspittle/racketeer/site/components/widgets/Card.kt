@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
+import com.varabyte.kobweb.compose.foundation.layout.Spacer
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Color.Companion.rgb
@@ -21,8 +22,9 @@ import org.jetbrains.compose.web.dom.*
 
 private val CardStyleCommon =
     Modifier
-        .fontFamily(G.Font.NAME)
+//        .fontFamily(G.Font.NAME)
         .fontSize(G.Font.Sizes.Normal)
+        .padding(topBottom = 5.px)
         .borderRadius(10.percent)
         .backgroundColor(rgb(0xc9c1c1))
         .color(Colors.Black)
@@ -38,10 +40,10 @@ private val CardStyleCommonFocus =
         .boxShadow(blurRadius = 10.px, spreadRadius = 2.px, color = Colors.Red)
 
 
-val CardStyleMinimum = ComponentStyle("card-min") {
+val CardStyleMinimal = ComponentStyle("card-min") {
     base {
         CardStyleCommon
-            .width(150.px).height(210.px)
+            .width(600.px).height(210.px)
     }
 
     hover {
@@ -52,6 +54,15 @@ val CardStyleMinimum = ComponentStyle("card-min") {
         CardStyleCommonFocus
     }
 
+}
+
+val CardDescriptionStyle = ComponentStyle.base("card-desc") {
+    Modifier
+        .fontSize(G.Font.Sizes.Small)
+        .padding(15.px)
+        .styleModifier {
+            property("text-shadow", "0px 0px 4px #000000")
+        }
 }
 
 val PortraitStyle = ComponentStyle.base("portrait") {
@@ -68,29 +79,16 @@ enum class CardLayout {
 
 @Composable
 fun Card(ctx: GameContext, card: Card, onClick: () -> Unit, modifier: Modifier = Modifier, layout: CardLayout = CardLayout.MINIMAL) {
-    val finalModifier = CardStyleMinimum.toModifier().tabIndex(0).onClick { onClick() }.then(modifier)
+    val finalModifier = CardStyleMinimal.toModifier().tabIndex(0).onClick { onClick() }.then(modifier)
 
-    Column(finalModifier, horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(finalModifier) {
         Box(Modifier.fillMaxWidth().height(33.px), contentAlignment = Alignment.Center) {
             SpanText(card.template.name)
         }
-        Box(PortraitStyle.toModifier()) {
-            Img("/portraits/cards/${card.template.name}.png", attrs = Modifier
-                .size(128.px)
-                .styleModifier {
-                    property("image-rendering", "pixelated")
-                }
-                .toAttrs())
-        }
-        Box(Modifier.fillMaxWidth().height(33.px), contentAlignment = Alignment.TopCenter) {
-            SpanText(
-                ctx.describer.convertIcons(card.template.description.ability),
-                // Vertically aligning text isn't quite working, so I'll use margin to tweak the look
-                Modifier
-                    .margin(7.px)
-                    .styleModifier {
-                        property("text-shadow", "0px 0px 4px #000000")
-                    })
-        }
+        Spacer()
+        SpanText(
+            ctx.describer.convertIcons(card.template.description.ability),
+            CardDescriptionStyle.toModifier()
+        )
     }
 }
