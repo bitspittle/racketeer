@@ -18,7 +18,7 @@ val CardGroupStyle = ComponentStyle.base("card-group") {
         .border(width = 1.px, style = LineStyle.Solid, color = Colors.Black)
         .flexWrap(FlexWrap.Nowrap)
         .width(G.Sizes.CardGroup.w)
-        .height(G.Sizes.CardGroup.h)
+        .minHeight(G.Sizes.CardGroup.h)
         .padding(20.px)
         .borderRadius(2.percent)
         .backgroundColor(Colors.White)

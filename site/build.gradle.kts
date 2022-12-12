@@ -26,6 +26,7 @@ kobweb {
 }
 
 kotlin {
+
     configAsKobwebApplication("docrimes")
 
     sourceSets {

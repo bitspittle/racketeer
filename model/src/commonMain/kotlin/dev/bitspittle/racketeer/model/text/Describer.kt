@@ -10,10 +10,10 @@ import dev.bitspittle.racketeer.model.building.vpTotal
 import dev.bitspittle.racketeer.model.pile.Pile
 
 private fun GameData.iconMappings() = mapOf(
-    "$" to icons.cash,
-    "&" to icons.influence,
-    "%" to icons.luck,
-    "*" to icons.vp,
+    '$' to icons.cash,
+    '&' to icons.influence,
+    '%' to icons.luck,
+    '*' to icons.vp,
 )
 
 class Describer(private val data: GameData, private val showDebugInfo: () -> Boolean) {
@@ -27,24 +27,40 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
     // very few matches, so the actual amount of new strings we're churning out is few to none, and performance-wise,
     // we don't really have to worry about the inefficiency of running through short strings over and over.
     fun convertIcons(text: String, maxExpand: Int = 4): String {
-        @Suppress("NAME_SHADOWING")
-        var text = text
-
         val iconMappings = data.iconMappings()
 
-        for (i in 1..maxExpand) {
-            // Change something like 2% to %%, 4$ to $$$$
-            for (asciiIcon in iconMappings.keys) {
-                // .. but don't match two digit numbers, e.g. 12$
-                text = text.replace(Regex("(?<=\\D)$i\\$asciiIcon"), Regex.escapeReplacement(asciiIcon.repeat(i)))
+        return buildString {
+            var lastNumber: Int? = null
+            for (c in text) {
+                if (c.isDigit()) {
+                    if (lastNumber != null) {
+                        lastNumber *= 10
+                    } else {
+                        lastNumber = 0
+                    }
+                    lastNumber += c.digitToInt()
+                } else {
+                    if (c in iconMappings.keys) {
+                        if (lastNumber != null && lastNumber <= maxExpand) {
+                            repeat(lastNumber) { append(iconMappings[c]) }
+                        } else {
+                            append(iconMappings[c])
+                        }
+                    } else {
+                        if (lastNumber != null) {
+                            append(lastNumber)
+                        }
+                        append(c)
+                    }
+                    lastNumber = null
+                }
+            }
+
+            // This should never with out data, but we handle it just in case...
+            if (lastNumber != null) {
+                append(lastNumber)
             }
         }
-
-        iconMappings.forEach { (asciiIcon, icon) ->
-            text = text.replace(asciiIcon, icon)
-        }
-
-        return text
     }
     fun describeCash(cash: Int) = "${data.icons.cash}$cash"
     fun describeInfluence(influence: Int) = "${data.icons.influence}$influence"

@@ -13,7 +13,9 @@ import com.varabyte.kobweb.compose.ui.styleModifier
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
+import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.site.G
+import dev.bitspittle.racketeer.site.model.GameContext
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
@@ -65,15 +67,15 @@ enum class CardLayout {
 }
 
 @Composable
-fun Card(onClick: () -> Unit, modifier: Modifier = Modifier, layout: CardLayout = CardLayout.MINIMAL) {
+fun Card(ctx: GameContext, card: Card, onClick: () -> Unit, modifier: Modifier = Modifier, layout: CardLayout = CardLayout.MINIMAL) {
     val finalModifier = CardStyleMinimum.toModifier().tabIndex(0).onClick { onClick() }.then(modifier)
 
     Column(finalModifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Box(Modifier.fillMaxWidth().height(33.px), contentAlignment = Alignment.Center) {
-            SpanText("Embezzler")
+            SpanText(card.template.name)
         }
         Box(PortraitStyle.toModifier()) {
-            Img("/portraits/cards/Embezzler.png", attrs = Modifier
+            Img("/portraits/cards/${card.template.name}.png", attrs = Modifier
                 .size(128.px)
                 .styleModifier {
                     property("image-rendering", "pixelated")
@@ -81,8 +83,9 @@ fun Card(onClick: () -> Unit, modifier: Modifier = Modifier, layout: CardLayout 
                 .toAttrs())
         }
         Box(Modifier.fillMaxWidth().height(33.px), contentAlignment = Alignment.TopCenter) {
-            SpanText("\uD83D\uDCB0 \uD83E\uDD1D",
-                // Vertically aligning text isn't quite working so I'll use margin to tweak the look
+            SpanText(
+                ctx.describer.convertIcons(card.template.description.ability),
+                // Vertically aligning text isn't quite working, so I'll use margin to tweak the look
                 Modifier
                     .margin(7.px)
                     .styleModifier {
