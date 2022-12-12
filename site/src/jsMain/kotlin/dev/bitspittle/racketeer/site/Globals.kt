@@ -12,7 +12,7 @@ object G {
         const val NAME = "GameText"
 
         object Sizes {
-            val Small = 14.px
+            val Small = 13.px
             val Normal = 16.px
         }
     }
