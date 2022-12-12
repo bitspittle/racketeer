@@ -93,6 +93,7 @@ data class GameData(
                 }
 
                 unprocessed.lines().forEach { line ->
+                    @Suppress("NAME_SHADOWING")
                     val line = line.stripOutComment()
 
                     if (inMultilineString && parentIndentLength > 0 && line.isNotBlank() && line.indentLength <= parentIndentLength) {
