@@ -6,6 +6,7 @@ import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
+import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import dev.bitspittle.racketeer.site.components.sections.Footer
 import kotlinx.browser.document
@@ -27,10 +28,7 @@ fun PageLayout(title: String, content: @Composable () -> Unit) {
             // can be pushed further down if the first row grows beyond the page.
             .gridTemplateRows("1fr auto")
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize().textAlign(TextAlign.Center),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
             content()
         }
         // Associate the footer with the row that will get pushed off the bottom of the page if it can't fit.
