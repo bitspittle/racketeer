@@ -149,12 +149,12 @@ fun HomePage() {
 private fun GameBoard(ctx: GameContext) {
     Box(Modifier.fillMaxSize().padding(top = 5.em), contentAlignment = Alignment.TopCenter) {
         Column(Modifier.gap(20.px)) {
-            CardGroup("The Street") {
+            CardGroup("Street") {
                 ctx.state.street.cards.forEach { card ->
                     Card(ctx, card, onClick = {})
                 }
             }
-            CardGroup("Your Hand") {
+            CardGroup("Hand") {
                 ctx.state.hand.cards.forEach { card ->
                     Card(ctx, card, onClick = {})
                 }
