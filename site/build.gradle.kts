@@ -1,4 +1,4 @@
-//import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.varabyte.kobweb.gradle.application.util.configAsKobwebApplication
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -26,24 +26,8 @@ kobweb {
 }
 
 kotlin {
-//    jvm {
-//        tasks.withType<KotlinCompile> {
-//            kotlinOptions.jvmTarget = "11"
-//        }
-//
-//        tasks.named("jvmJar", Jar::class.java).configure {
-//            archiveFileName.set("site.jar")
-//        }
-//    }
-    js(IR) {
-        moduleName = "docrimes"
-        browser {
-            commonWebpackConfig {
-                outputFileName = "docrimes.js"
-            }
-        }
-        binaries.executable()
-    }
+    configAsKobwebApplication("docrimes")
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -59,11 +43,5 @@ kotlin {
                 implementation(libs.kobweb.silk.icons.fa)
              }
         }
-
-//        val jvmMain by getting {
-//            dependencies {
-//                implementation(libs.kobweb.api)
-//             }
-//        }
     }
 }
