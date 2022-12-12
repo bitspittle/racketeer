@@ -2,9 +2,11 @@ package dev.bitspittle.racketeer.site
 
 import org.jetbrains.compose.web.css.*
 
+data class Size<W: CSSUnit, H: CSSUnit>(val w: CSSSizeValue<W>, val h: CSSSizeValue<H>)
+
 object G {
-    object Widths {
-        val Group = 50.vw
+    object Sizes {
+        val CardGroup = Size(50.vw, (10.5).vh)
     }
     object Font {
         const val NAME = "GameText"

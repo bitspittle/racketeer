@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.Overflow
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Row
+import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
@@ -16,7 +17,8 @@ val CardGroupStyle = ComponentStyle.base("card-group") {
     Modifier
         .border(width = 1.px, style = LineStyle.Solid, color = Colors.Black)
         .flexWrap(FlexWrap.Nowrap)
-        .width(G.Widths.Group)
+        .width(G.Sizes.CardGroup.w)
+        .height(G.Sizes.CardGroup.h)
         .padding(20.px)
         .borderRadius(2.percent)
         .backgroundColor(Colors.White)
@@ -36,7 +38,7 @@ val CardGroupTitleStyle = ComponentStyle.base("card-group-title") {
 fun CardGroup(title: String, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Box(Modifier.position(Position.Relative)) {
         SpanText(title, CardGroupTitleStyle.toModifier())
-        Row(CardGroupStyle.toModifier().then(modifier)) {
+        Row(CardGroupStyle.toModifier().then(modifier), verticalAlignment = Alignment.Bottom) {
             content()
         }
     }

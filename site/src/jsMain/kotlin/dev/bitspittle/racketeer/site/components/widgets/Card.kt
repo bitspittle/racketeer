@@ -65,8 +65,8 @@ enum class CardLayout {
 }
 
 @Composable
-fun Card(modifier: Modifier = Modifier, layout: CardLayout = CardLayout.MINIMAL) {
-    val finalModifier = CardStyleMinimum.toModifier().tabIndex(0).then(modifier)
+fun Card(onClick: () -> Unit, modifier: Modifier = Modifier, layout: CardLayout = CardLayout.MINIMAL) {
+    val finalModifier = CardStyleMinimum.toModifier().tabIndex(0).onClick { onClick() }.then(modifier)
 
     Column(finalModifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Box(Modifier.fillMaxWidth().height(33.px), contentAlignment = Alignment.Center) {

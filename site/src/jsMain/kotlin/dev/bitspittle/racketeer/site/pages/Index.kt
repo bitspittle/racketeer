@@ -16,14 +16,20 @@ import org.jetbrains.compose.web.css.*
 @Composable
 fun HomePage() {
     PageLayout("Do Crimes") {
+        // Temporary hack for testing card movement. Will be improved in a followup commit.
+        var onStreet by remember { mutableStateOf(false) }
+
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(Modifier.gap(20.px)) {
                 CardGroup("The Street") {
-                    Card(); Card()
+                    if (onStreet) {
+                        Card(onClick = { onStreet = false })
+                    }
                 }
                 CardGroup("Your Hand") {
-                    Card(); Card()
-                    Card()
+                    if (!onStreet) {
+                        Card(onClick = { onStreet = true })
+                    }
                 }
             }
         }
