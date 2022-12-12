@@ -192,32 +192,30 @@ class GameSession(
             override val describer = ctx.describer
             override val gameState get() = ctx.state
             override val enqueuers = ctx.enqueuers
-            override val chooseHandler
-                get() = object : ChooseHandler {
-                    override suspend fun query(
-                        prompt: String?,
-                        list: List<Any>,
-                        range: IntRange,
-                        requiredChoice: Boolean
-                    ): List<Any>? {
-                        return suspendCoroutine { choices ->
-                            viewStack.pushView(
-                                if (range.first == range.last && range.first == list.size) {
-                                    // You have to pick exactly the whole list. Not much of a choice actually!
-                                    ReviewItemsView(ctx, prompt, list, choices, requiredChoice)
-                                }
-                                else if (range.first == range.last && range.first == 1) {
-                                    // You have to pick exactly one item from a list, no need for a confirm button.
-                                    PickItemView(ctx, prompt, list, choices, requiredChoice)
-                                } else {
-                                    // Normal multi-select choose screen.
-                                    ChooseItemsView(ctx, prompt, list, range, choices, requiredChoice)
-                                }
-                            )
-                            handleRerender()
-                        }
+            override val chooseHandler = object : ChooseHandler {
+                override suspend fun query(
+                    prompt: String?,
+                    list: List<Any>,
+                    range: IntRange,
+                    requiredChoice: Boolean
+                ): List<Any>? {
+                    return suspendCoroutine { choices ->
+                        viewStack.pushView(
+                            if (range.first == range.last && range.first == list.size) {
+                                // You have to pick exactly the whole list. Not much of a choice actually!
+                                ReviewItemsView(ctx, prompt, list, choices, requiredChoice)
+                            } else if (range.first == range.last && range.first == 1) {
+                                // You have to pick exactly one item from a list, no need for a confirm button.
+                                PickItemView(ctx, prompt, list, choices, requiredChoice)
+                            } else {
+                                // Normal multi-select choose screen.
+                                ChooseItemsView(ctx, prompt, list, range, choices, requiredChoice)
+                            }
+                        )
+                        handleRerender()
                     }
                 }
+            }
 
             override val logger = app.logger
         })
