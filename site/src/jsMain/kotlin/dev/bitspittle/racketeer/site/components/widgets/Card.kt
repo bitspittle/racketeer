@@ -3,6 +3,7 @@ package dev.bitspittle.racketeer.site.components.widgets
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.css.FontStyle
+import com.varabyte.kobweb.compose.css.UserSelect
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Spacer
@@ -28,6 +29,7 @@ private val CardStyleCommon =
         .backgroundColor(rgb(0xc9c1c1))
         .color(Colors.Black)
         .outlineStyle(LineStyle.None)
+        .userSelect(UserSelect.None)
 
 private val CardStyleCommonHover =
     Modifier
@@ -42,8 +44,8 @@ private val CardStyleCommonFocus =
 val CardStyleMinimal = ComponentStyle("card-min") {
     base {
         CardStyleCommon
-            .width(150.px).flexShrink(0) // Needed to prevent Row from resizing the elements
-            .height(210.px)
+            .width(G.Sizes.Card.w).flexShrink(0) // Needed to prevent Row from resizing the elements
+            .height(G.Sizes.Card.h)
     }
 
     hover {

@@ -28,6 +28,7 @@ import dev.bitspittle.racketeer.scripting.types.ExprEnqueuerImpl
 import dev.bitspittle.racketeer.scripting.types.GameService
 import dev.bitspittle.racketeer.scripting.utils.installGameLogic
 import dev.bitspittle.racketeer.site.components.layouts.PageLayout
+import dev.bitspittle.racketeer.site.components.sections.GameBoard
 import dev.bitspittle.racketeer.site.components.widgets.Card
 import dev.bitspittle.racketeer.site.components.widgets.CardGroup
 import dev.bitspittle.racketeer.site.model.GameContext
@@ -139,24 +140,6 @@ fun HomePage() {
                     scope.launch {
                         ctx = createNewGame(gameData)
                     }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun GameBoard(ctx: GameContext) {
-    Box(Modifier.fillMaxSize().padding(top = 5.em), contentAlignment = Alignment.TopCenter) {
-        Column(Modifier.gap(20.px)) {
-            CardGroup("Street") {
-                ctx.state.street.cards.forEach { card ->
-                    Card(ctx, card, onClick = {})
-                }
-            }
-            CardGroup("Hand") {
-                ctx.state.hand.cards.forEach { card ->
-                    Card(ctx, card, onClick = {})
                 }
             }
         }

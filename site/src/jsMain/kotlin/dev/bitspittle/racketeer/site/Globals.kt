@@ -6,6 +6,7 @@ data class Size<W: CSSUnit, H: CSSUnit>(val w: CSSSizeValue<W>, val h: CSSSizeVa
 
 object G {
     object Sizes {
+        val Card = Size(130.px, 180.px)
         val CardGroup = Size(50.vw, 200.px)
     }
     object Font {
