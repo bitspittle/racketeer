@@ -44,7 +44,23 @@ fun GameBoard(ctx: GameContext) {
                     .gridTemplateColumns("${G.Sizes.Card.w} 1fr")
             ) {
                 Div() // Empty space
-                CardGroup("Shop (Tier ${ctx.state.shop.tier + 1})") {}
+                Row(Modifier.gap(GAP)) {
+                    CardGroup("Shop (Tier ${ctx.state.shop.tier + 1})", Modifier.flexGrow(1)) {}
+                    Column(Modifier
+                        .fillMaxHeight()
+                        .padding(GAP).gap(GAP)
+                        .border(width = 1.px, style = LineStyle.Solid, color = Colors.Black)
+                    ) {
+                        Button(onClick = {}, Modifier.width(100.px).flexGrow(1)) {
+                            Text("Expand"); Br()
+                            Text(ctx.describer.describeInfluence(ctx.data.shopPrices[ctx.state.shop.tier]))
+                        }
+                        Button(onClick = {}, Modifier.width(100.px).flexGrow(1)) {
+                            Text("Reroll"); Br()
+                            Text(ctx.data.icons.luck)
+                        }
+                    }
+                }
 
                 Div(Modifier.backgroundColor(Colors.Grey).toAttrs())
                 CardGroup("Street") {
