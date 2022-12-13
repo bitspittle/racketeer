@@ -44,7 +44,7 @@ fun GameBoard(ctx: GameContext) {
                     .gridTemplateColumns("${G.Sizes.Card.w} 1fr")
             ) {
                 Div() // Empty space
-                CardGroup("Shop") {}
+                CardGroup("Shop (Tier ${ctx.state.shop.tier + 1})") {}
 
                 Div(Modifier.backgroundColor(Colors.Grey).toAttrs())
                 CardGroup("Street") {
