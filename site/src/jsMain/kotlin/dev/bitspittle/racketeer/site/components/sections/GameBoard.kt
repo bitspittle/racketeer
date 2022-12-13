@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.site.components.sections
 
 import com.varabyte.kobweb.silk.components.forms.Button
 import androidx.compose.runtime.*
+import com.varabyte.kobweb.compose.css.UserSelect
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Row
@@ -24,9 +25,13 @@ private val GAP = 20.px
 
 @Composable
 fun GameBoard(ctx: GameContext) {
-    Box(Modifier.fillMaxSize()) {
+    // UserSelect.None, because the game feels cheap if you allow users to drag highlight text on stuff
+    Box(Modifier.fillMaxSize().userSelect(UserSelect.None)) {
         Column(Modifier.fillMaxWidth()) {
-            Row(Modifier.align(Alignment.CenterHorizontally).margin(top = 10.px, bottom = 15.px)) {
+            Row(Modifier
+                .align(Alignment.CenterHorizontally)
+                .margin(top = 10.px, bottom = 15.px)
+            ) {
                 SpanText(
                     ctx.describer.describeCash(ctx.state.cash) + " "
                             + ctx.describer.describeInfluence(ctx.state.influence) + " "

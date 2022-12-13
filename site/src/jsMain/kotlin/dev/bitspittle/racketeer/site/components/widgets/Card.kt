@@ -29,7 +29,6 @@ private val CardStyleCommon =
         .backgroundColor(rgb(0xc9c1c1))
         .color(Colors.Black)
         .outlineStyle(LineStyle.None)
-        .userSelect(UserSelect.None)
 
 private val CardStyleCommonHover =
     Modifier

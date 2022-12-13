@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.site.components.widgets
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.Overflow
+import com.varabyte.kobweb.compose.css.UserSelect
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Row
 import com.varabyte.kobweb.compose.ui.Alignment
