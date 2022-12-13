@@ -1,6 +1,5 @@
 package dev.bitspittle.racketeer.site.components.sections
 
-import com.varabyte.kobweb.silk.components.forms.Button
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.UserSelect
 import com.varabyte.kobweb.compose.foundation.layout.Box
@@ -11,20 +10,40 @@ import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.toAttrs
+import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.layout.SimpleGrid
 import com.varabyte.kobweb.silk.components.layout.numColumns
 import com.varabyte.kobweb.silk.components.text.SpanText
+import dev.bitspittle.racketeer.model.game.GameStateChange
+import dev.bitspittle.racketeer.model.game.isGameOver
 import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.widgets.Card
 import dev.bitspittle.racketeer.site.components.widgets.CardGroup
 import dev.bitspittle.racketeer.site.model.GameContext
+import dev.bitspittle.racketeer.site.model.runStateChangingAction
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
 private val GAP = 20.px
 
 @Composable
-fun GameBoard(ctx: GameContext) {
+fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> Unit) {
+    fun runStateChangingActions(vararg blocks: suspend () -> Unit) {
+        scope.launch {
+            var changed = false
+            for (block in blocks) {
+                if (ctx.runStateChangingAction { block() }) { changed = true }
+            }
+
+            if (changed) {
+                onContextUpdated()
+            }
+        }
+    }
+    fun runStateChangingAction(block: suspend () -> Unit) = runStateChangingActions(block)
+
     // UserSelect.None, because the game feels cheap if you allow users to drag highlight text on stuff
     Box(Modifier.fillMaxSize().userSelect(UserSelect.None)) {
         Column(Modifier.fillMaxWidth()) {
@@ -77,14 +96,32 @@ fun GameBoard(ctx: GameContext) {
                 Div(Modifier.backgroundColor(Colors.Grey).toAttrs())
                 CardGroup("Hand") {
                     ctx.state.hand.cards.forEach { card ->
-                        Card(ctx, card, onClick = {})
+                        Card(ctx, card, onClick = {
+                            runStateChangingAction {
+                                ctx.state.apply(GameStateChange.Play(card))
+                            }
+                        })
                     }
                 }
 
                 Div(Modifier.backgroundColor(Colors.Grey).toAttrs())
                 Row(Modifier.gap(GAP)) {
                     CardGroup("Buildings", Modifier.flexGrow(1)) {}
-                    Button(onClick = {}, Modifier.width(300.px).fillMaxHeight()) {
+                    Button(onClick = {
+                        runStateChangingActions(
+                            {
+                                ctx.state.apply(GameStateChange.EndTurn())
+                            },
+                            // Break up into two state changing actions for a better state diff report around reshuffling cards
+                            {
+                                if (!ctx.state.isGameOver) {
+                                    ctx.runStateChangingAction {
+                                        ctx.state.apply(GameStateChange.Draw())
+                                    }
+                                }
+                            }
+                        )
+                    }, Modifier.width(300.px).fillMaxHeight()) {
                         Text("End Turn")
                     }
                 }
