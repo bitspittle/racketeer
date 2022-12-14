@@ -9,14 +9,12 @@ import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
-import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.layout.SimpleGrid
 import com.varabyte.kobweb.silk.components.layout.numColumns
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.game.isGameOver
-import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.widgets.Card
 import dev.bitspittle.racketeer.site.components.widgets.CardGroup
 import dev.bitspittle.racketeer.site.components.widgets.CardPile
@@ -51,12 +49,13 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
             Row(Modifier
                 .align(Alignment.CenterHorizontally)
                 .margin(top = 10.px, bottom = 15.px)
+                .gap(30.px)
             ) {
+                SpanText("Turn ${ctx.state.turn + 1}")
                 SpanText(
                     ctx.describer.describeCash(ctx.state.cash) + " "
                             + ctx.describer.describeInfluence(ctx.state.influence) + " "
                             + ctx.describer.describeLuck(ctx.state.luck),
-                    Modifier.margin(right = 30.px)
                 )
                 SpanText(ctx.describer.describeVictoryPoints(ctx.state.vp))
             }
