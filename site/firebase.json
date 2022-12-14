@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "do-crimes",
     "public": ".kobweb/site",
     "ignore": [
       "firebase.json",
