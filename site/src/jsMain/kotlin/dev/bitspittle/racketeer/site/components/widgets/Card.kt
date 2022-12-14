@@ -76,10 +76,12 @@ val CardDescriptionFlavorVariant = CardDescriptionStyle.addVariantBase("flavor")
     Modifier.fontStyle(FontStyle.Italic)
 }
 
-val CardDescriptionAbilityVariant = CardDescriptionStyle.addVariantBase("ability") {
-    Modifier.styleModifier {
-        property("text-shadow", "0px 0px 4px #000000")
-    }
+val CardDescriptionEffectsVariant = CardDescriptionStyle.addVariantBase("effects") {
+    Modifier
+        .overflowWrap(OverflowWrap.BreakWord) // Don't break between emojis
+        .styleModifier {
+            property("text-shadow", "0px 0px 4px #000000")
+        }
 }
 
 @Composable
