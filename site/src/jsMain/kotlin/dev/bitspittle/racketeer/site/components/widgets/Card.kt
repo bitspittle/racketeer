@@ -115,7 +115,7 @@ fun Card(ctx: GameContext, card: Card, onClick: () -> Unit, modifier: Modifier =
         Spacer()
         SpanText(
             ctx.describer.convertIcons(card.template.description.ability),
-            CardDescriptionStyle.toModifier(CardDescriptionAbilityVariant)
+            CardDescriptionStyle.toModifier(CardDescriptionEffectsVariant)
         )
     }
 }
