@@ -14,7 +14,6 @@ import org.jetbrains.compose.web.css.*
 
 val CardGroupStyle = ComponentStyle.base("card-group") {
     Modifier
-        .flexWrap(FlexWrap.Nowrap)
         .minHeight(G.Sizes.CardGroup.h)
         .padding(20.px)
         .gap(10.px)

@@ -52,7 +52,7 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
     fun runStateChangingAction(block: suspend () -> Unit) = runStateChangingActions(block)
 
     // UserSelect.None, because the game feels cheap if you allow users to drag highlight text on stuff
-    Box(Modifier.fillMaxSize().minWidth(1000.px).userSelect(UserSelect.None)) {
+    Box(Modifier.fillMaxSize().minWidth(500.px).userSelect(UserSelect.None)) {
         Column(Modifier.fillMaxWidth()) {
             Row(Modifier
                 .align(Alignment.CenterHorizontally)
