@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.site.components.widgets
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.Overflow
+import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Row
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
@@ -16,15 +17,16 @@ val CardGroupStyle = ComponentStyle.base("card-group") {
         .flexWrap(FlexWrap.Nowrap)
         .minHeight(G.Sizes.CardGroup.h)
         .padding(20.px)
-        .overflowX(Overflow.Auto)
         .gap(10.px)
 }
 
 @Composable
 fun CardGroup(title: String, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     LabeledBox(title, modifier) {
-        Row(CardGroupStyle.toModifier(), verticalAlignment = Alignment.Bottom) {
-            content()
+        Box(Modifier.fillMaxSize().overflowX(Overflow.Auto)) {
+            Row(CardGroupStyle.toModifier(), verticalAlignment = Alignment.Bottom) {
+                content()
+            }
         }
     }
 }
