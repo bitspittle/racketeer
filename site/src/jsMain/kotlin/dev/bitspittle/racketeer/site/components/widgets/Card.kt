@@ -22,7 +22,6 @@ import org.jetbrains.compose.web.css.*
 
 private val CardStyleCommon =
     Modifier
-//        .fontFamily(G.Font.NAME)
         .fontSize(G.Font.Sizes.Normal)
         .padding(topBottom = 5.px)
         .borderRadius(10.percent)
