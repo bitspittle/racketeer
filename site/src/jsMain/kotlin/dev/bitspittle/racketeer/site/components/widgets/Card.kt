@@ -91,10 +91,10 @@ fun Card(ctx: GameContext, card: Card, onClick: () -> Unit, modifier: Modifier =
         Box(Modifier.fillMaxWidth().height(33.px), contentAlignment = Alignment.Center) {
             SpanText(card.template.name)
         }
-        Spacer()
         card.template.description.flavor?.let { flavor ->
             SpanText(flavor, CardDescriptionStyle.toModifier(CardDescriptionFlavorVariant))
         }
+        Spacer()
         SpanText(
             ctx.describer.convertIcons(card.template.description.ability),
             CardDescriptionStyle.toModifier(CardDescriptionAbilityVariant)
