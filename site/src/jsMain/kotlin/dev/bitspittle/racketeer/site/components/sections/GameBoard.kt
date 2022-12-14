@@ -1,7 +1,9 @@
 package dev.bitspittle.racketeer.site.components.sections
 
 import androidx.compose.runtime.*
+import com.varabyte.kobweb.compose.css.TextAlign
 import com.varabyte.kobweb.compose.css.UserSelect
+import com.varabyte.kobweb.compose.foundation.layout.Arrangement
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Row
@@ -9,6 +11,7 @@ import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
+import com.varabyte.kobweb.compose.ui.thenIf
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.layout.SimpleGrid
 import com.varabyte.kobweb.silk.components.layout.numColumns
@@ -16,9 +19,11 @@ import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.model.game.GameProperty
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.game.isGameOver
+import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.widgets.Card
 import dev.bitspittle.racketeer.site.components.widgets.CardGroup
 import dev.bitspittle.racketeer.site.components.widgets.CardPile
+import dev.bitspittle.racketeer.site.components.widgets.CardPlaceholder
 import dev.bitspittle.racketeer.site.model.GameContext
 import dev.bitspittle.racketeer.site.model.runStateChangingAction
 import kotlinx.coroutines.CoroutineScope
@@ -72,7 +77,33 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
             ) {
                 Div() // Empty space
                 Row(Modifier.gap(GAP)) {
-                    CardGroup("Shop (Tier ${ctx.state.shop.tier + 1})", Modifier.flexGrow(1)) {}
+                    CardGroup("Shop (Tier ${ctx.state.shop.tier + 1})", Modifier.flexGrow(1)) {
+                        ctx.state.shop.stock.forEach { card ->
+                            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Top) {
+                                if (card != null) {
+                                    Card(ctx, card, enabled = ctx.state.cash >= card.template.cost, onClick = {
+                                        runStateChangingAction {
+                                            ctx.state.apply(GameStateChange.Buy(card))
+                                        }
+                                    })
+                                } else {
+                                    CardPlaceholder()
+                                }
+
+                                SpanText(
+                                    if (card != null) ctx.describer.describeCash(card.template.cost) else "SOLD OUT",
+                                    Modifier
+                                        .margin(top = 10.px)
+                                        .fillMaxWidth()
+                                        .textAlign(TextAlign.Center)
+                                        .thenIf(card == null || ctx.state.cash < card.template.cost) {
+                                            Modifier.opacity(G.Colors.DisabledOpacity)
+                                        }
+                                )
+                            }
+                        }
+                    }
+
                     Column(Modifier
                         .fillMaxHeight()
                         .padding(GAP).gap(GAP)

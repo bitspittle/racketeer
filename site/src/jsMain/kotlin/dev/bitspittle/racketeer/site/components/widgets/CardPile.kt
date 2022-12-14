@@ -13,7 +13,6 @@ import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.model.GameContext
 import org.jetbrains.compose.web.css.*
-import org.jetbrains.compose.web.dom.*
 
 val CardPileStyle = ComponentStyle.base("card-pile") {
     Modifier
@@ -36,7 +35,7 @@ val CardPileCountStyle = ComponentStyle.base("card-pile-count") {
 fun CardPile(ctx: GameContext, pile: Pile) {
     LabeledBox(ctx.describer.describePileTitle(ctx.state, pile)) {
         Box(CardPileStyle.toModifier()) {
-            Box(CardStyleMinimal.toModifier(CardBackVariant), contentAlignment = Alignment.Center) {
+            Box(CardStyle.toModifier(CardBackVariant), contentAlignment = Alignment.Center) {
                 SpanText(pile.cards.size.toString(), CardPileCountStyle.toModifier())
             }
         }

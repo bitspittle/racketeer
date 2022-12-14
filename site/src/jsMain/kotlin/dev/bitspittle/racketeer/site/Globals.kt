@@ -7,7 +7,7 @@ data class Size<W: CSSUnit, H: CSSUnit>(val w: CSSSizeValue<W>, val h: CSSSizeVa
 
 object G {
     object Sizes {
-        val Card = Size(130.px, 180.px)
+        val Card = Size(150.px, 180.px)
         val CardGroup = Size(Card.w + 40.px, Card.h + 40.px)
     }
     object Font {
@@ -17,7 +17,9 @@ object G {
             val Large = 20.px
         }
     }
+
     object Colors {
+        val DisabledOpacity = 0.5
         object Card {
             val Front = KobwebColors.LightGray
             val Back = KobwebColors.DarkGray

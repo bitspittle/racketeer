@@ -11,6 +11,7 @@ import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.styleModifier
+import com.varabyte.kobweb.compose.ui.thenIf
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.model.card.Card
@@ -37,7 +38,7 @@ private val CardStyleCommonFocus =
         .boxShadow(blurRadius = 10.px, spreadRadius = 2.px, color = Colors.Red)
 
 
-val CardStyleMinimal = ComponentStyle("card-min") {
+val CardStyle = ComponentStyle("card") {
     base {
         CardStyleCommon
             .width(G.Sizes.Card.w).flexShrink(0) // Needed to prevent Row from resizing the elements
@@ -53,9 +54,13 @@ val CardStyleMinimal = ComponentStyle("card-min") {
     }
 }
 
-val CardBackVariant = CardStyleMinimal.addVariantBase("card-back") {
+val CardBackVariant = CardStyle.addVariantBase("back") {
     Modifier
         .backgroundColor(G.Colors.Card.Back)
+}
+
+val DisabledCardVariant = CardStyle.addVariantBase("disabled") {
+    Modifier.opacity(G.Colors.DisabledOpacity)
 }
 
 val CardDescriptionStyle = ComponentStyle.base("card-desc") {
@@ -74,14 +79,15 @@ val CardDescriptionAbilityVariant = CardDescriptionStyle.addVariantBase("ability
     }
 }
 
-enum class CardLayout {
-    MINIMAL,
-    FULL
-}
-
 @Composable
-fun Card(ctx: GameContext, card: Card, onClick: () -> Unit, modifier: Modifier = Modifier, layout: CardLayout = CardLayout.MINIMAL) {
-    Column(CardStyleMinimal.toModifier().tabIndex(0).onClick { onClick() }.then(modifier)) {
+fun Card(ctx: GameContext, card: Card, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
+    Column(CardStyle
+        .toModifier(DisabledCardVariant.takeUnless { enabled })
+        .thenIf(enabled) {
+            Modifier.tabIndex(0).onClick { onClick() }
+        }
+        .then(modifier)
+    ) {
         Box(Modifier.fillMaxWidth().height(33.px), contentAlignment = Alignment.Center) {
             SpanText(card.template.name)
         }
@@ -94,4 +100,9 @@ fun Card(ctx: GameContext, card: Card, onClick: () -> Unit, modifier: Modifier =
             CardDescriptionStyle.toModifier(CardDescriptionAbilityVariant)
         )
     }
+}
+
+@Composable
+fun CardPlaceholder(modifier: Modifier = Modifier) {
+    Box(CardStyle.toModifier(CardBackVariant).tabIndex(0).then(modifier))
 }
