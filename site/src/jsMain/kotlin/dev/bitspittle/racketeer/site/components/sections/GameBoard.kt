@@ -19,6 +19,7 @@ import dev.bitspittle.racketeer.model.game.isGameOver
 import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.widgets.Card
 import dev.bitspittle.racketeer.site.components.widgets.CardGroup
+import dev.bitspittle.racketeer.site.components.widgets.CardPile
 import dev.bitspittle.racketeer.site.model.GameContext
 import dev.bitspittle.racketeer.site.model.runStateChangingAction
 import kotlinx.coroutines.CoroutineScope
@@ -65,7 +66,7 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                 Modifier
                     .fillMaxSize()
                     .gap(GAP).padding(GAP)
-                    .gridTemplateColumns("${G.Sizes.Card.w} 1fr")
+                    .gridTemplateColumns("auto 1fr")
             ) {
                 Div() // Empty space
                 Row(Modifier.gap(GAP)) {
@@ -86,14 +87,14 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                     }
                 }
 
-                Div(Modifier.backgroundColor(Colors.Grey).toAttrs())
+                CardPile(ctx, ctx.state.discard)
                 CardGroup("Street") {
                     ctx.state.street.cards.forEach { card ->
                         Card(ctx, card, onClick = {})
                     }
                 }
 
-                Div(Modifier.backgroundColor(Colors.Grey).toAttrs())
+                CardPile(ctx, ctx.state.deck)
                 CardGroup("Hand") {
                     ctx.state.hand.cards.forEach { card ->
                         Card(ctx, card, onClick = {
@@ -104,7 +105,7 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                     }
                 }
 
-                Div(Modifier.backgroundColor(Colors.Grey).toAttrs())
+                CardPile(ctx, ctx.state.jail)
                 Row(Modifier.gap(GAP)) {
                     CardGroup("Buildings", Modifier.flexGrow(1)) {}
                     Button(onClick = {

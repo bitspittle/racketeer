@@ -3,13 +3,11 @@ package dev.bitspittle.racketeer.site.components.widgets
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.css.FontStyle
-import com.varabyte.kobweb.compose.css.UserSelect
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Spacer
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
-import com.varabyte.kobweb.compose.ui.graphics.Color.Companion.rgb
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.styleModifier
@@ -24,8 +22,8 @@ private val CardStyleCommon =
     Modifier
         .fontSize(G.Font.Sizes.Normal)
         .padding(topBottom = 5.px)
-        .borderRadius(10.percent)
-        .backgroundColor(rgb(0xc9c1c1))
+        .borderRadius(5.percent)
+        .backgroundColor(G.Colors.Card.Front)
         .color(Colors.Black)
         .outlineStyle(LineStyle.None)
 
@@ -53,7 +51,11 @@ val CardStyleMinimal = ComponentStyle("card-min") {
     focus {
         CardStyleCommonFocus
     }
+}
 
+val CardBackVariant = CardStyleMinimal.addVariantBase("card-back") {
+    Modifier
+        .backgroundColor(G.Colors.Card.Back)
 }
 
 val CardDescriptionStyle = ComponentStyle.base("card-desc") {
