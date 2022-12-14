@@ -60,11 +60,30 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                 .gap(30.px)
             ) {
                 SpanText("Turn ${ctx.state.turn + 1}")
-                SpanText(
-                    ctx.describer.describeCash(ctx.state.cash) + " "
-                            + ctx.describer.describeInfluence(ctx.state.influence) + " "
-                            + ctx.describer.describeLuck(ctx.state.luck),
-                )
+                Row(Modifier.gap(5.px)) {
+                    // TODO(#2): This should only work if you're in admin mode
+                    SpanText(ctx.describer.describeCash(ctx.state.cash), Modifier.onClick { evt ->
+                        if (evt.ctrlKey && evt.shiftKey) {
+                            runStateChangingAction {
+                                ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.CASH, 1))
+                            }
+                        }
+                    })
+                    SpanText(ctx.describer.describeInfluence(ctx.state.influence), Modifier.onClick { evt ->
+                        if (evt.ctrlKey && evt.shiftKey) {
+                            runStateChangingAction {
+                                ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, 1))
+                            }
+                        }
+                    })
+                    SpanText(ctx.describer.describeLuck(ctx.state.luck), Modifier.onClick { evt ->
+                        if (evt.ctrlKey && evt.shiftKey) {
+                            runStateChangingAction {
+                                ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.LUCK, 1))
+                            }
+                        }
+                    })
+                }
                 SpanText(ctx.describer.describeVictoryPoints(ctx.state.vp))
             }
 
