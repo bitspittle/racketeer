@@ -13,6 +13,7 @@ import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.layout.SimpleGrid
 import com.varabyte.kobweb.silk.components.layout.numColumns
 import com.varabyte.kobweb.silk.components.text.SpanText
+import dev.bitspittle.racketeer.model.game.GameProperty
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.game.isGameOver
 import dev.bitspittle.racketeer.site.components.widgets.Card
@@ -75,11 +76,36 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                         .padding(GAP).gap(GAP)
                         .border(width = 1.px, style = LineStyle.Solid, color = Colors.Black)
                     ) {
-                        Button(onClick = {}, Modifier.width(100.px).flexGrow(1)) {
+                        val shopPrice = ctx.data.shopPrices.getOrNull(ctx.state.shop.tier)
+                        Button(
+                            onClick = {
+                                runStateChangingAction {
+                                    ctx.state.apply(GameStateChange.UpgradeShop())
+                                    // shopPrice to be non-null if button is enabled
+                                    @Suppress("NAME_SHADOWING") val shopPrice = shopPrice!!
+                                    ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, -shopPrice))
+                                }
+                            },
+                            Modifier.width(100.px).flexGrow(1),
+                            enabled = shopPrice != null && ctx.state.influence >= shopPrice
+                        ) {
                             Text("Expand"); Br()
-                            Text(ctx.describer.describeInfluence(ctx.data.shopPrices[ctx.state.shop.tier]))
+                            if (shopPrice != null) {
+                                Text(ctx.describer.describeInfluence(ctx.data.shopPrices[ctx.state.shop.tier]))
+                            } else {
+                                Text("MAX")
+                            }
                         }
-                        Button(onClick = {}, Modifier.width(100.px).flexGrow(1)) {
+                        Button(
+                            onClick = {
+                                runStateChangingAction {
+                                    ctx.state.apply(GameStateChange.RestockShop())
+                                    ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.LUCK, -1))
+                                }
+                            },
+                            Modifier.width(100.px).flexGrow(1),
+                            enabled = ctx.state.luck > 0
+                        ) {
                             Text("Reroll"); Br()
                             Text(ctx.data.icons.luck)
                         }
@@ -107,21 +133,25 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                 CardPile(ctx, ctx.state.jail)
                 Row(Modifier.gap(GAP)) {
                     CardGroup("Buildings", Modifier.flexGrow(1)) {}
-                    Button(onClick = {
-                        runStateChangingActions(
-                            {
-                                ctx.state.apply(GameStateChange.EndTurn())
-                            },
-                            // Break up into two state changing actions for a better state diff report around reshuffling cards
-                            {
-                                if (!ctx.state.isGameOver) {
-                                    ctx.runStateChangingAction {
-                                        ctx.state.apply(GameStateChange.Draw())
+                    Button(
+                        onClick = {
+                            runStateChangingActions(
+                                {
+                                    ctx.state.apply(GameStateChange.EndTurn())
+                                },
+                                // Break up into two state changing actions for a better state diff report around reshuffling cards
+                                {
+                                    if (!ctx.state.isGameOver) {
+                                        ctx.runStateChangingAction {
+                                            ctx.state.apply(GameStateChange.Draw())
+                                        }
                                     }
                                 }
-                            }
-                        )
-                    }, Modifier.width(300.px).fillMaxHeight()) {
+                            )
+                        },
+                        Modifier.width(300.px).fillMaxHeight(),
+                        enabled = !ctx.state.isGameOver
+                    ) {
                         Text("End Turn")
                     }
                 }
