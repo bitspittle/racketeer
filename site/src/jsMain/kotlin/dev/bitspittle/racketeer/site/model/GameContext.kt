@@ -4,7 +4,6 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.exceptions.EvaluationException
 import dev.bitspittle.limp.types.LangService
-import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.limp.utils.installDefaults
 import dev.bitspittle.racketeer.model.action.ActionQueue
 import dev.bitspittle.racketeer.model.action.Enqueuers
@@ -20,28 +19,11 @@ import dev.bitspittle.racketeer.scripting.types.*
 import dev.bitspittle.racketeer.scripting.utils.installGameLogic
 
 class GameContext(
-    val data: GameData, val env: Environment, val logger: Logger, val describer: Describer, var state: GameState
+    val data: GameData, val env: Environment, val logger: MemoryLogger, val describer: Describer, var state: GameState
 )
 
 suspend fun createNewGame(gameData: GameData): GameContext {
-    // TODO: Set the outputs of the logger to some element on the game board
-    val logger = object : Logger {
-        override fun info(message: String) {
-            println(message)
-        }
-
-        override fun warn(message: String) {
-            println("⚠️\n$message")
-        }
-
-        override fun error(message: String) {
-            println("⛔\n$message")
-        }
-
-        override fun debug(message: String) {
-            println("⚙️\n$message")
-        }
-    }
+    val logger = MemoryLogger()
 
     val copyableRandom = CopyableRandom()
     val env = Environment()

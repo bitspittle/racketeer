@@ -7,6 +7,7 @@ import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.site.components.layouts.PageLayout
 import dev.bitspittle.racketeer.site.components.sections.GameBoard
 import dev.bitspittle.racketeer.site.model.GameContext
+import dev.bitspittle.racketeer.site.model.MemoryLogger
 import dev.bitspittle.racketeer.site.model.createNewGame
 import kotlinx.browser.window
 import kotlinx.coroutines.launch

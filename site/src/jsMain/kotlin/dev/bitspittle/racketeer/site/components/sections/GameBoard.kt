@@ -32,6 +32,8 @@ private val GAP = 20.px
 fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> Unit) {
     fun runStateChangingActions(vararg blocks: suspend () -> Unit) {
         scope.launch {
+            ctx.logger.clear()
+
             var changed = false
             for (block in blocks) {
                 if (ctx.runStateChangingAction { block() }) { changed = true }
@@ -142,9 +144,7 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                                 // Break up into two state changing actions for a better state diff report around reshuffling cards
                                 {
                                     if (!ctx.state.isGameOver) {
-                                        ctx.runStateChangingAction {
-                                            ctx.state.apply(GameStateChange.Draw())
-                                        }
+                                        ctx.state.apply(GameStateChange.Draw())
                                     }
                                 }
                             )
@@ -156,6 +156,11 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                     }
                 }
             }
+
+            ctx.logger.messages.forEach { message ->
+                SpanText(message, Modifier.fillMaxWidth().padding(left = GAP))
+            }
+
         }
     }
 }
