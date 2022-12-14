@@ -72,21 +72,32 @@ class GameSession(
             }
 
             override val logger = object : Logger {
+                private fun RenderScope.textLines(messages: Iterable<String>) {
+                    for (message in messages) {
+                        if (message.isNotBlank()) {
+                            textLine(" - $message".wrap())
+                        } else {
+                            textLine()
+                        }
+                    }
+                }
+                private fun RenderScope.textLines(messages: String) = textLines(messages.split('\n'))
+
                 override fun info(message: String) {
-                    logRenderers.add { green { textLine(message.wrap()) } }
+                    logRenderers.add { green { textLines(message) } }
                 }
 
                 override fun warn(message: String) {
-                    logRenderers.add { yellow { textLine(message.wrap()) } }
+                    logRenderers.add { yellow { textLines(message) } }
                 }
 
                 override fun error(message: String) {
-                    logRenderers.add { red { textLine(message.wrap()) } }
+                    logRenderers.add { red { textLines(message) } }
                 }
 
                 override fun debug(message: String) {
                     if (settings.admin.enabled) {
-                        logRenderers.add { magenta { textLine(message.wrap()) } }
+                        logRenderers.add { magenta { textLines(message) } }
                     }
                 }
             }

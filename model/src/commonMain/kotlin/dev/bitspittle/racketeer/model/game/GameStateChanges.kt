@@ -157,7 +157,7 @@ class GameStateChanges {
         if (this.isNotEmpty()) {
             appendLine()
         }
-        append("- $message")
+        append(message)
     }
 
     private fun StringBuilder.report(describer: Describer, state: GameState, change: GameStateChange.ShuffleDiscardIntoDeck) = change.apply {

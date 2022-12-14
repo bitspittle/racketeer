@@ -15,11 +15,11 @@ class MemoryLogger : Logger {
     }
 
     private fun appendWithPrefix(prefix: String, message: String) {
-        append(message) { line -> "$prefix $line" }
+        append(message) { line -> if (line.isNotBlank()) "$prefix $line" else "" }
     }
 
     override fun info(message: String) {
-        append(message)
+        appendWithPrefix("•", message)
     }
 
     override fun warn(message: String) {
