@@ -3,8 +3,10 @@ package dev.bitspittle.racketeer.site.components.widgets
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.css.FontStyle
+import com.varabyte.kobweb.compose.css.OverflowWrap
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
+import com.varabyte.kobweb.compose.foundation.layout.Row
 import com.varabyte.kobweb.compose.foundation.layout.Spacer
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
@@ -15,6 +17,7 @@ import com.varabyte.kobweb.compose.ui.thenIf
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.card.vpTotal
 import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.model.GameContext
 import org.jetbrains.compose.web.css.*
@@ -88,8 +91,21 @@ fun Card(ctx: GameContext, card: Card, onClick: () -> Unit, modifier: Modifier =
         }
         .then(modifier)
     ) {
-        Box(Modifier.fillMaxWidth().height(33.px), contentAlignment = Alignment.Center) {
+        Column(Modifier.fillMaxWidth().height(40.px), horizontalAlignment = Alignment.CenterHorizontally) {
             SpanText(card.template.name)
+            if (card.vpTotal > 0 || card.template.vp > 0) {
+                Row(Modifier.fontSize(G.Font.Sizes.Small).gap(5.px)) {
+                    if (card.template.vp > 0) {
+                        SpanText(ctx.describer.describeVictoryPoints(card.template.vp))
+                    }
+                    val deltaVp = card.vpTotal - card.template.vp
+                    if (deltaVp > 0) {
+                        SpanText("+${ctx.describer.describeVictoryPoints(deltaVp)}")
+                    } else if (deltaVp < 0) {
+                        SpanText("-${ctx.describer.describeVictoryPoints(-deltaVp)}")
+                    }
+                }
+            }
         }
         card.template.description.flavor?.let { flavor ->
             SpanText(flavor, CardDescriptionStyle.toModifier(CardDescriptionFlavorVariant))
