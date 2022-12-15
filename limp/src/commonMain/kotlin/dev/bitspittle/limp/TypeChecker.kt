@@ -24,6 +24,11 @@ fun <T: Any> TypeChecker<T>.cast(value: Any): T? = if (isInstance(value)) value 
 class SimpleTypeChecker<T : Any>(override val targetClass: KClass<T>) : TypeChecker<T> {
     override fun isInstance(value: Any): Boolean {
         return this.targetClass.isInstance(value)
+                // Hack: Comparable.isInstance(Number|String) returns false in JS for some reason (but not JVM).
+                // Casting still works, so we just force special case handling for now.
+                // See also: https://youtrack.jetbrains.com/issue/KT-55489
+                || (value is Number && targetClass == Comparable::class)
+                || (value is String && targetClass == Comparable::class)
     }
 }
 

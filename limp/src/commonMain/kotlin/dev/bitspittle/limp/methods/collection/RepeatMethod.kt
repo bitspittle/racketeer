@@ -20,6 +20,9 @@ class RepeatMethod : Method("repeat", 2) {
     ): Any {
         val item = params[0]
         val count = env.expectConvert<Int>(params[1])
+        // Required for consistency between JS and JVM
+        if (count < 0) throw IllegalArgumentException("repeat must be a non-negative number")
+
         return List(count) { item }
     }
 }

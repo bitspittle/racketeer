@@ -14,6 +14,9 @@ class RemainderMethod : Method("%", 2) {
     ): Any {
         val a = env.expectConvert<Int>(params[0])
         val b = env.expectConvert<Int>(params[1])
+        // Required for consistency between JS and JVM
+        if (b == 0) throw IllegalArgumentException("Remainder by 0")
+
         return a % b
     }
 }

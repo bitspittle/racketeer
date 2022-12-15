@@ -4,6 +4,12 @@ import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.Method
 
+class TestComparable : Comparable<String> {
+    override fun compareTo(other: String): Int {
+        return 0
+    }
+}
+
 class LessThanMethod : Method("<", 2) {
     override suspend fun invoke(
         env: Environment,
