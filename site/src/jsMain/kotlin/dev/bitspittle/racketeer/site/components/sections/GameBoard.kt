@@ -65,21 +65,21 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                     SpanText(ctx.describer.describeCash(ctx.state.cash), Modifier.onClick { evt ->
                         if (evt.ctrlKey && evt.shiftKey) {
                             runStateChangingAction {
-                                ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.CASH, 1))
+                                ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.CASH, if (evt.altKey) 10 else 1))
                             }
                         }
                     })
                     SpanText(ctx.describer.describeInfluence(ctx.state.influence), Modifier.onClick { evt ->
                         if (evt.ctrlKey && evt.shiftKey) {
                             runStateChangingAction {
-                                ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, 1))
+                                ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, if (evt.altKey) 10 else 1))
                             }
                         }
                     })
                     SpanText(ctx.describer.describeLuck(ctx.state.luck), Modifier.onClick { evt ->
                         if (evt.ctrlKey && evt.shiftKey) {
                             runStateChangingAction {
-                                ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.LUCK, 1))
+                                ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.LUCK, if (evt.altKey) 10 else 1))
                             }
                         }
                     })
