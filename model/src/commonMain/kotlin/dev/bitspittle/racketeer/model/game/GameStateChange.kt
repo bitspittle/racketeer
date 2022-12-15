@@ -16,14 +16,16 @@ import dev.bitspittle.racketeer.model.shop.remaining
  *
  * If not, then it means that this change would crash if you saved your game and then attempted to reload it.
  */
-fun Card.isSafeToReference(state: GameState): Boolean {
+private fun Card.isSafeToSerialize(state: GameState): Boolean {
     return state.pileFor(this) != null || state.shop.stock.contains(this)
 }
 
 @Suppress("CanSealedSubClassBeObject")
 sealed class GameStateChange {
     suspend fun applyTo(state: MutableGameState) = state.apply()
+    fun shouldSave(state: GameState) = !state.ignoreSerialization()
     protected abstract suspend fun MutableGameState.apply()
+    protected open fun GameState.ignoreSerialization() = false
 
     class GameStart : GameStateChange() {
         // Doesn't do anything; just a marker that this game has started
@@ -147,13 +149,11 @@ sealed class GameStateChange {
     }
 
     class AddCardAmount(val property: CardProperty, val card: Card, val amount: Int) : GameStateChange() {
-        override suspend fun MutableGameState.apply() {
-            // VP_PASSIVE changes aren't saved to disk
-            require(property == CardProperty.VP_PASSIVE || card.isSafeToReference(this)) {
-                // This requirement prevents this change from crashing at load-time later
-                "Can't modify property $property of card \"${card.template.name}\" as it is temporary."
-            }
+        override fun GameState.ignoreSerialization(): Boolean {
+            return property == CardProperty.VP_PASSIVE || !card.isSafeToSerialize(this)
+        }
 
+        override suspend fun MutableGameState.apply() {
             when (property) {
                 CardProperty.COUNTER -> (card as MutableCard).counter += amount
                 CardProperty.VP -> (card as MutableCard).vpBase += amount
@@ -164,33 +164,40 @@ sealed class GameStateChange {
     }
 
     class UpgradeCard(val card: Card, val upgradeType: UpgradeType) : GameStateChange() {
-        override suspend fun MutableGameState.apply() {
-            require(card.isSafeToReference(this)) {
-                // This requirement prevents this change from crashing at load-time later
-                "Can't upgrade card \"${card.template.name}\" as it is temporary."
-            }
+        override fun GameState.ignoreSerialization(): Boolean {
+            return !card.isSafeToSerialize(this)
+        }
 
+        override suspend fun MutableGameState.apply() {
             (card as MutableCard).upgrades.add(upgradeType)
         }
     }
 
     class AddTrait(val card: Card, val traitType: TraitType) : GameStateChange() {
+        override fun GameState.ignoreSerialization(): Boolean {
+            return !card.isSafeToSerialize(this)
+        }
+
         override suspend fun MutableGameState.apply() {
-            require(card.isSafeToReference(this)) {
-                // This requirement prevents this change from crashing at load-time later
-                "Can't add trait $traitType to card \"${card.template.name}\" as the card is temporary."
-            }
             (card as MutableCard).traits.add(traitType)
         }
     }
 
     class RemoveTrait(val card: Card, val traitType: TraitType) : GameStateChange() {
+        override fun GameState.ignoreSerialization(): Boolean {
+            return !card.isSafeToSerialize(this)
+        }
+
         override suspend fun MutableGameState.apply() {
             (card as MutableCard).traits.remove(traitType)
         }
     }
 
     class AddBuildingAmount(val property: BuildingProperty, val building: Building, val amount: Int) : GameStateChange() {
+        override fun GameState.ignoreSerialization(): Boolean {
+            return property == BuildingProperty.VP_PASSIVE
+        }
+
         override suspend fun MutableGameState.apply() {
             when (property) {
                 BuildingProperty.COUNTER -> (building as MutableBuilding).counter += amount

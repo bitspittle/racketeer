@@ -93,27 +93,23 @@ class GameChangesSnapshot(
             changes.luck,
             changes.vp,
             changes.items
-                .filter { change ->
-                    when (change) {
-                        // Don't save passive VP updates; those are transient and get recalculated at load-time anyway
-                        is GameStateChange.AddCardAmount -> change.property != CardProperty.VP_PASSIVE
-                        is GameStateChange.AddBuildingAmount -> change.property != BuildingProperty.VP_PASSIVE
-                        else -> true
-                    }
-                }
+                .filter { change -> change.shouldSave(state) }
                 .map { change -> GameChangeSnapshot.from(describer, state, change) }
         )
     }
 
-    fun create(data: GameData, state: GameState) = GameStateChanges().apply {
-        handSize = this@GameChangesSnapshot.handSize
-        cash = this@GameChangesSnapshot.cash
-        influence = this@GameChangesSnapshot.influence
-        luck = this@GameChangesSnapshot.luck
-        vp = this@GameChangesSnapshot.vp
+    fun create(data: GameData, state: GameState): GameStateChanges {
+        val snapshot = this
+        return GameStateChanges().apply {
+            handSize = snapshot.handSize
+            cash = snapshot.cash
+            influence = snapshot.influence
+            luck = snapshot.luck
+            vp = snapshot.vp
 
-        this@GameChangesSnapshot.items.forEach { change ->
-            add(change.create(data, state))
+            snapshot.items.forEach { change ->
+                add(change.create(data, state))
+            }
         }
     }
 }

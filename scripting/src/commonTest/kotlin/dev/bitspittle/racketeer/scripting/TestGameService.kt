@@ -333,6 +333,8 @@ class TestGameService private constructor(
                 gameState.deck,
                 ListStrategy.RANDOM
             )
+
+            gameState.startRecordingChanges() // To prevent tests from freaking out
         }
     }
 
