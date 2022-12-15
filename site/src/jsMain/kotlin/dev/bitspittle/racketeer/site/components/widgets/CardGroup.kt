@@ -23,7 +23,7 @@ val CardGroupStyle = ComponentStyle.base("card-group") {
 fun CardGroup(title: String, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     LabeledBox(title, modifier) {
         Box(Modifier.fillMaxSize().overflowX(Overflow.Auto)) {
-            Row(CardGroupStyle.toModifier(), verticalAlignment = Alignment.Bottom) {
+            Row(CardGroupStyle.toModifier()) {
                 content()
             }
         }

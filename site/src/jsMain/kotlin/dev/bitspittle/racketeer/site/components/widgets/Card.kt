@@ -84,23 +84,49 @@ val CardDescriptionEffectsVariant = CardDescriptionStyle.addVariantBase("effects
         }
 }
 
+interface CardSpec {
+    val title: String
+    val vpBase: Int
+    val vpTotal: Int?
+    val flavor: String?
+    val ability: String
+    val enabled: Boolean
+}
+
 @Composable
 fun Card(ctx: GameContext, card: Card, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
+    Card(
+        ctx,
+        object : CardSpec {
+            override val title = card.template.name
+            override val vpBase = card.template.vp
+            override val vpTotal = card.vpTotal
+            override val flavor = card.template.description.flavor
+            override val ability = card.template.description.ability
+            override val enabled = enabled
+        },
+        onClick, modifier
+    )
+}
+
+@Composable
+fun Card(ctx: GameContext, card: CardSpec, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Column(CardStyle
-        .toModifier(DisabledCardVariant.takeUnless { enabled })
-        .thenIf(enabled) {
+        .toModifier(DisabledCardVariant.takeUnless { card.enabled })
+        .thenIf(card.enabled) {
             Modifier.tabIndex(0).onClick { onClick() }
         }
         .then(modifier)
     ) {
         Column(Modifier.fillMaxWidth().height(40.px), horizontalAlignment = Alignment.CenterHorizontally) {
-            SpanText(card.template.name)
-            if (card.vpTotal > 0 || card.template.vp > 0) {
+            SpanText(card.title)
+            val vpTotal = card.vpTotal ?: card.vpBase
+            if (vpTotal > 0 || card.vpBase > 0) {
                 Row(Modifier.fontSize(G.Font.Sizes.Small).gap(5.px)) {
-                    if (card.template.vp > 0) {
-                        SpanText(ctx.describer.describeVictoryPoints(card.template.vp))
+                    if (vpTotal > 0) {
+                        SpanText(ctx.describer.describeVictoryPoints(vpTotal))
                     }
-                    val deltaVp = card.vpTotal - card.template.vp
+                    val deltaVp = vpTotal - card.vpBase
                     if (deltaVp > 0) {
                         SpanText("+${ctx.describer.describeVictoryPoints(deltaVp)}")
                     } else if (deltaVp < 0) {
@@ -109,12 +135,12 @@ fun Card(ctx: GameContext, card: Card, onClick: () -> Unit, modifier: Modifier =
                 }
             }
         }
-        card.template.description.flavor?.let { flavor ->
+        card.flavor?.let { flavor ->
             SpanText(flavor, CardDescriptionStyle.toModifier(CardDescriptionFlavorVariant))
         }
         Spacer()
         SpanText(
-            ctx.describer.convertIcons(card.template.description.ability),
+            ctx.describer.convertIcons(card.ability),
             CardDescriptionStyle.toModifier(CardDescriptionEffectsVariant)
         )
     }

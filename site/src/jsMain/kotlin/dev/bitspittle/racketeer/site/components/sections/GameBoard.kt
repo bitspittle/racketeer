@@ -20,10 +20,7 @@ import dev.bitspittle.racketeer.model.game.GameProperty
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.game.isGameOver
 import dev.bitspittle.racketeer.site.G
-import dev.bitspittle.racketeer.site.components.widgets.Card
-import dev.bitspittle.racketeer.site.components.widgets.CardGroup
-import dev.bitspittle.racketeer.site.components.widgets.CardPile
-import dev.bitspittle.racketeer.site.components.widgets.CardPlaceholder
+import dev.bitspittle.racketeer.site.components.widgets.*
 import dev.bitspittle.racketeer.site.model.GameContext
 import dev.bitspittle.racketeer.site.model.runStateChangingAction
 import kotlinx.coroutines.CoroutineScope
@@ -113,8 +110,6 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                                     if (card != null) ctx.describer.describeCash(card.template.cost) else "SOLD OUT",
                                     Modifier
                                         .margin(top = 10.px)
-                                        .fillMaxWidth()
-                                        .textAlign(TextAlign.Center)
                                         .thenIf(card == null || ctx.state.cash < card.template.cost) {
                                             Modifier.opacity(G.Colors.DisabledOpacity)
                                         }
@@ -184,7 +179,41 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
 
                 CardPile(ctx, ctx.state.jail)
                 Row(Modifier.gap(GAP)) {
-                    CardGroup("Buildings", Modifier.flexGrow(1)) {}
+                    CardGroup("Buildings", Modifier.flexGrow(1)) {
+                        ctx.state.buildings.forEach { building ->
+                            Building(ctx, building, onClick = {
+                                runStateChangingAction {
+                                    ctx.state.apply(GameStateChange.Activate(building))
+                                }
+                            })
+                        }
+                        ctx.state.blueprints.forEach { blueprint ->
+                            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Top) {
+                                Blueprint(ctx, blueprint, onClick = {
+                                    runStateChangingAction {
+                                        ctx.state.apply(GameStateChange.Build(blueprint))
+                                    }
+                                })
+
+                                Row(
+                                    Modifier
+                                        .margin(top = 10.px)
+                                        .gap(5.px)
+                                        .thenIf(ctx.state.cash < blueprint.buildCost.cash || ctx.state.influence < blueprint.buildCost.influence) {
+                                            Modifier.opacity(G.Colors.DisabledOpacity)
+                                        }
+
+                                ) {
+                                    if (blueprint.buildCost.cash > 0) {
+                                        SpanText(ctx.describer.describeCash(blueprint.buildCost.cash))
+                                    }
+                                    if (blueprint.buildCost.influence > 0) {
+                                        SpanText(ctx.describer.describeInfluence(blueprint.buildCost.influence))
+                                    }
+                                }
+                            }
+                        }
+                    }
                     Button(
                         onClick = {
                             runStateChangingActions(

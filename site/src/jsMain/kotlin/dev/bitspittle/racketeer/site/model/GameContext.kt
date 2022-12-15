@@ -64,7 +64,7 @@ suspend fun createNewGame(gameData: GameData): GameContext {
         BuildingEnqueuerImpl(env, exprCache, actionQueue),
     )
 
-    val gameState = MutableGameState(gameData, mutableSetOf(), enqueuers, copyableRandom)
+    val gameState = MutableGameState(gameData, setOf(Feature.Type.BUILDINGS), enqueuers, copyableRandom)
     val describer = Describer(gameData, showDebugInfo = { true })
     var provideGameState: () -> GameState = { gameState }
     env.installGameLogic(object : GameService {
