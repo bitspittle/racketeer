@@ -8,13 +8,18 @@ import dev.bitspittle.limp.utils.installDefaults
 import dev.bitspittle.racketeer.model.action.ActionQueue
 import dev.bitspittle.racketeer.model.action.Enqueuers
 import dev.bitspittle.racketeer.model.action.ExprCache
+import dev.bitspittle.racketeer.model.building.Blueprint
+import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.building.allPassiveActions
+import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.card.allInitActions
 import dev.bitspittle.racketeer.model.card.allPassiveActions
 import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.random.CopyableRandom
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
+import dev.bitspittle.racketeer.scripting.methods.collection.FormattedItem
 import dev.bitspittle.racketeer.scripting.types.*
 import dev.bitspittle.racketeer.scripting.utils.installGameLogic
 
@@ -68,14 +73,29 @@ suspend fun createNewGame(gameData: GameData): GameContext {
         override val gameState get() = provideGameState()
         override val enqueuers = enqueuers
         override val chooseHandler = object : ChooseHandler {
+            private fun Describer.describeChoice(item: Any): String {
+                return when (item) {
+                    is Blueprint -> describer.describeBlueprintTitle(item)
+                    is Building -> describer.describeBuildingTitle(item)
+                    is Card -> describer.describeCardTitle(item)
+                    is CardTemplate -> describer.describeCardTitle(item)
+                    is Feature -> item.name
+                    is FormattedItem -> item.displayText ?: describeChoice(item.wrapped)
+                    else -> item.toString()
+                }
+            }
+
             override suspend fun query(
                 prompt: String?,
                 list: List<Any>,
                 range: IntRange,
                 requiredChoice: Boolean
             ): List<Any>? {
-                // TODO: Implement this somehow
-                return null
+                // TODO: REAL CHOICES PLEASE
+                val forcedChoices = list.subList(0, range.last)
+                logger.debug("Until \"choice UI\" is done, choice(s) have been forced to: [${forcedChoices.joinToString { describer.describeChoice(it) }}]")
+
+                return forcedChoices
             }
         }
         override val logger = logger
