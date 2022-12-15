@@ -1,0 +1,1 @@
+![All tests](https://github.com/bitspittle/racketeer/actions/workflows/gradle-test.yml/badge.svg)
