@@ -1,7 +1,6 @@
 package dev.bitspittle.racketeer.site.components.sections
 
 import androidx.compose.runtime.*
-import com.varabyte.kobweb.compose.css.TextAlign
 import com.varabyte.kobweb.compose.css.UserSelect
 import com.varabyte.kobweb.compose.foundation.layout.Arrangement
 import com.varabyte.kobweb.compose.foundation.layout.Box

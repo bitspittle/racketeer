@@ -22,12 +22,13 @@ import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.methods.collection.FormattedItem
 import dev.bitspittle.racketeer.scripting.types.*
 import dev.bitspittle.racketeer.scripting.utils.installGameLogic
+import kotlin.coroutines.suspendCoroutine
 
 class GameContext(
     val data: GameData, val env: Environment, val logger: MemoryLogger, val describer: Describer, var state: GameState
 )
 
-suspend fun createNewGame(gameData: GameData): GameContext {
+suspend fun createNewGame(gameData: GameData, handleChoice: (ChoiceContext) -> Unit): GameContext {
     val logger = MemoryLogger()
 
     val copyableRandom = CopyableRandom()
@@ -73,29 +74,15 @@ suspend fun createNewGame(gameData: GameData): GameContext {
         override val gameState get() = provideGameState()
         override val enqueuers = enqueuers
         override val chooseHandler = object : ChooseHandler {
-            private fun Describer.describeChoice(item: Any): String {
-                return when (item) {
-                    is Blueprint -> describer.describeBlueprintTitle(item)
-                    is Building -> describer.describeBuildingTitle(item)
-                    is Card -> describer.describeCardTitle(item)
-                    is CardTemplate -> describer.describeCardTitle(item)
-                    is Feature -> item.name
-                    is FormattedItem -> item.displayText ?: describeChoice(item.wrapped)
-                    else -> item.toString()
-                }
-            }
-
             override suspend fun query(
                 prompt: String?,
                 list: List<Any>,
                 range: IntRange,
                 requiredChoice: Boolean
             ): List<Any>? {
-                // TODO: REAL CHOICES PLEASE
-                val forcedChoices = list.subList(0, range.last)
-                logger.debug("Until \"choice UI\" is done, choice(s) have been forced to: [${forcedChoices.joinToString { describer.describeChoice(it) }}]")
-
-                return forcedChoices
+                return suspendCoroutine { continuation ->
+                    handleChoice(ChoiceContext(describer, prompt, list, range, requiredChoice, continuation))
+                }
             }
         }
         override val logger = logger
