@@ -123,8 +123,8 @@ fun Card(ctx: GameContext, card: CardSpec, onClick: () -> Unit, modifier: Modifi
             val vpTotal = card.vpTotal ?: card.vpBase
             if (vpTotal > 0 || card.vpBase > 0) {
                 Row(Modifier.fontSize(G.Font.Sizes.Small).gap(5.px)) {
-                    if (vpTotal > 0) {
-                        SpanText(ctx.describer.describeVictoryPoints(vpTotal))
+                    if (card.vpBase > 0) {
+                        SpanText(ctx.describer.describeVictoryPoints(card.vpBase))
                     }
                     val deltaVp = vpTotal - card.vpBase
                     if (deltaVp > 0) {
