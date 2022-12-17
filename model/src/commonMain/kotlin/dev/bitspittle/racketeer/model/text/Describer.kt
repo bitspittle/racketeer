@@ -44,6 +44,9 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
                         if (lastNumber != null && lastNumber <= maxExpand) {
                             repeat(lastNumber) { append(iconMappings[c]) }
                         } else {
+                            if (lastNumber != null) {
+                                append(lastNumber)
+                            }
                             append(iconMappings[c])
                         }
                     } else {
@@ -56,7 +59,8 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
                 }
             }
 
-            // This should never with out data, but we handle it just in case...
+            // This should never with happen with our data, as we don't have text that
+            // ends with numbers and no puncutation, but we handle it just in case...
             if (lastNumber != null) {
                 append(lastNumber)
             }
