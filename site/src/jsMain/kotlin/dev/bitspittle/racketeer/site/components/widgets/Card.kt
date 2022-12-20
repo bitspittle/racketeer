@@ -18,8 +18,8 @@ import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.vpTotal
+import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.site.G
-import dev.bitspittle.racketeer.site.model.GameContext
 import org.jetbrains.compose.web.css.*
 
 private val CardStyleCommon =
@@ -94,9 +94,9 @@ interface CardSpec {
 }
 
 @Composable
-fun Card(ctx: GameContext, card: Card, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
+fun Card(describer: Describer, card: Card, onClick: () -> Unit = {}, modifier: Modifier = Modifier, enabled: Boolean = true) {
     Card(
-        ctx,
+        describer,
         object : CardSpec {
             override val title = card.template.name
             override val vpBase = card.template.vp
@@ -110,7 +110,7 @@ fun Card(ctx: GameContext, card: Card, onClick: () -> Unit, modifier: Modifier =
 }
 
 @Composable
-fun Card(ctx: GameContext, card: CardSpec, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun Card(describer: Describer, card: CardSpec, onClick: () -> Unit = {}, modifier: Modifier = Modifier) {
     Column(CardStyle
         .toModifier(DisabledCardVariant.takeUnless { card.enabled })
         .thenIf(card.enabled) {
@@ -124,13 +124,13 @@ fun Card(ctx: GameContext, card: CardSpec, onClick: () -> Unit, modifier: Modifi
             if (vpTotal > 0 || card.vpBase > 0) {
                 Row(Modifier.fontSize(G.Font.Sizes.Small).gap(5.px)) {
                     if (card.vpBase > 0) {
-                        SpanText(ctx.describer.describeVictoryPoints(card.vpBase))
+                        SpanText(describer.describeVictoryPoints(card.vpBase))
                     }
                     val deltaVp = vpTotal - card.vpBase
                     if (deltaVp > 0) {
-                        SpanText("+${ctx.describer.describeVictoryPoints(deltaVp)}")
+                        SpanText("+${describer.describeVictoryPoints(deltaVp)}")
                     } else if (deltaVp < 0) {
-                        SpanText("-${ctx.describer.describeVictoryPoints(-deltaVp)}")
+                        SpanText("-${describer.describeVictoryPoints(-deltaVp)}")
                     }
                 }
             }
@@ -140,7 +140,7 @@ fun Card(ctx: GameContext, card: CardSpec, onClick: () -> Unit, modifier: Modifi
         }
         Spacer()
         SpanText(
-            ctx.describer.convertIcons(card.ability),
+            describer.convertIcons(card.ability),
             CardDescriptionStyle.toModifier(CardDescriptionEffectsVariant)
         )
     }

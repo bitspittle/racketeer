@@ -96,7 +96,7 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                         ctx.state.shop.stock.forEach { card ->
                             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Top) {
                                 if (card != null) {
-                                    Card(ctx, card, enabled = ctx.state.cash >= card.template.cost, onClick = {
+                                    Card(ctx.describer, card, enabled = ctx.state.cash >= card.template.cost, onClick = {
                                         runStateChangingAction {
                                             ctx.state.apply(GameStateChange.Buy(card))
                                         }
@@ -161,14 +161,14 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                 CardPile(ctx, ctx.state.discard)
                 CardGroup("Street") {
                     ctx.state.street.cards.forEach { card ->
-                        Card(ctx, card, onClick = {})
+                        Card(ctx.describer, card)
                     }
                 }
 
                 CardPile(ctx, ctx.state.deck)
                 CardGroup("Hand") {
                     ctx.state.hand.cards.forEach { card ->
-                        Card(ctx, card, onClick = {
+                        Card(ctx.describer, card, onClick = {
                             runStateChangingAction {
                                 ctx.state.apply(GameStateChange.Play(card))
                             }

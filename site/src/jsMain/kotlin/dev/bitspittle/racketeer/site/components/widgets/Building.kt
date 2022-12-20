@@ -10,7 +10,7 @@ import dev.bitspittle.racketeer.site.model.GameContext
 @Composable
 fun Building(ctx: GameContext, building: Building, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Card(
-        ctx,
+        ctx.describer,
         object : CardSpec {
             override val title = building.blueprint.name
             override val vpBase = building.blueprint.vp
@@ -26,7 +26,7 @@ fun Building(ctx: GameContext, building: Building, onClick: () -> Unit, modifier
 @Composable
 fun Blueprint(ctx: GameContext, blueprint: Blueprint, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Card(
-        ctx,
+        ctx.describer,
         object : CardSpec {
             override val title = blueprint.name
             override val vpBase = blueprint.vp

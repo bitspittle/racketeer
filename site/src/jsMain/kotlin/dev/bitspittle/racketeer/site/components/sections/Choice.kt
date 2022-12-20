@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.site.components.sections
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.FontWeight
+import com.varabyte.kobweb.compose.dom.ref
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Row
 import com.varabyte.kobweb.compose.ui.Modifier
@@ -10,11 +11,16 @@ import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
+import dev.bitspittle.racketeer.model.building.Blueprint
+import dev.bitspittle.racketeer.model.building.vpTotal
 import dev.bitspittle.racketeer.site.G
+import dev.bitspittle.racketeer.site.components.widgets.*
 import dev.bitspittle.racketeer.site.model.ChoiceContext
 import dev.bitspittle.racketeer.site.model.cancel
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
+
+private const val REQUIRED_CHOICE_EXPLANATION = "This choice is not optional, so you cannot back out of it."
 
 private val CommonButtonStyle = Modifier
     .fontSize(G.Font.Sizes.Normal)
@@ -149,21 +155,41 @@ private fun PickChoices(ctx: ChoiceContext) {
                 }, ChoiceButtonStyle.toModifier(SelectedChoiceButtonVariant.takeIf { selected.contains(item) })) {
                     Text(ctx.describe(item))
                 }
+
+                (item as? Blueprint)?.let { blueprint ->
+                    Tooltip(TooltipTarget.PreviousSibling, position = TooltipPosition.Right) {
+                        Card(ctx.describer, object : CardSpec {
+                            override val title = blueprint.name
+                            override val vpBase = blueprint.vp
+                            override val vpTotal = null
+                            override val flavor = blueprint.description.flavor
+                            override val ability = blueprint.description.ability
+                            override val enabled = true
+                        })
+                    }
+                }
             }
             Row(Modifier.fillMaxWidth().gap(10.px)) {
                 Button(
                     onClick = { ctx.cancel() },
                     ChoiceSystemButtonStyle.toModifier(),
-                    enabled = !ctx.requiredChoice
+                    enabled = !ctx.requiredChoice,
                 ) {
                     Text("Cancel")
                 }
+                if (ctx.requiredChoice) {
+                    Tooltip(TooltipTarget.PreviousSibling, REQUIRED_CHOICE_EXPLANATION)
+                }
+
                 Button(
-                    onClick = { ctx.choose(ctx.items.filter { it in selected })},
+                    onClick = { ctx.choose(ctx.items.filter { it in selected }) },
                     ChoiceSystemButtonStyle.toModifier(),
                     enabled = selected.count() in ctx.range
                 ) {
                     Text("Confirm")
+                }
+                if (ctx.requiredChoice) {
+                    Tooltip(TooltipTarget.PreviousSibling, "You must choose ${ctx.describer.describeRange(ctx.range)} item(s) before you can confirm.", position = TooltipPosition.Top)
                 }
             }
         }
