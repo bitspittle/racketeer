@@ -80,7 +80,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
     }
 
-    private fun describeTraitBody(trait: TraitType): String {
+    fun describeTraitBody(trait: TraitType): String {
         return when (trait) {
             TraitType.EXPENDABLE -> "${data.traitNames.expendable}: When played, burn this card."
             TraitType.SUSPICIOUS -> "${data.traitNames.suspicious}: When played, move to jail."

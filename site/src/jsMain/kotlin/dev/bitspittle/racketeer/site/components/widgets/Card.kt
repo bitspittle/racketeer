@@ -14,10 +14,7 @@ import com.varabyte.kobweb.compose.ui.styleModifier
 import com.varabyte.kobweb.compose.ui.thenIf
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
-import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.card.CardTemplate
-import dev.bitspittle.racketeer.model.card.UpgradeType
-import dev.bitspittle.racketeer.model.card.vpTotal
+import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.site.G
 import org.jetbrains.compose.web.css.*
@@ -83,7 +80,7 @@ val CardDescriptionFlavorVariant = CardDescriptionStyle.addVariantBase("flavor")
 }
 
 val CardDescriptionUpgradesVariant = CardDescriptionStyle.addVariantBase("upgrades") {
-    Modifier.fontWeight(FontWeight.Bold)
+    Modifier.fontStyle(FontStyle.Italic)
 }
 
 val CardDescriptionEffectsVariant = CardDescriptionStyle.addVariantBase("effects") {
@@ -104,6 +101,7 @@ interface CardSpec {
     val counter: Int
     val flavor: String?
     val upgrades: Set<UpgradeType>
+    val traits: Set<TraitType>
     val ability: String
     val enabled: Boolean
 }
@@ -120,6 +118,7 @@ fun Card.toCardSpec(enabled: Boolean = true): CardSpec {
         override val counter = self.counter
         override val flavor = self.template.description.flavor
         override val upgrades = self.upgrades
+        override val traits = self.traits
         override val ability = self.template.description.ability
         override val enabled = enabled
     }
@@ -137,6 +136,7 @@ fun CardTemplate.toCardSpec(enabled: Boolean = true): CardSpec {
         override val counter = 0
         override val flavor = self.description.flavor
         override val upgrades = emptySet<UpgradeType>()
+        override val traits = emptySet<TraitType>()
         override val ability = self.description.ability
         override val enabled = enabled
     }
@@ -190,6 +190,12 @@ fun Card(describer: Describer, card: CardSpec, onClick: () -> Unit = {}, modifie
         card.upgrades.forEach {  upgrade ->
             SpanText(
                 describer.describeUpgradeBody(upgrade),
+                CardDescriptionStyle.toModifier(CardDescriptionUpgradesVariant)
+            )
+        }
+        card.traits.forEach { trait ->
+            SpanText(
+                describer.describeTraitBody(trait),
                 CardDescriptionStyle.toModifier(CardDescriptionUpgradesVariant)
             )
         }

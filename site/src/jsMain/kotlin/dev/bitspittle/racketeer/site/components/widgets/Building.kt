@@ -5,6 +5,7 @@ import com.varabyte.kobweb.compose.ui.Modifier
 import dev.bitspittle.racketeer.model.building.Blueprint
 import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.building.vpTotal
+import dev.bitspittle.racketeer.model.card.TraitType
 import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.site.model.GameContext
@@ -22,6 +23,7 @@ fun Building.toCardSpec(enabled: Boolean = true): CardSpec {
         override val counter = self.counter
         override val flavor = blueprint.description.flavor
         override val upgrades = emptySet<UpgradeType>()
+        override val traits = emptySet<TraitType>()
         override val ability = blueprint.description.ability
         override val enabled = enabled
     }
@@ -47,6 +49,7 @@ fun Blueprint.toCardSpec(enabled: Boolean = true): CardSpec {
         override val counter = 0
         override val flavor = self.description.flavor
         override val upgrades = emptySet<UpgradeType>()
+        override val traits = emptySet<TraitType>()
         override val ability = self.description.ability
         override val enabled = enabled
     }
