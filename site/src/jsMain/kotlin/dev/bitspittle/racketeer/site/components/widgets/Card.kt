@@ -1,9 +1,7 @@
 package dev.bitspittle.racketeer.site.components.widgets
 
 import androidx.compose.runtime.*
-import com.varabyte.kobweb.compose.css.Cursor
-import com.varabyte.kobweb.compose.css.FontStyle
-import com.varabyte.kobweb.compose.css.OverflowWrap
+import com.varabyte.kobweb.compose.css.*
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Row
@@ -17,6 +15,7 @@ import com.varabyte.kobweb.compose.ui.thenIf
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.card.vpTotal
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.site.G
@@ -66,14 +65,24 @@ val DisabledCardVariant = CardStyle.addVariantBase("disabled") {
     Modifier.opacity(G.Colors.DisabledOpacity)
 }
 
+val CardTitleStyle = ComponentStyle.base("card-title") {
+    Modifier
+        .textAlign(TextAlign.Center)
+        .fontSize(G.Font.Sizes.Normal)
+}
+
 val CardDescriptionStyle = ComponentStyle.base("card-desc") {
     Modifier
         .fontSize(G.Font.Sizes.Small)
-        .padding(topBottom = 10.px, leftRight = 15.px)
+        .padding(leftRight = 15.px, topBottom = 3.px)
 }
 
 val CardDescriptionFlavorVariant = CardDescriptionStyle.addVariantBase("flavor") {
     Modifier.fontStyle(FontStyle.Italic)
+}
+
+val CardDescriptionUpgradesVariant = CardDescriptionStyle.addVariantBase("upgrades") {
+    Modifier.fontWeight(FontWeight.Bold)
 }
 
 val CardDescriptionEffectsVariant = CardDescriptionStyle.addVariantBase("effects") {
@@ -86,27 +95,38 @@ val CardDescriptionEffectsVariant = CardDescriptionStyle.addVariantBase("effects
 
 interface CardSpec {
     val title: String
+    val types: List<String>
+    val tier: Int?
+    val rarity: Int
     val vpBase: Int
     val vpTotal: Int?
+    val counter: Int
     val flavor: String?
+    val upgrades: Set<UpgradeType>
     val ability: String
     val enabled: Boolean
 }
 
+fun Card.toCardSpec(enabled: Boolean = true): CardSpec {
+    val self = this
+    return object : CardSpec {
+        override val title = self.template.name
+        override val types = self.template.types
+        override val tier = self.template.tier
+        override val rarity = self.template.rarity
+        override val vpBase = self.template.vp
+        override val vpTotal = self.vpTotal
+        override val counter = self.counter
+        override val flavor = self.template.description.flavor
+        override val upgrades = self.upgrades
+        override val ability = self.template.description.ability
+        override val enabled = enabled
+    }
+}
+
 @Composable
 fun Card(describer: Describer, card: Card, onClick: () -> Unit = {}, modifier: Modifier = Modifier, enabled: Boolean = true) {
-    Card(
-        describer,
-        object : CardSpec {
-            override val title = card.template.name
-            override val vpBase = card.template.vp
-            override val vpTotal = card.vpTotal
-            override val flavor = card.template.description.flavor
-            override val ability = card.template.description.ability
-            override val enabled = enabled
-        },
-        onClick, modifier
-    )
+    Card(describer, card.toCardSpec(enabled), onClick, modifier)
 }
 
 @Composable
@@ -119,26 +139,41 @@ fun Card(describer: Describer, card: CardSpec, onClick: () -> Unit = {}, modifie
         .then(modifier)
     ) {
         Column(Modifier.fillMaxWidth().height(40.px), horizontalAlignment = Alignment.CenterHorizontally) {
-            SpanText(card.title)
+            SpanText(buildString {
+                card.tier?.let { tier ->
+                    append("Tier ${tier + 1}, ")
+                }
+                append(describer.describeRarity(card.rarity))
+            }, CardDescriptionStyle.toModifier())
+            SpanText(card.title, CardTitleStyle.toModifier())
+            if (card.types.isNotEmpty()) {
+                SpanText(describer.describeTypes(card.types), CardDescriptionStyle.toModifier())
+            }
+
             val vpTotal = card.vpTotal ?: card.vpBase
             if (vpTotal > 0 || card.vpBase > 0) {
                 Row(Modifier.fontSize(G.Font.Sizes.Small).gap(5.px)) {
                     if (card.vpBase > 0) {
-                        SpanText(describer.describeVictoryPoints(card.vpBase))
+                        SpanText(describer.describeVictoryPoints(card.vpBase), CardDescriptionStyle.toModifier())
                     }
                     val deltaVp = vpTotal - card.vpBase
                     if (deltaVp > 0) {
-                        SpanText("+${describer.describeVictoryPoints(deltaVp)}")
+                        SpanText("+${describer.describeVictoryPoints(deltaVp)}", CardDescriptionStyle.toModifier())
                     } else if (deltaVp < 0) {
-                        SpanText("-${describer.describeVictoryPoints(-deltaVp)}")
+                        SpanText("-${describer.describeVictoryPoints(-deltaVp)}", CardDescriptionStyle.toModifier())
                     }
                 }
             }
-        }
-        card.flavor?.let { flavor ->
-            SpanText(flavor, CardDescriptionStyle.toModifier(CardDescriptionFlavorVariant))
+            if (card.counter > 0) {
+                SpanText("Counter: ${card.counter}", CardDescriptionStyle.toModifier())
+            }
         }
         Spacer()
+        card.upgrades.forEach {  upgrade ->
+            SpanText(
+                describer.describeUpgradeTitle(upgrade, icons = false),
+                CardDescriptionStyle.toModifier(CardDescriptionUpgradesVariant))
+        }
         SpanText(
             describer.convertIcons(card.ability),
             CardDescriptionStyle.toModifier(CardDescriptionEffectsVariant)

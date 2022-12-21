@@ -5,36 +5,54 @@ import com.varabyte.kobweb.compose.ui.Modifier
 import dev.bitspittle.racketeer.model.building.Blueprint
 import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.building.vpTotal
+import dev.bitspittle.racketeer.model.card.UpgradeType
+import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.site.model.GameContext
 
-@Composable
-fun Building(ctx: GameContext, building: Building, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Card(
-        ctx.describer,
-        object : CardSpec {
-            override val title = building.blueprint.name
-            override val vpBase = building.blueprint.vp
-            override val vpTotal = building.vpTotal
-            override val flavor = building.blueprint.description.flavor
-            override val ability = building.blueprint.description.ability
-            override val enabled = !building.isActivated && ctx.state.canActivate(building)
-        },
-        onClick, modifier
-    )
+fun Building.toCardSpec(state: GameState): CardSpec {
+    val self = this
+    return object : CardSpec {
+        override val title = blueprint.name
+        override val types = emptyList<String>()
+        override val tier = null
+        override val rarity = blueprint.rarity
+        override val vpBase = blueprint.vp
+        override val vpTotal = self.vpTotal
+        override val counter = self.counter
+        override val flavor = blueprint.description.flavor
+        override val upgrades = emptySet<UpgradeType>()
+        override val ability = blueprint.description.ability
+        override val enabled = !isActivated && state.canActivate(self)
+    }
 }
 
 @Composable
+fun Building(ctx: GameContext, building: Building, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Card(ctx.describer, building.toCardSpec(ctx.state), onClick, modifier)
+}
+
+fun Blueprint.toCardSpec(state: GameState) =
+    this.toCardSpec(enabled = state.cash >= buildCost.cash && state.influence >= buildCost.influence)
+
+fun Blueprint.toCardSpec(enabled: Boolean = true): CardSpec {
+    val self = this
+    return object : CardSpec {
+        override val title = self.name
+        override val types = emptyList<String>()
+        override val tier = null
+        override val rarity = self.rarity
+        override val vpBase = self.vp
+        override val vpTotal = null
+        override val counter = 0
+        override val flavor = self.description.flavor
+        override val upgrades = emptySet<UpgradeType>()
+        override val ability = self.description.ability
+        override val enabled = enabled
+    }
+}
+
+
+@Composable
 fun Blueprint(ctx: GameContext, blueprint: Blueprint, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Card(
-        ctx.describer,
-        object : CardSpec {
-            override val title = blueprint.name
-            override val vpBase = blueprint.vp
-            override val vpTotal = null
-            override val flavor = blueprint.description.flavor
-            override val ability = blueprint.description.ability
-            override val enabled = ctx.state.cash >= blueprint.buildCost.cash && ctx.state.influence >= blueprint.buildCost.influence
-        },
-        onClick, modifier
-    )
+    Card(ctx.describer, blueprint.toCardSpec(ctx.state), onClick, modifier)
 }

@@ -70,6 +70,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
     fun describeInfluence(influence: Int) = "${data.icons.influence}$influence"
     fun describeLuck(luck: Int) = "${data.icons.luck}$luck"
     fun describeVictoryPoints(vp: Int) = "${data.icons.vp}$vp"
+    fun describeRarity(rarity: Int) = data.rarities[rarity].name
 
     fun describeTraitTitle(trait: TraitType): String {
         return when (trait) {
@@ -144,21 +145,24 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
     }
 
+    /**
+     * Show types, ensuring they're capitalized and presented in a consistent order.
+     */
+    fun describeTypes(types: List<String>): String {
+        return data.cardTypes.mapNotNull { typeName ->
+            if (types.any { typeName.equals(it, ignoreCase = true) }) typeName else null
+        }.joinToString(prefix = "(", postfix = ")")
+    }
+
     private fun StringBuilder.appendCardBody(template: CardTemplate, traits: Set<TraitType> = template.traitTypes, upgrades: Set<UpgradeType> = emptySet(), vp: Int = template.vp, counter: Int = 0, includeFlavor: Boolean = false) {
         if (vp != 0) {
             append(" ${describeVictoryPoints(vp)}")
         }
         append(" [Tier ${template.tier + 1}]")
-        append(" [${data.rarities[template.rarity].name}]")
+        append(" [${describeRarity(template.rarity)}]")
         appendLine() // Finish title
 
-        // Show types -- and use the data.cardTypes list instead of the card.types list as they are capitalized
-        // correctly AND in the desired order.
-        appendLine(
-            data.cardTypes.mapNotNull { typeName ->
-                if (template.types.any { typeName.equals(it, ignoreCase = true) }) typeName else null
-            }.joinToString(prefix = "(", postfix = ")")
-        )
+        appendLine(describeTypes(template.types))
 
         if (counter > 0) {
             appendLine("Counters: $counter")
@@ -418,7 +422,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
                     append(cost)
                 }
             }
-            append(" [${data.rarities[blueprint.rarity].name}]")
+            append(" [${describeRarity(blueprint.rarity)}]")
             appendLine()
 
             appendActivationCost(blueprint)
@@ -443,7 +447,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
     fun describeBuildingBody(building: Building, showActivatedState: Boolean = false): String {
         return buildString {
             appendBuildingName(building)
-            append(" [${data.rarities[building.blueprint.rarity].name}]")
+            append(" [${describeRarity(building.blueprint.rarity)}]")
 
             appendLine()
             appendActivationCost(building.blueprint)

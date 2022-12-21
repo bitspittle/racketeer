@@ -157,14 +157,7 @@ private fun PickChoices(ctx: ChoiceContext) {
 
                 (item as? Blueprint)?.let { blueprint ->
                     Popup(ElementTarget.PreviousSibling, placement = Placement.Right) {
-                        Card(ctx.describer, object : CardSpec {
-                            override val title = blueprint.name
-                            override val vpBase = blueprint.vp
-                            override val vpTotal = null
-                            override val flavor = blueprint.description.flavor
-                            override val ability = blueprint.description.ability
-                            override val enabled = true
-                        })
+                        Card(ctx.describer, blueprint.toCardSpec())
                     }
                 }
             }
