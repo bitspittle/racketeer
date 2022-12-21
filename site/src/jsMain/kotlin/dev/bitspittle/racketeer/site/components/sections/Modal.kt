@@ -28,7 +28,7 @@ val ModalContentStyle = ComponentStyle.base("modal-content") {
 @Composable
 fun Modal(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
     Box(ModalStyle.toModifier(), contentAlignment = Alignment.TopCenter) {
-        Box(ModalContentStyle.toModifier()) {
+        Box(ModalContentStyle.toModifier().then(modifier)) {
             content()
         }
     }
