@@ -2,7 +2,6 @@ package dev.bitspittle.racketeer.site.components.sections
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.FontWeight
-import com.varabyte.kobweb.compose.dom.ref
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Row
 import com.varabyte.kobweb.compose.ui.Modifier
@@ -12,9 +11,9 @@ import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.model.building.Blueprint
-import dev.bitspittle.racketeer.model.building.vpTotal
 import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.widgets.*
+import dev.bitspittle.racketeer.site.components.widgets.silk.*
 import dev.bitspittle.racketeer.site.model.ChoiceContext
 import dev.bitspittle.racketeer.site.model.cancel
 import org.jetbrains.compose.web.css.*
@@ -157,7 +156,7 @@ private fun PickChoices(ctx: ChoiceContext) {
                 }
 
                 (item as? Blueprint)?.let { blueprint ->
-                    Tooltip(TooltipTarget.PreviousSibling, position = TooltipPosition.Right) {
+                    Popup(ElementTarget.PreviousSibling, placement = Placement.Right) {
                         Card(ctx.describer, object : CardSpec {
                             override val title = blueprint.name
                             override val vpBase = blueprint.vp
@@ -178,7 +177,7 @@ private fun PickChoices(ctx: ChoiceContext) {
                     Text("Cancel")
                 }
                 if (ctx.requiredChoice) {
-                    Tooltip(TooltipTarget.PreviousSibling, REQUIRED_CHOICE_EXPLANATION)
+                    Tooltip(ElementTarget.PreviousSibling, REQUIRED_CHOICE_EXPLANATION)
                 }
 
                 Button(
@@ -188,8 +187,8 @@ private fun PickChoices(ctx: ChoiceContext) {
                 ) {
                     Text("Confirm")
                 }
-                if (ctx.requiredChoice) {
-                    Tooltip(TooltipTarget.PreviousSibling, "You must choose ${ctx.describer.describeRange(ctx.range)} item(s) before you can confirm.", position = TooltipPosition.Top)
+                if (selected.count() !in ctx.range) {
+                    Tooltip(ElementTarget.PreviousSibling, "You must choose ${ctx.describer.describeRange(ctx.range)} item(s) before you can confirm.")
                 }
             }
         }
