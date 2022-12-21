@@ -1,4 +1,4 @@
-package dev.bitspittle.racketeer.site.components.sections
+package dev.bitspittle.racketeer.site.components.widgets.silk
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.foundation.layout.Box
