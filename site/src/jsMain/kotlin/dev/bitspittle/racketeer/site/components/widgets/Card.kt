@@ -170,15 +170,15 @@ fun Card(describer: Describer, card: CardSpec, onClick: () -> Unit = {}, modifie
 
             val vpTotal = card.vpTotal ?: card.vpBase
             if (vpTotal > 0 || card.vpBase > 0) {
-                Row(Modifier.fontSize(G.Font.Sizes.Small).gap(5.px)) {
+                Row(CardDescriptionStyle.toModifier().gap(5.px)) {
                     if (card.vpBase > 0) {
-                        SpanText(describer.describeVictoryPoints(card.vpBase), CardDescriptionStyle.toModifier())
+                        SpanText(describer.describeVictoryPoints(card.vpBase))
                     }
                     val deltaVp = vpTotal - card.vpBase
                     if (deltaVp > 0) {
-                        SpanText("+${describer.describeVictoryPoints(deltaVp)}", CardDescriptionStyle.toModifier())
+                        SpanText("+${describer.describeVictoryPoints(deltaVp)}")
                     } else if (deltaVp < 0) {
-                        SpanText("-${describer.describeVictoryPoints(-deltaVp)}", CardDescriptionStyle.toModifier())
+                        SpanText("-${describer.describeVictoryPoints(-deltaVp)}")
                     }
                 }
             }
