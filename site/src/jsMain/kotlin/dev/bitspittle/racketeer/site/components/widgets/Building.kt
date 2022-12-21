@@ -9,7 +9,8 @@ import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.site.model.GameContext
 
-fun Building.toCardSpec(state: GameState): CardSpec {
+fun Building.toCardSpec(state: GameState): CardSpec = this.toCardSpec(!isActivated && state.canActivate(this))
+fun Building.toCardSpec(enabled: Boolean = true): CardSpec {
     val self = this
     return object : CardSpec {
         override val title = blueprint.name
@@ -22,7 +23,7 @@ fun Building.toCardSpec(state: GameState): CardSpec {
         override val flavor = blueprint.description.flavor
         override val upgrades = emptySet<UpgradeType>()
         override val ability = blueprint.description.ability
-        override val enabled = !isActivated && state.canActivate(self)
+        override val enabled = enabled
     }
 }
 

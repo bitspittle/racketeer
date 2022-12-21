@@ -97,12 +97,12 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         }
     }
 
-    private fun describeUpgradeBody(upgrade: UpgradeType): String {
+    fun describeUpgradeBody(upgrade: UpgradeType): String {
         return when (upgrade) {
-            UpgradeType.CASH -> "${data.upgradeNames.cash}: +1${data.icons.cash}."
-            UpgradeType.INFLUENCE -> "${data.upgradeNames.influence}: +1${data.icons.influence}."
-            UpgradeType.LUCK -> "${data.upgradeNames.luck}: +1${data.icons.luck}."
-            UpgradeType.VETERAN -> "${data.upgradeNames.veteran}: Draw a card, then discard one."
+            UpgradeType.CASH -> "${data.upgradeNames.cash}: +1${data.icons.cash}"
+            UpgradeType.INFLUENCE -> "${data.upgradeNames.influence}: +1${data.icons.influence}"
+            UpgradeType.LUCK -> "${data.upgradeNames.luck}: +1${data.icons.luck}"
+            UpgradeType.VETERAN -> "${data.upgradeNames.veteran}: Draw a card, then discard one"
         }
     }
 

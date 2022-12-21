@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.site.components.sections
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.FontWeight
+import com.varabyte.kobweb.compose.foundation.layout.BoxScope
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Row
 import com.varabyte.kobweb.compose.ui.Modifier
@@ -11,6 +12,10 @@ import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.model.building.Blueprint
+import dev.bitspittle.racketeer.model.building.Building
+import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.card.CardTemplate
+import dev.bitspittle.racketeer.scripting.methods.collection.FormattedItem
 import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.widgets.*
 import dev.bitspittle.racketeer.site.components.widgets.silk.*
@@ -65,6 +70,22 @@ fun Choice(ctx: ChoiceContext) = ctx.apply {
 }
 
 @Composable
+private fun installPopup(ctx: ChoiceContext, item: Any) {
+    @Composable
+    fun RightPopup(content: @Composable BoxScope.() -> Unit) {
+        Popup(ElementTarget.PreviousSibling, placement = Placement.Right, content = content)
+    }
+
+    when (item) {
+        is Blueprint -> RightPopup { Card(ctx.describer, item.toCardSpec()) }
+        is Building -> RightPopup { Card(ctx.describer, item.toCardSpec()) }
+        is Card -> RightPopup { Card(ctx.describer, item.toCardSpec()) }
+        is CardTemplate -> RightPopup { Card(ctx.describer, item.toCardSpec()) }
+        is FormattedItem -> installPopup(ctx, item.wrapped)
+    }
+}
+
+@Composable
 private fun ReviewChoices(ctx: ChoiceContext) {
     Modal(Modifier.width(360.px)) {
         Column {
@@ -83,6 +104,7 @@ private fun ReviewChoices(ctx: ChoiceContext) {
                 ) {
                     Text(ctx.describe(item))
                 }
+                installPopup(ctx, item)
             }
             Row(Modifier.fillMaxWidth().gap(10.px)) {
                 Button(
@@ -92,6 +114,10 @@ private fun ReviewChoices(ctx: ChoiceContext) {
                 ) {
                     Text("Cancel")
                 }
+                if (ctx.requiredChoice) {
+                    Tooltip(ElementTarget.PreviousSibling, REQUIRED_CHOICE_EXPLANATION)
+                }
+
                 Button(
                     onClick = { ctx.choose(ctx.items) },
                     ChoiceSystemButtonStyle.toModifier()
@@ -121,6 +147,7 @@ private fun PickChoice(ctx: ChoiceContext) {
                 ) {
                     Text(ctx.describe(item))
                 }
+                installPopup(ctx, item)
             }
             Button(
                 onClick = { ctx.cancel() },
@@ -128,6 +155,9 @@ private fun PickChoice(ctx: ChoiceContext) {
                 enabled = !ctx.requiredChoice
             ) {
                 Text("Cancel")
+            }
+            if (ctx.requiredChoice) {
+                Tooltip(ElementTarget.PreviousSibling, REQUIRED_CHOICE_EXPLANATION)
             }
         }
     }
@@ -154,12 +184,7 @@ private fun PickChoices(ctx: ChoiceContext) {
                 }, ChoiceButtonStyle.toModifier(SelectedChoiceButtonVariant.takeIf { selected.contains(item) })) {
                     Text(ctx.describe(item))
                 }
-
-                (item as? Blueprint)?.let { blueprint ->
-                    Popup(ElementTarget.PreviousSibling, placement = Placement.Right) {
-                        Card(ctx.describer, blueprint.toCardSpec())
-                    }
-                }
+                installPopup(ctx, item)
             }
             Row(Modifier.fillMaxWidth().gap(10.px)) {
                 Button(

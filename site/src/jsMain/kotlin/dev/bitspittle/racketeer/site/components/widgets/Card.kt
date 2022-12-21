@@ -15,6 +15,7 @@ import com.varabyte.kobweb.compose.ui.thenIf
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.card.vpTotal
 import dev.bitspittle.racketeer.model.text.Describer
@@ -124,6 +125,23 @@ fun Card.toCardSpec(enabled: Boolean = true): CardSpec {
     }
 }
 
+fun CardTemplate.toCardSpec(enabled: Boolean = true): CardSpec {
+    val self = this
+    return object : CardSpec {
+        override val title = self.name
+        override val types = self.types
+        override val tier = self.tier
+        override val rarity = self.rarity
+        override val vpBase = self.vp
+        override val vpTotal = 0
+        override val counter = 0
+        override val flavor = self.description.flavor
+        override val upgrades = emptySet<UpgradeType>()
+        override val ability = self.description.ability
+        override val enabled = enabled
+    }
+}
+
 @Composable
 fun Card(describer: Describer, card: Card, onClick: () -> Unit = {}, modifier: Modifier = Modifier, enabled: Boolean = true) {
     Card(describer, card.toCardSpec(enabled), onClick, modifier)
@@ -171,8 +189,9 @@ fun Card(describer: Describer, card: CardSpec, onClick: () -> Unit = {}, modifie
         Spacer()
         card.upgrades.forEach {  upgrade ->
             SpanText(
-                describer.describeUpgradeTitle(upgrade, icons = false),
-                CardDescriptionStyle.toModifier(CardDescriptionUpgradesVariant))
+                describer.describeUpgradeBody(upgrade),
+                CardDescriptionStyle.toModifier(CardDescriptionUpgradesVariant)
+            )
         }
         SpanText(
             describer.convertIcons(card.ability),
