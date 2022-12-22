@@ -12,6 +12,7 @@ import kotlin.coroutines.resume
 
 class ChoiceContext(
     val describer: Describer,
+    val tooltipParser: TooltipParser,
     val prompt: String?,
     val items: List<Any>,
     val range: IntRange,

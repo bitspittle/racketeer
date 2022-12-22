@@ -20,7 +20,12 @@ import dev.bitspittle.racketeer.scripting.utils.installGameLogic
 import kotlin.coroutines.suspendCoroutine
 
 class GameContext(
-    val data: GameData, val env: Environment, val logger: MemoryLogger, val describer: Describer, var state: GameState
+    val data: GameData,
+    val env: Environment,
+    val logger: MemoryLogger,
+    val describer: Describer,
+    val tooltipParser: TooltipParser,
+    var state: GameState
 )
 
 suspend fun createNewGame(gameData: GameData, handleChoice: (ChoiceContext) -> Unit): GameContext {
@@ -62,6 +67,7 @@ suspend fun createNewGame(gameData: GameData, handleChoice: (ChoiceContext) -> U
 
     val gameState = MutableGameState(gameData, setOf(Feature.Type.BUILDINGS), enqueuers, copyableRandom)
     val describer = Describer(gameData, showDebugInfo = { true })
+    val tooltipParser = TooltipParser(gameData, describer)
     var provideGameState: () -> GameState = { gameState }
     env.installGameLogic(object : GameService {
         override val gameData = gameData
@@ -76,7 +82,7 @@ suspend fun createNewGame(gameData: GameData, handleChoice: (ChoiceContext) -> U
                 requiredChoice: Boolean
             ): List<Any>? {
                 return suspendCoroutine { continuation ->
-                    handleChoice(ChoiceContext(describer, prompt, list, range, requiredChoice, continuation))
+                    handleChoice(ChoiceContext(describer, tooltipParser, prompt, list, range, requiredChoice, continuation))
                 }
             }
         }
@@ -90,7 +96,7 @@ suspend fun createNewGame(gameData: GameData, handleChoice: (ChoiceContext) -> U
         gameState.apply(GameStateChange.Draw())
     }
 
-    return GameContext(gameData, env, logger, describer, gameState)
+    return GameContext(gameData, env, logger, describer, tooltipParser, gameState)
         .also { provideGameState = { it.state } }
 }
 

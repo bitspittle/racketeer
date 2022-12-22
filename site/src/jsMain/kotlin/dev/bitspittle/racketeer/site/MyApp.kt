@@ -37,6 +37,36 @@ fun updateTheme(ctx: InitSilkContext) {
     }
 }
 
+internal val OverlayState = OverlayHostState()
+internal val LocalOverlayState = staticCompositionLocalOf { OverlayState }
+
+internal class OverlayHostState {
+    private val overlays = mutableStateListOf<Overlay>()
+
+    fun appendOverlay(): Overlay = Overlay().also {
+        overlays += it
+    }
+
+    @Composable
+    internal fun forEachOverlay(block: @Composable (Overlay) -> Unit) {
+        overlays.toList().forEach { overlay ->
+            block(overlay)
+        }
+    }
+
+    inner class Overlay {
+        var content by mutableStateOf<(@Composable () -> Unit)?>(null)
+        fun dismiss() {
+            overlays -= this
+        }
+    }
+}
+
+@Composable private fun RenderContentThenOverlays(content: @Composable () -> Unit) {
+    content()
+    OverlayState.forEachOverlay { overlay -> overlay.content?.invoke() }
+}
+
 @App
 @Composable
 fun MyApp(content: @Composable () -> Unit) {
@@ -47,7 +77,9 @@ fun MyApp(content: @Composable () -> Unit) {
         }
 
         Surface(Modifier.minHeight(100.vh)) {
-            content()
+            RenderContentThenOverlays {
+                content()
+            }
         }
     }
 }

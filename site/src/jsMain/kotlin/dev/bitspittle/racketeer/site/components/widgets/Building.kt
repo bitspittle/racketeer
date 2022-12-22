@@ -31,7 +31,7 @@ fun Building.toCardSpec(enabled: Boolean = true): CardSpec {
 
 @Composable
 fun Building(ctx: GameContext, building: Building, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Card(ctx.describer, building.toCardSpec(ctx.state), onClick, modifier)
+    Card(ctx.describer, ctx.tooltipParser, building.toCardSpec(ctx.state), onClick, modifier)
 }
 
 fun Blueprint.toCardSpec(state: GameState) =
@@ -58,5 +58,5 @@ fun Blueprint.toCardSpec(enabled: Boolean = true): CardSpec {
 
 @Composable
 fun Blueprint(ctx: GameContext, blueprint: Blueprint, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Card(ctx.describer, blueprint.toCardSpec(ctx.state), onClick, modifier)
+    Card(ctx.describer, ctx.tooltipParser, blueprint.toCardSpec(ctx.state), onClick, modifier)
 }
