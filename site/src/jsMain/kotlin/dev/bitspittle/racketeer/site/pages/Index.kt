@@ -46,7 +46,9 @@ fun HomePage() {
                 scope.launch {
                     val gameContext = createNewGame(gameData, handleChoice = {
                         choiceCtx = it.also {
-                            it.onChosen { choiceCtx = null }
+                            it.onChosen {
+                                choiceCtx = null
+                            }
                         }
                     })
                     startupState = GameStartupState.ContextCreated(gameContext)

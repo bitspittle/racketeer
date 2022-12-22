@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.site.components.sections
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.FontWeight
+import com.varabyte.kobweb.compose.dom.ElementTarget
 import com.varabyte.kobweb.compose.foundation.layout.BoxScope
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Row
@@ -9,6 +10,10 @@ import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.silk.components.forms.Button
+import com.varabyte.kobweb.silk.components.overlay.Modal
+import com.varabyte.kobweb.silk.components.overlay.Popup
+import com.varabyte.kobweb.silk.components.overlay.PopupPlacement
+import com.varabyte.kobweb.silk.components.overlay.Tooltip
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.model.building.Blueprint
@@ -18,7 +23,6 @@ import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.scripting.methods.collection.FormattedItem
 import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.widgets.*
-import dev.bitspittle.racketeer.site.components.widgets.silk.*
 import dev.bitspittle.racketeer.site.model.ChoiceContext
 import dev.bitspittle.racketeer.site.model.cancel
 import org.jetbrains.compose.web.css.*
@@ -73,14 +77,14 @@ fun Choice(ctx: ChoiceContext) = ctx.apply {
 private fun installPopup(ctx: ChoiceContext, item: Any) {
     @Composable
     fun RightPopup(content: @Composable BoxScope.() -> Unit) {
-        Popup(ElementTarget.PreviousSibling, placement = Placement.Right, content = content)
+        Popup(ElementTarget.PreviousSibling, placement = PopupPlacement.Right, content = content)
     }
 
     when (item) {
-        is Blueprint -> RightPopup { Card(ctx.describer, item.toCardSpec()) }
-        is Building -> RightPopup { Card(ctx.describer, item.toCardSpec()) }
-        is Card -> RightPopup { Card(ctx.describer, item.toCardSpec()) }
-        is CardTemplate -> RightPopup { Card(ctx.describer, item.toCardSpec()) }
+        is Blueprint -> RightPopup { Card(ctx.describer, ctx.tooltipParser, item.toCardSpec()) }
+        is Building -> RightPopup { Card(ctx.describer, ctx.tooltipParser, item.toCardSpec()) }
+        is Card -> RightPopup { Card(ctx.describer, ctx.tooltipParser, item.toCardSpec()) }
+        is CardTemplate -> RightPopup { Card(ctx.describer, ctx.tooltipParser, item.toCardSpec()) }
         is FormattedItem -> installPopup(ctx, item.wrapped)
     }
 }

@@ -2,21 +2,22 @@ package dev.bitspittle.racketeer.site.components.widgets
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.*
+import com.varabyte.kobweb.compose.dom.ElementTarget
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Row
 import com.varabyte.kobweb.compose.foundation.layout.Spacer
-import com.varabyte.kobweb.compose.ui.Alignment
-import com.varabyte.kobweb.compose.ui.Modifier
+import com.varabyte.kobweb.compose.ui.*
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
-import com.varabyte.kobweb.compose.ui.styleModifier
-import com.varabyte.kobweb.compose.ui.thenIf
+import com.varabyte.kobweb.silk.components.overlay.PopupPlacement
+import com.varabyte.kobweb.silk.components.overlay.Tooltip
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.site.G
+import dev.bitspittle.racketeer.site.model.TooltipParser
 import org.jetbrains.compose.web.css.*
 
 private val CardStyleCommon =
@@ -72,7 +73,7 @@ val CardTitleStyle = ComponentStyle.base("card-title") {
 val CardDescriptionStyle = ComponentStyle.base("card-desc") {
     Modifier
         .fontSize(G.Font.Sizes.Small)
-        .padding(leftRight = 15.px, topBottom = 3.px)
+        .margin(leftRight = 15.px, topBottom = 3.px)
 }
 
 val CardDescriptionFlavorVariant = CardDescriptionStyle.addVariantBase("flavor") {
@@ -80,7 +81,9 @@ val CardDescriptionFlavorVariant = CardDescriptionStyle.addVariantBase("flavor")
 }
 
 val CardDescriptionUpgradesVariant = CardDescriptionStyle.addVariantBase("upgrades") {
-    Modifier.fontStyle(FontStyle.Italic)
+    Modifier
+        .fontStyle(FontStyle.Italic)
+        .borderBottom(1.px, LineStyle.Dotted, Colors.Black)
 }
 
 val CardDescriptionEffectsVariant = CardDescriptionStyle.addVariantBase("effects") {
@@ -143,12 +146,12 @@ fun CardTemplate.toCardSpec(enabled: Boolean = true): CardSpec {
 }
 
 @Composable
-fun Card(describer: Describer, card: Card, onClick: () -> Unit = {}, modifier: Modifier = Modifier, enabled: Boolean = true) {
-    Card(describer, card.toCardSpec(enabled), onClick, modifier)
+fun Card(describer: Describer, tooltipParser: TooltipParser, card: Card, onClick: () -> Unit = {}, modifier: Modifier = Modifier, enabled: Boolean = true) {
+    Card(describer, tooltipParser, card.toCardSpec(enabled), onClick, modifier)
 }
 
 @Composable
-fun Card(describer: Describer, card: CardSpec, onClick: () -> Unit = {}, modifier: Modifier = Modifier) {
+fun Card(describer: Describer, tooltipParser: TooltipParser, card: CardSpec, onClick: () -> Unit = {}, modifier: Modifier = Modifier) {
     Column(CardStyle
         .toModifier(DisabledCardVariant.takeUnless { card.enabled })
         .thenIf(card.enabled) {
@@ -192,17 +195,28 @@ fun Card(describer: Describer, card: CardSpec, onClick: () -> Unit = {}, modifie
                 describer.describeUpgradeBody(upgrade),
                 CardDescriptionStyle.toModifier(CardDescriptionUpgradesVariant)
             )
+            Tooltip(ElementTarget.PreviousSibling, describer.describeUpgradeBody(upgrade), placement = PopupPlacement.Bottom)
         }
-        card.traits.forEach { trait ->
-            SpanText(
-                describer.describeTraitBody(trait),
-                CardDescriptionStyle.toModifier(CardDescriptionUpgradesVariant)
-            )
+        Row {
+            card.traits.forEachIndexed { i, trait ->
+                if (i > 0) SpanText(", ")
+                SpanText(
+                    describer.describeTraitTitle(trait),
+                    CardDescriptionStyle.toModifier(CardDescriptionUpgradesVariant)
+                )
+                Tooltip(ElementTarget.PreviousSibling, describer.describeTraitBody(trait), placement = PopupPlacement.Bottom)
+            }
         }
         SpanText(
             describer.convertIcons(card.ability),
             CardDescriptionStyle.toModifier(CardDescriptionEffectsVariant)
         )
+        // card.ability text is constant, so just calculate tooltip ranges once
+        val tooltipRanges = remember { tooltipParser.parse(card.ability) }
+        if (tooltipRanges.isNotEmpty()) {
+            Tooltip(ElementTarget.PreviousSibling, "TEST LINE 1\nTEST LINE 2", placement = PopupPlacement.Top)
+        }
+
     }
 }
 
