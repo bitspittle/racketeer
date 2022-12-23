@@ -73,7 +73,6 @@ val CardTitleStyle = ComponentStyle.base("card-title") {
 val CardDescriptionStyle = ComponentStyle.base("card-desc") {
     Modifier
         .fontSize(G.Font.Sizes.Small)
-        .margin(leftRight = 15.px, topBottom = 3.px)
 }
 
 val CardDescriptionFlavorVariant = CardDescriptionStyle.addVariantBase("flavor") {
@@ -89,6 +88,7 @@ val CardDescriptionUpgradesVariant = CardDescriptionStyle.addVariantBase("upgrad
 val CardDescriptionEffectsVariant = CardDescriptionStyle.addVariantBase("effects") {
     Modifier
         .overflowWrap(OverflowWrap.BreakWord) // Don't break between emojis
+        .margin(top = 5.px)
         .styleModifier {
             property("text-shadow", "0px 0px 4px #000000")
         }
@@ -190,33 +190,41 @@ fun Card(describer: Describer, tooltipParser: TooltipParser, card: CardSpec, onC
             }
         }
         Spacer()
-        card.upgrades.forEach {  upgrade ->
+        Column(Modifier.margin(leftRight = 15.px, topBottom = 3.px)) {
+            Row(Modifier.gap(5.px).flexWrap(FlexWrap.Wrap)) {
+                card.upgrades.forEach { upgrade ->
+                    SpanText(
+                        describer.describeUpgradeBody(upgrade),
+                        CardDescriptionStyle.toModifier(CardDescriptionUpgradesVariant)
+                    )
+                    Tooltip(
+                        ElementTarget.PreviousSibling,
+                        describer.describeUpgradeBody(upgrade),
+                        placement = PopupPlacement.Bottom
+                    )
+                }
+                card.traits.forEach { trait ->
+                    SpanText(
+                        describer.describeTraitTitle(trait),
+                        CardDescriptionStyle.toModifier(CardDescriptionUpgradesVariant)
+                    )
+                    Tooltip(
+                        ElementTarget.PreviousSibling,
+                        describer.describeTraitBody(trait),
+                        placement = PopupPlacement.Bottom
+                    )
+                }
+            }
             SpanText(
-                describer.describeUpgradeBody(upgrade),
-                CardDescriptionStyle.toModifier(CardDescriptionUpgradesVariant)
+                describer.convertIcons(card.ability),
+                CardDescriptionStyle.toModifier(CardDescriptionEffectsVariant)
             )
-            Tooltip(ElementTarget.PreviousSibling, describer.describeUpgradeBody(upgrade), placement = PopupPlacement.Bottom)
-        }
-        Row {
-            card.traits.forEachIndexed { i, trait ->
-                if (i > 0) SpanText(", ")
-                SpanText(
-                    describer.describeTraitTitle(trait),
-                    CardDescriptionStyle.toModifier(CardDescriptionUpgradesVariant)
-                )
-                Tooltip(ElementTarget.PreviousSibling, describer.describeTraitBody(trait), placement = PopupPlacement.Bottom)
+            // card.ability text is constant, so just calculate tooltip ranges once
+            val tooltipRanges = remember { tooltipParser.parse(card.ability) }
+            if (tooltipRanges.isNotEmpty()) {
+                Tooltip(ElementTarget.PreviousSibling, "TEST LINE 1\nTEST LINE 2", placement = PopupPlacement.Top)
             }
         }
-        SpanText(
-            describer.convertIcons(card.ability),
-            CardDescriptionStyle.toModifier(CardDescriptionEffectsVariant)
-        )
-        // card.ability text is constant, so just calculate tooltip ranges once
-        val tooltipRanges = remember { tooltipParser.parse(card.ability) }
-        if (tooltipRanges.isNotEmpty()) {
-            Tooltip(ElementTarget.PreviousSibling, "TEST LINE 1\nTEST LINE 2", placement = PopupPlacement.Top)
-        }
-
     }
 }
 
