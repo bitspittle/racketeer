@@ -368,7 +368,7 @@ cards:
     types: [action]
     cost: 3
     description:
-      ability: Create a Burglar (worth +2$) in your hand. Jail this after two uses.
+      ability: Create a Burglar in your hand. Once played, this card becomes Suspicious.
       flavor: "'Actually, I know two guys. But not three.'"
     playActions:
       - pile-copy-to! $hand (card-named "Burglar")
