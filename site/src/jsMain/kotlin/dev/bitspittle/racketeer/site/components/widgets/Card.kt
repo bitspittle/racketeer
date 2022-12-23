@@ -10,6 +10,7 @@ import com.varabyte.kobweb.compose.foundation.layout.Spacer
 import com.varabyte.kobweb.compose.ui.*
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
+import com.varabyte.kobweb.silk.components.overlay.Popup
 import com.varabyte.kobweb.silk.components.overlay.PopupPlacement
 import com.varabyte.kobweb.silk.components.overlay.Tooltip
 import com.varabyte.kobweb.silk.components.style.*
@@ -17,8 +18,11 @@ import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.site.G
+import dev.bitspittle.racketeer.site.model.TooltipData
 import dev.bitspittle.racketeer.site.model.TooltipParser
+import dev.bitspittle.racketeer.site.model.TooltipRange
 import org.jetbrains.compose.web.css.*
+import org.jetbrains.compose.web.dom.*
 
 private val CardStyleCommon =
     Modifier
@@ -79,10 +83,12 @@ val CardDescriptionFlavorVariant = CardDescriptionStyle.addVariantBase("flavor")
     Modifier.fontStyle(FontStyle.Italic)
 }
 
+private val UnderlineModifier = Modifier.borderBottom(1.px, LineStyle.Dotted, Colors.Black)
+
 val CardDescriptionUpgradesVariant = CardDescriptionStyle.addVariantBase("upgrades") {
-    Modifier
+    UnderlineModifier
         .fontStyle(FontStyle.Italic)
-        .borderBottom(1.px, LineStyle.Dotted, Colors.Black)
+
 }
 
 val CardDescriptionEffectsVariant = CardDescriptionStyle.addVariantBase("effects") {
@@ -215,14 +221,46 @@ fun Card(describer: Describer, tooltipParser: TooltipParser, card: CardSpec, onC
                     )
                 }
             }
-            SpanText(
-                describer.convertIcons(card.ability),
-                CardDescriptionStyle.toModifier(CardDescriptionEffectsVariant)
-            )
-            // card.ability text is constant, so just calculate tooltip ranges once
-            val tooltipRanges = remember { tooltipParser.parse(card.ability) }
-            if (tooltipRanges.isNotEmpty()) {
-                Tooltip(ElementTarget.PreviousSibling, "TEST LINE 1\nTEST LINE 2", placement = PopupPlacement.Top)
+            Span(CardDescriptionStyle.toModifier(CardDescriptionEffectsVariant).toAttrs()) {
+                val abilityText = describer.convertIcons(card.ability)
+                val tooltipRanges = remember { tooltipParser.parse(abilityText) }
+                if (tooltipRanges.isEmpty()) {
+                    Text(abilityText)
+                } else {
+                    SpanText(abilityText.substring(0, tooltipRanges.first().range.first))
+                    var prevTooltipRange: TooltipRange? = null
+                    tooltipRanges.forEach { tooltipRange ->
+                        prevTooltipRange?.let { prevTooltipRange ->
+                            SpanText(abilityText.substring(prevTooltipRange.range.last + 1, tooltipRange.range.first))
+                        }
+                        SpanText(abilityText.substring(tooltipRange.range), UnderlineModifier)
+                        if (tooltipRange.tooltip is TooltipData.OfText) {
+                            Tooltip(ElementTarget.PreviousSibling, tooltipRange.tooltip.text)
+                        } else {
+                            Popup(ElementTarget.PreviousSibling, placement = PopupPlacement.Right) {
+                                val outlineModifier = Modifier.outline(2.px, LineStyle.Solid, Colors.Black)
+                                when (val tooltip = tooltipRange.tooltip) {
+                                    is TooltipData.OfBlueprint -> Card(
+                                        describer,
+                                        tooltipParser,
+                                        tooltip.blueprint.toCardSpec(),
+                                        modifier = outlineModifier
+                                    )
+
+                                    is TooltipData.OfCard -> Card(
+                                        describer,
+                                        tooltipParser,
+                                        tooltip.card.toCardSpec(),
+                                        modifier = outlineModifier
+                                    )
+                                    is TooltipData.OfText -> error("Should have been handled above")
+                                }
+                            }
+                        }
+                        prevTooltipRange = tooltipRange
+                    }
+                    SpanText(abilityText.substring(tooltipRanges.last().range.last + 1))
+                }
             }
         }
     }
