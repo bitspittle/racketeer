@@ -224,7 +224,7 @@ cards:
     tier: 0
     types: [thief, spy, trickster, cop, legend]
     description:
-      ability: Gain $, &, and %. Then this gains either +$, +&, +%, or "Draw a card, then discard a card", in that order.
+      ability: Gain $, &, and %. Then this gains either Dextrous, Artful, Lucky, or Veteran, in that order.
       flavor: There's nothing more dangerous than a fed who learns from their mistakes.
     playActions:
       - game-add! 'cash 1
@@ -406,7 +406,7 @@ cards:
     types: [spy]
     cost: 2
     description:
-      ability: Gain 2&. Gets another +& after one use.
+      ability: Gain 2&. Becomes Artful after one use.
       flavor: He makes friends by volunteering to belay.
     playActions:
       - game-add! 'influence 2
@@ -434,7 +434,7 @@ cards:
     cost: 3
     traits: [swift]
     description:
-      ability: "Give another Spy you own +&."
+      ability: "Give another Spy you own Artful."
       flavor: You do not know her, and rest assured, you never shall.
     playActions:
       - set '$all-spies filter $owned-cards '(card-has-type? $it 'spy)
@@ -450,7 +450,7 @@ cards:
     cost: 3
     traits: [swift]
     description:
-      ability: "Give another Thief you own +$."
+      ability: "Give another Thief you own Dextrous."
       flavor: Her first name is Aspartamé, which is why she goes by Smitty.
     playActions:
       - set '$all-thieves filter $owned-cards '(card-has-type? $it 'thief)
@@ -495,7 +495,7 @@ cards:
     types: [thief]
     cost: 3
     description:
-      ability: Gain 2$. Gets another +$ after one use.
+      ability: Gain 2$. Becomes Dextrous after one use.
       flavor: "'Where there's a will, there's a way. And fortunately, there was a will.'"
     playActions:
       - game-add! 'cash 2
@@ -536,7 +536,7 @@ cards:
     types: [cop]
     cost: 3
     description:
-      ability: When you get this, give two Thieves you own +$.
+      ability: When you get this, give two Thieves you own Dextrous.
     initActions:
       - set '$all-thieves filter $owned-cards '(card-has-type? $it 'thief)
       - set '$thieves filter $all-thieves '(! (card-has-upgrade? $it 'cash))
@@ -708,7 +708,7 @@ cards:
     cost: 3
     traits: [swift]
     description:
-      ability: Discard your hand. Create that many plus one Burglars (worth +2$) in your hand. You may give them Expendable.
+      ability: Discard your hand. Create that many plus one Burglars in your hand. You may give them Expendable.
     playActions:
       - set '$burglars-exp ask? "Would you like to make your Burglars Expendable? (Expendable cards are removed when played.)"
       - set '$my-burglar single (list card-named "Burglar")
@@ -760,7 +760,7 @@ cards:
     cost: 4
     traits: [swift]
     description:
-      ability: Give another Trickster you own +%.
+      ability: Give another Trickster you own Lucky.
     playActions:
       - set '$all-tricksters filter $owned-cards '(card-has-type? $it 'trickster)
       - set '$some-tricksters filter $all-tricksters '(! (card-has-upgrade? $it 'luck))
