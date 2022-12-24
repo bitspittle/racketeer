@@ -72,6 +72,7 @@ val CardTitleStyle = ComponentStyle.base("card-title") {
     Modifier
         .textAlign(TextAlign.Center)
         .fontSize(G.Font.Sizes.Normal)
+        .fontWeight(FontWeight.Bold)
 }
 
 val CardDescriptionStyle = ComponentStyle.base("card-desc") {
