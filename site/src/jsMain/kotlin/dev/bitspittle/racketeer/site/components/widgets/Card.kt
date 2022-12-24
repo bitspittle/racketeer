@@ -20,7 +20,6 @@ import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.model.TooltipData
 import dev.bitspittle.racketeer.site.model.TooltipParser
-import dev.bitspittle.racketeer.site.model.TooltipRange
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
@@ -228,6 +227,9 @@ fun Card(describer: Describer, tooltipParser: TooltipParser, card: CardSpec, onC
                 val rangeActions = remember {
                     val tooltipRanges = tooltipParser.parse(abilityText)
                     mutableListOf<Pair<IntRange, @Composable () -> Unit>>().apply {
+
+                        // Create ranges that handle tooltips - they should render relevant text with some decoration
+                        // inviting users to mouse over them.
                         tooltipRanges.forEach { tooltipRange ->
                             add(tooltipRange.range to {
                                 SpanText(abilityText.substring(tooltipRange.range), UnderlineModifier)
@@ -257,6 +259,9 @@ fun Card(describer: Describer, tooltipParser: TooltipParser, card: CardSpec, onC
                             })
                         }
 
+                        // Create emoji ranges, so we can prevent them being broken up in the middle
+                        // e.g. if a description says 🎲🎲🎲🎲, we don't want html layouts to break that
+                        // into 🎲🎲 and 🎲🎲.
                         run {
                             fun getEmojiRanges(text: String): List<IntRange> {
                                 val regex = "([\uD83C-\uDBFF\uDC00-\uDFFF]+)".toRegex()
@@ -272,6 +277,7 @@ fun Card(describer: Describer, tooltipParser: TooltipParser, card: CardSpec, onC
 
                         this.sortBy { it.first.first }
 
+                        // Finally, fill in the remaining ranges but have them just render text directly
                         fun findMissingRanges(ranges: List<IntRange>, length: Int): List<IntRange> {
                             val result = mutableListOf<IntRange>()
                             ranges.fold(0) { current, range ->
