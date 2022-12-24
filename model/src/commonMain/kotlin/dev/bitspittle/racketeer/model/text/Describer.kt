@@ -151,7 +151,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
     fun describeTypes(types: List<String>): String {
         return data.cardTypes.mapNotNull { typeName ->
             if (types.any { typeName.equals(it, ignoreCase = true) }) typeName else null
-        }.joinToString(prefix = "(", postfix = ")")
+        }.joinToString()
     }
 
     private fun StringBuilder.appendCardBody(template: CardTemplate, traits: Set<TraitType> = template.traitTypes, upgrades: Set<UpgradeType> = emptySet(), vp: Int = template.vp, counter: Int = 0, includeFlavor: Boolean = false) {
@@ -162,7 +162,7 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         append(" [${describeRarity(template.rarity)}]")
         appendLine() // Finish title
 
-        appendLine(describeTypes(template.types))
+        appendLine("(${describeTypes(template.types)})")
 
         if (counter > 0) {
             appendLine("Counters: $counter")

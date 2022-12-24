@@ -12,6 +12,7 @@ object G {
     }
     object Font {
         object Sizes {
+            val ExtraSmall = 11.px
             val Small = 13.px
             val Normal = 16.px
             val Large = 20.px

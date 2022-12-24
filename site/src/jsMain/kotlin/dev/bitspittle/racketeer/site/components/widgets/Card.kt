@@ -79,6 +79,10 @@ val CardDescriptionStyle = ComponentStyle.base("card-desc") {
         .fontSize(G.Font.Sizes.Small)
 }
 
+val CardDescriptionTypesVariant = CardDescriptionStyle.addVariantBase("types") {
+    Modifier.fontSize(G.Font.Sizes.ExtraSmall)
+}
+
 val CardDescriptionFlavorVariant = CardDescriptionStyle.addVariantBase("flavor") {
     Modifier.fontStyle(FontStyle.Italic)
 }
@@ -174,7 +178,7 @@ fun Card(describer: Describer, tooltipParser: TooltipParser, card: CardSpec, onC
             }, CardDescriptionStyle.toModifier())
             SpanText(card.title, CardTitleStyle.toModifier())
             if (card.types.isNotEmpty()) {
-                SpanText(describer.describeTypes(card.types), CardDescriptionStyle.toModifier())
+                SpanText(describer.describeTypes(card.types), CardDescriptionStyle.toModifier(CardDescriptionTypesVariant))
             }
 
             val vpTotal = card.vpTotal ?: card.vpBase
@@ -197,10 +201,10 @@ fun Card(describer: Describer, tooltipParser: TooltipParser, card: CardSpec, onC
         }
         Spacer()
         Column(Modifier.margin(leftRight = 15.px, topBottom = 3.px)) {
-            Row(Modifier.gap(5.px).flexWrap(FlexWrap.Wrap)) {
+            Row(Modifier.rowGap(2.px).columnGap(5.px).flexWrap(FlexWrap.Wrap)) {
                 card.upgrades.forEach { upgrade ->
                     SpanText(
-                        describer.describeUpgradeBody(upgrade),
+                        describer.describeUpgradeTitle(upgrade, icons = false),
                         CardDescriptionStyle.toModifier(CardDescriptionUpgradesVariant)
                     )
                     Tooltip(
