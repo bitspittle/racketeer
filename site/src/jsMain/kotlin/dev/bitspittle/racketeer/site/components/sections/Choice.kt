@@ -1,14 +1,19 @@
 package dev.bitspittle.racketeer.site.components.sections
 
 import androidx.compose.runtime.*
+import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.css.FontWeight
+import com.varabyte.kobweb.compose.css.TextAlign
+import com.varabyte.kobweb.compose.css.UserSelect
 import com.varabyte.kobweb.compose.dom.ElementTarget
 import com.varabyte.kobweb.compose.foundation.layout.BoxScope
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Row
+import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
+import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.overlay.Popup
 import com.varabyte.kobweb.silk.components.overlay.PopupPlacement
@@ -29,7 +34,7 @@ import org.jetbrains.compose.web.dom.*
 
 private const val REQUIRED_CHOICE_EXPLANATION = "This choice is not optional, so you cannot back out of it."
 
-private val CommonButtonStyle = Modifier
+private val CommonChoiceStyle = Modifier
     .fontSize(G.Font.Sizes.Normal)
     .padding(10.px)
 
@@ -41,20 +46,26 @@ val ChoiceTitleStyle = ComponentStyle.base("choice-title") {
         .margin(bottom = 30.px)
 }
 
-val ChoiceButtonStyle = ComponentStyle.base("choice-button") {
-    CommonButtonStyle
+val ChoiceStyle = ComponentStyle.base("choice") {
+    CommonChoiceStyle
         .fillMaxWidth()
         .margin(bottom = 10.px)
 }
 
-val SelectedChoiceButtonVariant = ChoiceButtonStyle.addVariantBase("selected") {
+val SelectedChoiceVariant = ChoiceStyle.addVariantBase("selected") {
     Modifier
         .outline(width = 1.px, style = LineStyle.Solid, color = Colors.Black)
 
 }
 
+val ChoiceTextDivVariant = ChoiceStyle.addVariantBase("text") {
+    Modifier
+        .cursor(Cursor.Help)
+        .userSelect(UserSelect.None)
+}
+
 val ChoiceSystemButtonStyle = ComponentStyle.base("choice-system-button") {
-    CommonButtonStyle.flexGrow(1)
+    CommonChoiceStyle.flexGrow(1)
         .margin(top = 20.px)
 }
 
@@ -90,7 +101,7 @@ private fun installPopup(ctx: ChoiceContext, item: Any) {
 
 @Composable
 private fun ReviewChoices(ctx: ChoiceContext) {
-    Modal(Modifier.width(360.px)) {
+    Modal {
         Column {
             SpanText(
                 ctx.prompt ?: if (ctx.items.size > 1) {
@@ -98,13 +109,11 @@ private fun ReviewChoices(ctx: ChoiceContext) {
                 } else {
                     "Review:"
                 },
-                ChoiceTitleStyle.toModifier()
+                ChoiceTitleStyle.toModifier().align(Alignment.CenterHorizontally)
             )
 
             ctx.items.forEach { item ->
-                Button(
-                    onClick = {}, ChoiceButtonStyle.toModifier()
-                ) {
+                Div(ChoiceStyle.toModifier(SelectedChoiceVariant, ChoiceTextDivVariant).toAttrs()) {
                     Text(ctx.describe(item))
                 }
                 installPopup(ctx, item)
@@ -146,7 +155,7 @@ private fun PickChoice(ctx: ChoiceContext) {
             ctx.items.forEach { item ->
                 Button(
                     onClick = { ctx.choose(listOf(item)) },
-                    ChoiceButtonStyle.toModifier()
+                    ChoiceStyle.toModifier()
                 ) {
                     Text(ctx.describe(item))
                 }
@@ -184,7 +193,7 @@ private fun PickChoices(ctx: ChoiceContext) {
                     if (selected.remove(item) == null) {
                         selected[item] = Unit
                     }
-                }, ChoiceButtonStyle.toModifier(SelectedChoiceButtonVariant.takeIf { selected.contains(item) })) {
+                }, ChoiceStyle.toModifier(SelectedChoiceVariant.takeIf { selected.contains(item) })) {
                     Text(ctx.describe(item))
                 }
                 installPopup(ctx, item)
