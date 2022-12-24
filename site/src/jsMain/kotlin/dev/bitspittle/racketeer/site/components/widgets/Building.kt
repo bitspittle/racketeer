@@ -24,7 +24,7 @@ private fun ActivationCost.toLabel(describer: Describer): String? {
         }
         if (self.luck > 0) {
             if (this.isNotEmpty()) append(' ')
-            append(describer.describeInfluence(self.luck))
+            append(describer.describeLuck(self.luck))
         }
     }.takeIf { it.isNotEmpty() }
 }
