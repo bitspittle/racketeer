@@ -159,14 +159,14 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                 }
 
                 CardPile(ctx, ctx.state.discard)
-                CardGroup("Street") {
+                CardGroup("Street (${ctx.state.street.cards.size})") {
                     ctx.state.street.cards.forEach { card ->
                         Card(ctx.describer, ctx.tooltipParser, card)
                     }
                 }
 
                 CardPile(ctx, ctx.state.deck)
-                CardGroup("Hand") {
+                CardGroup("Hand (${ctx.state.hand.cards.size})") {
                     ctx.state.hand.cards.forEach { card ->
                         Card(ctx.describer, ctx.tooltipParser, card, onClick = {
                             runStateChangingAction {

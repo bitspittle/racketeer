@@ -33,11 +33,9 @@ val CardPileCountStyle = ComponentStyle.base("card-pile-count") {
 
 @Composable
 fun CardPile(ctx: GameContext, pile: Pile) {
-    LabeledBox(ctx.describer.describePileTitle(ctx.state, pile)) {
+    LabeledBox("${ctx.describer.describePileTitle(ctx.state, pile)} (${pile.cards.size})") {
         Box(CardPileStyle.toModifier()) {
-            Box(CardStyle.toModifier(CardBackVariant), contentAlignment = Alignment.Center) {
-                SpanText(pile.cards.size.toString(), CardPileCountStyle.toModifier())
-            }
+            Box(CardStyle.toModifier(CardBackVariant))
         }
     }
 }
