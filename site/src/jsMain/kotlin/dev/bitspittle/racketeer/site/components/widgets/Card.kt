@@ -224,44 +224,80 @@ fun Card(describer: Describer, tooltipParser: TooltipParser, card: CardSpec, onC
             }
             Span(CardDescriptionStyle.toModifier(CardDescriptionEffectsVariant).toAttrs()) {
                 val abilityText = describer.convertIcons(card.ability)
-                val tooltipRanges = remember { tooltipParser.parse(abilityText) }
-                if (tooltipRanges.isEmpty()) {
-                    Text(abilityText)
-                } else {
-                    SpanText(abilityText.substring(0, tooltipRanges.first().range.first))
-                    var prevTooltipRange: TooltipRange? = null
-                    tooltipRanges.forEach { tooltipRange ->
-                        prevTooltipRange?.let { prevTooltipRange ->
-                            SpanText(abilityText.substring(prevTooltipRange.range.last + 1, tooltipRange.range.first))
-                        }
-                        SpanText(abilityText.substring(tooltipRange.range), UnderlineModifier)
-                        if (tooltipRange.tooltip is TooltipData.OfText) {
-                            Tooltip(ElementTarget.PreviousSibling, tooltipRange.tooltip.text)
-                        } else {
-                            Popup(ElementTarget.PreviousSibling, placement = PopupPlacement.Right) {
-                                val outlineModifier = Modifier.outline(2.px, LineStyle.Solid, Colors.Black)
-                                when (val tooltip = tooltipRange.tooltip) {
-                                    is TooltipData.OfBlueprint -> Card(
-                                        describer,
-                                        tooltipParser,
-                                        tooltip.blueprint.toCardSpec(),
-                                        modifier = outlineModifier
-                                    )
 
-                                    is TooltipData.OfCard -> Card(
-                                        describer,
-                                        tooltipParser,
-                                        tooltip.card.toCardSpec(),
-                                        modifier = outlineModifier
-                                    )
-                                    is TooltipData.OfText -> error("Should have been handled above")
+                val rangeActions = remember {
+                    val tooltipRanges = tooltipParser.parse(abilityText)
+                    mutableListOf<Pair<IntRange, @Composable () -> Unit>>().apply {
+                        tooltipRanges.forEach { tooltipRange ->
+                            add(tooltipRange.range to {
+                                SpanText(abilityText.substring(tooltipRange.range), UnderlineModifier)
+                                if (tooltipRange.tooltip is TooltipData.OfText) {
+                                    Tooltip(ElementTarget.PreviousSibling, tooltipRange.tooltip.text)
+                                } else {
+                                    Popup(ElementTarget.PreviousSibling, placement = PopupPlacement.Right) {
+                                        val outlineModifier = Modifier.outline(2.px, LineStyle.Solid, Colors.Black)
+                                        when (val tooltip = tooltipRange.tooltip) {
+                                            is TooltipData.OfBlueprint -> Card(
+                                                describer,
+                                                tooltipParser,
+                                                tooltip.blueprint.toCardSpec(),
+                                                modifier = outlineModifier
+                                            )
+
+                                            is TooltipData.OfCard -> Card(
+                                                describer,
+                                                tooltipParser,
+                                                tooltip.card.toCardSpec(),
+                                                modifier = outlineModifier
+                                            )
+                                            is TooltipData.OfText -> error("Should have been handled above")
+                                        }
+                                    }
                                 }
+                            })
+                        }
+
+                        run {
+                            fun getEmojiRanges(text: String): List<IntRange> {
+                                val regex = "([\uD83C-\uDBFF\uDC00-\uDFFF]+)".toRegex()
+                                return regex.findAll(text).map { it.range }.toList()
+                            }
+
+                            (getEmojiRanges(abilityText)).forEach { range ->
+                                add(range to {
+                                    SpanText(abilityText.substring(range), Modifier.whiteSpace(WhiteSpace.NoWrap))
+                                })
                             }
                         }
-                        prevTooltipRange = tooltipRange
+
+                        this.sortBy { it.first.first }
+
+                        fun findMissingRanges(ranges: List<IntRange>, length: Int): List<IntRange> {
+                            val result = mutableListOf<IntRange>()
+                            ranges.fold(0) { current, range ->
+                                if (current < range.first) {
+                                    result.add(IntRange(current, range.first - 1))
+                                }
+                                range.last + 1
+                            }
+                            val finalStart = ranges.lastOrNull()?.last?.plus(1) ?: 0
+                            if (finalStart < length) {
+                                result.add(IntRange(finalStart, length - 1))
+                            }
+                            return result
+                        }
+
+                        val missingRanges = findMissingRanges(this.map { it.first }, abilityText.length)
+
+                        for (missingRange in missingRanges) {
+                            add(missingRange to { SpanText(abilityText.substring(missingRange))})
+                        }
+
+                        this.sortBy { it.first.first }
                     }
-                    SpanText(abilityText.substring(tooltipRanges.last().range.last + 1))
                 }
+
+                rangeActions.forEach { it.second.invoke() }
             }
         }
     }
