@@ -340,8 +340,8 @@ fun Card(describer: Describer, tooltipParser: TooltipParser, card: CardSpec, onC
 }
 
 @Composable
-fun CardPlaceholder(modifier: Modifier = Modifier, label: String? = null) {
-    LabeledContent(label, enabled = false) {
-        Box(CardStyle.toModifier(CardBackVariant).tabIndex(0).then(modifier))
+fun CardPlaceholder(modifier: Modifier = Modifier, enabled: Boolean = true, label: String? = null) {
+    LabeledContent(label, enabled) {
+        Box(CardStyle.toModifier(CardBackVariant).thenIf(enabled) { Modifier.tabIndex(0) }.then(modifier))
     }
 }

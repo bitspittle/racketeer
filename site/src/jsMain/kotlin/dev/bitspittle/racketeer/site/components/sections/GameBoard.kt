@@ -106,7 +106,7 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                                         }
                                     })
                             } else {
-                                CardPlaceholder(label = "SOLD OUT")
+                                CardPlaceholder(label = "SOLD OUT", enabled = false)
                             }
                         }
                     }
