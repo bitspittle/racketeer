@@ -30,16 +30,16 @@ private val CardStyleCommon =
         .borderRadius(5.percent)
         .backgroundColor(G.Colors.Card.Front)
         .color(Colors.Black)
-        .outlineStyle(LineStyle.None)
+        .transitionProperty("translate")
+        .transitionDuration(100.ms)
 
 private val CardStyleCommonHover =
     Modifier
-        .boxShadow(blurRadius = 10.px, spreadRadius = 2.px, color = Colors.Yellow)
         .cursor(Cursor.Pointer)
+        .translateY((-10).px)
 
 private val CardStyleCommonFocus =
     Modifier
-        .boxShadow(blurRadius = 10.px, spreadRadius = 2.px, color = Colors.Red)
 
 
 val CardStyle = ComponentStyle("card") {
