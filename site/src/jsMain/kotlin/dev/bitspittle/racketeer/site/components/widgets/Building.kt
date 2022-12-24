@@ -1,16 +1,26 @@
 package dev.bitspittle.racketeer.site.components.widgets
 
 import androidx.compose.runtime.*
+import com.varabyte.kobweb.compose.dom.ElementTarget
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.graphics.Color
+import com.varabyte.kobweb.silk.components.overlay.Tooltip
 import dev.bitspittle.racketeer.model.building.*
 import dev.bitspittle.racketeer.model.card.TraitType
 import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.site.model.GameContext
-import org.jetbrains.compose.web.css.*
+
+private fun Blueprint.canAffordBuildCost(state: GameState) =
+    state.cash >= this.buildCost.cash && state.influence >= this.buildCost.influence
+
+private fun Building.canAffordActivationCost(state: GameState) =
+    state.cash >= blueprint.activationCost.cash &&
+            state.influence >= blueprint.activationCost.influence &&
+            state.luck >= blueprint.activationCost.luck
+
 
 private fun ActivationCost.toLabel(describer: Describer): String? {
     val self = this
@@ -46,10 +56,7 @@ fun Building.toCardSpec(describer: Describer, state: GameState): CardSpec {
     val self = this
     return this.toCardSpec(
         describer,
-        enabled = !isActivated && state.canActivate(this)
-                && state.cash >= self.blueprint.activationCost.cash
-                && state.influence >= self.blueprint.activationCost.influence
-                && state.luck >= self.blueprint.activationCost.luck
+        enabled = !isActivated && state.canActivate(this) && self.canAffordActivationCost(state)
     )
 }
 
@@ -77,12 +84,24 @@ fun Building.toCardSpec(describer: Describer, enabled: Boolean = true): CardSpec
 @Composable
 fun Building(ctx: GameContext, building: Building, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Card(ctx.describer, ctx.tooltipParser, building.toCardSpec(ctx.describer, ctx.state), onClick, modifier)
+    val msg = if (!building.isActivated && building.canAffordActivationCost(ctx.state) && !ctx.state.canActivate(building) && building.blueprint.cannotActivateReason != null) {
+        ctx.describer.convertIcons(building.blueprint.cannotActivateReason!!)
+    } else if (building.isActivated) {
+        "you already activated it this turn"
+    } else {
+        null
+    }
+
+    if (msg != null) {
+        Tooltip(ElementTarget.PreviousSibling, "This building cannot be activated because\n$msg.")
+    }
 }
 
 fun Blueprint.toCardSpec(describer: Describer, state: GameState): CardSpec {
+    val self = this
     return this.toCardSpec(
         describer,
-        enabled = state.cash >= buildCost.cash && state.influence >= buildCost.influence
+        enabled = self.canAffordBuildCost(state)
     )
 }
 
