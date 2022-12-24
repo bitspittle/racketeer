@@ -734,7 +734,7 @@ cards:
     types: [thief, spy, legend]
     cost: 4
     description:
-      ability: Gain 3$ and 3&. Jail this after two uses.
+      ability: Gain 3$ and 3&. Once played, this card becomes Suspicious.
     playActions:
       - game-add! 'cash 3
       - game-add! 'influence 3
@@ -960,7 +960,7 @@ cards:
     cost: 4
     traits: [swift, suspicious]
     description:
-      ability: "Give up to two other Cops you own \"Draw a card, then discard a card.\""
+      ability: "Give up to two other Cops you own Veteran."
     playActions:
       - set '$all-cops filter $owned-cards '(card-has-type? $it 'cop)
       - set '$some-cops filter $all-cops '(! (card-has-upgrade? $it 'veteran))
