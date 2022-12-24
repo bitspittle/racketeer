@@ -8,9 +8,14 @@ import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.text.Describer
 
 sealed interface TooltipData {
-    class OfText(val text: String) : TooltipData
-    class OfCard(val card: CardTemplate) : TooltipData
-    class OfBlueprint(val blueprint: Blueprint) : TooltipData
+    val name: String
+    class OfText(override val name: String, val text: String) : TooltipData
+    class OfCard(val card: CardTemplate) : TooltipData {
+        override val name = card.name
+    }
+    class OfBlueprint(val blueprint: Blueprint) : TooltipData {
+        override val name = blueprint.name
+    }
 }
 
 data class TooltipRange(val range: IntRange, val tooltip: TooltipData)
@@ -61,12 +66,13 @@ private class TooltipTrieTree {
 class TooltipParser(data: GameData, private val describer: Describer) {
     private val tooltipTree = TooltipTrieTree().apply {
         TraitType.values().forEach { traitType ->
-            this[describer.describeTraitTitle(traitType)] = TooltipData.OfText(describer.describeTraitBody(traitType))
+            val name = describer.describeTraitTitle(traitType)
+            this[name] = TooltipData.OfText(name, describer.describeTraitBody(traitType))
         }
 
         UpgradeType.values().forEach { upgradeType ->
-            this[describer.describeUpgradeTitle(upgradeType, icons = false)] =
-                TooltipData.OfText(describer.describeUpgradeBody(upgradeType))
+            val name = describer.describeUpgradeTitle(upgradeType, icons = false)
+            this[name] = TooltipData.OfText(name, describer.describeUpgradeBody(upgradeType))
         }
 
         data.cards.forEach { card -> this[card.name] = TooltipData.OfCard(card) }
@@ -80,11 +86,7 @@ class TooltipParser(data: GameData, private val describer: Describer) {
         while (startIndex < text.length) {
             val data = tooltipTree.find(text, startIndex)
             if (data != null) {
-                val range = startIndex until startIndex + when(data) {
-                    is TooltipData.OfBlueprint -> data.blueprint.name.length
-                    is TooltipData.OfCard -> data.card.name.length
-                    is TooltipData.OfText -> data.text.length
-                }
+                val range = startIndex until startIndex + data.name.length
                 tooltipRanges.add(TooltipRange(range, data))
                 startIndex = range.last
             } else {
