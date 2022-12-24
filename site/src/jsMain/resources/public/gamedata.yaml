@@ -160,6 +160,7 @@ globalActions:
   - def 'card-has-any-upgrade? '$card '(gt? (card-upgrade-count $card) 0)
   - def 'card-named '$name '(single --matching '(= card-get $it 'name $name) $card-list)
   - def 'card-with-id '$id '(single --matching '(= card-get $it 'id $id) $all-cards)
+  - def 'blueprint-named '$name '(single --matching '(= blueprint-get $it 'name $name) $unowned-blueprints)
   - def 'building-with-id '$id '(single --matching '(= building-get $it 'id $id) $buildings)
   - def 'compare-by-index '$list '$a '$b '(compare index-of $list $a index-of $list $b)
   - def 'pile-compare '$pileA '$pileB '(compare-by-index (list $hand $deck $discard $street $jail) $pileA $pileB)
