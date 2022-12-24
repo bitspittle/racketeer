@@ -172,7 +172,7 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
 
                 CardPile(ctx, ctx.state.jail)
                 Row(Modifier.gap(GAP)) {
-                    CardGroup("Buildings", Modifier.flexGrow(1)) {
+                    CardGroup("Buildings & Blueprints", Modifier.flexGrow(1)) {
                         ctx.state.buildings.forEach { building ->
                             Building(ctx, building, onClick = {
                                 runStateChangingAction {
