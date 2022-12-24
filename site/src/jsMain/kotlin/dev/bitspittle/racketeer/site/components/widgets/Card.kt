@@ -3,12 +3,10 @@ package dev.bitspittle.racketeer.site.components.widgets
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.*
 import com.varabyte.kobweb.compose.dom.ElementTarget
-import com.varabyte.kobweb.compose.foundation.layout.Box
-import com.varabyte.kobweb.compose.foundation.layout.Column
-import com.varabyte.kobweb.compose.foundation.layout.Row
-import com.varabyte.kobweb.compose.foundation.layout.Spacer
+import com.varabyte.kobweb.compose.foundation.layout.*
 import com.varabyte.kobweb.compose.ui.*
 import com.varabyte.kobweb.compose.ui.graphics.Colors
+import com.varabyte.kobweb.compose.ui.graphics.Color
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.silk.components.overlay.Popup
 import com.varabyte.kobweb.silk.components.overlay.PopupPlacement
@@ -63,10 +61,6 @@ val CardBackVariant = CardStyle.addVariantBase("back") {
         .backgroundColor(G.Colors.Card.Back)
 }
 
-val DisabledCardVariant = CardStyle.addVariantBase("disabled") {
-    Modifier.opacity(G.Colors.DisabledOpacity)
-}
-
 val CardTitleStyle = ComponentStyle.base("card-title") {
     Modifier
         .textAlign(TextAlign.Center)
@@ -105,6 +99,8 @@ val CardDescriptionEffectsVariant = CardDescriptionStyle.addVariantBase("effects
 }
 
 interface CardSpec {
+    val enabled: Boolean
+    val colorOverride: Color?
     val title: String
     val types: List<String>
     val tier: Int?
@@ -116,12 +112,15 @@ interface CardSpec {
     val upgrades: Set<UpgradeType>
     val traits: Set<TraitType>
     val ability: String
-    val enabled: Boolean
+    val activationCost: String?
+    val label: String?
 }
 
-fun Card.toCardSpec(enabled: Boolean = true): CardSpec {
+fun Card.toCardSpec(label: String? = null, enabled: Boolean = true): CardSpec {
     val self = this
     return object : CardSpec {
+        override val enabled = enabled
+        override val colorOverride: Color? = null
         override val title = self.template.name
         override val types = self.template.types
         override val tier = self.template.tier
@@ -133,13 +132,16 @@ fun Card.toCardSpec(enabled: Boolean = true): CardSpec {
         override val upgrades = self.upgrades
         override val traits = self.traits
         override val ability = self.template.description.ability
-        override val enabled = enabled
+        override val activationCost = null
+        override val label = label
     }
 }
 
 fun CardTemplate.toCardSpec(enabled: Boolean = true): CardSpec {
     val self = this
     return object : CardSpec {
+        override val enabled = enabled
+        override val colorOverride: Color? = null
         override val title = self.name
         override val types = self.types
         override val tier = self.tier
@@ -151,169 +153,195 @@ fun CardTemplate.toCardSpec(enabled: Boolean = true): CardSpec {
         override val upgrades = emptySet<UpgradeType>()
         override val traits = emptySet<TraitType>()
         override val ability = self.description.ability
-        override val enabled = enabled
+        override val activationCost = null
+        override val label = null
     }
 }
 
 @Composable
-fun Card(describer: Describer, tooltipParser: TooltipParser, card: Card, onClick: () -> Unit = {}, modifier: Modifier = Modifier, enabled: Boolean = true) {
-    Card(describer, tooltipParser, card.toCardSpec(enabled), onClick, modifier)
+fun Card(describer: Describer, tooltipParser: TooltipParser, card: Card, onClick: () -> Unit = {}, modifier: Modifier = Modifier, label: String? = null, enabled: Boolean = true) {
+    Card(describer, tooltipParser, card.toCardSpec(label, enabled), onClick, modifier)
 }
+
+@Composable
+private fun LabeledContent(label: String? = null, enabled: Boolean = true, content: @Composable () -> Unit) {
+    Column(Modifier.thenUnless(enabled) { Modifier.opacity(G.Colors.DisabledOpacity) }, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Top) {
+        content()
+        if (label != null) {
+            SpanText(label, Modifier.margin(top = 10.px))
+        }
+    }
+}
+
 
 @Composable
 fun Card(describer: Describer, tooltipParser: TooltipParser, card: CardSpec, onClick: () -> Unit = {}, modifier: Modifier = Modifier) {
-    Column(CardStyle
-        .toModifier(DisabledCardVariant.takeUnless { card.enabled })
-        .thenIf(card.enabled) {
-            Modifier.tabIndex(0).onClick { onClick() }
-        }
-        .then(modifier)
-    ) {
-        Column(Modifier.fillMaxWidth().height(40.px), horizontalAlignment = Alignment.CenterHorizontally) {
-            SpanText(buildString {
-                card.tier?.let { tier ->
-                    append("Tier ${tier + 1}, ")
-                }
-                append(describer.describeRarity(card.rarity))
-            }, CardDescriptionStyle.toModifier())
-            SpanText(card.title, CardTitleStyle.toModifier())
-            if (card.types.isNotEmpty()) {
-                SpanText(describer.describeTypes(card.types), CardDescriptionStyle.toModifier(CardDescriptionTypesVariant))
+    LabeledContent(card.label, enabled = card.enabled) {
+        Column(CardStyle
+            .toModifier()
+            .thenIf(card.enabled) {
+                Modifier.tabIndex(0).onClick { onClick() }
             }
-
-            val vpTotal = card.vpTotal ?: card.vpBase
-            if (vpTotal > 0 || card.vpBase > 0) {
-                Row(CardDescriptionStyle.toModifier().gap(5.px)) {
-                    if (card.vpBase > 0) {
-                        SpanText(describer.describeVictoryPoints(card.vpBase))
+            .thenIf(card.colorOverride != null) {
+                Modifier.backgroundColor(card.colorOverride!!)
+            }
+            .then(modifier)
+        ) {
+            Column(Modifier.fillMaxWidth().height(40.px), horizontalAlignment = Alignment.CenterHorizontally) {
+                SpanText(buildString {
+                    card.tier?.let { tier ->
+                        append("Tier ${tier + 1}, ")
                     }
-                    val deltaVp = vpTotal - card.vpBase
-                    if (deltaVp > 0) {
-                        SpanText("+${describer.describeVictoryPoints(deltaVp)}")
-                    } else if (deltaVp < 0) {
-                        SpanText("-${describer.describeVictoryPoints(-deltaVp)}")
+                    append(describer.describeRarity(card.rarity))
+                }, CardDescriptionStyle.toModifier())
+                SpanText(card.title, CardTitleStyle.toModifier())
+                if (card.types.isNotEmpty()) {
+                    SpanText(
+                        describer.describeTypes(card.types),
+                        CardDescriptionStyle.toModifier(CardDescriptionTypesVariant)
+                    )
+                }
+
+                val vpTotal = card.vpTotal ?: card.vpBase
+                if (vpTotal > 0 || card.vpBase > 0) {
+                    Row(CardDescriptionStyle.toModifier().gap(5.px)) {
+                        if (card.vpBase > 0) {
+                            SpanText(describer.describeVictoryPoints(card.vpBase))
+                        }
+                        val deltaVp = vpTotal - card.vpBase
+                        if (deltaVp > 0) {
+                            SpanText("+${describer.describeVictoryPoints(deltaVp)}")
+                        } else if (deltaVp < 0) {
+                            SpanText("-${describer.describeVictoryPoints(-deltaVp)}")
+                        }
                     }
                 }
-            }
-            if (card.counter > 0) {
-                SpanText("Counter: ${card.counter}", CardDescriptionStyle.toModifier())
-            }
-        }
-        Spacer()
-        Column(Modifier.margin(leftRight = 15.px, topBottom = 3.px)) {
-            Row(Modifier.rowGap(2.px).columnGap(5.px).flexWrap(FlexWrap.Wrap)) {
-                card.upgrades.forEach { upgrade ->
-                    SpanText(
-                        describer.describeUpgradeTitle(upgrade, icons = false),
-                        CardDescriptionStyle.toModifier(CardDescriptionUpgradesVariant)
-                    )
-                    Tooltip(
-                        ElementTarget.PreviousSibling,
-                        describer.describeUpgradeBody(upgrade),
-                        placement = PopupPlacement.Bottom
-                    )
-                }
-                card.traits.forEach { trait ->
-                    SpanText(
-                        describer.describeTraitTitle(trait),
-                        CardDescriptionStyle.toModifier(CardDescriptionUpgradesVariant)
-                    )
-                    Tooltip(
-                        ElementTarget.PreviousSibling,
-                        describer.describeTraitBody(trait),
-                        placement = PopupPlacement.Bottom
-                    )
+                if (card.counter > 0) {
+                    SpanText("Counter: ${card.counter}", CardDescriptionStyle.toModifier())
                 }
             }
-            Span(CardDescriptionStyle.toModifier(CardDescriptionEffectsVariant).toAttrs()) {
-                val abilityText = describer.convertIcons(card.ability)
+            Spacer()
+            Column(Modifier.margin(leftRight = 15.px, topBottom = 3.px)) {
+                Row(Modifier.rowGap(2.px).columnGap(5.px).flexWrap(FlexWrap.Wrap)) {
+                    card.upgrades.forEach { upgrade ->
+                        SpanText(
+                            describer.describeUpgradeTitle(upgrade, icons = false),
+                            CardDescriptionStyle.toModifier(CardDescriptionUpgradesVariant)
+                        )
+                        Tooltip(
+                            ElementTarget.PreviousSibling,
+                            describer.describeUpgradeBody(upgrade),
+                            placement = PopupPlacement.Bottom
+                        )
+                    }
+                    card.traits.forEach { trait ->
+                        SpanText(
+                            describer.describeTraitTitle(trait),
+                            CardDescriptionStyle.toModifier(CardDescriptionUpgradesVariant)
+                        )
+                        Tooltip(
+                            ElementTarget.PreviousSibling,
+                            describer.describeTraitBody(trait),
+                            placement = PopupPlacement.Bottom
+                        )
+                    }
+                }
+                card.activationCost?.let { activationCost ->
+                    SpanText("Activation cost: $activationCost", CardDescriptionStyle.toModifier())
+                }
+                Span(CardDescriptionStyle.toModifier(CardDescriptionEffectsVariant).toAttrs()) {
+                    val abilityText = describer.convertIcons(card.ability)
 
-                val rangeActions = remember {
-                    val tooltipRanges = tooltipParser.parse(abilityText)
-                    mutableListOf<Pair<IntRange, @Composable () -> Unit>>().apply {
+                    val rangeActions = remember {
+                        val tooltipRanges = tooltipParser.parse(abilityText)
+                        mutableListOf<Pair<IntRange, @Composable () -> Unit>>().apply {
 
-                        // Create ranges that handle tooltips - they should render relevant text with some decoration
-                        // inviting users to mouse over them.
-                        tooltipRanges.forEach { tooltipRange ->
-                            add(tooltipRange.range to {
-                                SpanText(abilityText.substring(tooltipRange.range), UnderlineModifier)
-                                if (tooltipRange.tooltip is TooltipData.OfText) {
-                                    Tooltip(ElementTarget.PreviousSibling, tooltipRange.tooltip.text)
-                                } else {
-                                    Popup(ElementTarget.PreviousSibling, placement = PopupPlacement.Right) {
-                                        val outlineModifier = Modifier.outline(2.px, LineStyle.Solid, Colors.Black)
-                                        when (val tooltip = tooltipRange.tooltip) {
-                                            is TooltipData.OfBlueprint -> Card(
-                                                describer,
-                                                tooltipParser,
-                                                tooltip.blueprint.toCardSpec(),
-                                                modifier = outlineModifier
-                                            )
+                            // Create ranges that handle tooltips - they should render relevant text with some decoration
+                            // inviting users to mouse over them.
+                            tooltipRanges.forEach { tooltipRange ->
+                                add(tooltipRange.range to {
+                                    SpanText(abilityText.substring(tooltipRange.range), UnderlineModifier)
+                                    if (tooltipRange.tooltip is TooltipData.OfText) {
+                                        Tooltip(ElementTarget.PreviousSibling, tooltipRange.tooltip.text)
+                                    } else {
+                                        Popup(ElementTarget.PreviousSibling, placement = PopupPlacement.Right) {
+                                            val outlineModifier = Modifier.outline(2.px, LineStyle.Solid, Colors.Black)
+                                            when (val tooltip = tooltipRange.tooltip) {
+                                                is TooltipData.OfBlueprint -> Card(
+                                                    describer,
+                                                    tooltipParser,
+                                                    tooltip.blueprint.toCardSpec(describer),
+                                                    modifier = outlineModifier
+                                                )
 
-                                            is TooltipData.OfCard -> Card(
-                                                describer,
-                                                tooltipParser,
-                                                tooltip.card.toCardSpec(),
-                                                modifier = outlineModifier
-                                            )
-                                            is TooltipData.OfText -> error("Should have been handled above")
+                                                is TooltipData.OfCard -> Card(
+                                                    describer,
+                                                    tooltipParser,
+                                                    tooltip.card.toCardSpec(),
+                                                    modifier = outlineModifier
+                                                )
+
+                                                is TooltipData.OfText -> error("Should have been handled above")
+                                            }
                                         }
                                     }
-                                }
-                            })
-                        }
-
-                        // Create emoji ranges, so we can prevent them being broken up in the middle
-                        // e.g. if a description says 🎲🎲🎲🎲, we don't want html layouts to break that
-                        // into 🎲🎲 and 🎲🎲.
-                        run {
-                            fun getEmojiRanges(text: String): List<IntRange> {
-                                val regex = "([\uD83C-\uDBFF\uDC00-\uDFFF]+)".toRegex()
-                                return regex.findAll(text).map { it.range }.toList()
-                            }
-
-                            (getEmojiRanges(abilityText)).forEach { range ->
-                                add(range to {
-                                    SpanText(abilityText.substring(range), Modifier.whiteSpace(WhiteSpace.NoWrap))
                                 })
                             }
-                        }
 
-                        this.sortBy { it.first.first }
-
-                        // Finally, fill in the remaining ranges but have them just render text directly
-                        fun findMissingRanges(ranges: List<IntRange>, length: Int): List<IntRange> {
-                            val result = mutableListOf<IntRange>()
-                            ranges.fold(0) { current, range ->
-                                if (current < range.first) {
-                                    result.add(IntRange(current, range.first - 1))
+                            // Create emoji ranges, so we can prevent them being broken up in the middle
+                            // e.g. if a description says 🎲🎲🎲🎲, we don't want html layouts to break that
+                            // into 🎲🎲 and 🎲🎲.
+                            run {
+                                fun getEmojiRanges(text: String): List<IntRange> {
+                                    val regex = "([\uD83C-\uDBFF\uDC00-\uDFFF]+)".toRegex()
+                                    return regex.findAll(text).map { it.range }.toList()
                                 }
-                                range.last + 1
+
+                                (getEmojiRanges(abilityText)).forEach { range ->
+                                    add(range to {
+                                        SpanText(abilityText.substring(range), Modifier.whiteSpace(WhiteSpace.NoWrap))
+                                    })
+                                }
                             }
-                            val finalStart = ranges.lastOrNull()?.last?.plus(1) ?: 0
-                            if (finalStart < length) {
-                                result.add(IntRange(finalStart, length - 1))
+
+                            this.sortBy { it.first.first }
+
+                            // Finally, fill in the remaining ranges but have them just render text directly
+                            fun findMissingRanges(ranges: List<IntRange>, length: Int): List<IntRange> {
+                                val result = mutableListOf<IntRange>()
+                                ranges.fold(0) { current, range ->
+                                    if (current < range.first) {
+                                        result.add(IntRange(current, range.first - 1))
+                                    }
+                                    range.last + 1
+                                }
+                                val finalStart = ranges.lastOrNull()?.last?.plus(1) ?: 0
+                                if (finalStart < length) {
+                                    result.add(IntRange(finalStart, length - 1))
+                                }
+                                return result
                             }
-                            return result
+
+                            val missingRanges = findMissingRanges(this.map { it.first }, abilityText.length)
+
+                            for (missingRange in missingRanges) {
+                                add(missingRange to { SpanText(abilityText.substring(missingRange)) })
+                            }
+
+                            this.sortBy { it.first.first }
                         }
-
-                        val missingRanges = findMissingRanges(this.map { it.first }, abilityText.length)
-
-                        for (missingRange in missingRanges) {
-                            add(missingRange to { SpanText(abilityText.substring(missingRange))})
-                        }
-
-                        this.sortBy { it.first.first }
                     }
-                }
 
-                rangeActions.forEach { it.second.invoke() }
+                    rangeActions.forEach { it.second.invoke() }
+                }
             }
         }
-    }
+   }
 }
 
 @Composable
-fun CardPlaceholder(modifier: Modifier = Modifier) {
-    Box(CardStyle.toModifier(CardBackVariant).tabIndex(0).then(modifier))
+fun CardPlaceholder(modifier: Modifier = Modifier, label: String? = null) {
+    LabeledContent(label, enabled = false) {
+        Box(CardStyle.toModifier(CardBackVariant).tabIndex(0).then(modifier))
+    }
 }

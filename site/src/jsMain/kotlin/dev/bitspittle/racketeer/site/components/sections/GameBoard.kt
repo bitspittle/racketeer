@@ -94,25 +94,19 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                 Row(Modifier.gap(GAP)) {
                     CardGroup("Shop (Tier ${ctx.state.shop.tier + 1})", Modifier.flexGrow(1)) {
                         ctx.state.shop.stock.forEach { card ->
-                            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Top) {
-                                if (card != null) {
-                                    Card(ctx.describer, ctx.tooltipParser, card, enabled = ctx.state.cash >= card.template.cost, onClick = {
+                            if (card != null) {
+                                Card(
+                                    ctx.describer,
+                                    ctx.tooltipParser,
+                                    card,
+                                    label = ctx.describer.describeCash(card.template.cost),
+                                    enabled = ctx.state.cash >= card.template.cost, onClick = {
                                         runStateChangingAction {
                                             ctx.state.apply(GameStateChange.Buy(card))
                                         }
                                     })
-                                } else {
-                                    CardPlaceholder()
-                                }
-
-                                SpanText(
-                                    if (card != null) ctx.describer.describeCash(card.template.cost) else "SOLD OUT",
-                                    Modifier
-                                        .margin(top = 10.px)
-                                        .thenIf(card == null || ctx.state.cash < card.template.cost) {
-                                            Modifier.opacity(G.Colors.DisabledOpacity)
-                                        }
-                                )
+                            } else {
+                                CardPlaceholder(label = "SOLD OUT")
                             }
                         }
                     }
@@ -187,30 +181,11 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                             })
                         }
                         ctx.state.blueprints.forEach { blueprint ->
-                            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Top) {
-                                Blueprint(ctx, blueprint, onClick = {
-                                    runStateChangingAction {
-                                        ctx.state.apply(GameStateChange.Build(blueprint))
-                                    }
-                                })
-
-                                Row(
-                                    Modifier
-                                        .margin(top = 10.px)
-                                        .gap(5.px)
-                                        .thenIf(ctx.state.cash < blueprint.buildCost.cash || ctx.state.influence < blueprint.buildCost.influence) {
-                                            Modifier.opacity(G.Colors.DisabledOpacity)
-                                        }
-
-                                ) {
-                                    if (blueprint.buildCost.cash > 0) {
-                                        SpanText(ctx.describer.describeCash(blueprint.buildCost.cash))
-                                    }
-                                    if (blueprint.buildCost.influence > 0) {
-                                        SpanText(ctx.describer.describeInfluence(blueprint.buildCost.influence))
-                                    }
+                            Blueprint(ctx, blueprint, onClick = {
+                                runStateChangingAction {
+                                    ctx.state.apply(GameStateChange.Build(blueprint))
                                 }
-                            }
+                            })
                         }
                     }
                     Button(

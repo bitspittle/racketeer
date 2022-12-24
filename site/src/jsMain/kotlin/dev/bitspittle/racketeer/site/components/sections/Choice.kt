@@ -3,7 +3,6 @@ package dev.bitspittle.racketeer.site.components.sections
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.css.FontWeight
-import com.varabyte.kobweb.compose.css.TextAlign
 import com.varabyte.kobweb.compose.css.UserSelect
 import com.varabyte.kobweb.compose.dom.ElementTarget
 import com.varabyte.kobweb.compose.foundation.layout.BoxScope
@@ -87,12 +86,19 @@ fun Choice(ctx: ChoiceContext) = ctx.apply {
 private fun installPopup(ctx: ChoiceContext, item: Any) {
     @Composable
     fun RightPopup(content: @Composable BoxScope.() -> Unit) {
-        Popup(ElementTarget.PreviousSibling, placement = PopupPlacement.Right, content = content)
+        Popup(
+            ElementTarget.PreviousSibling, placement = PopupPlacement.Right, content = content,
+            modifier = Modifier
+                .backgroundColor(Colors.WhiteSmoke)
+                .padding(5.px)
+                .borderRadius(5.px)
+                .outline(1.px, LineStyle.Solid, Colors.Black)
+        )
     }
 
     when (item) {
-        is Blueprint -> RightPopup { Card(ctx.describer, ctx.tooltipParser, item.toCardSpec()) }
-        is Building -> RightPopup { Card(ctx.describer, ctx.tooltipParser, item.toCardSpec()) }
+        is Blueprint -> RightPopup { Card(ctx.describer, ctx.tooltipParser, item.toCardSpec(ctx.describer)) }
+        is Building -> RightPopup { Card(ctx.describer, ctx.tooltipParser, item.toCardSpec(ctx.describer)) }
         is Card -> RightPopup { Card(ctx.describer, ctx.tooltipParser, item.toCardSpec()) }
         is CardTemplate -> RightPopup { Card(ctx.describer, ctx.tooltipParser, item.toCardSpec()) }
         is FormattedItem -> installPopup(ctx, item.wrapped)
