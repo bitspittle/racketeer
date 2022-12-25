@@ -252,7 +252,7 @@ fun Card(describer: Describer, tooltipParser: TooltipParser, card: CardSpec, onC
                 Span(CardDescriptionStyle.toModifier(CardDescriptionEffectsVariant).toAttrs()) {
                     val abilityText = describer.convertIcons(card.ability)
 
-                    val rangeActions = remember {
+                    val rangeActions = remember(abilityText) {
                         val tooltipRanges = tooltipParser.parse(abilityText)
                         mutableListOf<Pair<IntRange, @Composable () -> Unit>>().apply {
 
