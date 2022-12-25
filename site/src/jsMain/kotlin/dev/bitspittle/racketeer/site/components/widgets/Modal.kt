@@ -20,8 +20,9 @@ import org.jetbrains.compose.web.css.*
 val ModalStyle = ComponentStyle.base("modal") {
     Modifier
         .minWidth(300.px)
+        .maxWidth(500.px)
         .backgroundColor(colorMode.toSilkPalette().background)
-        .margin(top = 15.percent)
+        .margin(top = 10.vh)
         .padding(20.px)
         .gap(10.px)
         .borderRadius(2.percent)
@@ -32,7 +33,7 @@ val ModalContentColumnStyle = ComponentStyle.base("modal-content-col") {
         .fillMaxWidth()
         .gap(10.px)
         .padding(5.px) // Avoid outlines clipping against the side / add space between buttons and scrollbar
-        .maxHeight(500.px)
+        .maxHeight(60.vh)
         .overflowY(Overflow.Auto)
 }
 
