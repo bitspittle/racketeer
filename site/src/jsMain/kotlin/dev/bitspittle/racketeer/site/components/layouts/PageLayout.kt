@@ -1,22 +1,39 @@
 package dev.bitspittle.racketeer.site.components.layouts
 
 import androidx.compose.runtime.*
-import com.varabyte.kobweb.compose.css.FontStyle
 import com.varabyte.kobweb.compose.css.FontWeight
-import com.varabyte.kobweb.compose.css.TextAlign
+import com.varabyte.kobweb.compose.css.UserSelect
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
-import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
-import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.core.AppGlobals
+import com.varabyte.kobweb.silk.components.style.*
 import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.sections.Footer
 import kotlinx.browser.document
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
+
+val VersionStyle = ComponentStyle("version") {
+    base {
+        Modifier
+            .position(Position.Absolute)
+            .top(10.px)
+            .right(10.px)
+            .fontSize(G.Font.Sizes.ExtraSmall)
+            .fontWeight(FontWeight.Bold)
+            .opacity(0)
+            .transitionProperty("opacity")
+            .transitionDuration(100.ms)
+            .userSelect(UserSelect.None)
+    }
+
+    hover {
+        Modifier.opacity(1)
+    }
+}
 
 @Composable
 fun PageLayout(title: String, content: @Composable () -> Unit) {
@@ -41,8 +58,7 @@ fun PageLayout(title: String, content: @Composable () -> Unit) {
         Footer(Modifier.align(Alignment.Center).gridRowStart(2).gridRowEnd(3))
     }
 
-    Div(Modifier.position(Position.Fixed).bottom(10.px).right(10.px).fontSize(G.Font.Sizes.ExtraSmall).fontWeight(
-        FontWeight.Bold).toAttrs()) {
+    Div(VersionStyle.toAttrs()) {
         Text("v" + AppGlobals["version"] as String)
     }
 }
