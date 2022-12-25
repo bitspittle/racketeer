@@ -1,4 +1,7 @@
 import com.varabyte.kobweb.gradle.application.util.configAsKobwebApplication
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.TimeZone
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -19,6 +22,10 @@ version = "1.0-SNAPSHOT"
 
 kobweb {
     app {
+        globals.put("version", SimpleDateFormat("yyyyMMdd.kkmm").apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }.format(Date()).toString())
+
         index {
             description.set("Powered by Kobweb")
         }
