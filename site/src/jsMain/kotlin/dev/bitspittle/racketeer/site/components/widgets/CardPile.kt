@@ -8,6 +8,7 @@ import com.varabyte.kobweb.compose.ui.thenIf
 import com.varabyte.kobweb.silk.components.style.*
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.site.G
+import dev.bitspittle.racketeer.site.components.sections.BrowsePile
 import dev.bitspittle.racketeer.site.model.GameContext
 import org.jetbrains.compose.web.css.*
 
@@ -20,17 +21,22 @@ val CardPileStyle = ComponentStyle.base("card-pile") {
 
 @Composable
 fun CardPile(ctx: GameContext, pile: Pile) {
+    var showBrowseModal by remember { mutableStateOf(false) }
     LabeledBox("${ctx.describer.describePileTitle(ctx.state, pile)} (${pile.cards.size})") {
         Box(CardPileStyle.toModifier()) {
             val enabled = pile.cards.isNotEmpty()
             CardPlaceholder(
                 Modifier.thenIf(enabled) {
                     Modifier.onClick {
-//                        println("${ctx.describer.describePileTitle(ctx.state, pile)} clicked!")
+                        showBrowseModal = true
                     }
                 },
                 enabled = enabled
             )
         }
+    }
+
+    if (showBrowseModal) {
+        BrowsePile(ctx, pile, onDismiss = { showBrowseModal = false })
     }
 }

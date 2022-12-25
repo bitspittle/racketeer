@@ -18,7 +18,6 @@ import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.model.game.GameProperty
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.game.isGameOver
-import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.widgets.*
 import dev.bitspittle.racketeer.site.model.GameContext
 import dev.bitspittle.racketeer.site.model.runStateChangingAction
