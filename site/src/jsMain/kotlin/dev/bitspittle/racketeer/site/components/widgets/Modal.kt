@@ -10,12 +10,17 @@ import com.varabyte.kobweb.compose.foundation.layout.RowScope
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.*
+import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.components.overlay.Overlay
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
 import com.varabyte.kobweb.silk.theme.toSilkPalette
+import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.site.G
+import dev.bitspittle.racketeer.site.components.util.renderTextWithTooltips
+import dev.bitspittle.racketeer.site.model.TooltipParser
 import org.jetbrains.compose.web.css.*
+import org.jetbrains.compose.web.dom.*
 
 val ModalStyle = ComponentStyle.base("modal") {
     Modifier
@@ -57,6 +62,8 @@ val ModalButtonRowStyle = ComponentStyle("modal-button-row") {
 
 @Composable
 fun Modal(
+    describer: Describer,
+    tooltipParser: TooltipParser,
     overlayModifier: Modifier = Modifier,
     dialogModifier: Modifier = Modifier,
     title: String? = null,
@@ -66,7 +73,9 @@ fun Modal(
     Overlay(overlayModifier) {
         Column(ModalStyle.toModifier().then(dialogModifier)) {
             if (title != null) {
-                SpanText(title, ModalTitleStyle.toModifier().align(Alignment.CenterHorizontally))
+                Span(ModalTitleStyle.toModifier().align(Alignment.CenterHorizontally).toAttrs()) {
+                    renderTextWithTooltips(describer, tooltipParser, title)
+                }
             }
             Column(ModalContentColumnStyle.toModifier()) {
                 content()

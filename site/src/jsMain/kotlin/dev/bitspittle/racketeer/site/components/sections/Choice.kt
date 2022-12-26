@@ -48,6 +48,8 @@ fun Choice(ctx: ChoiceContext) = ctx.apply {
 @Composable
 private fun ReviewChoices(ctx: ChoiceContext) {
     Modal(
+        ctx.describer,
+        ctx.tooltipParser,
         title = ctx.prompt ?: if (ctx.items.size > 1) "Review all:" else { "Review:" },
         content = {
             ctx.items.forEach { item ->
@@ -80,10 +82,9 @@ private fun ReviewChoices(ctx: ChoiceContext) {
 @Composable
 private fun PickChoice(ctx: ChoiceContext) {
     Modal(
-        title = buildString {
-            ctx.prompt?.let { append(it); append(' ') }
-            append("Choose 1:")
-        },
+        ctx.describer,
+        ctx.tooltipParser,
+        title = ctx.prompt ?: "Choose 1:",
         content = {
             ctx.items.forEach { item ->
                 Button(
@@ -113,6 +114,8 @@ private fun PickChoice(ctx: ChoiceContext) {
 private fun PickChoices(ctx: ChoiceContext) {
     val selected = remember { mutableStateMapOf<Any, Unit>() }
     Modal(
+        ctx.describer,
+        ctx.tooltipParser,
         title = buildString {
             ctx.prompt?.let { append(it); append(' ') }
             append("Choose ${ctx.describer.describeRange(ctx.range)}:")

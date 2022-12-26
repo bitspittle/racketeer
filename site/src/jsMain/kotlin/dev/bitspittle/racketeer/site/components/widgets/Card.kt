@@ -16,6 +16,8 @@ import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.site.G
+import dev.bitspittle.racketeer.site.components.util.UnderlineModifier
+import dev.bitspittle.racketeer.site.components.util.renderTextWithTooltips
 import dev.bitspittle.racketeer.site.model.TooltipData
 import dev.bitspittle.racketeer.site.model.TooltipParser
 import org.jetbrains.compose.web.css.*
@@ -80,8 +82,6 @@ val CardDescriptionTypesVariant = CardDescriptionStyle.addVariantBase("types") {
 val CardDescriptionFlavorVariant = CardDescriptionStyle.addVariantBase("flavor") {
     Modifier.fontStyle(FontStyle.Italic)
 }
-
-private val UnderlineModifier = Modifier.borderBottom(1.px, LineStyle.Dotted, Colors.Black)
 
 val CardDescriptionUpgradesVariant = CardDescriptionStyle.addVariantBase("upgrades") {
     UnderlineModifier
@@ -276,89 +276,7 @@ fun Card(describer: Describer, tooltipParser: TooltipParser, card: CardSpec, onC
                     SpanText("Activation cost: $activationCost", CardDescriptionStyle.toModifier())
                 }
                 Span(CardDescriptionStyle.toModifier(CardDescriptionEffectsVariant).toAttrs()) {
-                    val abilityText = describer.convertIcons(card.ability)
-
-                    val rangeActions = remember(abilityText) {
-                        val tooltipRanges = tooltipParser.parse(abilityText)
-                        mutableListOf<Pair<IntRange, @Composable () -> Unit>>().apply {
-
-                            // Create ranges that handle tooltips - they should render relevant text with some decoration
-                            // inviting users to mouse over them.
-                            tooltipRanges.forEach { tooltipRange ->
-                                add(tooltipRange.range to {
-                                    SpanText(abilityText.substring(tooltipRange.range), UnderlineModifier)
-                                    if (tooltipRange.tooltip is TooltipData.OfText) {
-                                        Tooltip(ElementTarget.PreviousSibling, tooltipRange.tooltip.text)
-                                    } else {
-                                        Popup(ElementTarget.PreviousSibling, placement = PopupPlacement.Right) {
-                                            val outlineModifier = Modifier.outline(2.px, LineStyle.Solid, Colors.Black)
-                                            when (val tooltip = tooltipRange.tooltip) {
-                                                is TooltipData.OfBlueprint -> Card(
-                                                    describer,
-                                                    tooltipParser,
-                                                    tooltip.blueprint.toCardSpec(describer),
-                                                    modifier = outlineModifier
-                                                )
-
-                                                is TooltipData.OfCard -> Card(
-                                                    describer,
-                                                    tooltipParser,
-                                                    tooltip.card.toCardSpec(),
-                                                    modifier = outlineModifier
-                                                )
-
-                                                is TooltipData.OfText -> error("Should have been handled above")
-                                            }
-                                        }
-                                    }
-                                })
-                            }
-
-                            // Create emoji ranges, so we can prevent them being broken up in the middle
-                            // e.g. if a description says 🎲🎲🎲🎲, we don't want html layouts to break that
-                            // into 🎲🎲 and 🎲🎲.
-                            run {
-                                fun getEmojiRanges(text: String): List<IntRange> {
-                                    val regex = "([\uD83C-\uDBFF\uDC00-\uDFFF]+)".toRegex()
-                                    return regex.findAll(text).map { it.range }.toList()
-                                }
-
-                                (getEmojiRanges(abilityText)).forEach { range ->
-                                    add(range to {
-                                        SpanText(abilityText.substring(range), Modifier.whiteSpace(WhiteSpace.NoWrap))
-                                    })
-                                }
-                            }
-
-                            this.sortBy { it.first.first }
-
-                            // Finally, fill in the remaining ranges but have them just render text directly
-                            fun findMissingRanges(ranges: List<IntRange>, length: Int): List<IntRange> {
-                                val result = mutableListOf<IntRange>()
-                                ranges.fold(0) { current, range ->
-                                    if (current < range.first) {
-                                        result.add(IntRange(current, range.first - 1))
-                                    }
-                                    range.last + 1
-                                }
-                                val finalStart = ranges.lastOrNull()?.last?.plus(1) ?: 0
-                                if (finalStart < length) {
-                                    result.add(IntRange(finalStart, length - 1))
-                                }
-                                return result
-                            }
-
-                            val missingRanges = findMissingRanges(this.map { it.first }, abilityText.length)
-
-                            for (missingRange in missingRanges) {
-                                add(missingRange to { SpanText(abilityText.substring(missingRange)) })
-                            }
-
-                            this.sortBy { it.first.first }
-                        }
-                    }
-
-                    rangeActions.forEach { it.second.invoke() }
+                    renderTextWithTooltips(describer, tooltipParser, describer.convertIcons(card.ability))
                 }
             }
         }

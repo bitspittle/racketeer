@@ -33,6 +33,8 @@ fun BrowsePile(ctx: GameContext, pile: Pile, onDismiss: () -> Unit) {
     val shouldGroupCards = pile.id == ctx.state.deck.id
 
     Modal(
+        ctx.describer,
+        ctx.tooltipParser,
         overlayModifier = Modifier.onClick { onDismiss() },
         dialogModifier = Modifier.onClick { evt -> evt.stopPropagation() }, // So click doesn't get to overlay
         title = "Browsing ${ctx.describer.describePile(ctx.state, pile)}...",

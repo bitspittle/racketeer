@@ -711,7 +711,7 @@ cards:
     description:
       ability: Discard your hand. Create that many plus one Burglars in your hand. You may give them Expendable.
     playActions:
-      - set '$burglars-exp ask? "Would you like to make your Burglars Expendable? (Expendable cards are removed when played.)"
+      - set '$burglars-exp ask? "Would you like to make your Burglars Expendable?"
       - set '$my-burglar single (list card-named "Burglar")
       - set '$num-burglars + 1 (size $hand)
       - pile-move-to! $discard $hand
