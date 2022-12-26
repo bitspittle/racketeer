@@ -259,12 +259,17 @@ class Describer(private val data: GameData, private val showDebugInfo: () -> Boo
         appendCardName(card.template.name, card.upgrades, useIcons, totalVp, price)
     }
 
-    fun describeCardGroupTitle(cards: List<Card>): String {
+    fun describeCardGroupTitle(cards: List<Card>, includeTotalVp: Boolean = false): String {
         require(cards.isNotEmpty())
         val representativeCard = cards.first().template.instantiate()
         return buildString {
             appendCardName(representativeCard)
             append(" x${cards.size}")
+            if (includeTotalVp) {
+                cards.sumOf { it.vpTotal }.takeIf { it > 0 }?.let { vpSum ->
+                    append(" ${describeVictoryPoints(vpSum)}")
+                }
+            }
         }
     }
 

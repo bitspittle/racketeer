@@ -9,9 +9,9 @@ import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.style.*
-import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.site.G
+import dev.bitspittle.racketeer.site.components.util.installPopup
 import dev.bitspittle.racketeer.site.components.widgets.Modal
 import dev.bitspittle.racketeer.site.model.GameContext
 import org.jetbrains.compose.web.css.*
@@ -29,21 +29,30 @@ val ReadOnlyChoiceStyle = ComponentStyle.base("read-only-choice") {
 }
 
 @Composable
-private fun installPopup(ctx: GameContext, card: Card) =
-    dev.bitspittle.racketeer.site.components.util.installPopup(ctx.describer, ctx.tooltipParser, card)
-
-@Composable
 fun BrowsePile(ctx: GameContext, pile: Pile, onDismiss: () -> Unit) {
+    val shouldGroupCards = pile.id == ctx.state.deck.id
+
     Modal(
         overlayModifier = Modifier.onClick { onDismiss() },
         dialogModifier = Modifier.onClick { evt -> evt.stopPropagation() }, // So click doesn't get to overlay
         title = "Browsing ${ctx.describer.describePile(ctx.state, pile)}...",
         content = {
-            pile.cards.sortedBy { it.template.name }.forEach { card ->
-                Div(ReadOnlyChoiceStyle.toModifier().toAttrs()) {
-                    Text(ctx.describer.describeCardTitle(card))
+            if (shouldGroupCards) {
+                pile.cards.sortedBy { it.template.name }.groupBy { it.template.name }.forEach { (_, cards) ->
+                    Div(ReadOnlyChoiceStyle.toModifier().toAttrs()) {
+                        Text(buildString {
+                            append(ctx.describer.describeCardGroupTitle(cards, includeTotalVp = true))
+                        })
+                    }
+                    installPopup(ctx, cards)
                 }
-                installPopup(ctx, card)
+            } else {
+                pile.cards.sortedBy { it.template.name }.forEach { card ->
+                    Div(ReadOnlyChoiceStyle.toModifier().toAttrs()) {
+                        Text(ctx.describer.describeCardTitle(card))
+                    }
+                    installPopup(ctx, card)
+                }
             }
         },
         bottomRow = {

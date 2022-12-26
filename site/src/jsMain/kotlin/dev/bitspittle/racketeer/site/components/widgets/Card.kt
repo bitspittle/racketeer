@@ -158,9 +158,35 @@ fun CardTemplate.toCardSpec(enabled: Boolean = true): CardSpec {
     }
 }
 
+fun Iterable<Card>.toCardSpec(): CardSpec {
+    val card = this.first().template
+    return object : CardSpec {
+        override val enabled = true
+        override val colorOverride = null
+        override val title = card.name
+        override val types = card.types
+        override val tier = card.tier
+        override val rarity = card.rarity
+        override val vpBase = card.vp
+        override val vpTotal = 0
+        override val counter = 0
+        override val flavor = card.description.flavor
+        override val upgrades = emptySet<UpgradeType>()
+        override val traits = card.traitTypes
+        override val ability = card.description.ability
+        override val activationCost = null
+        override val label = null
+    }
+}
+
 @Composable
 fun Card(describer: Describer, tooltipParser: TooltipParser, card: Card, onClick: () -> Unit = {}, modifier: Modifier = Modifier, label: String? = null, enabled: Boolean = true) {
     Card(describer, tooltipParser, card.toCardSpec(label, enabled), onClick, modifier)
+}
+
+@Composable
+fun Card(describer: Describer, tooltipParser: TooltipParser, cards: List<Card>, modifier: Modifier = Modifier) {
+    Card(describer, tooltipParser, cards.toCardSpec(), modifier = modifier)
 }
 
 @Composable

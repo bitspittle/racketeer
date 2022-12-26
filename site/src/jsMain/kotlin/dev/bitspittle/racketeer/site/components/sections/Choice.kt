@@ -5,11 +5,11 @@ import com.varabyte.kobweb.compose.dom.ElementTarget
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
-import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.overlay.Tooltip
 import com.varabyte.kobweb.silk.components.style.*
 import dev.bitspittle.racketeer.site.G
+import dev.bitspittle.racketeer.site.components.util.installPopup
 import dev.bitspittle.racketeer.site.components.widgets.*
 import dev.bitspittle.racketeer.site.model.ChoiceContext
 import dev.bitspittle.racketeer.site.model.cancel
@@ -44,10 +44,6 @@ fun Choice(ctx: ChoiceContext) = ctx.apply {
         PickChoices(ctx)
     }
 }
-
-@Composable
-private fun installPopup(ctx: ChoiceContext, item: Any) =
-    dev.bitspittle.racketeer.site.components.util.installPopup(ctx.describer, ctx.tooltipParser, item)
 
 @Composable
 private fun ReviewChoices(ctx: ChoiceContext) {
