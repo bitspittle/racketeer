@@ -36,6 +36,13 @@ class ChoiceContext(
         }
     }
 
+    fun extra(item: Any): String? {
+        return when (item) {
+            is FormattedItem -> item.extraText
+            else -> null
+        }
+    }
+
     fun choose(choices: List<Any>?) {
         continuation.resume(choices)
         onChosenListeners.forEach { evt -> evt() }

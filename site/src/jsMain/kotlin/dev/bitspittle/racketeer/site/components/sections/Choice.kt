@@ -2,12 +2,15 @@ package dev.bitspittle.racketeer.site.components.sections
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.dom.ElementTarget
+import com.varabyte.kobweb.compose.foundation.layout.Row
+import com.varabyte.kobweb.compose.foundation.layout.Spacer
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.overlay.Tooltip
 import com.varabyte.kobweb.silk.components.style.*
+import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.util.installPopup
 import dev.bitspittle.racketeer.site.components.widgets.*
@@ -54,7 +57,7 @@ private fun ReviewChoices(ctx: ChoiceContext) {
         content = {
             ctx.items.forEach { item ->
                 Div(ReadOnlyChoiceStyle.toAttrs()) {
-                    Text(ctx.describe(item))
+                    ItemText(ctx, item)
                 }
                 installPopup(ctx, item)
             }
@@ -80,6 +83,19 @@ private fun ReviewChoices(ctx: ChoiceContext) {
 }
 
 @Composable
+private fun ItemText(ctx: ChoiceContext, item: Any) {
+    ctx.extra(item)?.let { extraText ->
+        Row(Modifier.gap(5.px).fillMaxWidth()) {
+            SpanText(ctx.describe(item))
+            Spacer()
+            SpanText(ctx.describer.convertIcons(extraText))
+        }
+    } ?: run {
+        SpanText(ctx.describe(item))
+    }
+}
+
+@Composable
 private fun PickChoice(ctx: ChoiceContext) {
     Modal(
         ctx.describer,
@@ -91,7 +107,7 @@ private fun PickChoice(ctx: ChoiceContext) {
                     onClick = { ctx.choose(listOf(item)) },
                     ChoiceStyle.toModifier()
                 ) {
-                    Text(ctx.describe(item))
+                    ItemText(ctx, item)
                 }
                 installPopup(ctx, item)
             }
@@ -127,7 +143,7 @@ private fun PickChoices(ctx: ChoiceContext) {
                         selected[item] = Unit
                     }
                 }, ChoiceStyle.toModifier(SelectedChoiceVariant.takeIf { selected.contains(item) })) {
-                    Text(ctx.describe(item))
+                    ItemText(ctx, item)
                 }
                 installPopup(ctx, item)
             }
