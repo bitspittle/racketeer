@@ -8,17 +8,16 @@ import com.varabyte.kobweb.compose.ui.*
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.graphics.Color
 import com.varabyte.kobweb.compose.ui.modifiers.*
-import com.varabyte.kobweb.silk.components.overlay.Popup
 import com.varabyte.kobweb.silk.components.overlay.PopupPlacement
 import com.varabyte.kobweb.silk.components.overlay.Tooltip
 import com.varabyte.kobweb.silk.components.style.*
+import com.varabyte.kobweb.silk.components.style.common.ariaDisabled
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.util.UnderlineModifier
 import dev.bitspittle.racketeer.site.components.util.renderTextWithTooltips
-import dev.bitspittle.racketeer.site.model.TooltipData
 import dev.bitspittle.racketeer.site.model.TooltipParser
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
@@ -33,15 +32,6 @@ private val CardStyleCommon =
         .transitionProperty("translate")
         .transitionDuration(100.ms)
 
-private val CardStyleCommonHover =
-    Modifier
-        .cursor(Cursor.Pointer)
-        .translateY((-10).px)
-
-private val CardStyleCommonFocus =
-    Modifier
-
-
 val CardStyle = ComponentStyle("card") {
     base {
         CardStyleCommon
@@ -49,12 +39,12 @@ val CardStyle = ComponentStyle("card") {
             .height(G.Sizes.Card.h)
     }
 
-    hover {
-        CardStyleCommonHover
+    (hover + not(ariaDisabled)) {
+        Modifier.translateY((-10).px)
     }
 
-    focus {
-        CardStyleCommonFocus
+    hover {
+        Modifier.cursor(Cursor.Pointer)
     }
 }
 
@@ -208,6 +198,9 @@ fun Card(describer: Describer, tooltipParser: TooltipParser, card: CardSpec, onC
             .thenIf(card.enabled) {
                 Modifier.tabIndex(0).onClick { onClick() }
             }
+            .thenIf(!card.enabled) {
+                Modifier.ariaDisabled()
+            }
             .thenIf(card.colorOverride != null) {
                 Modifier.backgroundColor(card.colorOverride!!)
             }
@@ -286,6 +279,10 @@ fun Card(describer: Describer, tooltipParser: TooltipParser, card: CardSpec, onC
 @Composable
 fun CardPlaceholder(modifier: Modifier = Modifier, enabled: Boolean = true, label: String? = null) {
     LabeledContent(label, enabled) {
-        Box(CardStyle.toModifier(CardBackVariant).thenIf(enabled) { Modifier.tabIndex(0) }.then(modifier))
+        Box(CardStyle.toModifier(CardBackVariant)
+            .thenIf(enabled) { Modifier.tabIndex(0) }
+            .thenIf(!enabled) { Modifier.ariaDisabled() }
+                .then(modifier)
+        )
     }
 }

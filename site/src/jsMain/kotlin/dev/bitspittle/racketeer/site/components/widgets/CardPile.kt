@@ -1,6 +1,7 @@
 package dev.bitspittle.racketeer.site.components.widgets
 
 import androidx.compose.runtime.*
+import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.*
@@ -26,11 +27,14 @@ fun CardPile(ctx: GameContext, pile: Pile) {
         Box(CardPileStyle.toModifier()) {
             val enabled = pile.cards.isNotEmpty()
             CardPlaceholder(
-                Modifier.thenIf(enabled) {
-                    Modifier.onClick {
-                        showBrowseModal = true
-                    }
-                },
+                Modifier
+                    // Grab looks better than pointer finger for handling a pile of cards
+                    .cursor(Cursor.Grab)
+                    .thenIf(enabled) {
+                        Modifier.onClick {
+                            showBrowseModal = true
+                        }
+                    },
                 enabled = enabled
             )
         }
