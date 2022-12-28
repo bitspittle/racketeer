@@ -80,12 +80,7 @@ val CardDescriptionUpgradesVariant = CardDescriptionStyle.addVariantBase("upgrad
 }
 
 val CardDescriptionEffectsVariant = CardDescriptionStyle.addVariantBase("effects") {
-    Modifier
-        .overflowWrap(OverflowWrap.BreakWord) // Don't break between emojis
-        .margin(top = 5.px)
-        .styleModifier {
-            property("text-shadow", "0px 0px 4px #000000")
-        }
+    Modifier.margin(top = 5.px)
 }
 
 interface CardSpec {
