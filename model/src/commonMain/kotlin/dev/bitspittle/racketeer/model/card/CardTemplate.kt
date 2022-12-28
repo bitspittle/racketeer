@@ -59,7 +59,7 @@ val CardTemplate.allPassiveActions: List<String> get() =
  * A collection of all init actions, both those written explicitly and also implicitly extracted from other fields
  */
 val CardTemplate.allInitActions: List<String> get() =
-    (if (traitTypes.contains(TraitType.SWIFT)) listOf("pile-move-to! \$hand \$this") else emptyList()) + initActions
+    (if (traitTypes.contains(TraitType.SWIFT)) listOf("pile-move-to! --pos 'front \$hand \$this") else emptyList()) + initActions
 
 val CardTemplate.featureTypes: Set<Feature.Type>
     get() = features.map { featureStr ->
