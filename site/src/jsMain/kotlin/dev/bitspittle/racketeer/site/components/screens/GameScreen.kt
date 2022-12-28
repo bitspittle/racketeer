@@ -81,8 +81,7 @@ fun GameScreen(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> 
                     .gap(GAP).padding(GAP)
                     .gridTemplateColumns("auto 1fr")
             ) {
-                Div() // Empty space
-                Row(Modifier.gap(GAP)) {
+                Row(Modifier.gap(GAP).gridColumn("span 2")) {
                     CardGroup("Shop (Tier ${ctx.state.shop.tier + 1})", Modifier.flexGrow(1)) {
                         ctx.state.shop.stock.forEach { card ->
                             if (card != null) {
