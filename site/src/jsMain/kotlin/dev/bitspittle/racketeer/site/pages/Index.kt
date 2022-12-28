@@ -1,18 +1,16 @@
 package dev.bitspittle.racketeer.site.pages
 
 import androidx.compose.runtime.*
-import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.core.Page
-import dev.bitspittle.racketeer.model.game.*
+import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.site.components.layouts.PageLayout
+import dev.bitspittle.racketeer.site.components.screens.GameScreen
 import dev.bitspittle.racketeer.site.components.sections.Choice
-import dev.bitspittle.racketeer.site.components.sections.GameBoard
 import dev.bitspittle.racketeer.site.model.ChoiceContext
 import dev.bitspittle.racketeer.site.model.GameContext
 import dev.bitspittle.racketeer.site.model.createNewGame
 import kotlinx.browser.window
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
 private sealed interface GameStartupState {
@@ -61,7 +59,7 @@ fun HomePage() {
             is GameStartupState.ContextCreated -> {
                 key(forceRecomposition) {
                     val gameCtx = (startupState as GameStartupState.ContextCreated).gameContext
-                    GameBoard(scope, gameCtx) { ++forceRecomposition }
+                    GameScreen(scope, gameCtx) { ++forceRecomposition }
                 }
             }
         }

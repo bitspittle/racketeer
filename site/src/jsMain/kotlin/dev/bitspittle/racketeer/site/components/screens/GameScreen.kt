@@ -1,4 +1,4 @@
-package dev.bitspittle.racketeer.site.components.sections
+package dev.bitspittle.racketeer.site.components.screens
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.foundation.layout.Box
@@ -27,7 +27,7 @@ import org.jetbrains.compose.web.dom.*
 private val GAP = 20.px
 
 @Composable
-fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> Unit) {
+fun GameScreen(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> Unit) {
     var showMenu by remember { mutableStateOf(false) }
     val gameUpdater = GameUpdater(scope, ctx, onContextUpdated)
 
