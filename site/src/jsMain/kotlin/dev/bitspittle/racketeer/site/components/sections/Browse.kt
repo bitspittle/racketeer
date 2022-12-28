@@ -28,8 +28,6 @@ val ReadOnlyChoiceStyle = ComponentStyle.base("read-only-choice") {
 
 @Composable
 fun BrowsePile(ctx: GameContext, pile: Pile, onDismiss: () -> Unit) {
-    val shouldGroupCards = pile.id == ctx.state.deck.id
-
     Modal(
         ctx.describer,
         ctx.tooltipParser,
@@ -43,22 +41,13 @@ fun BrowsePile(ctx: GameContext, pile: Pile, onDismiss: () -> Unit) {
         },
         title = "Browsing ${ctx.describer.describePile(ctx.state, pile)}...",
         content = {
-            if (shouldGroupCards) {
-                pile.cards.sortedBy { it.template.name }.groupBy { it.template.name }.forEach { (_, cards) ->
-                    Div(ReadOnlyChoiceStyle.toModifier().toAttrs()) {
-                        Text(buildString {
-                            append(ctx.describer.describeCardGroupTitle(cards, includeTotalVp = true))
-                        })
-                    }
-                    installPopup(ctx, cards)
+            pile.cards.sortedBy { it.template.name }.groupBy { it.template.name }.forEach { (_, cards) ->
+                Div(ReadOnlyChoiceStyle.toModifier().toAttrs()) {
+                    Text(buildString {
+                        append(ctx.describer.describeCardGroupTitle(cards, includeTotalVp = true))
+                    })
                 }
-            } else {
-                pile.cards.sortedBy { it.template.name }.forEach { card ->
-                    Div(ReadOnlyChoiceStyle.toModifier().toAttrs()) {
-                        Text(ctx.describer.describeCardTitle(card))
-                    }
-                    installPopup(ctx, card)
-                }
+                installPopup(ctx, cards)
             }
         },
         bottomRow = {
