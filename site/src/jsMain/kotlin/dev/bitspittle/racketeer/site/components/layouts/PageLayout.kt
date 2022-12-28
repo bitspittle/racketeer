@@ -27,7 +27,6 @@ val VersionStyle = ComponentStyle("version") {
             .opacity(0)
             .transitionProperty("opacity")
             .transitionDuration(100.ms)
-            .userSelect(UserSelect.None)
     }
 
     hover {

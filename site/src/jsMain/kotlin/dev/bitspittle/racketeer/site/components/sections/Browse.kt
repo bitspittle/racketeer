@@ -25,7 +25,6 @@ val ReadOnlyChoiceStyle = ComponentStyle.base("read-only-choice") {
         .border(1.px, LineStyle.Solid, Colors.Black)
         .borderRadius(4.px)
         .cursor(Cursor.Help)
-        .userSelect(UserSelect.None)
 }
 
 @Composable

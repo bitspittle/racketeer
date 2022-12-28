@@ -1,6 +1,7 @@
 package dev.bitspittle.racketeer.site
 
 import androidx.compose.runtime.*
+import com.varabyte.kobweb.compose.css.UserSelect
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.styleModifier
@@ -34,6 +35,12 @@ fun updateTheme(ctx: InitSilkContext) {
             "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
             "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "sans-serif"
         )
+    }
+
+    ctx.config.registerBaseStyle("#root") {
+        // UserSelect.None everywhere by default, because the game feels cheap if you allow users to drag highlight
+        // text on stuff
+        Modifier.userSelect(UserSelect.None)
     }
 }
 
