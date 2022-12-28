@@ -48,6 +48,7 @@ interface GameMenuEntry {
             @Composable
             override fun renderContent(params: Params) {
                 Button(onClick = { params.visit(CreateCard) }) { Text("Create Card") }
+                Button(onClick = { params.visit(BuildBuilding) }) { Text("Build Building") }
             }
 
             object CreateCard : GameMenuEntry {
@@ -55,21 +56,55 @@ interface GameMenuEntry {
 
                 @Composable
                 override fun renderContent(params: Params) {
-                    params.ctx.data.cards.sortedBy { it.name }.forEach { card ->
-                        Button(onClick = {
-                            params.updater.runStateChangingAction {
-                                params.ctx.state.apply(
-                                    GameStateChange.MoveCard(
-                                        params.ctx.state,
-                                        card.instantiate(),
-                                        params.ctx.state.hand,
-                                        ListStrategy.FRONT
+                    with(params) {
+                        ctx.data.cards.sortedBy { it.name }.forEach { card ->
+                            Button(onClick = {
+                                updater.runStateChangingAction {
+                                    ctx.state.apply(
+                                        GameStateChange.MoveCard(
+                                            ctx.state,
+                                            card.instantiate(),
+                                            ctx.state.hand,
+                                            ListStrategy.FRONT
+                                        )
                                     )
-                                )
-                            }
-                            params.requestClose()
-                        }) { Text(card.name) }
-                        installPopup(params.ctx, card)
+                                }
+                                requestClose()
+                            }) { Text(card.name) }
+                            installPopup(ctx, card)
+                        }
+                    }
+                }
+            }
+
+            object BuildBuilding : GameMenuEntry {
+                override val title = "Build Building"
+
+                @Composable
+                override fun renderContent(params: Params) {
+                    with(params) {
+                        ctx.data.blueprints.sortedBy { it.name }.forEach { blueprint ->
+                            Button(
+                                onClick = {
+                                    // Run this command in two separate state changing actions; you need to own the blueprint before you can
+                                    // build it.
+                                    updater.runStateChangingActions(
+                                        {
+                                            if (!ctx.state.blueprints.contains(blueprint)) {
+                                                ctx.state.apply(GameStateChange.AddBlueprint(blueprint))
+                                            }
+                                        },
+                                        {
+                                            check(ctx.state.blueprints.indexOf(blueprint) >= 0)
+                                            ctx.state.apply(GameStateChange.Build(blueprint, free = true))
+                                        },
+                                    )
+                                    requestClose()
+                                },
+                                enabled = ctx.state.buildings.none { it.blueprint === blueprint }
+                            ) { Text(blueprint.name) }
+                            installPopup(params.ctx, blueprint)
+                        }
                     }
                 }
             }
