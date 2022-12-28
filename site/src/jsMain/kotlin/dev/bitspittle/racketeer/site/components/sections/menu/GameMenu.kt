@@ -1,12 +1,8 @@
 package dev.bitspittle.racketeer.site.components.sections.menu
 
 import androidx.compose.runtime.*
-import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Spacer
-import com.varabyte.kobweb.compose.ui.Modifier
-import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.silk.components.forms.Button
-import com.varabyte.kobweb.silk.components.style.*
 import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.site.components.util.installPopup
@@ -16,11 +12,6 @@ import dev.bitspittle.racketeer.site.model.GameContext
 import dev.bitspittle.racketeer.site.model.GameUpdater
 import kotlinx.browser.window
 import org.jetbrains.compose.web.dom.*
-
-val MenuButtonsStyle = ComponentStyle("menu-buttons") {
-    base { Modifier.fillMaxWidth() }
-    cssRule(" *") { Modifier.fillMaxWidth() }
-}
 
 interface GameMenuEntry {
     class Params(
