@@ -14,6 +14,7 @@ import dev.bitspittle.racketeer.site.components.widgets.Modal
 import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.GameContext
 import dev.bitspittle.racketeer.site.model.GameUpdater
+import kotlinx.browser.window
 import org.jetbrains.compose.web.dom.*
 
 val MenuButtonsStyle = ComponentStyle("menu-buttons") {
@@ -49,6 +50,12 @@ interface GameMenuEntry {
             override fun renderContent(params: Params) {
                 Button(onClick = { params.visit(CreateCard) }) { Text("Create Card") }
                 Button(onClick = { params.visit(BuildBuilding) }) { Text("Build Building") }
+                Button(
+                    onClick = {
+                        window.open("https://docs.google.com/spreadsheets/d/1iG38W0xl2UzRHhQX_GvJWg3zZndqY-UkKAVaWzNiLKg/edit#gid=200941839", target = "_blank")
+                        params.requestClose()
+                    },
+                ) { Text("Open API Sheet") }
             }
 
             object CreateCard : GameMenuEntry {
