@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.site
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.UserSelect
+import com.varabyte.kobweb.compose.dom.disposableRef
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.styleModifier
@@ -14,7 +15,9 @@ import com.varabyte.kobweb.silk.theme.colors.ColorMode
 import com.varabyte.kobweb.silk.theme.colors.getColorMode
 import com.varabyte.kobweb.silk.theme.registerBaseStyle
 import kotlinx.browser.localStorage
+import kotlinx.browser.window
 import org.jetbrains.compose.web.css.*
+import org.w3c.dom.HTMLElement
 
 private const val COLOR_MODE_KEY = "site:colorMode"
 
@@ -44,9 +47,33 @@ fun updateTheme(ctx: InitSilkContext) {
     }
 }
 
+// I was having trouble getting event bubbling to work, e.g. a dialog should have been catching input before the
+// document body did. So for now I am just going to create a global input fallback handler on document.body and manage
+// the input events myself.
+//
+// Handlers take a key code (e.g. "KeyA", "Escape") and should return true if they handled it or false otherwise.
+// Handling a key prevents other handlers from getting a chance.
+private val InputHandlers: MutableMap<HTMLElement, (String) -> Boolean> = mutableMapOf()
+
+// Pass the return value of this into the `ref` parameter of any Silk widgest you want to add global input handling for.
+fun inputRef(handler: (String) -> Boolean) = disposableRef<HTMLElement> { element ->
+    InputHandlers[element] = handler
+    onDispose {
+        InputHandlers.remove(element)
+    }
+}
+
 @App
 @Composable
 fun MyApp(content: @Composable () -> Unit) {
+    remember {
+        window.document.body!!.onkeydown = { evt ->
+            // Last in first out -- let the elements we registered last have a first crack at the input. This usually
+            // means children items because they were composed after their parents.
+            InputHandlers.values.toList().lastOrNull { it.invoke(evt.code) }
+        }
+    }
+
     SilkApp {
         val colorMode = getColorMode()
         LaunchedEffect(colorMode) {

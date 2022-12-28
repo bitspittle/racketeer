@@ -14,6 +14,7 @@ import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.util.installPopup
 import dev.bitspittle.racketeer.site.components.widgets.*
+import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.ChoiceContext
 import dev.bitspittle.racketeer.site.model.cancel
 import org.jetbrains.compose.web.css.*
@@ -53,6 +54,12 @@ private fun ReviewChoices(ctx: ChoiceContext) {
     Modal(
         ctx.describer,
         ctx.tooltipParser,
+        ref = inputRef { code ->
+            if (code == "Escape") {
+                if (!ctx.requiredChoice) ctx.cancel()
+                true
+            } else false
+        },
         title = ctx.prompt ?: if (ctx.items.size > 1) "Review all:" else { "Review:" },
         content = {
             ctx.items.forEach { item ->
@@ -100,6 +107,12 @@ private fun PickChoice(ctx: ChoiceContext) {
     Modal(
         ctx.describer,
         ctx.tooltipParser,
+        ref = inputRef { code ->
+            if (code == "Escape") {
+                if (!ctx.requiredChoice) ctx.cancel()
+                true
+            } else false
+        },
         title = ctx.prompt ?: "Choose 1:",
         content = {
             ctx.items.forEach { item ->
@@ -132,6 +145,12 @@ private fun PickChoices(ctx: ChoiceContext) {
     Modal(
         ctx.describer,
         ctx.tooltipParser,
+        ref = inputRef { code ->
+            if (code == "Escape") {
+                if (!ctx.requiredChoice) ctx.cancel()
+                true
+            } else false
+        },
         title = buildString {
             ctx.prompt?.let { append(it); append(' ') }
             append("Choose ${ctx.describer.describeRange(ctx.range)}:")

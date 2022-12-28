@@ -1,7 +1,6 @@
 package dev.bitspittle.racketeer.site.components.sections
 
 import androidx.compose.runtime.*
-import com.varabyte.kobweb.compose.css.UserSelect
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Row
@@ -16,11 +15,12 @@ import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.model.game.GameProperty
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.game.isGameOver
+import dev.bitspittle.racketeer.site.components.sections.menu.GameMenu
 import dev.bitspittle.racketeer.site.components.widgets.*
+import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.GameContext
-import dev.bitspittle.racketeer.site.model.runStateChangingAction
+import dev.bitspittle.racketeer.site.model.GameUpdater
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
@@ -28,24 +28,18 @@ private val GAP = 20.px
 
 @Composable
 fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> Unit) {
-    fun runStateChangingActions(vararg blocks: suspend () -> Unit) {
-        scope.launch {
-            ctx.logger.clear()
+    var showMenu by remember { mutableStateOf(false) }
+    val gameUpdater = GameUpdater(scope, ctx, onContextUpdated)
 
-            var changed = false
-            for (block in blocks) {
-                if (ctx.runStateChangingAction { block() }) { changed = true }
-            }
-
-            if (changed) {
-                onContextUpdated()
-            }
+    Box(
+        Modifier.fillMaxSize().minWidth(500.px),
+        ref = inputRef { code ->
+            if (code == "Escape") {
+                showMenu = !showMenu
+                true
+            } else false
         }
-    }
-    fun runStateChangingAction(block: suspend () -> Unit) = runStateChangingActions(block)
-
-    // UserSelect.None, because the game feels cheap if you allow users to drag highlight text on stuff
-    Box(Modifier.fillMaxSize().minWidth(500.px).userSelect(UserSelect.None)) {
+    ) {
         Column(Modifier.fillMaxWidth()) {
             Row(Modifier
                 .align(Alignment.CenterHorizontally)
@@ -57,21 +51,21 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                     // TODO(#2): This should only work if you're in admin mode
                     SpanText(ctx.describer.describeCash(ctx.state.cash), Modifier.onClick { evt ->
                         if (evt.ctrlKey && evt.shiftKey) {
-                            runStateChangingAction {
+                            gameUpdater.runStateChangingAction {
                                 ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.CASH, if (evt.altKey) 10 else 1))
                             }
                         }
                     })
                     SpanText(ctx.describer.describeInfluence(ctx.state.influence), Modifier.onClick { evt ->
                         if (evt.ctrlKey && evt.shiftKey) {
-                            runStateChangingAction {
+                            gameUpdater.runStateChangingAction {
                                 ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, if (evt.altKey) 10 else 1))
                             }
                         }
                     })
                     SpanText(ctx.describer.describeLuck(ctx.state.luck), Modifier.onClick { evt ->
                         if (evt.ctrlKey && evt.shiftKey) {
-                            runStateChangingAction {
+                            gameUpdater.runStateChangingAction {
                                 ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.LUCK, if (evt.altKey) 10 else 1))
                             }
                         }
@@ -98,7 +92,7 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                                     card,
                                     label = ctx.describer.describeCash(card.template.cost),
                                     enabled = ctx.state.cash >= card.template.cost, onClick = {
-                                        runStateChangingAction {
+                                        gameUpdater.runStateChangingAction {
                                             ctx.state.apply(GameStateChange.Buy(card))
                                         }
                                     })
@@ -116,7 +110,7 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                         val shopPrice = ctx.data.shopPrices.getOrNull(ctx.state.shop.tier)
                         Button(
                             onClick = {
-                                runStateChangingAction {
+                                gameUpdater.runStateChangingAction {
                                     ctx.state.apply(GameStateChange.UpgradeShop())
                                     // shopPrice to be non-null if button is enabled
                                     @Suppress("NAME_SHADOWING") val shopPrice = shopPrice!!
@@ -135,7 +129,7 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                         }
                         Button(
                             onClick = {
-                                runStateChangingAction {
+                                gameUpdater.runStateChangingAction {
                                     ctx.state.apply(GameStateChange.RestockShop())
                                     ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.LUCK, -1))
                                 }
@@ -160,7 +154,7 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                 CardGroup("Hand (${ctx.state.hand.cards.size})") {
                     ctx.state.hand.cards.forEach { card ->
                         Card(ctx.describer, ctx.tooltipParser, card, onClick = {
-                            runStateChangingAction {
+                            gameUpdater.runStateChangingAction {
                                 ctx.state.apply(GameStateChange.Play(card))
                             }
                         })
@@ -172,14 +166,14 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                     CardGroup("Buildings & Blueprints", Modifier.flexGrow(1)) {
                         ctx.state.buildings.forEach { building ->
                             Building(ctx, building, onClick = {
-                                runStateChangingAction {
+                                gameUpdater.runStateChangingAction {
                                     ctx.state.apply(GameStateChange.Activate(building))
                                 }
                             })
                         }
                         ctx.state.blueprints.forEach { blueprint ->
                             Blueprint(ctx, blueprint, onClick = {
-                                runStateChangingAction {
+                                gameUpdater.runStateChangingAction {
                                     ctx.state.apply(GameStateChange.Build(blueprint))
                                 }
                             })
@@ -187,7 +181,7 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
                     }
                     Button(
                         onClick = {
-                            runStateChangingActions(
+                            gameUpdater.runStateChangingActions(
                                 {
                                     ctx.state.apply(GameStateChange.EndTurn())
                                 },
@@ -210,7 +204,10 @@ fun GameBoard(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> U
             ctx.logger.messages.forEach { message ->
                 SpanText(message, Modifier.fillMaxWidth().padding(left = GAP))
             }
+       }
+    }
 
-        }
+    if (showMenu) {
+        GameMenu(ctx, gameUpdater, closeRequested = { showMenu = false })
     }
 }

@@ -2,7 +2,6 @@ package dev.bitspittle.racketeer.site.components.sections
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.Cursor
-import com.varabyte.kobweb.compose.css.UserSelect
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
@@ -13,6 +12,7 @@ import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.util.installPopup
 import dev.bitspittle.racketeer.site.components.widgets.Modal
+import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.GameContext
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
@@ -21,7 +21,6 @@ val ReadOnlyChoiceStyle = ComponentStyle.base("read-only-choice") {
     Modifier
         .fontSize(G.Font.Sizes.Normal)
         .padding(10.px)
-        .fillMaxWidth()
         .border(1.px, LineStyle.Solid, Colors.Black)
         .borderRadius(4.px)
         .cursor(Cursor.Help)
@@ -36,6 +35,12 @@ fun BrowsePile(ctx: GameContext, pile: Pile, onDismiss: () -> Unit) {
         ctx.tooltipParser,
         overlayModifier = Modifier.onClick { onDismiss() },
         dialogModifier = Modifier.onClick { evt -> evt.stopPropagation() }, // So click doesn't get to overlay
+        ref = inputRef { code ->
+            if (code == "Escape") {
+                onDismiss()
+                true
+            } else false
+        },
         title = "Browsing ${ctx.describer.describePile(ctx.state, pile)}...",
         content = {
             if (shouldGroupCards) {

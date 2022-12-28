@@ -3,10 +3,8 @@ package dev.bitspittle.racketeer.site.components.widgets
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.FontWeight
 import com.varabyte.kobweb.compose.css.Overflow
-import com.varabyte.kobweb.compose.foundation.layout.Column
-import com.varabyte.kobweb.compose.foundation.layout.ColumnScope
-import com.varabyte.kobweb.compose.foundation.layout.Row
-import com.varabyte.kobweb.compose.foundation.layout.RowScope
+import com.varabyte.kobweb.compose.dom.ElementRefScope
+import com.varabyte.kobweb.compose.foundation.layout.*
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.*
@@ -21,6 +19,7 @@ import dev.bitspittle.racketeer.site.components.util.renderTextWithTooltips
 import dev.bitspittle.racketeer.site.model.TooltipParser
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
+import org.w3c.dom.HTMLElement
 
 val ModalStyle = ComponentStyle.base("modal") {
     Modifier
@@ -33,20 +32,30 @@ val ModalStyle = ComponentStyle.base("modal") {
         .borderRadius(2.percent)
 }
 
-val ModalContentColumnStyle = ComponentStyle.base("modal-content-col") {
-    Modifier
-        .fillMaxWidth()
-        .gap(10.px)
-        .padding(5.px) // Avoid outlines clipping against the side / add space between buttons and scrollbar
-        .maxHeight(60.vh)
-        .overflowY(Overflow.Auto)
+val ModalContentColumnStyle = ComponentStyle("modal-content-col") {
+    base {
+        Modifier
+            .fillMaxWidth()
+            .gap(10.px)
+            .padding(5.px) // Avoid outlines clipping against the side / add space between buttons and scrollbar
+            .maxHeight(60.vh)
+            .overflowY(Overflow.Auto)
+    }
+
+    cssRule(" *") {
+        Modifier.fillMaxWidth()
+    }
 }
 
 val ModalTitleStyle = ComponentStyle.base("modal-title") {
     Modifier
+        .fillMaxWidth()
         .fontSize(G.Font.Sizes.Normal)
         .fontWeight(FontWeight.Bold)
-        .margin(bottom = 30.px)
+}
+
+val ModalTopRowStyle = ComponentStyle.base("modal-title-row") {
+    Modifier.margin(bottom = 30.px)
 }
 
 val ModalButtonRowStyle = ComponentStyle("modal-button-row") {
@@ -66,16 +75,46 @@ fun Modal(
     tooltipParser: TooltipParser,
     overlayModifier: Modifier = Modifier,
     dialogModifier: Modifier = Modifier,
+    ref: ElementRefScope<HTMLElement>? = null,
     title: String? = null,
     bottomRow: (@Composable RowScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    Modal(
+        overlayModifier,
+        dialogModifier,
+        ref,
+        titleRow = title?.let { title -> {
+            Spacer()
+            Span(ModalTitleStyle.toAttrs {  }) {
+                renderTextWithTooltips(describer, tooltipParser, title)
+            }
+            Spacer()
+        }},
+        topRow = null,
+        bottomRow = bottomRow,
+        content = content
+    )
+}
+
+@Composable
+fun Modal(
+    overlayModifier: Modifier = Modifier,
+    dialogModifier: Modifier = Modifier,
+    ref: ElementRefScope<HTMLElement>? = null,
+    titleRow: (@Composable RowScope.() -> Unit)? = null,
+    topRow: (@Composable RowScope.() -> Unit)? = null,
+    bottomRow: (@Composable RowScope.() -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit
+) {
     Overlay(overlayModifier) {
-        Column(ModalStyle.toModifier().then(dialogModifier)) {
-            if (title != null) {
-                Span(ModalTitleStyle.toModifier().align(Alignment.CenterHorizontally).toAttrs()) {
-                    renderTextWithTooltips(describer, tooltipParser, title)
-                }
+        Column(ModalStyle.toModifier().then(dialogModifier), ref = ref) {
+            if (titleRow != null) {
+                Row(ModalTitleStyle.toModifier()) { titleRow() }
+            }
+
+            if (topRow != null) {
+                Row { topRow() }
             }
             Column(ModalContentColumnStyle.toModifier()) {
                 content()
