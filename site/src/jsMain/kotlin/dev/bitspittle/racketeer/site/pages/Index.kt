@@ -3,6 +3,7 @@ package dev.bitspittle.racketeer.site.pages
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.foundation.layout.Box
+import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.core.Page
@@ -37,7 +38,10 @@ fun HomePage() {
 
         when (startupState) {
             GameStartupState.FetchingData -> {
-                Box(Modifier.fillMaxSize().cursor(Cursor.Progress).padding(15.percent)) {
+                Box(
+                    Modifier.fillMaxSize().cursor(Cursor.Progress).padding(15.percent),
+                    contentAlignment = Alignment.TopCenter
+                ) {
                     Text("Please wait, loading...")
                 }
                 window.fetch("gamedata.yaml").then { response ->
