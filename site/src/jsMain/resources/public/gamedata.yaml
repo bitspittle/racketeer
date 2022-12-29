@@ -1488,7 +1488,8 @@ blueprints:
       influence: 3
     activateActions:
       - check-for-shuffle 5
-      - pile-move-to! $discard (choose --prompt "Move cards from the top of the deck to the discard pile." (take --from 'front $deck 5) .. 0 size (take --from 'front $deck 5))
+      - set '$deck-front (take --from 'front $deck 5)
+      - pile-move-to! $discard (choose --required _ --prompt "Move cards from the top of the deck to the discard pile." $deck-front .. 0 size $deck-front)
 
 
   - name: Ritzy Hotel
