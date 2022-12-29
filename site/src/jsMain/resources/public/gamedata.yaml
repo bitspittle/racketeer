@@ -1674,7 +1674,7 @@ blueprints:
     initActions:
       - run
          '(set '$potential-cards (take --from 'random buyable-card-list 8))
-         '(set '$card-to-copy choose --required true --prompt "Get a card." $potential-cards 1)
+         '(set '$card-to-copy choose --required _ --prompt "Get a card." $potential-cards 1)
          '(set '$garbage filter $potential-cards '(! = (card-get $it 'name) (card-get (single $card-to-copy) 'name)))
          '(pile-copy-to! $street $card-to-copy)
          '(pile-copy-to! $jail $garbage)
@@ -1771,7 +1771,7 @@ blueprints:
       influence: 3
     canActivate: false
     initActions:
-      - fx-add! --desc "At start of turn, you may add a copy of your hand to the street." --lifetime 'game --event 'turn-start '(run '(choose --required true --prompt "This is your hand. Copy it to the street? (Answer on next screen.)" $hand size $hand) '(if-true (ask?! "Copy your hand to the street?") '(pile-copy-to! $street $hand)))
+      - fx-add! --desc "At start of turn, you may add a copy of your hand to the street." --lifetime 'game --event 'turn-start '(run '(choose --required _ --prompt "This is your hand. Copy it to the street? (Answer on next screen.)" $hand size $hand) '(if-true (ask?! "Copy your hand to the street?") '(pile-copy-to! $street $hand)))
 
 
   - name: Opera House
@@ -1815,7 +1815,7 @@ blueprints:
     initActions:
       - set '$all-tier-cards (filter buyable-card-list '(= $tier3 (card-get $it 'tier)))
       - set '$random-tier-cards (take --from 'random $all-tier-cards 3)
-      - choose --required true --prompt "Here's what you found at the Flea Market." $random-tier-cards 3
+      - choose --required _ --prompt "Here's what you found at the Flea Market." $random-tier-cards 3
       - pile-copy-to! $street $random-tier-cards
 
   - name: Bank Vault
@@ -1914,7 +1914,7 @@ blueprints:
     canActivate: false # Passive building
     initActions:
       - set '$magpie card-named "Agent Magpie"
-      - choose --required true --prompt "Agent Magpie is on the case!" (list $magpie) 1
+      - choose --required _ --prompt "Agent Magpie is on the case!" (list $magpie) 1
       - pile-copy-to! $street $magpie
 
   - name: Wine Cellar
