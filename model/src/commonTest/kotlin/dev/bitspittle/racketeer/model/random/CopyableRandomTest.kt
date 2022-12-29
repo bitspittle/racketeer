@@ -35,13 +35,14 @@ class CopyableRandomTest {
 
     @Test
     fun canSerializeCopyableRandom() {
+        val serializer = CopyableRandom.serializer()
         repeat(100) {
             val copyableRandom = CopyableRandom()
-            val copyrableRandomCopy = Yaml.decodeFromString(CopyableRandom.serializer(), Yaml.encodeToString(copyableRandom))
+            val copyableRandomCopy = Yaml.decodeFromString(serializer, Yaml.encodeToString(serializer, copyableRandom))
 
-            assertThat(copyableRandom.nextInt()).isEqualTo(copyrableRandomCopy.nextInt())
-            assertThat(copyableRandom.nextInt(123)).isEqualTo(copyrableRandomCopy.nextInt(123))
-            assertThat(copyableRandom.nextInt(123, 456)).isEqualTo(copyrableRandomCopy.nextInt(123, 456))
+            assertThat(copyableRandom.nextInt()).isEqualTo(copyableRandomCopy.nextInt())
+            assertThat(copyableRandom.nextInt(123)).isEqualTo(copyableRandomCopy.nextInt(123))
+            assertThat(copyableRandom.nextInt(123, 456)).isEqualTo(copyableRandomCopy.nextInt(123, 456))
         }
     }
 }
