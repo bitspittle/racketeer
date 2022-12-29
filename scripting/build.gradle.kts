@@ -21,7 +21,7 @@ kotlin {
         }
         val commonMain by getting {
             dependencies {
-                api(project(":limp"))
+                api(libs.limp)
                 implementation(project(":model"))
                 implementation(libs.uuid)
             }
