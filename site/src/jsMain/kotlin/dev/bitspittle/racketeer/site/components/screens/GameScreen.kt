@@ -15,7 +15,9 @@ import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.model.game.GameProperty
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.game.isGameOver
+import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import dev.bitspittle.racketeer.site.components.sections.menu.GameMenu
+import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.components.widgets.*
 import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.GameContext
@@ -145,7 +147,7 @@ fun GameScreen(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> 
                 CardPile(ctx, ctx.state.discard)
                 CardGroup("Street (${ctx.state.street.cards.size})") {
                     ctx.state.street.cards.forEach { card ->
-                        Card(ctx.describer, ctx.tooltipParser, card)
+                        Card(ctx.describer, ctx.tooltipParser, card, enabled = false)
                     }
                 }
 
@@ -188,6 +190,16 @@ fun GameScreen(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> 
                                 {
                                     if (!ctx.state.isGameOver) {
                                         ctx.state.apply(GameStateChange.Draw())
+
+                                        try {
+                                            // Force an auto-save so user's don't lose their progress if they
+                                            // crash or their program freezes
+                                            Data.save(Data.Keys.Quicksave, GameSnapshot.from(ctx.describer, ctx.state))
+                                            ctx.logger.debug("Game auto-saved.")
+                                        } catch (ignored: Exception) {
+                                            // Shouldn't ever happen, but we don't want to risk an autosave failure
+                                            // stopping someone from playing through the rest of the game
+                                        }
                                     }
                                 }
                             )

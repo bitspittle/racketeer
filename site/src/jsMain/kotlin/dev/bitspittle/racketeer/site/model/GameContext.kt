@@ -25,10 +25,11 @@ class GameContext(
     val logger: MemoryLogger,
     val describer: Describer,
     val tooltipParser: TooltipParser,
+    val enqueuers: Enqueuers,
     var state: GameState
 )
 
-suspend fun createNewGame(gameData: GameData, handleChoice: (ChoiceContext) -> Unit): GameContext {
+suspend fun createGameConext(gameData: GameData, handleChoice: (ChoiceContext) -> Unit): GameContext {
     val logger = MemoryLogger()
 
     val copyableRandom = CopyableRandom()
@@ -89,15 +90,18 @@ suspend fun createNewGame(gameData: GameData, handleChoice: (ChoiceContext) -> U
         override val logger = logger
     })
 
-    gameState.recordChanges {
-        gameState.apply(GameStateChange.GameStart())
-        enqueuers.expr.enqueue(gameState, gameData.initActions)
-        enqueuers.actionQueue.runEnqueuedActions()
-        gameState.apply(GameStateChange.Draw())
-    }
-
-    return GameContext(gameData, env, logger, describer, tooltipParser, gameState)
+    return GameContext(gameData, env, logger, describer, tooltipParser, enqueuers, gameState)
         .also { provideGameState = { it.state } }
+}
+
+suspend fun GameContext.startNewGame() {
+    require(state.history.isEmpty())
+    state.recordChanges {
+        state.apply(GameStateChange.GameStart())
+        enqueuers.expr.enqueue(state, data.initActions)
+        enqueuers.actionQueue.runEnqueuedActions()
+        state.apply(GameStateChange.Draw())
+    }
 }
 
 suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> Unit): Boolean {
