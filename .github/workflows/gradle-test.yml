@@ -19,4 +19,4 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
       - name: Test with Gradle
-        run: ./gradlew :model:jvmTest :scripting:jvmTest :model:jsTest :scripting:jsTest
+        run: ./gradlew allTests
