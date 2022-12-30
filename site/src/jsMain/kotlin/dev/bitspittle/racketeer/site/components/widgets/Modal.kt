@@ -62,6 +62,33 @@ val ModalButtonRowStyle = ComponentStyle("modal-button-row") {
     }
 }
 
+@Composable
+fun Modal(
+    overlayModifier: Modifier = Modifier,
+    dialogModifier: Modifier = Modifier,
+    ref: ElementRefScope<HTMLElement>? = null,
+    title: String? = null,
+    bottomRow: (@Composable RowScope.() -> Unit)? = null,
+    content: (@Composable ColumnScope.() -> Unit)? = null,
+) {
+    Modal(
+        overlayModifier,
+        dialogModifier,
+        ref,
+        titleRow = title?.let { title -> {
+            Spacer()
+            Span(ModalTitleStyle.toAttrs {  }) {
+                Text(title)
+            }
+            Spacer()
+        }},
+        topRow = null,
+        bottomRow = bottomRow,
+        content = content
+    )
+}
+
+
 
 @Composable
 fun Modal(
@@ -72,7 +99,7 @@ fun Modal(
     ref: ElementRefScope<HTMLElement>? = null,
     title: String? = null,
     bottomRow: (@Composable RowScope.() -> Unit)? = null,
-    content: @Composable ColumnScope.() -> Unit
+    content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     Modal(
         overlayModifier,
@@ -99,7 +126,7 @@ fun Modal(
     titleRow: (@Composable RowScope.() -> Unit)? = null,
     topRow: (@Composable RowScope.() -> Unit)? = null,
     bottomRow: (@Composable RowScope.() -> Unit)? = null,
-    content: @Composable ColumnScope.() -> Unit
+    content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     Overlay(overlayModifier) {
         Column(ModalStyle.toModifier().then(dialogModifier), ref = ref) {
@@ -110,8 +137,10 @@ fun Modal(
             if (topRow != null) {
                 Row { topRow() }
             }
-            Column(listOf(ModalContentColumnStyle, FullWidthChildrenStyle).toModifier()) {
-                content()
+            content?.let { content ->
+                Column(listOf(ModalContentColumnStyle, FullWidthChildrenStyle).toModifier()) {
+                    content()
+                }
             }
             if (bottomRow != null) {
                 Row(ModalButtonRowStyle.toModifier()) {

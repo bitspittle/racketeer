@@ -14,14 +14,16 @@ import dev.bitspittle.racketeer.site.components.screens.TitleScreen
 import dev.bitspittle.racketeer.site.components.sections.Choice
 import dev.bitspittle.racketeer.site.model.ChoiceContext
 import dev.bitspittle.racketeer.site.model.GameContext
+import dev.bitspittle.racketeer.site.model.createGameConext
 import kotlinx.browser.window
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
 private sealed interface GameStartupState {
     object FetchingData : GameStartupState
     class DataFetched(val gameData: GameData) : GameStartupState
-//    object CreatingContext : GameStartupState
+    class CreatingContext(val gameData: GameData, val initCtx: suspend GameContext.() -> Unit) : GameStartupState
     class ContextCreated(val gameContext: GameContext) : GameStartupState
 }
 
@@ -29,7 +31,6 @@ private sealed interface GameStartupState {
 @Composable
 fun HomePage() {
     PageLayout("Do Crimes") {
-        val scope = rememberCoroutineScope()
         var startupState by remember { mutableStateOf<GameStartupState>(GameStartupState.FetchingData) }
         var choiceCtx by remember { mutableStateOf<ChoiceContext?>(null) }
         var forceRecomposition by remember { mutableStateOf(0) }
@@ -49,26 +50,33 @@ fun HomePage() {
                 }
             }
             is GameStartupState.DataFetched -> {
-                val gameData = (startupState as GameStartupState.DataFetched).gameData
-                TitleScreen(
-                    scope,
-                    gameData,
-                    handleChoice = {
-                        choiceCtx = it.also {
-                            it.onChosen {
-                                choiceCtx = null
-                            }
+                (startupState as GameStartupState.DataFetched).apply {
+                    TitleScreen(
+                        requestNewGameContext = { initCtx ->
+                            startupState = GameStartupState.CreatingContext(gameData, initCtx)
                         }
-                    },
-                    gameRequested = { ctx ->
+                    )
+                }
+            }
+            is GameStartupState.CreatingContext -> {
+                (startupState as GameStartupState.CreatingContext).apply {
+                    LaunchedEffect(startupState) {
+                        val ctx = createGameConext(gameData, handleChoice = {
+                            choiceCtx = it.also {
+                                it.onChosen {
+                                    choiceCtx = null
+                                }
+                            }
+                        })
+                        initCtx.invoke(ctx)
                         startupState = GameStartupState.ContextCreated(ctx)
                     }
-                )
+                }
             }
             is GameStartupState.ContextCreated -> {
                 key(forceRecomposition) {
                     val gameCtx = (startupState as GameStartupState.ContextCreated).gameContext
-                    GameScreen(scope, gameCtx) { ++forceRecomposition }
+                    GameScreen(gameCtx) { ++forceRecomposition }
                 }
             }
         }

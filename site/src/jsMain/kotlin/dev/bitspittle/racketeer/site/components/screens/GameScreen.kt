@@ -22,14 +22,14 @@ import dev.bitspittle.racketeer.site.components.widgets.*
 import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.GameContext
 import dev.bitspittle.racketeer.site.model.GameUpdater
-import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
 private val GAP = 20.px
 
 @Composable
-fun GameScreen(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> Unit) {
+fun GameScreen(ctx: GameContext, onContextUpdated: () -> Unit) {
+    val scope = rememberCoroutineScope()
     var showMenu by remember { mutableStateOf(false) }
     val gameUpdater = GameUpdater(scope, ctx, onContextUpdated)
 
@@ -200,6 +200,9 @@ fun GameScreen(scope: CoroutineScope, ctx: GameContext, onContextUpdated: () -> 
                                             // Shouldn't ever happen, but we don't want to risk an autosave failure
                                             // stopping someone from playing through the rest of the game
                                         }
+                                    } else {
+                                        // Game is over! No more need to keep a save around
+                                        Data.delete(Data.Keys.Quicksave)
                                     }
                                 }
                             )

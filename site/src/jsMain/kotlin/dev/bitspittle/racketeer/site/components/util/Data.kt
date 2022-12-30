@@ -58,8 +58,6 @@ object Data {
         val value: T,
     )
 
-    val QUICKSAVE_SLOT = -1
-
     private fun <T: Any> T.encodeToYaml() = Yaml { this.encodeDefaultValues = false }.encodeToString(this)
     fun <T: Any> save(key: Key<T>, value: T) {
         val timestamp = Date().toTimeString()
@@ -98,7 +96,6 @@ object Data {
 //        val BuildingState = "bldgstats"
 //        val GameStats = "gamestats"
 //        val Settings = "settings"
-        val Quicksave get() = Save(QUICKSAVE_SLOT)
-        fun Save(slot: Int) = Key<GameSnapshot>(if (slot != QUICKSAVE_SLOT) "savegame.$slot" else "quicksave")
+        val Quicksave = Key<GameSnapshot>("quicksave")
     }
 }
