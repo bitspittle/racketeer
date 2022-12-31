@@ -18,6 +18,7 @@ import dev.bitspittle.racketeer.site.model.GameContext
 import dev.bitspittle.racketeer.site.model.GameUpdater
 import kotlinx.browser.document
 import kotlinx.browser.window
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.mamoe.yamlkt.Yaml
 import org.jetbrains.compose.web.dom.*
@@ -32,6 +33,7 @@ import kotlin.js.Date
 
 interface GameMenuEntry {
     class Params(
+        val scope: CoroutineScope,
         val ctx: GameContext,
         val updater: GameUpdater,
         val visit: (GameMenuEntry) -> Unit,
@@ -49,7 +51,9 @@ interface GameMenuEntry {
 
         @Composable
         override fun renderContent(params: Params) {
-            Button(onClick = { params.visit(Admin) }) { Text(Admin.title) }
+            if (params.ctx.settings.admin.enabled) {
+                Button(onClick = { params.visit(Admin) }) { Text(Admin.title) }
+            }
 
             run {
                 var showConfirmQuestion by remember { mutableStateOf(false) }
@@ -150,8 +154,6 @@ interface GameMenuEntry {
 
                 @Composable
                 override fun renderContent(params: Params) {
-                    val scope = rememberCoroutineScope()
-
                     Button(
                         onClick = {
                             params.apply {
@@ -227,7 +229,7 @@ interface GameMenuEntry {
 }
 
 @Composable
-fun GameMenu(ctx: GameContext, gameUpdater: GameUpdater, closeRequested: () -> Unit, quitRequested: () -> Unit) {
+fun GameMenu(scope: CoroutineScope, ctx: GameContext, gameUpdater: GameUpdater, closeRequested: () -> Unit, quitRequested: () -> Unit) {
     val menuStack = remember { mutableStateListOf<GameMenuEntry>(GameMenuEntry.Main) }
 
     fun goBack() {
@@ -255,6 +257,7 @@ fun GameMenu(ctx: GameContext, gameUpdater: GameUpdater, closeRequested: () -> U
         menuStack.last()
             .renderContent(
                 GameMenuEntry.Params(
+                    scope,
                     ctx,
                     gameUpdater,
                     { entry -> menuStack.add(entry) },

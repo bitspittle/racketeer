@@ -2,17 +2,24 @@ package dev.bitspittle.racketeer.site.components.layouts
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.FontWeight
-import com.varabyte.kobweb.compose.css.UserSelect
+import com.varabyte.kobweb.compose.css.PointerEvents
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
+import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
+import com.varabyte.kobweb.compose.ui.thenIf
+import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.core.AppGlobals
 import com.varabyte.kobweb.silk.components.style.*
 import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.sections.Footer
+import dev.bitspittle.racketeer.site.components.util.Data
+import dev.bitspittle.racketeer.site.model.*
 import kotlinx.browser.document
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
@@ -34,10 +41,32 @@ val VersionStyle = ComponentStyle("version") {
     }
 }
 
+class PageLayoutScope(val scope: CoroutineScope, val events: Events, val settings: Settings)
+
 @Composable
-fun PageLayout(title: String, content: @Composable () -> Unit) {
-    LaunchedEffect(title) {
+fun PageLayout(title: String, content: @Composable PageLayoutScope.() -> Unit) {
+    remember(title) {
         document.title = title
+    }
+
+    val scope = rememberCoroutineScope()
+    val events = remember { MutableSharedFlow<Event>(replay = 0) }
+    val settings = remember { Data.load(Data.Keys.Settings)?.value ?: Settings() }
+
+    var showAdminDecoration by remember { mutableStateOf(settings.admin.enabled) }
+
+    LaunchedEffect(Unit) {
+        events.collect { evt ->
+            when (evt) {
+                is Event.SettingsChanged -> {
+                    showAdminDecoration = evt.settings.admin.enabled
+                    if (settings.isDefault) {
+                        Data.delete(Data.Keys.Settings)
+                    } else Data.save(Data.Keys.Settings, settings)
+                }
+                else -> {}
+            }
+        }
     }
 
     Box(
@@ -51,13 +80,30 @@ fun PageLayout(title: String, content: @Composable () -> Unit) {
             .gridTemplateRows("1fr auto")
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            content()
+            PageLayoutScope(scope, events, settings).content()
         }
         // Associate the footer with the row that will get pushed off the bottom of the page if it can't fit.
         Footer(Modifier.align(Alignment.Center).gridRowStart(2).gridRowEnd(3))
     }
 
-    Div(VersionStyle.toAttrs()) {
+    if (showAdminDecoration) {
+        Box(
+            Modifier.position(Position.Fixed).top(0.px).left(0.px).bottom(0.px).right(0.px)
+                .pointerEvents(PointerEvents.None).thenIf(settings.admin.enabled) {
+                Modifier.boxShadow(spreadRadius = 10.px, color = Colors.Pink, inset = true)
+            })
+    }
+
+    Div(
+        VersionStyle
+            .toModifier()
+            .onClick { evt ->
+                if (evt.ctrlKey && evt.altKey && evt.shiftKey) {
+                    settings.admin.enabled = !settings.admin.enabled
+                    events.emitAsync(scope, Event.SettingsChanged(settings))
+                }
+            }.toAttrs()
+    ){
         Text("v" + AppGlobals["version"] as String)
     }
 }

@@ -14,12 +14,14 @@ import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.components.widgets.YesNo
 import dev.bitspittle.racketeer.site.components.widgets.YesNoDialog
 import dev.bitspittle.racketeer.site.model.GameContext
+import dev.bitspittle.racketeer.site.model.Settings
 import dev.bitspittle.racketeer.site.model.startNewGame
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
 @Composable
 fun TitleScreen(
+    settings: Settings,
     requestNewGameContext: (init: suspend GameContext.() -> Unit) -> Unit
 ) {
     Box(Modifier.fillMaxSize().padding(5.percent), contentAlignment = Alignment.TopCenter) {

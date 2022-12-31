@@ -20,18 +20,19 @@ import dev.bitspittle.racketeer.site.components.sections.menu.GameMenu
 import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.components.widgets.*
 import dev.bitspittle.racketeer.site.inputRef
+import dev.bitspittle.racketeer.site.model.Events
 import dev.bitspittle.racketeer.site.model.GameContext
 import dev.bitspittle.racketeer.site.model.GameUpdater
+import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
 private val GAP = 20.px
 
 @Composable
-fun GameScreen(ctx: GameContext, onContextUpdated: () -> Unit, onQuitRequested: () -> Unit) {
-    val scope = rememberCoroutineScope()
+fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onQuitRequested: () -> Unit) {
     var showMenu by remember { mutableStateOf(false) }
-    val gameUpdater = GameUpdater(scope, ctx, onContextUpdated)
+    val gameUpdater = GameUpdater(scope, events, ctx)
 
     Box(
         Modifier.fillMaxSize().minWidth(500.px),
@@ -222,6 +223,6 @@ fun GameScreen(ctx: GameContext, onContextUpdated: () -> Unit, onQuitRequested: 
     }
 
     if (showMenu) {
-        GameMenu(ctx, gameUpdater, closeRequested = { showMenu = false }, quitRequested = { onQuitRequested() })
+        GameMenu(scope, ctx, gameUpdater, closeRequested = { showMenu = false }, quitRequested = { onQuitRequested() })
     }
 }

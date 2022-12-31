@@ -13,6 +13,7 @@ import dev.bitspittle.racketeer.site.components.screens.GameScreen
 import dev.bitspittle.racketeer.site.components.screens.TitleScreen
 import dev.bitspittle.racketeer.site.components.sections.Choice
 import dev.bitspittle.racketeer.site.model.ChoiceContext
+import dev.bitspittle.racketeer.site.model.Event
 import dev.bitspittle.racketeer.site.model.GameContext
 import dev.bitspittle.racketeer.site.model.createGameConext
 import kotlinx.browser.window
@@ -32,7 +33,6 @@ fun HomePage() {
     PageLayout("Do Crimes") {
         var startupState by remember { mutableStateOf<GameStartupState>(GameStartupState.FetchingData) }
         var choiceCtx by remember { mutableStateOf<ChoiceContext?>(null) }
-        var forceRecomposition by remember { mutableStateOf(0) }
         val handleChoice: (ChoiceContext) -> Unit = remember {
             {
                 choiceCtx = it.also {
@@ -60,6 +60,7 @@ fun HomePage() {
             is GameStartupState.DataFetched -> {
                 (startupState as GameStartupState.DataFetched).apply {
                     TitleScreen(
+                        settings,
                         requestNewGameContext = { initCtx ->
                             startupState = GameStartupState.CreatingContext(gameData, initCtx)
                         }
@@ -72,17 +73,29 @@ fun HomePage() {
                         startupState = GameStartupState.ContextCreated(
                             createGameConext(
                                 gameData,
+                                settings,
                                 handleChoice
                             ).apply { initCtx() })
                     }
                 }
             }
             is GameStartupState.ContextCreated -> {
-                key(forceRecomposition) {
+                var updateGameScreen by remember { mutableStateOf(0) }
+                LaunchedEffect(Unit) {
+                    events.collect { evt ->
+                        when (evt) {
+                            is Event.GameStateUpdated -> updateGameScreen++
+                            else -> {}
+                        }
+                    }
+                }
+
+                key(updateGameScreen) {
                     val gameCtx = (startupState as GameStartupState.ContextCreated).gameContext
                     GameScreen(
+                        scope,
+                        events,
                         gameCtx,
-                        onContextUpdated = { ++forceRecomposition },
                         onQuitRequested = { startupState = GameStartupState.DataFetched(gameCtx.data) }
                     )
                 }

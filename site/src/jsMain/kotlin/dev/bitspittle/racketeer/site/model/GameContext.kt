@@ -20,6 +20,7 @@ import dev.bitspittle.racketeer.scripting.types.*
 import dev.bitspittle.racketeer.scripting.utils.installGameLogic
 import kotlin.coroutines.suspendCoroutine
 
+@Stable
 class GameContext(
     val data: GameData,
     val env: Environment,
@@ -27,10 +28,11 @@ class GameContext(
     val describer: Describer,
     val tooltipParser: TooltipParser,
     val enqueuers: Enqueuers,
+    val settings: Settings,
     var state: GameState
 )
 
-suspend fun createGameConext(gameData: GameData, handleChoice: (ChoiceContext) -> Unit): GameContext {
+suspend fun createGameConext(gameData: GameData, settings: Settings, handleChoice: (ChoiceContext) -> Unit): GameContext {
     val logger = MemoryLogger()
 
     val copyableRandom = CopyableRandom()
@@ -91,7 +93,7 @@ suspend fun createGameConext(gameData: GameData, handleChoice: (ChoiceContext) -
         override val logger = logger
     })
 
-    return GameContext(gameData, env, logger, describer, tooltipParser, enqueuers, gameState)
+    return GameContext(gameData, env, logger, describer, tooltipParser, enqueuers, settings, gameState)
         .also { provideGameState = { it.state } }
 }
 

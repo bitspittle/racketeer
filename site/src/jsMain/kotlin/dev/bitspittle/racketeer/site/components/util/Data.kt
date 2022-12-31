@@ -1,6 +1,7 @@
 package dev.bitspittle.racketeer.site.components.util
 
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
+import dev.bitspittle.racketeer.site.model.Settings
 import kotlinx.browser.localStorage
 import kotlinx.serialization.decodeFromString
 import net.mamoe.yamlkt.Yaml
@@ -96,7 +97,7 @@ object Data {
 //        val CardStats = "cardstats"
 //        val BuildingState = "bldgstats"
 //        val GameStats = "gamestats"
-//        val Settings = "settings"
+        val Settings = Key<Settings>("settings")
         val Quicksave = Key<GameSnapshot>("quicksave")
     }
 }
