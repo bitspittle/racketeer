@@ -41,7 +41,7 @@ fun TitleScreen(
                 if (showProceedQuestion) {
                     YesNoDialog(
                         "Continue?",
-                        "Once you confirm, the existing quick save from your last game will be deleted. If you don't want this to happen, go back!"
+                        "Once you confirm, the existing quick save from your last game will be deleted. If you don't want this to happen, cancel and choose \"Restore Game\" instead!"
                     ) { yesNo ->
                         showProceedQuestion = false
                         if (yesNo == YesNo.YES) {
