@@ -90,7 +90,7 @@ fun PageLayout(title: String, content: @Composable PageLayoutScope.() -> Unit) {
         Box(
             Modifier.position(Position.Fixed).top(0.px).left(0.px).bottom(0.px).right(0.px)
                 .pointerEvents(PointerEvents.None).thenIf(settings.admin.enabled) {
-                Modifier.boxShadow(spreadRadius = 10.px, color = Colors.Pink, inset = true)
+                Modifier.boxShadow(spreadRadius = 15.px, color = Colors.Pink, inset = true)
             })
     }
 
