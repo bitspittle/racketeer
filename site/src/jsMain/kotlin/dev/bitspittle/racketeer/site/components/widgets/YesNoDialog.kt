@@ -1,9 +1,11 @@
 package dev.bitspittle.racketeer.site.components.widgets
 
 import androidx.compose.runtime.*
+import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.silk.components.forms.Button
+import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.site.inputRef
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
@@ -45,7 +47,14 @@ fun YesNoDialog(
                 true
             } else false
         },
-        content = question?.let { question -> { Text(question) }}
+        content = question?.let { question ->
+            {
+                Column {
+                    // Need to add a space or else separating lines (e.g. from "Line1\n\nLine2") is squashed.
+                    question.split("\n").forEach { line -> SpanText(line.takeIf { it.isNotEmpty() } ?: " ") }
+                }
+            }
+        }
     )
 }
 
