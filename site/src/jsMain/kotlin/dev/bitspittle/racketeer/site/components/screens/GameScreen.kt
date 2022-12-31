@@ -51,23 +51,22 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onQuitRe
             ) {
                 SpanText("Turn ${ctx.state.turn + 1}")
                 Row(Modifier.gap(5.px)) {
-                    // TODO(#2): This should only work if you're in admin mode
                     SpanText(ctx.describer.describeCash(ctx.state.cash), Modifier.onClick { evt ->
-                        if (evt.ctrlKey && evt.shiftKey) {
+                        if (ctx.settings.admin.enabled && evt.ctrlKey && evt.shiftKey) {
                             gameUpdater.runStateChangingAction {
                                 ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.CASH, if (evt.altKey) 10 else 1))
                             }
                         }
                     })
                     SpanText(ctx.describer.describeInfluence(ctx.state.influence), Modifier.onClick { evt ->
-                        if (evt.ctrlKey && evt.shiftKey) {
+                        if (ctx.settings.admin.enabled && evt.ctrlKey && evt.shiftKey) {
                             gameUpdater.runStateChangingAction {
                                 ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, if (evt.altKey) 10 else 1))
                             }
                         }
                     })
                     SpanText(ctx.describer.describeLuck(ctx.state.luck), Modifier.onClick { evt ->
-                        if (evt.ctrlKey && evt.shiftKey) {
+                        if (ctx.settings.admin.enabled && evt.ctrlKey && evt.shiftKey) {
                             gameUpdater.runStateChangingAction {
                                 ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.LUCK, if (evt.altKey) 10 else 1))
                             }
