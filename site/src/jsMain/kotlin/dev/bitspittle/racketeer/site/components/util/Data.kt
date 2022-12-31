@@ -50,6 +50,8 @@ import kotlin.js.Date
 //    }
 //}
 
+fun <T: Any> T.encodeToYaml() = Yaml { this.encodeDefaultValues = false }.encodeToString(this)
+
 object Data {
     class Key<T: Any>(val name: String)
 
@@ -58,7 +60,6 @@ object Data {
         val value: T,
     )
 
-    private fun <T: Any> T.encodeToYaml() = Yaml { this.encodeDefaultValues = false }.encodeToString(this)
     fun <T: Any> save(key: Key<T>, value: T) {
         val timestamp = Date().toTimeString()
         localStorage.setItem(key.name, value.encodeToYaml())
