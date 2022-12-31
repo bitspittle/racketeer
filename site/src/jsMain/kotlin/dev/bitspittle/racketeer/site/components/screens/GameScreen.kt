@@ -28,7 +28,7 @@ import org.jetbrains.compose.web.dom.*
 private val GAP = 20.px
 
 @Composable
-fun GameScreen(ctx: GameContext, onContextUpdated: () -> Unit) {
+fun GameScreen(ctx: GameContext, onContextUpdated: () -> Unit, onQuitRequested: () -> Unit) {
     val scope = rememberCoroutineScope()
     var showMenu by remember { mutableStateOf(false) }
     val gameUpdater = GameUpdater(scope, ctx, onContextUpdated)
@@ -222,6 +222,6 @@ fun GameScreen(ctx: GameContext, onContextUpdated: () -> Unit) {
     }
 
     if (showMenu) {
-        GameMenu(ctx, gameUpdater, closeRequested = { showMenu = false })
+        GameMenu(ctx, gameUpdater, closeRequested = { showMenu = false }, quitRequested = { onQuitRequested() })
     }
 }

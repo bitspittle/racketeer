@@ -5,8 +5,12 @@ import com.varabyte.kobweb.compose.foundation.layout.Spacer
 import com.varabyte.kobweb.silk.components.forms.Button
 import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.racketeer.model.game.GameStateChange
+import dev.bitspittle.racketeer.model.serialization.GameSnapshot
+import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.components.util.installPopup
 import dev.bitspittle.racketeer.site.components.widgets.Modal
+import dev.bitspittle.racketeer.site.components.widgets.YesNo
+import dev.bitspittle.racketeer.site.components.widgets.YesNoDialog
 import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.GameContext
 import dev.bitspittle.racketeer.site.model.GameUpdater
@@ -19,6 +23,7 @@ interface GameMenuEntry {
         val updater: GameUpdater,
         val visit: (GameMenuEntry) -> Unit,
         val requestClose: () -> Unit,
+        val requestQuit: () -> Unit,
     )
 
     val title: String
@@ -32,6 +37,25 @@ interface GameMenuEntry {
         @Composable
         override fun renderContent(params: Params) {
             Button(onClick = { params.visit(Admin) }) { Text("Admin") }
+
+            run {
+                var showConfirmQuestion by remember { mutableStateOf(false) }
+                Button(onClick = { showConfirmQuestion = true }) { Text("Save and Quit") }
+
+                if (showConfirmQuestion) {
+                    YesNoDialog(
+                        "Are you sure?",
+                    ) { yesNo ->
+                        showConfirmQuestion = false
+                        if (yesNo == YesNo.YES) {
+                            params.apply {
+                                Data.save(Data.Keys.Quicksave, GameSnapshot.from(ctx.describer, ctx.state))
+                                requestQuit()
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         object Admin : GameMenuEntry {
@@ -111,7 +135,7 @@ interface GameMenuEntry {
 }
 
 @Composable
-fun GameMenu(ctx: GameContext, gameUpdater: GameUpdater, closeRequested: () -> Unit) {
+fun GameMenu(ctx: GameContext, gameUpdater: GameUpdater, closeRequested: () -> Unit, quitRequested: () -> Unit) {
     val menuStack = remember { mutableStateListOf<GameMenuEntry>(GameMenuEntry.Main) }
 
     fun goBack() {
@@ -132,12 +156,23 @@ fun GameMenu(ctx: GameContext, gameUpdater: GameUpdater, closeRequested: () -> U
         },
         bottomRow = {
             Button(onClick = { goBack() }) {
-                Text("Go Back")
+                Text(if (menuStack.size >= 2) "Go Back" else "Close")
             }
         },
     ) {
         menuStack.last()
-            .renderContent(GameMenuEntry.Params(ctx, gameUpdater, { entry -> menuStack.add(entry) }, closeRequested))
+            .renderContent(
+                GameMenuEntry.Params(
+                    ctx,
+                    gameUpdater,
+                    { entry -> menuStack.add(entry) },
+                    closeRequested,
+                    requestQuit = {
+                        closeRequested()
+                        quitRequested()
+                    }
+                )
+            )
     }
 
 }

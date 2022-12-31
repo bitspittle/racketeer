@@ -24,7 +24,7 @@ val ModalStyle = ComponentStyle.base("modal") {
         .minWidth(300.px)
         .maxWidth(500.px)
         .backgroundColor(colorMode.toSilkPalette().background)
-        .margin(top = 10.vh)
+        .margin(top = 6.vh)
         .padding(20.px)
         .gap(10.px)
         .borderRadius(2.percent)
