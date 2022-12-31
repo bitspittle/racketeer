@@ -1,35 +1,26 @@
 package dev.bitspittle.racketeer.site.components.sections.menu
 
 import androidx.compose.runtime.*
+import com.varabyte.kobweb.compose.dom.ElementTarget
 import com.varabyte.kobweb.compose.foundation.layout.Spacer
 import com.varabyte.kobweb.silk.components.forms.Button
+import com.varabyte.kobweb.silk.components.overlay.Tooltip
 import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import dev.bitspittle.racketeer.site.components.util.Data
-import dev.bitspittle.racketeer.site.components.util.encodeToYaml
+import dev.bitspittle.racketeer.site.components.util.downloadSnapshotToDisk
 import dev.bitspittle.racketeer.site.components.util.installPopup
-import dev.bitspittle.racketeer.site.components.util.toFilenameString
+import dev.bitspittle.racketeer.site.components.util.loadSnapshotFromDisk
 import dev.bitspittle.racketeer.site.components.widgets.Modal
 import dev.bitspittle.racketeer.site.components.widgets.YesNo
 import dev.bitspittle.racketeer.site.components.widgets.YesNoDialog
 import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.GameContext
 import dev.bitspittle.racketeer.site.model.GameUpdater
-import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import net.mamoe.yamlkt.Yaml
 import org.jetbrains.compose.web.dom.*
-import org.w3c.dom.HTMLAnchorElement
-import org.w3c.dom.HTMLInputElement
-import org.w3c.dom.url.URL
-import org.w3c.files.Blob
-import org.w3c.files.BlobPropertyBag
-import org.w3c.files.File
-import org.w3c.files.FileReader
-import kotlin.js.Date
 
 interface GameMenuEntry {
     class Params(
@@ -82,7 +73,7 @@ interface GameMenuEntry {
             override fun renderContent(params: Params) {
                 Button(onClick = { params.visit(CreateCard) }) { Text(CreateCard.title) }
                 Button(onClick = { params.visit(BuildBuilding) }) { Text(BuildBuilding.title) }
-                Button(onClick = { params.visit(SaveManagement) }) { Text(SaveManagement.title)}
+                Button(onClick = { params.visit(Snapshot) }) { Text(Snapshot.title)}
                 Button(
                     onClick = {
                         window.open("https://docs.google.com/spreadsheets/d/1iG38W0xl2UzRHhQX_GvJWg3zZndqY-UkKAVaWzNiLKg/edit#gid=200941839", target = "_blank")
@@ -149,8 +140,8 @@ interface GameMenuEntry {
                 }
             }
 
-            object SaveManagement : GameMenuEntry {
-                override val title = "Save Management"
+            object Snapshot : GameMenuEntry {
+                override val title = "Snapshot"
 
                 @Composable
                 override fun renderContent(params: Params) {
@@ -162,66 +153,25 @@ interface GameMenuEntry {
                                 requestClose()
                             }
                         },
-                    ) { Text("Save now") }
+                    ) { Text("Save Now") }
+
+                    Button(
+                        onClick = {
+                            params.ctx.downloadSnapshotToDisk()
+                            params.requestClose()
+                        },
+                    ) { Text("Download Snapshot") }
+                    Tooltip(ElementTarget.PreviousSibling, "Note: This also saves the game for your convenience.")
 
                     Button(
                         onClick = {
                             params.apply {
-                                val snapshot = GameSnapshot.from(ctx.describer, ctx.state)
-                                Data.save(Data.Keys.Quicksave, snapshot)
-
-                                val snapshotBlob = Blob(arrayOf(snapshot.encodeToYaml()), BlobPropertyBag(type = "text/yaml"))
-                                val url = URL.createObjectURL(snapshotBlob)
-                                val tempAnchor = (document.createElement("a") as HTMLAnchorElement).apply {
-                                    style.display = "none"
-                                    href = url
-                                    download = "do-crimes_${Date().toFilenameString()}.dcr"
+                                ctx.loadSnapshotFromDisk(scope) {
+                                    requestClose()
                                 }
-                                document.body!!.append(tempAnchor)
-                                tempAnchor.click()
-                                URL.revokeObjectURL(url)
-                                tempAnchor.remove()
-
-                                requestClose()
                             }
                         },
-                    ) { Text("Download save") }
-
-                    Button(
-                        onClick = {
-                            params.apply {
-                                val tempInput = (document.createElement("input") as HTMLInputElement).apply {
-                                    type = "file"
-                                    style.display = "none"
-                                    accept = ".dcr"
-                                    multiple = false
-                                }
-
-                                tempInput.onchange = { changeEvt ->
-                                    val file = changeEvt.target.asDynamic().files[0] as File
-
-                                    val reader = FileReader()
-                                    reader.onload = { loadEvt ->
-                                        val content = loadEvt.target.asDynamic().result as String
-                                        scope.launch {
-                                            val snapshot = Yaml.decodeFromString(GameSnapshot.serializer(), content)
-                                            snapshot.create(ctx.data, ctx.env, ctx.enqueuers) { newState ->
-                                                ctx.state = newState
-                                            }
-
-                                            requestClose()
-                                        }
-                                    }
-                                    reader.readAsText(file, "UTF-8")
-                                }
-
-                                document.body!!.append(tempInput)
-                                tempInput.click()
-                                tempInput.remove()
-                            }
-                        },
-                    ) { Text("Load a save") }
-
+                    ) { Text("Load Snapshot") }
                 }
             }
         }

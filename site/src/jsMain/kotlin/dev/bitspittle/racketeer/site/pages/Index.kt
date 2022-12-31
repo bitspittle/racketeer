@@ -60,7 +60,9 @@ fun HomePage() {
             is GameStartupState.DataFetched -> {
                 (startupState as GameStartupState.DataFetched).apply {
                     TitleScreen(
+                        scope,
                         settings,
+                        events,
                         requestNewGameContext = { initCtx ->
                             startupState = GameStartupState.CreatingContext(gameData, initCtx)
                         }
