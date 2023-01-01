@@ -33,7 +33,6 @@ val ChoiceStyle = ComponentStyle.base("choice") {
 val SelectedChoiceVariant = ChoiceStyle.addVariantBase("selected") {
     Modifier
         .outline(width = 1.px, style = LineStyle.Solid, color = Colors.Black)
-
 }
 
 @Composable

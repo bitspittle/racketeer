@@ -1,13 +1,23 @@
 package dev.bitspittle.racketeer.site.components.sections.menu
 
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import com.varabyte.kobweb.compose.dom.ElementTarget
 import com.varabyte.kobweb.compose.foundation.layout.Spacer
+import com.varabyte.kobweb.compose.ui.Modifier
+import com.varabyte.kobweb.compose.ui.graphics.Colors
+import com.varabyte.kobweb.compose.ui.modifiers.*
+import com.varabyte.kobweb.compose.ui.thenIf
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.overlay.Tooltip
 import dev.bitspittle.limp.types.ListStrategy
+import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.GameStateChange
+import dev.bitspittle.racketeer.model.game.allPiles
+import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
+import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.components.util.downloadSnapshotToDisk
 import dev.bitspittle.racketeer.site.components.util.installPopup
@@ -20,7 +30,13 @@ import dev.bitspittle.racketeer.site.model.GameContext
 import dev.bitspittle.racketeer.site.model.GameUpdater
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
+import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
+
+@Composable
+private fun OpenMenuEntryButton(params: GameMenuEntry.Params, entry: GameMenuEntry) {
+    Button(onClick = { params.visit(entry) }) { Text(entry.title) }
+}
 
 interface GameMenuEntry {
     class Params(
@@ -34,8 +50,13 @@ interface GameMenuEntry {
 
     val title: String
 
+    fun handleKey(code: String): Boolean = false
+
     @Composable
     fun renderContent(params: Params)
+
+    @Composable
+    fun renderExtraBottomButtons(params: Params) {}
 
     object Main : GameMenuEntry {
         override val title = "Main"
@@ -43,7 +64,7 @@ interface GameMenuEntry {
         @Composable
         override fun renderContent(params: Params) {
             if (params.ctx.settings.admin.enabled) {
-                Button(onClick = { params.visit(Admin) }) { Text(Admin.title) }
+                OpenMenuEntryButton(params, Admin)
             }
 
             run {
@@ -71,9 +92,10 @@ interface GameMenuEntry {
 
             @Composable
             override fun renderContent(params: Params) {
-                Button(onClick = { params.visit(CreateCard) }) { Text(CreateCard.title) }
-                Button(onClick = { params.visit(BuildBuilding) }) { Text(BuildBuilding.title) }
-                Button(onClick = { params.visit(Snapshot) }) { Text(Snapshot.title)}
+                OpenMenuEntryButton(params, CreateCard)
+                OpenMenuEntryButton(params, BuildBuilding)
+                OpenMenuEntryButton(params, MoveCards.FromPile)
+                OpenMenuEntryButton(params, Snapshot)
                 Button(
                     onClick = {
                         window.open("https://docs.google.com/spreadsheets/d/1iG38W0xl2UzRHhQX_GvJWg3zZndqY-UkKAVaWzNiLKg/edit#gid=200941839", target = "_blank")
@@ -140,6 +162,102 @@ interface GameMenuEntry {
                 }
             }
 
+            object MoveCards {
+                object FromPile : GameMenuEntry {
+                    override val title = "Move Cards"
+
+                    @Composable
+                    override fun renderContent(params: Params) {
+                        with(params) {
+                            ctx.state.allPiles.forEach { pile ->
+                                Button(
+                                    onClick = {
+                                        params.visit(ChooseCards(ctx.state, ctx.describer, pile))
+                                    },
+                                    enabled = pile.cards.isNotEmpty(),
+                                ) { Text(ctx.describer.describePileTitle(ctx.state, pile, withSize = true)) }
+                            }
+                        }
+                    }
+                }
+
+                class ChooseCards(state: GameState, describer: Describer, val pile: Pile) : GameMenuEntry {
+                    override val title = "From ${describer.describePileTitle(state, pile)}"
+
+                    lateinit var selected: SnapshotStateMap<Card, Unit>
+
+                    override fun handleKey(code: String): Boolean {
+                        return if (code == "KeyA") {
+                            if (selected.count() < pile.cards.size) {
+                                pile.cards.forEach { card -> selected[card] = Unit }
+                            } else {
+                                selected.clear()
+                            }
+                            true
+                        } else false
+                    }
+
+                    @Composable
+                    override fun renderContent(params: Params) {
+                        selected = remember { mutableStateMapOf() }
+
+                        with(params) {
+                            pile.cards.forEach { card ->
+                                Button(
+                                    onClick = {
+                                        if (selected.remove(card) == null) {
+                                            selected[card] = Unit
+                                        }
+                                    },
+                                    Modifier.thenIf(selected.contains(card)) {
+                                        Modifier.outline(1.px, LineStyle.Solid, Colors.Black)
+                                    }
+                                ) { Text(card.template.name) }
+                                installPopup(ctx, card)
+                            }
+                        }
+                    }
+
+                    @Composable
+                    override fun renderExtraBottomButtons(params: Params) {
+                        Button(
+                            onClick = {
+                                params.visit(ToPile(selected.keys.toList(), excludedPile = pile))
+                            },
+                            enabled = selected.isNotEmpty(),
+                        ) { Text("Continue")}
+                    }
+                }
+
+                class ToPile(val cards: List<Card>, val excludedPile: Pile) : GameMenuEntry {
+                    override val title = "To Pile"
+
+                    @Composable
+                    override fun renderContent(params: Params) {
+                        with(params) {
+                            ctx.state.allPiles.forEach { pile ->
+                                Button(
+                                    onClick = {
+                                        updater.runStateChangingAction {
+                                            ctx.state.apply(
+                                                GameStateChange.MoveCards(
+                                                    ctx.state,
+                                                    cards,
+                                                    pile,
+                                                    ListStrategy.FRONT
+                                                )
+                                            )
+                                        }
+                                        requestClose()
+                                    },
+                                    enabled = pile !== excludedPile,
+                                ) { Text(ctx.describer.describePileTitle(ctx.state, pile, withSize = true)) }
+                            }
+                        }
+                    }
+                }
+            }
+
             object Snapshot : GameMenuEntry {
                 override val title = "Snapshot"
 
@@ -188,9 +306,23 @@ fun GameMenu(scope: CoroutineScope, ctx: GameContext, gameUpdater: GameUpdater, 
         } else closeRequested()
     }
 
+    val params = GameMenuEntry.Params(
+        scope,
+        ctx,
+        gameUpdater,
+        { entry -> menuStack.add(entry) },
+        closeRequested,
+        requestQuit = {
+            closeRequested()
+            quitRequested()
+        }
+    )
+
     Modal(
         ref = inputRef { code ->
-            if (code == "Escape") {
+            if (menuStack.last().handleKey(code)) {
+                true
+            } else if (code == "Escape") {
                 goBack()
                 true
             } else false
@@ -202,22 +334,10 @@ fun GameMenu(scope: CoroutineScope, ctx: GameContext, gameUpdater: GameUpdater, 
             Button(onClick = { goBack() }) {
                 Text(if (menuStack.size >= 2) "Go Back" else "Close")
             }
+            menuStack.last().renderExtraBottomButtons(params)
         },
     ) {
-        menuStack.last()
-            .renderContent(
-                GameMenuEntry.Params(
-                    scope,
-                    ctx,
-                    gameUpdater,
-                    { entry -> menuStack.add(entry) },
-                    closeRequested,
-                    requestQuit = {
-                        closeRequested()
-                        quitRequested()
-                    }
-                )
-            )
+        menuStack.last().renderContent(params)
     }
 
 }
