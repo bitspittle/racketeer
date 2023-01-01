@@ -47,7 +47,7 @@ fun YesNoDialog(
                 true
             } else false
         },
-        content = question?.let { question ->
+        content = @Suppress("NAME_SHADOWING") question?.let { question ->
             {
                 Column {
                     // Need to add a space or else separating lines (e.g. from "Line1\n\nLine2") is squashed.

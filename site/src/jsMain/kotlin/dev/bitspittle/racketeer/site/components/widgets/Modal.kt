@@ -75,7 +75,7 @@ fun Modal(
         overlayModifier,
         dialogModifier,
         ref,
-        titleRow = title?.let { title -> {
+        titleRow = @Suppress("NAME_SHADOWING") title?.let { title -> {
             Spacer()
             Span(ModalTitleStyle.toAttrs {  }) {
                 Text(title)
@@ -105,7 +105,7 @@ fun Modal(
         overlayModifier,
         dialogModifier,
         ref,
-        titleRow = title?.let { title -> {
+        titleRow = @Suppress("NAME_SHADOWING") title?.let { title -> {
             Spacer()
             Span(ModalTitleStyle.toAttrs {  }) {
                 renderTextWithTooltips(describer, tooltipParser, title)
