@@ -26,7 +26,7 @@ fun YesNoDialog(
 ) {
     Modal(
         overlayModifier = Modifier.onClick { response(YesNo.NO) },
-        dialogModifier = Modifier.margin(top = 8.vh),
+        dialogModifier = Modifier.margin(top = 8.vh).onClick { evt -> evt.stopPropagation() },
         title = title,
         bottomRow = {
             Button(
