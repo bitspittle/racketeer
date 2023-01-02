@@ -502,8 +502,8 @@ interface GameMenuEntry {
                         turn = (turn - 1 + maxTurnPlus1) % maxTurnPlus1
                     }
                     SpanText(
-                        (turn + 1).toString(),
-                        Modifier.width(30.px).textAlign(TextAlign.Center)
+                        "${turn + 1} / $maxTurnPlus1",
+                        Modifier.minWidth(60.px).textAlign(TextAlign.Center)
                     )
                     ArrowButton(ArrowDirection.RIGHT) {
                         turn = (turn + 1) % maxTurnPlus1
