@@ -5,14 +5,16 @@ import androidx.compose.runtime.snapshots.SnapshotStateMap
 import com.varabyte.kobweb.compose.css.TextAlign
 import com.varabyte.kobweb.compose.css.WhiteSpace
 import com.varabyte.kobweb.compose.dom.ElementTarget
-import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Row
+import com.varabyte.kobweb.compose.foundation.layout.RowScope
 import com.varabyte.kobweb.compose.foundation.layout.Spacer
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.thenIf
 import com.varabyte.kobweb.silk.components.forms.Button
+import com.varabyte.kobweb.silk.components.layout.SimpleGrid
+import com.varabyte.kobweb.silk.components.layout.numColumns
 import com.varabyte.kobweb.silk.components.overlay.Tooltip
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
@@ -55,6 +57,8 @@ interface GameMenuEntry {
     )
 
     val title: String
+
+    val topRow: (@Composable RowScope.() -> Unit)? get() = null
 
     fun handleKey(code: String): Boolean = false
 
@@ -331,13 +335,51 @@ interface GameMenuEntry {
                 return true
             }
 
+            private val ArrowButtonModifier = Modifier.padding(topBottom = 1.px, leftRight = 4.px)
+
+            override val topRow: @Composable RowScope.() -> Unit = {
+                SimpleGrid(numColumns(4), Modifier
+                    .fillMaxWidth()
+                    .gap(10.px)
+                    .whiteSpace(WhiteSpace.NoWrap)
+                    .gridTemplateColumns("1fr auto 150px auto")
+                ) {
+                    SpanText("Sorted by:")
+                    Button(onClick = {
+                        sortingOrder = SortingOrder.values()[(sortingOrder.ordinal - 1 + SortingOrder.values().size) % SortingOrder.values().size]
+                    }, ArrowButtonModifier) {
+                        Text("<")
+                    }
+                    SpanText(
+                        sortingOrder.name.replace('_', ' ').lowercase().capitalize(),
+                        Modifier.textAlign(TextAlign.Center)
+                    )
+                    Button(onClick = {
+                        sortingOrder = SortingOrder.values()[(sortingOrder.ordinal + 1) % SortingOrder.values().size]
+                    }, ArrowButtonModifier) {
+                        Text(">")
+                    }
+
+                    SpanText("Filtered by:")
+                    Button(onClick = {
+                        typeFilter = typeFilters[(typeFilters.indexOf(typeFilter) - 1 + typeFilters.size) % typeFilters.size]
+                    }, ArrowButtonModifier) {
+                        Text("<")
+                    }
+                    SpanText(
+                        typeFilter ?: "(No filter)",
+                        Modifier.textAlign(TextAlign.Center)
+                    )
+                    Button(onClick = {
+                        typeFilter = typeFilters[(typeFilters.indexOf(typeFilter) + 1) % typeFilters.size]
+                    }, ArrowButtonModifier) {
+                        Text(">")
+                    }
+                }
+            }
+
             @Composable
             override fun renderContent(params: Params) {
-                Column {
-                    SpanText("Sorted by: ${sortingOrder.name.replace('_', ' ').lowercase().capitalize()}")
-                    SpanText("Filtered by: ${typeFilter ?: "(No filter)"}")
-                }
-
                 with(params) {
                     var cards = ctx.state.getOwnedCards().sortedBy { it.template.name }
                     val pileNames =
@@ -424,6 +466,7 @@ fun GameMenu(scope: CoroutineScope, ctx: GameContext, gameUpdater: GameUpdater, 
         titleRow = {
             Spacer(); Text(menuStack.joinToString(" > ") { it.title }); Spacer()
         },
+        topRow = menuStack.last().topRow,
         bottomRow = {
             Button(onClick = { goBack() }) {
                 Text(if (menuStack.size >= 2) "Go Back" else "Close")
