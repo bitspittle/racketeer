@@ -132,7 +132,7 @@ fun Modal(
             }
 
             if (topRow != null) {
-                Row { topRow() }
+                Row(Modifier.fillMaxWidth()) { topRow() }
             }
             content?.let { content ->
                 Column(listOf(ModalContentColumnStyle, FullWidthChildrenStyle).toModifier()) {

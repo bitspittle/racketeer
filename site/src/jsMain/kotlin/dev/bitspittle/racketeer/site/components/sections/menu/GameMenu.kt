@@ -321,20 +321,6 @@ interface GameMenuEntry {
             private var typeFilter by mutableStateOf(initialTypeFilter)
             private val typeFilters = listOf<String?>(null) + data.cardTypes
 
-            override fun handleKey(code: String): Boolean {
-                when (code) {
-                    "Digit1" -> sortingOrder = SortingOrder.NAME
-                    "Digit2" -> sortingOrder = SortingOrder.COST
-                    "Digit3" -> sortingOrder = SortingOrder.TIER
-                    "Digit4" -> sortingOrder = SortingOrder.PILE
-                    "Digit5" -> sortingOrder = SortingOrder.VICTORY_POINTS
-                    "ArrowLeft" -> typeFilter = typeFilters[(typeFilters.indexOf(typeFilter) - 1 + typeFilters.size) % typeFilters.size]
-                    "ArrowRight" -> typeFilter = typeFilters[(typeFilters.indexOf(typeFilter) + 1) % typeFilters.size]
-                    else -> return false
-                }
-                return true
-            }
-
             private val ArrowButtonModifier = Modifier.padding(topBottom = 1.px, leftRight = 4.px)
 
             override val topRow: @Composable RowScope.() -> Unit = {
@@ -342,7 +328,7 @@ interface GameMenuEntry {
                     .fillMaxWidth()
                     .gap(10.px)
                     .whiteSpace(WhiteSpace.NoWrap)
-                    .gridTemplateColumns("1fr auto 150px auto")
+                    .gridTemplateColumns("min-content min-content 1fr min-content")
                 ) {
                     SpanText("Sorted by:")
                     Button(onClick = {
