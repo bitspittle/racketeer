@@ -9,6 +9,7 @@ import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.silk.components.overlay.Overlay
 import com.varabyte.kobweb.silk.components.style.*
+import com.varabyte.kobweb.silk.components.text.SpanText
 import com.varabyte.kobweb.silk.theme.toSilkPalette
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.site.FullWidthChildrenStyle
@@ -77,9 +78,7 @@ fun Modal(
         ref,
         titleRow = @Suppress("NAME_SHADOWING") title?.let { title -> {
             Spacer()
-            Span(ModalTitleStyle.toAttrs {  }) {
-                Text(title)
-            }
+            SpanText(title)
             Spacer()
         }},
         topRow = null,
@@ -107,9 +106,7 @@ fun Modal(
         ref,
         titleRow = @Suppress("NAME_SHADOWING") title?.let { title -> {
             Spacer()
-            Span(ModalTitleStyle.toAttrs {  }) {
-                renderTextWithTooltips(describer, tooltipParser, title)
-            }
+            renderTextWithTooltips(describer, tooltipParser, title)
             Spacer()
         }},
         topRow = null,
