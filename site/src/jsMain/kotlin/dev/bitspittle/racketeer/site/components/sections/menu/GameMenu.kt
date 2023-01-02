@@ -77,7 +77,7 @@ interface GameMenuEntry {
                     ) { yesNo ->
                         showConfirmQuestion = false
                         if (yesNo == YesNo.YES) {
-                            params.apply {
+                            with(params) {
                                 Data.save(Data.Keys.Quicksave, GameSnapshot.from(ctx.describer, ctx.state))
                                 requestQuit()
                             }
@@ -265,7 +265,7 @@ interface GameMenuEntry {
                 override fun renderContent(params: Params) {
                     Button(
                         onClick = {
-                            params.apply {
+                            with(params) {
                                 Data.save(Data.Keys.Quicksave, GameSnapshot.from(ctx.describer, ctx.state))
                                 ctx.logger.debug("Game saved.")
                                 requestClose()
@@ -283,7 +283,7 @@ interface GameMenuEntry {
 
                     Button(
                         onClick = {
-                            params.apply {
+                            with(params) {
                                 ctx.loadSnapshotFromDisk(scope) {
                                     requestClose()
                                 }
