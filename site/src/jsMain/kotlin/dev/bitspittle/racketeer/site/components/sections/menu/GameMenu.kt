@@ -34,7 +34,7 @@ import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
 @Composable
-private fun OpenMenuEntryButton(params: GameMenuEntry.Params, entry: GameMenuEntry) {
+private fun MenuButton(params: GameMenuEntry.Params, entry: GameMenuEntry) {
     Button(onClick = { params.visit(entry) }) { Text(entry.title) }
 }
 
@@ -64,7 +64,7 @@ interface GameMenuEntry {
         @Composable
         override fun renderContent(params: Params) {
             if (params.ctx.settings.admin.enabled) {
-                OpenMenuEntryButton(params, Admin)
+                MenuButton(params, Admin)
             }
 
             run {
@@ -92,10 +92,10 @@ interface GameMenuEntry {
 
             @Composable
             override fun renderContent(params: Params) {
-                OpenMenuEntryButton(params, CreateCard)
-                OpenMenuEntryButton(params, BuildBuilding)
-                OpenMenuEntryButton(params, MoveCards.FromPile)
-                OpenMenuEntryButton(params, Snapshot)
+                MenuButton(params, CreateCard)
+                MenuButton(params, BuildBuilding)
+                MenuButton(params, MoveCards.FromPile)
+                MenuButton(params, Snapshot)
                 Button(
                     onClick = {
                         window.open("https://docs.google.com/spreadsheets/d/1iG38W0xl2UzRHhQX_GvJWg3zZndqY-UkKAVaWzNiLKg/edit#gid=200941839", target = "_blank")
