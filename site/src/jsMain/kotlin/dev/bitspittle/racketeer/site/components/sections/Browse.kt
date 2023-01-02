@@ -43,9 +43,7 @@ fun BrowsePile(ctx: GameContext, pile: Pile, onDismiss: () -> Unit) {
         content = {
             pile.cards.sortedBy { it.template.name }.groupBy { it.template.name }.forEach { (_, cards) ->
                 Div(ReadOnlyChoiceStyle.toModifier().toAttrs()) {
-                    Text(buildString {
-                        append(ctx.describer.describeCardGroupTitle(cards, includeTotalVp = true))
-                    })
+                    Text(ctx.describer.describeCardGroupTitle(cards, includeTotalVp = true))
                 }
                 installPopup(ctx, cards)
             }

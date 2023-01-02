@@ -2,7 +2,11 @@ package dev.bitspittle.racketeer.site.components.sections.menu
 
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateMap
+import com.varabyte.kobweb.compose.css.TextAlign
+import com.varabyte.kobweb.compose.css.WhiteSpace
 import com.varabyte.kobweb.compose.dom.ElementTarget
+import com.varabyte.kobweb.compose.foundation.layout.Column
+import com.varabyte.kobweb.compose.foundation.layout.Row
 import com.varabyte.kobweb.compose.foundation.layout.Spacer
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
@@ -10,14 +14,16 @@ import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.thenIf
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.overlay.Tooltip
+import com.varabyte.kobweb.silk.components.style.*
+import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.game.GameState
-import dev.bitspittle.racketeer.model.game.GameStateChange
-import dev.bitspittle.racketeer.model.game.allPiles
+import dev.bitspittle.racketeer.model.card.vpTotal
+import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import dev.bitspittle.racketeer.model.text.Describer
+import dev.bitspittle.racketeer.site.components.sections.ReadOnlyChoiceStyle
 import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.components.util.downloadSnapshotToDisk
 import dev.bitspittle.racketeer.site.components.util.installPopup
@@ -66,6 +72,8 @@ interface GameMenuEntry {
             if (params.ctx.settings.admin.enabled) {
                 MenuButton(params, Admin)
             }
+
+            MenuButton(params, BrowseAllCards(params.ctx.data))
 
             run {
                 var showConfirmQuestion by remember { mutableStateOf(false) }
@@ -184,7 +192,7 @@ interface GameMenuEntry {
                 class ChooseCards(state: GameState, describer: Describer, val pile: Pile) : GameMenuEntry {
                     override val title = "From ${describer.describePileTitle(state, pile)}"
 
-                    lateinit var selected: SnapshotStateMap<Card, Unit>
+                    private lateinit var selected: SnapshotStateMap<Card, Unit>
 
                     override fun handleKey(code: String): Boolean {
                         return if (code == "KeyA") {
@@ -293,6 +301,92 @@ interface GameMenuEntry {
                 }
             }
         }
+
+        class BrowseAllCards(data: GameData, initialSortingOrder: SortingOrder = SortingOrder.PILE, initialTypeFilter: String? = null) : GameMenuEntry {
+            enum class SortingOrder {
+                NAME,
+                TIER,
+                PILE,
+                COST,
+                VICTORY_POINTS,
+            }
+
+            override val title = "Browse All Cards"
+
+            private var sortingOrder by mutableStateOf<SortingOrder>(initialSortingOrder)
+            private var typeFilter by mutableStateOf(initialTypeFilter)
+            private val typeFilters = listOf<String?>(null) + data.cardTypes
+
+            override fun handleKey(code: String): Boolean {
+                when (code) {
+                    "Digit1" -> sortingOrder = SortingOrder.NAME
+                    "Digit2" -> sortingOrder = SortingOrder.COST
+                    "Digit3" -> sortingOrder = SortingOrder.TIER
+                    "Digit4" -> sortingOrder = SortingOrder.PILE
+                    "Digit5" -> sortingOrder = SortingOrder.VICTORY_POINTS
+                    "ArrowLeft" -> typeFilter = typeFilters[(typeFilters.indexOf(typeFilter) - 1 + typeFilters.size) % typeFilters.size]
+                    "ArrowRight" -> typeFilter = typeFilters[(typeFilters.indexOf(typeFilter) + 1) % typeFilters.size]
+                    else -> return false
+                }
+                return true
+            }
+
+            @Composable
+            override fun renderContent(params: Params) {
+                Column {
+                    SpanText("Sorted by: ${sortingOrder.name.replace('_', ' ').lowercase().capitalize()}")
+                    SpanText("Filtered by: ${typeFilter ?: "(No filter)"}")
+                }
+
+                with(params) {
+                    var cards = ctx.state.getOwnedCards().sortedBy { it.template.name }
+                    val pileNames =
+                        cards.associateWith { ctx.describer.describePileTitle(ctx.state, ctx.state.pileFor(it)!!) }
+
+                    cards = when(sortingOrder) {
+                        SortingOrder.NAME -> cards
+                        SortingOrder.TIER -> cards.sortedBy { card -> card.template.tier }
+                        SortingOrder.PILE -> cards.sortedBy { card -> pileNames.getValue(card) }
+                        SortingOrder.COST -> cards.sortedBy { card -> card.template.cost }
+                        SortingOrder.VICTORY_POINTS -> cards
+                            // For cards with same VP total and same name, sort by pile
+                            .sortedBy { card -> pileNames.getValue(card) }
+                            .sortedByDescending { card -> card.vpTotal }
+                    }
+
+                    if (typeFilter != null) {
+                        cards = cards
+                            .filter { card ->
+                                card.template.types
+                                    .any { type -> type.equals(typeFilter, ignoreCase = true) }
+                            }
+                    }
+
+                    cards.forEach { card ->
+                        val extraText = when (sortingOrder) {
+                            SortingOrder.NAME -> null
+                            SortingOrder.TIER -> "Tier ${card.template.tier + 1}"
+                            SortingOrder.COST -> ctx.describer.describeCash(card.template.cost)
+                            SortingOrder.PILE, SortingOrder.VICTORY_POINTS -> pileNames.getValue(card)
+                        }
+
+                        Div(ReadOnlyChoiceStyle.toAttrs()) {
+                            val cardTitle = ctx.describer.describeCardTitle(card)
+                            if (extraText != null) {
+                                // No wrap because sometimes button names were getting squished despite extra space!
+                                Row(Modifier.gap(5.px).fillMaxWidth().whiteSpace(WhiteSpace.NoWrap)) {
+                                    SpanText(cardTitle)
+                                    SpanText("($extraText)", Modifier.textAlign(TextAlign.End))
+                                }
+                            } else {
+                                Text(cardTitle)
+                            }
+                        }
+                        installPopup(ctx, card)
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -319,13 +413,13 @@ fun GameMenu(scope: CoroutineScope, ctx: GameContext, gameUpdater: GameUpdater, 
     )
 
     Modal(
+        // A reasonable min width that can grow if necessary but prevents menu sizes jumping around otherwise
+        dialogModifier = Modifier.minWidth(400.px),
         ref = inputRef { code ->
-            if (menuStack.last().handleKey(code)) {
-                true
-            } else if (code == "Escape") {
-                goBack()
-                true
-            } else false
+            if (!menuStack.last().handleKey(code)) {
+                if (code == "Escape") goBack()
+            }
+            true // Prevent keys from inadvertently affected game behind the modal
         },
         titleRow = {
             Spacer(); Text(menuStack.joinToString(" > ") { it.title }); Spacer()

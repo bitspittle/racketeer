@@ -1,6 +1,7 @@
 package dev.bitspittle.racketeer.site.components.sections
 
 import androidx.compose.runtime.*
+import com.varabyte.kobweb.compose.css.TextAlign
 import com.varabyte.kobweb.compose.css.WhiteSpace
 import com.varabyte.kobweb.compose.dom.ElementTarget
 import com.varabyte.kobweb.compose.foundation.layout.Row
@@ -95,8 +96,7 @@ private fun ItemText(ctx: ChoiceContext, item: Any) {
         // No wrap because sometimes button names were getting squished despite extra space!
         Row(Modifier.gap(5.px).fillMaxWidth().whiteSpace(WhiteSpace.NoWrap)) {
             SpanText(ctx.describe(item))
-            Spacer()
-            SpanText(ctx.describer.convertIcons(extraText))
+            SpanText(ctx.describer.convertIcons(extraText), Modifier.textAlign(TextAlign.End))
         }
     } ?: run {
         SpanText(ctx.describe(item))
