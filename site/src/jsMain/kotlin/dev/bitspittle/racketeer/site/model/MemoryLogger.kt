@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.site.model
 
 import dev.bitspittle.limp.types.Logger
 
+/** Log messages into memory, leaving it up for a different system to read it out and render things on screen. */
 class MemoryLogger : Logger {
     private val _messages = mutableListOf<String>()
     val messages: List<String> = _messages
