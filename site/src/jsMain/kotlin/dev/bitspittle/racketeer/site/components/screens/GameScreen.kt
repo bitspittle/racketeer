@@ -39,7 +39,7 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onQuitRe
 
     Box(
         Modifier.fillMaxSize().minWidth(500.px),
-        ref = inputRef { code ->
+        ref = inputRef {
             if (code == "Escape") {
                 showMenu = !showMenu
                 true

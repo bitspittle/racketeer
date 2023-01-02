@@ -17,7 +17,7 @@ import dev.bitspittle.racketeer.site.model.GameContext
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
-val ReadOnlyChoiceStyle = ComponentStyle.base("read-only-choice") {
+val ReadOnlyStyle = ComponentStyle.base("read-only") {
     Modifier
         .fontSize(G.Font.Sizes.Normal)
         .padding(10.px)
@@ -33,7 +33,7 @@ fun BrowsePile(ctx: GameContext, pile: Pile, onDismiss: () -> Unit) {
         ctx.tooltipParser,
         overlayModifier = Modifier.onClick { onDismiss() },
         dialogModifier = Modifier.onClick { evt -> evt.stopPropagation() }, // So click doesn't get to overlay
-        ref = inputRef { code ->
+        ref = inputRef {
             if (code == "Escape") {
                 onDismiss()
                 true
@@ -42,7 +42,7 @@ fun BrowsePile(ctx: GameContext, pile: Pile, onDismiss: () -> Unit) {
         title = "Browsing ${ctx.describer.describePile(ctx.state, pile)}...",
         content = {
             pile.cards.sortedBy { it.template.name }.groupBy { it.template.name }.forEach { (_, cards) ->
-                Div(ReadOnlyChoiceStyle.toModifier().toAttrs()) {
+                Div(ReadOnlyStyle.toModifier().toAttrs()) {
                     Text(ctx.describer.describeCardGroupTitle(cards, includeTotalVp = true))
                 }
                 installPopup(ctx, cards)

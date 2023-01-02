@@ -47,16 +47,18 @@ fun updateTheme(ctx: InitSilkContext) {
     }
 }
 
+class KeyScope(val code: String, val isShift: Boolean, val isAlt: Boolean, val isCtrl: Boolean)
+
 // I was having trouble getting event bubbling to work, e.g. a dialog should have been catching input before the
 // document body did. So for now I am just going to create a global input fallback handler on document.body and manage
 // the input events myself.
 //
 // Handlers take a key code (e.g. "KeyA", "Escape") and should return true if they handled it or false otherwise.
 // Handling a key prevents other handlers from getting a chance.
-private val InputHandlers: MutableMap<HTMLElement, (String) -> Boolean> = mutableMapOf()
+private val InputHandlers: MutableMap<HTMLElement, KeyScope.() -> Boolean> = mutableMapOf()
 
 // Pass the return value of this into the `ref` parameter of any Silk widgest you want to add global input handling for.
-fun inputRef(handler: (String) -> Boolean) = disposableRef<HTMLElement> { element ->
+fun inputRef(handler: KeyScope.() -> Boolean) = disposableRef<HTMLElement> { element ->
     InputHandlers[element] = handler
     onDispose {
         InputHandlers.remove(element)
@@ -70,7 +72,7 @@ fun MyApp(content: @Composable () -> Unit) {
         window.document.body!!.onkeydown = { evt ->
             // Last in first out -- let the elements we registered last have a first crack at the input. This usually
             // means children items because they were composed after their parents.
-            InputHandlers.values.toList().lastOrNull { it.invoke(evt.code) }
+            InputHandlers.values.toList().lastOrNull { it.invoke(KeyScope(evt.code, evt.shiftKey, evt.altKey, evt.ctrlKey)) }
         }
     }
 

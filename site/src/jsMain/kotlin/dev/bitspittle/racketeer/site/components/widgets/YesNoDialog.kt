@@ -41,7 +41,7 @@ fun YesNoDialog(
                 Text(yesText)
             }
         },
-        ref = inputRef { code ->
+        ref = inputRef {
             if (code == "Escape") {
                 response(YesNo.NO)
                 true
@@ -51,7 +51,7 @@ fun YesNoDialog(
             {
                 Column {
                     // Need to add a space or else separating lines (e.g. from "Line1\n\nLine2") is squashed.
-                    question.split("\n").forEach { line -> SpanText(line.takeIf { it.isNotEmpty() } ?: " ") }
+                    question.split("\n").forEach { line -> if (line.isNotEmpty()) SpanText(line) else Br() }
                 }
             }
         }

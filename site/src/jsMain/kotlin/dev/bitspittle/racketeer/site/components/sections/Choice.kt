@@ -5,7 +5,6 @@ import com.varabyte.kobweb.compose.css.TextAlign
 import com.varabyte.kobweb.compose.css.WhiteSpace
 import com.varabyte.kobweb.compose.dom.ElementTarget
 import com.varabyte.kobweb.compose.foundation.layout.Row
-import com.varabyte.kobweb.compose.foundation.layout.Spacer
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
@@ -55,7 +54,7 @@ private fun ReviewChoices(ctx: ChoiceContext) {
     Modal(
         ctx.describer,
         ctx.tooltipParser,
-        ref = inputRef { code ->
+        ref = inputRef {
             if (code == "Escape") {
                 if (!ctx.requiredChoice) ctx.cancel()
                 true
@@ -64,7 +63,7 @@ private fun ReviewChoices(ctx: ChoiceContext) {
         title = ctx.prompt ?: if (ctx.items.size > 1) "Review all:" else { "Review:" },
         content = {
             ctx.items.forEach { item ->
-                Div(ReadOnlyChoiceStyle.toAttrs()) {
+                Div(ReadOnlyStyle.toAttrs()) {
                     ItemText(ctx, item)
                 }
                 installPopup(ctx, item)
@@ -108,7 +107,7 @@ private fun PickChoice(ctx: ChoiceContext) {
     Modal(
         ctx.describer,
         ctx.tooltipParser,
-        ref = inputRef { code ->
+        ref = inputRef {
             if (code == "Escape") {
                 if (!ctx.requiredChoice) ctx.cancel()
                 true
@@ -146,7 +145,7 @@ private fun PickChoices(ctx: ChoiceContext) {
     Modal(
         ctx.describer,
         ctx.tooltipParser,
-        ref = inputRef { code ->
+        ref = inputRef {
             if (code == "Escape") {
                 if (!ctx.requiredChoice) ctx.cancel()
                 true

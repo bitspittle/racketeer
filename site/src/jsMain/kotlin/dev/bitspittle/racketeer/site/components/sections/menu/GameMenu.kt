@@ -25,7 +25,8 @@ import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import dev.bitspittle.racketeer.model.text.Describer
-import dev.bitspittle.racketeer.site.components.sections.ReadOnlyChoiceStyle
+import dev.bitspittle.racketeer.site.KeyScope
+import dev.bitspittle.racketeer.site.components.sections.ReadOnlyStyle
 import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.components.util.downloadSnapshotToDisk
 import dev.bitspittle.racketeer.site.components.util.installPopup
@@ -36,6 +37,7 @@ import dev.bitspittle.racketeer.site.components.widgets.YesNoDialog
 import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.GameContext
 import dev.bitspittle.racketeer.site.model.GameUpdater
+import dev.bitspittle.racketeer.site.model.describeItem
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.compose.web.css.*
@@ -45,6 +47,85 @@ import org.jetbrains.compose.web.dom.*
 private fun MenuButton(params: GameMenuEntry.Params, entry: GameMenuEntry) {
     Button(onClick = { params.visit(entry) }) { Text(entry.title) }
 }
+
+private val ArrowButtonModifier = Modifier.padding(topBottom = 1.px, leftRight = 4.px)
+
+enum class ArrowDirection {
+    LEFT,
+    RIGHT
+}
+
+@Composable
+private fun ArrowButton(dir: ArrowDirection, onClick: () -> Unit) {
+    Button(onClick = onClick, ArrowButtonModifier) {
+        Text(when (dir) {
+            ArrowDirection.LEFT -> "<"
+            ArrowDirection.RIGHT -> ">"
+        })
+    }
+}
+
+
+private fun GameStateChange.toTitle(): String {
+    return when (this) {
+        is GameStateChange.Activate -> "Activate \"${building.blueprint.name}\""
+        is GameStateChange.AddBlueprint -> "Add \"${blueprint.name}\""
+        is GameStateChange.AddGameAmount -> "Add game resource(s)"
+        is GameStateChange.Build -> "Build \"${blueprint.name}\""
+        is GameStateChange.Buy -> "Buy \"${card.template.name}\""
+        is GameStateChange.Draw -> "Draw ${cards.size} card(s)"
+        is GameStateChange.EndTurn -> "End turn"
+        is GameStateChange.GameStart -> "Start"
+        is GameStateChange.MoveCard -> "Move \"${card.template.name}\""
+        is GameStateChange.MoveCards -> cards.values.flatten().let { cards ->
+            if (cards.size > 1) {
+                "Move ${cards.size} cards."
+            } else {
+                "Move \"${cards[0].template.name}\""
+            }
+        }
+
+        is GameStateChange.Play -> "Play \"${card.template.name}\""
+        is GameStateChange.RestockShop -> "Restock shop"
+        is GameStateChange.UpgradeShop -> "Upgrade shop: Tier ${tier + 1}"
+        else -> "⚠️ ${this::class.simpleName}"
+    }
+}
+
+private fun GameStateChanges.toTitle() = this.items.first().toTitle()
+
+private fun GameStateChange.intoItems(): List<Any> {
+    return when (this) {
+        is GameStateChange.Activate -> listOf(building.blueprint)
+        is GameStateChange.AddBlueprint -> listOf(blueprint)
+        is GameStateChange.AddBuildingAmount -> listOf(building.blueprint)
+        is GameStateChange.AddCardAmount -> listOf(card.template)
+        is GameStateChange.AddTrait -> listOf(card.template)
+        is GameStateChange.Build -> listOf(blueprint)
+        is GameStateChange.Buy -> listOf(card.template)
+        is GameStateChange.Draw -> cards.map { it.template }
+        is GameStateChange.MoveCard -> listOf(card.template)
+        is GameStateChange.MoveCards -> cards.values.flatten().map { it.template }
+        is GameStateChange.Play -> listOf(card.template)
+        is GameStateChange.RemoveTrait -> listOf(card.template)
+        is GameStateChange.UpgradeCard -> listOf(card.template)
+
+        is GameStateChange.AddEffect,
+        is GameStateChange.AddGameAmount,
+        is GameStateChange.AddGameTweak,
+        is GameStateChange.AddShopTweak,
+        is GameStateChange.EndTurn,
+        is GameStateChange.GameOver,
+        is GameStateChange.GameStart,
+        is GameStateChange.RestockShop,
+        is GameStateChange.SetGameData,
+        is GameStateChange.Shuffle,
+        is GameStateChange.ShuffleDiscardIntoDeck,
+        is GameStateChange.UpgradeShop -> listOf()
+    }
+}
+
+private fun GameStateChanges.flattenIntoItems(): List<Any> = items.flatMap { it.intoItems() }
 
 interface GameMenuEntry {
     class Params(
@@ -60,7 +141,7 @@ interface GameMenuEntry {
 
     val topRow: (@Composable RowScope.() -> Unit)? get() = null
 
-    fun handleKey(code: String): Boolean = false
+    fun KeyScope.handleKey(): Boolean = false
 
     @Composable
     fun renderContent(params: Params)
@@ -78,6 +159,7 @@ interface GameMenuEntry {
             }
 
             MenuButton(params, BrowseAllCards(params.ctx.data))
+            MenuButton(params, ReviewHistory(params.ctx.state.turn))
 
             run {
                 var showConfirmQuestion by remember { mutableStateOf(false) }
@@ -198,7 +280,7 @@ interface GameMenuEntry {
 
                     private lateinit var selected: SnapshotStateMap<Card, Unit>
 
-                    override fun handleKey(code: String): Boolean {
+                    override fun KeyScope.handleKey(): Boolean {
                         return if (code == "KeyA") {
                             if (selected.count() < pile.cards.size) {
                                 pile.cards.forEach { card -> selected[card] = Unit }
@@ -321,8 +403,6 @@ interface GameMenuEntry {
             private var typeFilter by mutableStateOf(initialTypeFilter)
             private val typeFilters = listOf<String?>(null) + data.cardTypes
 
-            private val ArrowButtonModifier = Modifier.padding(topBottom = 1.px, leftRight = 4.px)
-
             override val topRow: @Composable RowScope.() -> Unit = {
                 SimpleGrid(numColumns(4), Modifier
                     .fillMaxWidth()
@@ -331,35 +411,27 @@ interface GameMenuEntry {
                     .gridTemplateColumns("min-content min-content 1fr min-content")
                 ) {
                     SpanText("Sorted by:")
-                    Button(onClick = {
+                    ArrowButton(ArrowDirection.LEFT) {
                         sortingOrder = SortingOrder.values()[(sortingOrder.ordinal - 1 + SortingOrder.values().size) % SortingOrder.values().size]
-                    }, ArrowButtonModifier) {
-                        Text("<")
                     }
                     SpanText(
                         sortingOrder.name.replace('_', ' ').lowercase().capitalize(),
                         Modifier.textAlign(TextAlign.Center)
                     )
-                    Button(onClick = {
+                    ArrowButton(ArrowDirection.RIGHT) {
                         sortingOrder = SortingOrder.values()[(sortingOrder.ordinal + 1) % SortingOrder.values().size]
-                    }, ArrowButtonModifier) {
-                        Text(">")
                     }
 
                     SpanText("Filtered by:")
-                    Button(onClick = {
+                    ArrowButton(ArrowDirection.LEFT) {
                         typeFilter = typeFilters[(typeFilters.indexOf(typeFilter) - 1 + typeFilters.size) % typeFilters.size]
-                    }, ArrowButtonModifier) {
-                        Text("<")
                     }
                     SpanText(
                         typeFilter ?: "(No filter)",
                         Modifier.textAlign(TextAlign.Center)
                     )
-                    Button(onClick = {
+                    ArrowButton(ArrowDirection.RIGHT) {
                         typeFilter = typeFilters[(typeFilters.indexOf(typeFilter) + 1) % typeFilters.size]
-                    }, ArrowButtonModifier) {
-                        Text(">")
                     }
                 }
             }
@@ -398,7 +470,7 @@ interface GameMenuEntry {
                             SortingOrder.PILE, SortingOrder.VICTORY_POINTS -> pileNames.getValue(card)
                         }
 
-                        Div(ReadOnlyChoiceStyle.toAttrs()) {
+                        Div(ReadOnlyStyle.toAttrs()) {
                             val cardTitle = ctx.describer.describeCardTitle(card)
                             if (extraText != null) {
                                 // No wrap because sometimes button names were getting squished despite extra space!
@@ -415,8 +487,140 @@ interface GameMenuEntry {
                 }
             }
         }
+
+        class ReviewHistory(private val maxTurn: Int = 19, initialTurn: Int = maxTurn) : GameMenuEntry {
+            override val title = "Review History"
+
+            private var turn by mutableStateOf(initialTurn)
+
+            private val maxTurnPlus1 = maxTurn + 1 // One-indexed, useful for modding
+            override val topRow: @Composable RowScope.() -> Unit = {
+                Spacer()
+                SpanText("Turn:", Modifier.margin(right = 15.px))
+                Row {
+                    ArrowButton(ArrowDirection.LEFT) {
+                        turn = (turn - 1 + maxTurnPlus1) % maxTurnPlus1
+                    }
+                    SpanText(
+                        (turn + 1).toString(),
+                        Modifier.width(30.px).textAlign(TextAlign.Center)
+                    )
+                    ArrowButton(ArrowDirection.RIGHT) {
+                        turn = (turn + 1) % maxTurnPlus1
+                    }
+                }
+                Spacer()
+            }
+
+            private lateinit var historyByTurn: List<List<GameStateChanges>>
+
+            override fun KeyScope.handleKey(): Boolean {
+                turn = when (code) {
+                    "ArrowLeft" -> (turn - 1 + maxTurnPlus1) % maxTurnPlus1
+                    "ArrowRight" -> (turn + 1) % maxTurnPlus1
+                    "Digit1" -> (if (isShift) 10 else 0).coerceAtMost(maxTurn)
+                    "Digit2" -> (if (isShift) 11 else 1).coerceAtMost(maxTurn)
+                    "Digit3" -> (if (isShift) 12 else 2).coerceAtMost(maxTurn)
+                    "Digit4" -> (if (isShift) 13 else 3).coerceAtMost(maxTurn)
+                    "Digit5" -> (if (isShift) 14 else 4).coerceAtMost(maxTurn)
+                    "Digit6" -> (if (isShift) 15 else 5).coerceAtMost(maxTurn)
+                    "Digit7" -> (if (isShift) 16 else 6).coerceAtMost(maxTurn)
+                    "Digit8" -> (if (isShift) 17 else 7).coerceAtMost(maxTurn)
+                    "Digit9" -> (if (isShift) 18 else 8).coerceAtMost(maxTurn)
+                    "Digit0" -> (if (isShift) 19 else 9).coerceAtMost(maxTurn)
+                    else -> return false
+                }
+                return true
+            }
+
+            @Composable
+            override fun renderContent(params: Params) {
+                with(params) {
+                    if (!::historyByTurn.isInitialized) {
+                        val _historyByTurn = mutableListOf<List<GameStateChanges>>()
+
+                        var remaining = ctx.state.history
+                        while (remaining.isNotEmpty()) {
+                            val breakIndex = remaining.indexOfFirst { changes ->
+                                changes.items.any { it is GameStateChange.EndTurn }
+                            }.takeIf { it >= 0 } ?: remaining.lastIndex
+
+                            _historyByTurn.add(
+                                remaining.subList(0, breakIndex + 1)
+                                    .filter { changes -> changes.items.none { it is GameStateChange.GameStart } }
+                            )
+                            remaining = remaining.subList(breakIndex + 1, remaining.size)
+                        }
+
+                        historyByTurn = _historyByTurn
+                    }
+
+                    historyByTurn[turn].let { allChangeGroupsThisTurn ->
+                        allChangeGroupsThisTurn.forEachIndexed { i, changeGroup ->
+                            val prevChangeGroup = if (i > 0) {
+                                allChangeGroupsThisTurn[i - 1]
+                            } else if (turn > 0) {
+                                historyByTurn[turn - 1].last()
+                            } else {
+                                null
+                            }
+
+                            Button(
+                                onClick = {
+                                    params.visit(ReviewChanges(changeGroup))
+                                },
+                                enabled = changeGroup.flattenIntoItems().isNotEmpty()
+                            ) {
+                                Row(Modifier.gap(5.px).fillMaxWidth().whiteSpace(WhiteSpace.NoWrap)) {
+                                    SpanText(changeGroup.toTitle(), Modifier.textAlign(TextAlign.Start))
+                                    if ((changeGroup.vp - (prevChangeGroup?.vp ?: 0)) != 0) {
+                                        SpanText(buildString {
+                                            append('(')
+                                            this.append(ctx.describer.describeVictoryPoints(changeGroup.vp))
+                                            append(')')
+                                        }, Modifier.textAlign(TextAlign.End))
+                                    }
+                                }
+                            }
+
+                            Tooltip(ElementTarget.PreviousSibling, buildString {
+                                append(ctx.describer.describeCash(changeGroup.cash))
+                                append(' ')
+                                append(ctx.describer.describeInfluence(changeGroup.influence))
+                                append(' ')
+                                append(ctx.describer.describeLuck(changeGroup.luck))
+                                append(' ')
+                                append(ctx.describer.describeVictoryPoints(changeGroup.vp))
+                                changeGroup.toSummaryText(ctx.describer, ctx.state, prevChangeGroup)?.let { summaryText ->
+                                    appendLine()
+                                    appendLine()
+                                    append(summaryText.split("\n").joinToString("\n") { "• $it" })
+                                }
+                            })
+                        }
+                    }
+                }
+            }
+        }
+
+        class ReviewChanges(private val gameStateChanges: GameStateChanges) : GameMenuEntry {
+            override val title = gameStateChanges.toTitle()
+            @Composable
+            override fun renderContent(params: Params) {
+                gameStateChanges.flattenIntoItems()
+                    .distinct()
+                    .map { item -> item to params.ctx.describer.describeItem(item) }
+                    .sortedBy { (_, title) -> title }
+                    .forEach { (item, title) ->
+                        Div(ReadOnlyStyle.toAttrs()) { Text(title) }
+                        installPopup(params.ctx, item)
+                }
+            }
+        }
     }
 }
+
+fun GameMenuEntry.handleKey(keyScope: KeyScope): Boolean = keyScope.handleKey()
 
 @Composable
 fun GameMenu(scope: CoroutineScope, ctx: GameContext, gameUpdater: GameUpdater, closeRequested: () -> Unit, quitRequested: () -> Unit) {
@@ -443,8 +647,8 @@ fun GameMenu(scope: CoroutineScope, ctx: GameContext, gameUpdater: GameUpdater, 
     Modal(
         // A reasonable min width that can grow if necessary but prevents menu sizes jumping around otherwise
         dialogModifier = Modifier.minWidth(400.px),
-        ref = inputRef { code ->
-            if (!menuStack.last().handleKey(code)) {
+        ref = inputRef {
+            if (!menuStack.last().handleKey(this)) {
                 if (code == "Escape") goBack()
             }
             true // Prevent keys from inadvertently affected game behind the modal

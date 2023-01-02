@@ -10,6 +10,18 @@ import dev.bitspittle.racketeer.scripting.methods.collection.FormattedItem
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 
+fun Describer.describeItem(item: Any): String {
+    return when (item) {
+        is Blueprint -> this.describeBlueprintTitle(item)
+        is Building -> this.describeBuildingTitle(item)
+        is Card -> this.describeCardTitle(item)
+        is CardTemplate -> this.describeCardTitle(item)
+        is Feature -> item.name
+        is FormattedItem -> item.displayText ?: describeItem(item.wrapped)
+        else -> item.toString()
+    }
+}
+
 class ChoiceContext(
     val describer: Describer,
     val tooltipParser: TooltipParser,
@@ -24,17 +36,7 @@ class ChoiceContext(
         onChosenListeners.add(listener)
     }
 
-    fun describe(item: Any): String {
-        return when (item) {
-            is Blueprint -> describer.describeBlueprintTitle(item)
-            is Building -> describer.describeBuildingTitle(item)
-            is Card -> describer.describeCardTitle(item)
-            is CardTemplate -> describer.describeCardTitle(item)
-            is Feature -> item.name
-            is FormattedItem -> item.displayText ?: describe(item.wrapped)
-            else -> item.toString()
-        }
-    }
+    fun describe(item: Any) = describer.describeItem(item)
 
     fun extra(item: Any): String? {
         return when (item) {
