@@ -1,6 +1,7 @@
 package dev.bitspittle.racketeer.site.components.screens
 
 import androidx.compose.runtime.*
+import com.varabyte.kobweb.compose.dom.ElementTarget
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Row
@@ -11,9 +12,11 @@ import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.layout.SimpleGrid
 import com.varabyte.kobweb.silk.components.layout.numColumns
+import com.varabyte.kobweb.silk.components.overlay.Tooltip
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.model.game.GameProperty
 import dev.bitspittle.racketeer.model.game.GameStateChange
+import dev.bitspittle.racketeer.model.game.getOwnedCards
 import dev.bitspittle.racketeer.model.game.isGameOver
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import dev.bitspittle.racketeer.site.components.sections.menu.GameMenu
@@ -50,6 +53,8 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onQuitRe
                 .gap(30.px)
             ) {
                 SpanText("Turn ${ctx.state.turn + 1}")
+                SpanText("\uD83C\uDCCF ${ctx.state.getOwnedCards().count()}")
+                Tooltip(ElementTarget.PreviousSibling, "The total number of cards you own (doesn't include jailed cards).")
                 Row(Modifier.gap(5.px)) {
                     SpanText(ctx.describer.describeCash(ctx.state.cash), Modifier.onClick { evt ->
                         if (ctx.settings.admin.enabled && evt.ctrlKey && evt.shiftKey) {
