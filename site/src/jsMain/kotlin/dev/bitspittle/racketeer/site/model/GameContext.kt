@@ -103,6 +103,10 @@ suspend fun GameContext.startNewGame() {
         state.apply(GameStateChange.GameStart())
         enqueuers.expr.enqueue(state, data.initActions)
         enqueuers.actionQueue.runEnqueuedActions()
+    }
+
+    // Separate draw from gamestart history, as the gamestart history group is ignored in the review history screen.
+    state.recordChanges {
         state.apply(GameStateChange.Draw())
     }
 }
