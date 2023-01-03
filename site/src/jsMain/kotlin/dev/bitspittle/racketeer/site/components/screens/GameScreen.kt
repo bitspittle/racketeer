@@ -52,7 +52,7 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onQuitRe
                 .margin(top = 10.px, bottom = 15.px)
                 .gap(30.px)
             ) {
-                SpanText("Turn ${ctx.state.turn + 1}")
+                SpanText("Turn ${ctx.state.turn + 1} / ${ctx.data.numTurns}")
                 SpanText("\uD83C\uDCCF ${ctx.state.getOwnedCards().count()}")
                 Tooltip(ElementTarget.PreviousSibling, "The total number of cards you own (doesn't include jailed cards).")
                 Row(Modifier.gap(5.px)) {
