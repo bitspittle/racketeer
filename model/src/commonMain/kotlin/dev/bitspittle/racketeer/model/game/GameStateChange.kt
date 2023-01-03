@@ -59,7 +59,7 @@ sealed class GameStateChange {
 
             var count = this@Draw.requestedCount ?: handSize
             if (deck.cards.size < count && discard.cards.isNotEmpty()) {
-                apply(ShuffleDiscardIntoDeck())
+                addChange(ShuffleDiscardIntoDeck())
             }
 
             count = count.coerceAtMost(deck.cards.size)
@@ -81,20 +81,20 @@ sealed class GameStateChange {
             }
 
             if (card.isExpendable) {
-                apply(MoveCard(card, graveyard))
+                addChange(MoveCard(card, graveyard))
             } else if (card.isSuspicious) {
-                apply(MoveCard(card, jail))
+                addChange(MoveCard(card, jail))
             } else {
-                apply(MoveCard(card, street))
+                addChange(MoveCard(card, street))
             }
 
             // Apply upgrades *first*, as otherwise, playing a card may add an upgrade which shouldn't take effect until
             // a later turn.
-            if (card.isDexterous) apply(AddGameAmount(GameProperty.CASH, 1))
-            if (card.isArtful) apply(AddGameAmount(GameProperty.INFLUENCE, 1))
-            if (card.isLucky) apply(AddGameAmount(GameProperty.LUCK, 1))
+            if (card.isDexterous) addChange(AddGameAmount(GameProperty.CASH, 1))
+            if (card.isArtful) addChange(AddGameAmount(GameProperty.INFLUENCE, 1))
+            if (card.isLucky) addChange(AddGameAmount(GameProperty.LUCK, 1))
             if (card.isVeteran) {
-                apply(Draw(1))
+                addChange(Draw(1))
                 enqueuers.expr.enqueue(this, "pile-move-to! \$discard (choose --required _ --prompt \"Discard a card.\" \$hand 1)")
                 enqueuers.actionQueue.runEnqueuedActions()
             }
@@ -258,10 +258,10 @@ sealed class GameStateChange {
             val price = shop.priceFor(card)
             if (price > 0) {
                 // Apply the payment, ensuring that this change shows up in the game report.
-                apply(AddGameAmount(GameProperty.CASH, -price))
+                addChange(AddGameAmount(GameProperty.CASH, -price))
             }
 
-            apply(MoveCard(card, street))
+            addChange(MoveCard(card, street))
 
             soldOut = shop.remaining(card.template) == 0
         }
@@ -291,10 +291,10 @@ sealed class GameStateChange {
 
             if (!free) {
                 if (blueprint.buildCost.cash > 0) {
-                    apply(AddGameAmount(GameProperty.CASH, -blueprint.buildCost.cash))
+                    addChange(AddGameAmount(GameProperty.CASH, -blueprint.buildCost.cash))
                 }
                 if (blueprint.buildCost.influence > 0) {
-                    apply(AddGameAmount(GameProperty.INFLUENCE, -blueprint.buildCost.influence))
+                    addChange(AddGameAmount(GameProperty.INFLUENCE, -blueprint.buildCost.influence))
                 }
             }
 
@@ -316,13 +316,13 @@ sealed class GameStateChange {
 
             val cost = building.blueprint.activationCost
             if (cost.cash > 0) {
-                apply(AddGameAmount(GameProperty.CASH, -cost.cash))
+                addChange(AddGameAmount(GameProperty.CASH, -cost.cash))
             }
             if (cost.influence > 0) {
-                apply(AddGameAmount(GameProperty.INFLUENCE, -cost.influence))
+                addChange(AddGameAmount(GameProperty.INFLUENCE, -cost.influence))
             }
             if (cost.luck > 0) {
-                apply(AddGameAmount(GameProperty.LUCK, -cost.luck))
+                addChange(AddGameAmount(GameProperty.LUCK, -cost.luck))
             }
 
             building.isActivated = true
@@ -343,7 +343,7 @@ sealed class GameStateChange {
     class EndTurn : GameStateChange() {
         override suspend fun MutableGameState.apply() {
             if (turn == lastTurnIndex) {
-                apply(GameOver())
+                addChange(GameOver())
                 return
             }
 

@@ -32,13 +32,13 @@ class EndTurnCommand(ctx: GameContext, private val showConfirmationIfNecessary: 
             ctx.viewStack.pushView(ConfirmEndTurnView(ctx))
         } else {
             ctx.runStateChangingAction {
-                ctx.state.apply(GameStateChange.EndTurn())
+                ctx.state.addChange(GameStateChange.EndTurn())
             }
 
             if (!ctx.state.isGameOver) {
                 // Break up into two state changing actions for a better state diff report around reshuffling cards
                 ctx.runStateChangingAction {
-                    ctx.state.apply(GameStateChange.Draw())
+                    ctx.state.addChange(GameStateChange.Draw())
                     ctx.viewStack.replaceView(PlayCardsView(ctx))
                 }
 

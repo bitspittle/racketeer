@@ -58,60 +58,20 @@ interface GameState {
     fun pileFor(card: Card): Pile?
 
     fun canActivate(building: Building): Boolean
-
-    /** Opens a new change group in [history], which must be done before [apply] is called. */
-    fun startRecordingChanges()
-    /** Closed a change group opened by [startRecordingChanges], returning false if no changes were applied. */
-    fun finishRecordingChanges(): Boolean
-    /** Apply a change to this state. */
-    suspend fun apply(change: GameStateChange)
 }
 
-suspend fun GameState.recordChanges(block: suspend () -> Unit): Boolean {
+suspend fun MutableGameState.recordChanges(block: suspend () -> Unit): Boolean {
     startRecordingChanges()
     block()
     return finishRecordingChanges()
 }
 
-object GameStateStub : GameState {
-    override val random get() = throw NotImplementedError()
-    override val features get() = throw NotImplementedError()
-    override val numTurns: Int get() = throw NotImplementedError()
-    override val turn: Int get() = throw NotImplementedError()
-    override val cash: Int get() = throw NotImplementedError()
-    override val influence: Int get() = throw NotImplementedError()
-    override val luck: Int get() = throw NotImplementedError()
-    override val vp: Int get() = throw NotImplementedError()
-    override val handSize: Int get() = throw NotImplementedError()
-    override val shop: Shop get() = throw NotImplementedError()
-    override val deck: Pile get() = throw NotImplementedError()
-    override val hand: Pile get() = throw NotImplementedError()
-    override val street: Pile get() = throw NotImplementedError()
-    override val discard: Pile get() = throw NotImplementedError()
-    override val jail: Pile get() = throw NotImplementedError()
-    override val graveyard: Pile get() = throw NotImplementedError()
-    override val blueprints: List<Blueprint> get() = throw NotImplementedError()
-    override val buildings: List<Building> get() = throw NotImplementedError()
-    override val effects: Effects get() = throw NotImplementedError()
-    override val tweaks: Tweaks<Tweak.Game> get() = throw NotImplementedError()
-    override val data: Map<String, DataValue> get() = throw NotImplementedError()
-    override val history: List<GameStateChanges> get() = throw NotImplementedError()
-
-    override suspend fun onBoardChanged() = throw NotImplementedError()
-    override fun copy() = throw NotImplementedError()
-    override fun pileFor(card: Card) = throw NotImplementedError()
-    override fun canActivate(building: Building) = throw NotImplementedError()
-
-    override fun startRecordingChanges() = throw NotImplementedError()
-    override fun finishRecordingChanges() = throw NotImplementedError()
-    override suspend fun apply(change: GameStateChange) = throw NotImplementedError()
-}
-
 val GameState.lastTurnIndex get() = numTurns - 1
 // Note: Usually "GameOver" is the final marker but occasionally passive VP calculations get applied later. Anyway, as
 // long as there's a "GameOver" somewhere in the last group, the game is done.
+val GameState.hasGameStarted get() = history.firstOrNull()?.items?.first()?.let { it is GameStateChange.GameStart } ?: false
 val GameState.isGameOver get() = history.lastOrNull()?.items?.any { it is GameStateChange.GameOver } ?: false
-val GameState.isGameInProgress get() = !isGameOver
+val GameState.isGameInProgress get() = hasGameStarted && !isGameOver
 val GameState.ownedPiles: Sequence<Pile> get() = sequenceOf(hand, deck, discard, street)
 val GameState.allPiles: Sequence<Pile> get() = ownedPiles + sequenceOf(jail, graveyard)
 val GameState.allCards: Sequence<Card> get() = allPiles.flatMap { it.cards }
@@ -355,11 +315,14 @@ class MutableGameState internal constructor(
         }
 
     private var recordingChanges: GameStateChanges? = null
-    override fun startRecordingChanges() {
+
+    /** Opens a new change group in [history], which must be done before [addChange] is called. */
+    fun startRecordingChanges() {
         recordingChanges = GameStateChanges()
     }
 
-    override fun finishRecordingChanges(): Boolean {
+    /** Closed a change group opened by [startRecordingChanges], returning false if no changes were applied. */
+    fun finishRecordingChanges(): Boolean {
         if ((recordingChanges?.items?.size ?: 0) == 0) {
             recordingChanges = null
             return false
@@ -372,13 +335,41 @@ class MutableGameState internal constructor(
         return true
     }
 
-    override suspend fun apply(change: GameStateChange) {
+    suspend fun addChange(change: GameStateChange) {
         if (isGameOver) return
 
-        val changes = recordingChanges ?: error("apply() called before calling startRecordingChanges()")
+        val changes = recordingChanges ?: error("addChange() called before calling startRecordingChanges()")
         changes.add(change)
         change.applyTo(this)
     }
+}
+
+fun MutableGameState.stub(): MutableGameState {
+    return MutableGameState(
+        random,
+        features,
+        enqueuers,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        MutableShop(random, emptyList(), emptySet(), listOf(0), emptyList(), emptyList()),
+        MutablePile(),
+        MutablePile(),
+        MutablePile(),
+        MutablePile(),
+        MutablePile(),
+        MutablePile(),
+        mutableListOf(),
+        mutableListOf(),
+        MutableEffects(),
+        MutableTweaks(),
+        mutableMapOf(),
+        mutableListOf(),
+    )
 }
 
 fun Card.isOwned(state: GameState) = state.pileFor(this).let { pile -> pile != null && pile in state.ownedPiles }

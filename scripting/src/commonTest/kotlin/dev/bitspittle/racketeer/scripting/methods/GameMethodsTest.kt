@@ -21,7 +21,7 @@ class GameMethodsTest {
     fun testGameSetMethod() = runTest {
         val env = Environment()
         val service = TestGameService.create()
-        env.addMethod(GameSetMethod(service::gameState))
+        env.addMethod(GameSetMethod(service::gameState, service::addGameChange))
         env.addMethod(PowMethod())
 
         val evaluator = Evaluator()
@@ -85,7 +85,7 @@ class GameMethodsTest {
         val service = TestGameService.create()
         val gameState = service.gameState
         gameState.numTurns = Int.MAX_VALUE // Don't want to worry about running out; using endTurn to reset discard
-        env.addMethod(GameDrawMethod { gameState })
+        env.addMethod(GameDrawMethod(service::gameState, service::addGameChange))
 
         val evaluator = Evaluator()
 
@@ -98,7 +98,7 @@ class GameMethodsTest {
         assertThat(gameState.hand.cards).hasSize(3)
         assertThat(gameState.discard.cards).hasSize(0)
 
-        gameState.apply(GameStateChange.EndTurn())
+        gameState.addChange(GameStateChange.EndTurn())
         assertThat(gameState.deck.cards).hasSize(5)
         assertThat(gameState.hand.cards).hasSize(0)
         assertThat(gameState.discard.cards).hasSize(3)
@@ -114,7 +114,7 @@ class GameMethodsTest {
         assertThat(gameState.hand.cards).hasSize(6)
         assertThat(gameState.discard.cards).hasSize(0)
 
-        gameState.apply(GameStateChange.EndTurn())
+        gameState.addChange(GameStateChange.EndTurn())
         assertThat(gameState.deck.cards).hasSize(2)
         assertThat(gameState.hand.cards).hasSize(0)
         assertThat(gameState.discard.cards).hasSize(6)
@@ -125,7 +125,7 @@ class GameMethodsTest {
         assertThat(gameState.hand.cards).hasSize(6)
         assertThat(gameState.discard.cards).hasSize(0)
 
-        gameState.apply(GameStateChange.EndTurn())
+        gameState.addChange(GameStateChange.EndTurn())
         assertThat(gameState.deck.cards).hasSize(2)
         assertThat(gameState.hand.cards).hasSize(0)
         assertThat(gameState.discard.cards).hasSize(6)
@@ -136,7 +136,7 @@ class GameMethodsTest {
         assertThat(gameState.hand.cards).hasSize(8)
         assertThat(gameState.discard.cards).hasSize(0)
 
-        gameState.apply(GameStateChange.EndTurn())
+        gameState.addChange(GameStateChange.EndTurn())
         assertThat(gameState.deck.cards).hasSize(0)
         assertThat(gameState.hand.cards).hasSize(0)
         assertThat(gameState.discard.cards).hasSize(8)
@@ -153,7 +153,7 @@ class GameMethodsTest {
         val service = TestGameService.create()
         env.addMethod(GameDataIsSetMethod(service::gameState))
         env.addMethod(GameDataGetMethod(service::gameState))
-        env.addMethod(GameDataSetMethod(service::gameState))
+        env.addMethod(GameDataSetMethod(service::addGameChange))
         env.storeValue("true", true)
 
         env.addMethod(AddMethod())

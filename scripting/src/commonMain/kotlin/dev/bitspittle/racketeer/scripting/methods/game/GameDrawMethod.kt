@@ -6,7 +6,7 @@ import dev.bitspittle.limp.Method
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.GameStateChange
 
-class GameDrawMethod(private val getGameState: () -> GameState) : Method("game-draw!", 1) {
+class GameDrawMethod(private val getGameState: () -> GameState, private val addGameChange: suspend (GameStateChange) -> Unit) : Method("game-draw!", 1) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
@@ -16,7 +16,7 @@ class GameDrawMethod(private val getGameState: () -> GameState) : Method("game-d
     ): Any {
         val count = env.expectConvert<Int>(params[0])
         val state = getGameState()
-        state.apply(GameStateChange.Draw(count))
+        addGameChange(GameStateChange.Draw(count))
         return Unit
     }
 }

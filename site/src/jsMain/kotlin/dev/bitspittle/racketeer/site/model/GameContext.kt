@@ -29,7 +29,7 @@ class GameContext(
     val tooltipParser: TooltipParser,
     val enqueuers: Enqueuers,
     val settings: Settings,
-    var state: GameState
+    var state: MutableGameState
 )
 
 suspend fun createGameConext(gameData: GameData, settings: Settings, handleChoice: (ChoiceContext) -> Unit): GameContext {
@@ -72,11 +72,11 @@ suspend fun createGameConext(gameData: GameData, settings: Settings, handleChoic
     val gameState = MutableGameState(gameData, setOf(Feature.Type.BUILDINGS), enqueuers, copyableRandom)
     val describer = Describer(gameData, showDebugInfo = { true })
     val tooltipParser = TooltipParser(gameData, describer)
-    var provideGameState: () -> GameState = { gameState }
+    var provideMutableGameState: () -> MutableGameState = { gameState }
     env.installGameLogic(object : GameService {
         override val gameData = gameData
         override val describer = describer
-        override val gameState get() = provideGameState()
+        override val gameState: GameState get() = provideMutableGameState()
         override val enqueuers = enqueuers
         override val chooseHandler = object : ChooseHandler {
             override suspend fun query(
@@ -91,23 +91,27 @@ suspend fun createGameConext(gameData: GameData, settings: Settings, handleChoic
             }
         }
         override val logger = logger
+
+        override suspend fun addGameChange(change: GameStateChange) {
+            provideMutableGameState().addChange(change)
+        }
     })
 
     return GameContext(gameData, env, logger, describer, tooltipParser, enqueuers, settings, gameState)
-        .also { provideGameState = { it.state } }
+        .also { provideMutableGameState = { it.state } }
 }
 
 suspend fun GameContext.startNewGame() {
     require(state.history.isEmpty())
     state.recordChanges {
-        state.apply(GameStateChange.GameStart())
+        state.addChange(GameStateChange.GameStart())
         enqueuers.expr.enqueue(state, data.initActions)
         enqueuers.actionQueue.runEnqueuedActions()
     }
 
     // Separate draw from gamestart history, as the gamestart history group is ignored in the review history screen.
     state.recordChanges {
-        state.apply(GameStateChange.Draw())
+        state.addChange(GameStateChange.Draw())
     }
 }
 

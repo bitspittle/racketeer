@@ -43,29 +43,29 @@ fun Environment.installGameLogic(service: GameService) {
     // Game
     addMethod(GameHasFeatureMethod(service::gameState))
     addMethod(GameGetMethod(service::gameState))
-    addMethod(GameSetMethod(service::gameState))
-    addMethod(GameDrawMethod(service::gameState))
+    addMethod(GameSetMethod(service::gameState, service::addGameChange))
+    addMethod(GameDrawMethod(service::gameState, service::addGameChange))
     addMethod(GameDataGetMethod(service::gameState))
-    addMethod(GameDataSetMethod(service::gameState))
+    addMethod(GameDataSetMethod(service::addGameChange))
     addMethod(GameDataIsSetMethod(service::gameState))
-    addMethod(GameTweakMethod(service::gameState))
+    addMethod(GameTweakMethod(service::addGameChange))
     // We're supplanting the underlying shuffle method with our own specialized version (which delegates to the original
     // method when it can)
-    addMethod(GameShuffleMethod(service::gameState), allowOverwrite = true)
+    addMethod(GameShuffleMethod(service::gameState, service::addGameChange), allowOverwrite = true)
 
     // Card
     addMethod(CardGetMethod())
-    addMethod(CardSetMethod(service::gameState))
-    addMethod(CardAddTraitMethod(service::gameState))
-    addMethod(CardRemoveTraitMethod(service::gameState))
+    addMethod(CardSetMethod(service::addGameChange))
+    addMethod(CardAddTraitMethod(service::addGameChange))
+    addMethod(CardRemoveTraitMethod(service::addGameChange))
     addMethod(CardHasTraitMethod())
-    addMethod(CardUpgradeMethod(service::gameState))
+    addMethod(CardUpgradeMethod(service::addGameChange))
     addMethod(CardUpgradesMethod())
     addMethod(CardHasUpgradeMethod())
     addMethod(CardHasTypeMethod(service.gameData.cardTypes))
-    addMethod(CardRemoveMethod(service::gameState))
+    addMethod(CardRemoveMethod(service::gameState, service::addGameChange))
     addMethod(CardTriggerMethod(service.enqueuers.card, service::gameState))
-    addMethod(CardPlayMethod(service::gameState))
+    addMethod(CardPlayMethod(service::addGameChange))
     addMethod(CardPileMethod(service::gameState))
     addMethod(CardInstantiateMethod(service.enqueuers.card, service::gameState))
     addMethod(RandomCardsMethod(service.gameData.cards, service.gameData.rarities) { service.gameState.random() })
@@ -98,27 +98,27 @@ fun Environment.installGameLogic(service: GameService) {
     // Pile
     addConverter(MutablePileToCardsConverter())
     addConverter(PileToCardsConverter())
-    addMethod(PileCopyToMethod(service::gameState))
-    addMethod(PileMoveToMethod(service::gameState))
+    addMethod(PileCopyToMethod(service::gameState, service::addGameChange))
+    addMethod(PileMoveToMethod(service::gameState, service::addGameChange))
     addMethod(PileGetMethod(service.describer, service::gameState))
 
     // Effects
-    addMethod(FxAddMethod(service::gameState))
+    addMethod(FxAddMethod(service::gameState, service::addGameChange))
 
     // Shop
-    addMethod(ShopRerollMethod(service::gameState))
+    addMethod(ShopRerollMethod(service::addGameChange))
     addMethod(ShopPriceForMethod { service.gameState.shop })
-    addMethod(ShopTweakMethod(service::gameState))
+    addMethod(ShopTweakMethod(service::addGameChange))
     (0..4).forEach { i -> storeValue("\$tier${i + 1}", i) }
 
     // Buildings
     addMethod(BlueprintIsBuiltMethod(service::gameState))
     addMethod(BlueprintIsOwnedMethod(service::gameState))
     addMethod(BlueprintGetMethod())
-    addMethod(BlueprintOwnMethod(service::gameState))
-    addMethod(BlueprintBuildMethod(service::gameState))
+    addMethod(BlueprintOwnMethod(service::addGameChange))
+    addMethod(BlueprintBuildMethod(service::addGameChange))
     addMethod(BuildingGetMethod())
-    addMethod(BuildingSetMethod(service::gameState))
+    addMethod(BuildingSetMethod(service::addGameChange))
     addMethod(RandomBlueprintsMethod(service.gameData.blueprints, service.gameData.rarities) { service.gameState.random() })
     addMethod(object : Method("\$unowned-blueprints", 0) {
         override suspend fun invoke(

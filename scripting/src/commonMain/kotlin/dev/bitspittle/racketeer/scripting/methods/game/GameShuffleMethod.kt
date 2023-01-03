@@ -14,7 +14,7 @@ import dev.bitspittle.racketeer.model.pile.Pile
  * A game-state aware version of `shuffle!` Will delegate to the normal shuffle! method for non-game lists but will
  * intercept game-state-changing ones.
  */
-class GameShuffleMethod(private val getGameState: () -> GameState) : Method("shuffle!", 1) {
+class GameShuffleMethod(private val getGameState: () -> GameState, private val addGameChange: suspend (GameStateChange) -> Unit) : Method("shuffle!", 1) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
@@ -29,7 +29,7 @@ class GameShuffleMethod(private val getGameState: () -> GameState) : Method("shu
             val delegateMethod = ShuffleMethod { gameState.random() }
             delegateMethod.invoke(env, eval, params, options, rest)
         } else {
-            getGameState().apply(GameStateChange.Shuffle(maybePile))
+            addGameChange(GameStateChange.Shuffle(maybePile))
         }
 
         return Unit

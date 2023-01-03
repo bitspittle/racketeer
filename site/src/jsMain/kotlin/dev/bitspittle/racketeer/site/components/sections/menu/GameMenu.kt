@@ -232,7 +232,7 @@ interface GameMenuEntry {
                         ctx.data.cards.sortedBy { it.name }.forEach { card ->
                             Button(onClick = {
                                 updater.runStateChangingAction {
-                                    ctx.state.apply(
+                                    ctx.state.addChange(
                                         GameStateChange.MoveCard(
                                             ctx.state,
                                             card.instantiate(),
@@ -263,12 +263,12 @@ interface GameMenuEntry {
                                     updater.runStateChangingActions(
                                         {
                                             if (!ctx.state.blueprints.contains(blueprint)) {
-                                                ctx.state.apply(GameStateChange.AddBlueprint(blueprint))
+                                                ctx.state.addChange(GameStateChange.AddBlueprint(blueprint))
                                             }
                                         },
                                         {
                                             check(ctx.state.blueprints.indexOf(blueprint) >= 0)
-                                            ctx.state.apply(GameStateChange.Build(blueprint, free = true))
+                                            ctx.state.addChange(GameStateChange.Build(blueprint, free = true))
                                         },
                                     )
                                     requestClose()
@@ -358,7 +358,7 @@ interface GameMenuEntry {
                                 Button(
                                     onClick = {
                                         updater.runStateChangingAction {
-                                            ctx.state.apply(
+                                            ctx.state.addChange(
                                                 GameStateChange.MoveCards(
                                                     ctx.state,
                                                     cards,

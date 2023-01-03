@@ -21,7 +21,7 @@ import dev.bitspittle.racketeer.model.game.GameStateChange
  * Set a writable [BuildingProperty] for a target building, using an expression that returns a new value (which is
  * passed in a parameter called `$it` which is bound to the property's current value).
  */
-class BuildingSetMethod(private val getGameState: () -> GameState) : Method("building-set!", 3) {
+class BuildingSetMethod(private val addGameChange: suspend (GameStateChange) -> Unit) : Method("building-set!", 3) {
     override suspend fun invoke(env: Environment, eval: Evaluator, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
         val buildings = env.scoped {
             env.addConverter(ItemToSingletonListConverter(Building::class))
@@ -56,7 +56,7 @@ class BuildingSetMethod(private val getGameState: () -> GameState) : Method("bui
                 env.expectConvert<Int>(evaluator.evaluate(env, setExpr))
             }
 
-            getGameState().apply(GameStateChange.AddBuildingAmount(property, building, newValue - currValue))
+            addGameChange(GameStateChange.AddBuildingAmount(property, building, newValue - currValue))
         }
 
         return Unit

@@ -22,7 +22,7 @@ enum class GameTweak {
  *
  * The type that the "value" parameter should be will depend on what tweak is being set.
  */
-class GameTweakMethod(private val getGameState: () -> GameState) : Method("game-tweak!", 2) {
+class GameTweakMethod(private val addGameChange: suspend (GameStateChange) -> Unit) : Method("game-tweak!", 2) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
@@ -43,7 +43,7 @@ class GameTweakMethod(private val getGameState: () -> GameState) : Method("game-
             GameTweak.KEEP_UNSPENT -> Tweak.Game.KeepUnspent(lifetime)
         }
 
-        getGameState().apply(GameStateChange.AddGameTweak(tweak))
+        addGameChange(GameStateChange.AddGameTweak(tweak))
 
         return Unit
     }

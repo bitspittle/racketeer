@@ -21,8 +21,7 @@ import dev.bitspittle.racketeer.console.view.views.game.history.ReviewHistoryVie
 import dev.bitspittle.racketeer.console.view.views.game.play.GameSummaryView
 import dev.bitspittle.racketeer.console.view.views.game.play.PlayCardsView
 import dev.bitspittle.racketeer.console.view.views.system.OptionsMenuView
-import dev.bitspittle.racketeer.model.game.GameStateStub
-import dev.bitspittle.racketeer.model.game.allPiles
+import dev.bitspittle.racketeer.model.game.hasGameStarted
 
 abstract class View(protected val ctx: GameContext, private val initialCurrIndex: Int = 0) {
     // region Commands
@@ -64,7 +63,7 @@ abstract class View(protected val ctx: GameContext, private val initialCurrIndex
     protected open val allowEsc: Boolean = true
     protected open val allowBrowseCards: Boolean = true
 
-    private fun hasGameStarted() = ctx.state !== GameStateStub && ctx.state.allPiles.any { it.cards.isNotEmpty() }
+    private fun hasGameStarted() = ctx.state.hasGameStarted
 
     private fun allowAdminAccess(): Boolean {
         if (!allowEsc) return false
@@ -238,7 +237,7 @@ abstract class View(protected val ctx: GameContext, private val initialCurrIndex
 
         val state = ctx.state
 
-        if (ctx.state !== GameStateStub) {
+        if (ctx.state.hasGameStarted) {
             text(ctx.describer.describeCash(state.cash))
             text(' ')
             text(ctx.describer.describeInfluence(state.influence))

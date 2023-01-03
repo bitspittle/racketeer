@@ -13,7 +13,7 @@ import dev.bitspittle.racketeer.model.game.GameStateChange
 /**
  * card-remove-trait! (Card) ('Trait)
  */
-class CardRemoveTraitMethod(private val getGameState: () -> GameState) : Method("card-remove-trait!", 2) {
+class CardRemoveTraitMethod(private val addGameChange: suspend (GameStateChange) -> Unit) : Method("card-remove-trait!", 2) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
@@ -26,7 +26,7 @@ class CardRemoveTraitMethod(private val getGameState: () -> GameState) : Method(
         val traitType = identifier.toEnum(TraitType.values())
 
         if (card.traits.contains(traitType)) {
-            getGameState().apply(GameStateChange.RemoveTrait(card, traitType))
+            addGameChange(GameStateChange.RemoveTrait(card, traitType))
         }
 
         return Unit

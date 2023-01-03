@@ -37,7 +37,7 @@ import dev.bitspittle.racketeer.scripting.utils.setValuesFrom
  *   effects will be discarded after the first successful run, so by pulling the `--if` expression out separately, we
  *   can delay triggering those effects until they are ready to fire.
  */
-class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!", 1) {
+class FxAddMethod(private val getGameState: () -> GameState, private val addGameChange: suspend (GameStateChange) -> Unit) : Method("fx-add!", 1) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
@@ -142,7 +142,7 @@ class FxAddMethod(private val getGameState: () -> GameState) : Method("fx-add!",
             )
         }
 
-        getGameState().apply(GameStateChange.AddEffect(effect))
+        addGameChange(GameStateChange.AddEffect(effect))
         return Unit
     }
 }

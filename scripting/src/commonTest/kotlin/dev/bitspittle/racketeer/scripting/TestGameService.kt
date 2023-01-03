@@ -350,4 +350,6 @@ class TestGameService private constructor(
             _logs.add(message)
         }
     }
+
+    override suspend fun addGameChange(change: GameStateChange) = gameState.addChange(change)
 }

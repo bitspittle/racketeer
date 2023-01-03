@@ -21,7 +21,7 @@ class BuildBlueprintCommand(ctx: GameContext, private val blueprint: Blueprint) 
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {
-            ctx.state.apply(GameStateChange.Build(blueprint))
+            ctx.state.addChange(GameStateChange.Build(blueprint))
 
             if (ctx.state.blueprints.isEmpty()) ctx.viewStack.popView()
         }

@@ -17,7 +17,7 @@ import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.scripting.converters.CardTemplateToCardConverter
 import dev.bitspittle.racketeer.scripting.converters.PileToCardsConverter
 
-class PileCopyToMethod(private val getGameState: () -> GameState) : Method("pile-copy-to!", 2) {
+class PileCopyToMethod(private val getGameState: () -> GameState, private val addGameChange: suspend (GameStateChange) -> Unit) : Method("pile-copy-to!", 2) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
@@ -40,7 +40,7 @@ class PileCopyToMethod(private val getGameState: () -> GameState) : Method("pile
         } ?: ListStrategy.BACK
 
         val gameState = getGameState()
-        gameState.apply(GameStateChange.MoveCards(gameState, cards, toPile, strategy))
+        addGameChange(GameStateChange.MoveCards(gameState, cards, toPile, strategy))
 
         return Unit
     }

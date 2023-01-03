@@ -16,12 +16,12 @@ import dev.bitspittle.racketeer.model.game.GameStateChange
  * Take ownership of the target blueprint. This will throw an error if the user already owned that blueprint (even if
  * they built it so it's no longer in their blueprint list).
  */
-class BlueprintOwnMethod(private val getGameState: () -> GameState) : Method("blueprint-own!", 1) {
+class BlueprintOwnMethod(private val addGameChange: suspend (GameStateChange) -> Unit) : Method("blueprint-own!", 1) {
     override suspend fun invoke(
         env: Environment, eval: Evaluator, params: List<Any>, options: Map<String, Any>, rest: List<Any>
     ): Any {
         val blueprint = env.expectConvert<Blueprint>(params[0])
-        getGameState().apply(GameStateChange.AddBlueprint(blueprint))
+        addGameChange(GameStateChange.AddBlueprint(blueprint))
         return Unit
     }
 }

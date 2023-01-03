@@ -16,7 +16,7 @@ import dev.bitspittle.racketeer.model.game.GameStateChange
  *
  * See also: card-trigger!
  */
-class CardPlayMethod(private val getGameState: () -> GameState) : Method("card-play!", 1) {
+class CardPlayMethod(private val addGameChange: suspend (GameStateChange) -> Unit) : Method("card-play!", 1) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
@@ -25,7 +25,7 @@ class CardPlayMethod(private val getGameState: () -> GameState) : Method("card-p
         rest: List<Any>
     ): Any {
         val card = env.expectConvert<Card>(params[0])
-        getGameState().apply(GameStateChange.Play(card))
+        addGameChange(GameStateChange.Play(card))
         return Unit
     }
 }

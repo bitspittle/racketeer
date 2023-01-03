@@ -9,7 +9,7 @@ import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.GameStateChange
 
-class CardRemoveMethod(private val getGameState: () -> GameState) : Method("card-remove!", 1) {
+class CardRemoveMethod(private val getGameState: () -> GameState, private val addGameChange: suspend (GameStateChange) -> Unit) : Method("card-remove!", 1) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
@@ -23,7 +23,7 @@ class CardRemoveMethod(private val getGameState: () -> GameState) : Method("card
         }
 
         val gameState = getGameState()
-        gameState.apply(GameStateChange.MoveCards(gameState, cards, gameState.graveyard))
+        addGameChange(GameStateChange.MoveCards(gameState, cards, gameState.graveyard))
 
         return Unit
     }

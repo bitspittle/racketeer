@@ -13,7 +13,7 @@ import dev.bitspittle.racketeer.model.game.GameStateChange
 /**
  * card-add-trait! (Card) ('Trait)
  */
-class CardAddTraitMethod(private val getGameState: () -> GameState) : Method("card-add-trait!", 2) {
+class CardAddTraitMethod(private val addGameChange: suspend (GameStateChange) -> Unit) : Method("card-add-trait!", 2) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
@@ -26,7 +26,7 @@ class CardAddTraitMethod(private val getGameState: () -> GameState) : Method("ca
         val traitType = identifier.toEnum(TraitType.values())
 
         if (!card.traits.contains(traitType)) {
-            getGameState().apply(GameStateChange.AddTrait(card, traitType))
+            addGameChange(GameStateChange.AddTrait(card, traitType))
         }
 
         return Unit

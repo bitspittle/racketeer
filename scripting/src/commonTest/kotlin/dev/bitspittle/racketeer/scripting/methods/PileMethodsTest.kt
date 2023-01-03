@@ -20,7 +20,7 @@ class PileMethodsTest {
         val env = Environment()
         val service = TestGameService.create()
         val gameState = service.gameState
-        env.addMethod(PileCopyToMethod { gameState })
+        env.addMethod(PileCopyToMethod(service::gameState, service::addGameChange))
         env.addMethod(TakeMethod(service::random))
         env.addMethod(FirstMethod())
         env.addConverter(PileToCardsConverter())
@@ -36,7 +36,7 @@ class PileMethodsTest {
             assertThat(cardTemplates.map { it.name }).containsExactly("Fool's Gold", "Croupier").inOrder()
         })
 
-        gameState.apply(GameStateChange.Draw(4))
+        gameState.addChange(GameStateChange.Draw(4))
         env.storeValue("\$discard", gameState.discard)
         env.storeValue("\$deck", gameState.deck)
         env.storeValue("\$hand", gameState.hand)
@@ -90,13 +90,13 @@ class PileMethodsTest {
         val env = Environment()
         val service = TestGameService.create()
         val gameState = service.gameState
-        env.addMethod(PileMoveToMethod { gameState })
+        env.addMethod(PileMoveToMethod(service::gameState, service::addGameChange))
         env.addMethod(TakeMethod(service::random))
         env.addMethod(FirstMethod())
         env.addConverter(PileToCardsConverter())
         env.storeValue("_", Placeholder)
 
-        gameState.apply(GameStateChange.Draw(4))
+        gameState.addChange(GameStateChange.Draw(4))
         env.storeValue("\$discard", gameState.discard)
         env.storeValue("\$deck", gameState.deck)
         env.storeValue("\$hand", gameState.hand)

@@ -12,7 +12,7 @@ suspend fun GameContext.createNewGame(features: Set<Feature.Type> = setOf(Featur
     state = MutableGameState(data, features, enqueuers)
 
     state.recordChanges {
-        state.apply(GameStateChange.GameStart())
+        state.addChange(GameStateChange.GameStart())
         enqueuers.expr.enqueue(state, data.initActions)
         enqueuers.actionQueue.runEnqueuedActions()
     }

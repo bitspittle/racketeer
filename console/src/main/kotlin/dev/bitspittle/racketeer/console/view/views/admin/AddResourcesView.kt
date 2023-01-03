@@ -21,7 +21,7 @@ class AddResourcesView(ctx: GameContext) : View(ctx) {
 
                 override suspend fun invoke(): Boolean {
                     ctx.runStateChangingAction {
-                        ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.CASH, MINOR_RESOURCE_INCREMENT))
+                        ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.CASH, MINOR_RESOURCE_INCREMENT))
                     }
                     return true
                 }
@@ -32,7 +32,7 @@ class AddResourcesView(ctx: GameContext) : View(ctx) {
                 override val description = "Increase game resources (influence)."
                 override suspend fun invoke(): Boolean {
                     ctx.runStateChangingAction {
-                        ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, MINOR_RESOURCE_INCREMENT))
+                        ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, MINOR_RESOURCE_INCREMENT))
                     }
                     return true
                 }
@@ -43,7 +43,7 @@ class AddResourcesView(ctx: GameContext) : View(ctx) {
                 override val description = "Increase game resources (luck)."
                 override suspend fun invoke(): Boolean {
                     ctx.runStateChangingAction {
-                        ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.LUCK, TINY_RESOURCE_INCREMENT))
+                        ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.LUCK, TINY_RESOURCE_INCREMENT))
                     }
                     return true
                 }
@@ -55,9 +55,9 @@ class AddResourcesView(ctx: GameContext) : View(ctx) {
 
                 override suspend fun invoke(): Boolean {
                     ctx.runStateChangingAction {
-                        ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.CASH, MAJOR_RESOURCE_INCREMENT))
-                        ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, MAJOR_RESOURCE_INCREMENT))
-                        ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.LUCK, MAJOR_RESOURCE_INCREMENT))
+                        ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.CASH, MAJOR_RESOURCE_INCREMENT))
+                        ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, MAJOR_RESOURCE_INCREMENT))
+                        ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.LUCK, MAJOR_RESOURCE_INCREMENT))
                     }
                     return true
                 }

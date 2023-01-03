@@ -20,7 +20,7 @@ private suspend fun GameContext.startNewGame(features: Set<Feature.Type> = empty
     viewStack.replaceView(PlayCardsView(this))
 
     state.recordChanges {
-        state.apply(GameStateChange.Draw())
+        state.addChange(GameStateChange.Draw())
     }
 }
 

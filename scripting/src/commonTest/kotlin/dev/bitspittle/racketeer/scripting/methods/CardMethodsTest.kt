@@ -34,7 +34,7 @@ class CardMethodsTest {
     fun testCardSetMethod() = runTest {
         val env = Environment()
         val service = TestGameService.create()
-        env.addMethod(CardSetMethod(service::gameState))
+        env.addMethod(CardSetMethod(service::addGameChange))
         env.addMethod(MulMethod())
         env.addMethod(ListMethod())
 
@@ -112,12 +112,12 @@ class CardMethodsTest {
         val service = TestGameService.create(CopyableRandom(123))
 
         val gameState = service.gameState
-        env.addMethod(CardRemoveMethod { gameState })
+        env.addMethod(CardRemoveMethod(service::gameState, service::addGameChange))
         env.addMethod(SizeMethod())
         env.addMethod(TakeMethod(service::random))
         env.addMethod(ListGetMethod())
 
-        gameState.apply(GameStateChange.Draw(4))
+        gameState.addChange(GameStateChange.Draw(4))
         val evaluator = Evaluator()
 
         val ownedCount = env.scoped {
@@ -155,9 +155,8 @@ class CardMethodsTest {
         val env = Environment()
         val service = TestGameService.create()
 
-        val gameState = service.gameState
-        env.addMethod(CardAddTraitMethod { gameState })
-        env.addMethod(CardRemoveTraitMethod { gameState })
+        env.addMethod(CardAddTraitMethod(service::addGameChange))
+        env.addMethod(CardRemoveTraitMethod(service::addGameChange))
         env.addMethod(CardHasTraitMethod())
         env.addMethod(CardTraitsMethod())
 
@@ -216,7 +215,7 @@ class CardMethodsTest {
         val service = TestGameService.create()
 
         val gameState = service.gameState
-        env.addMethod(CardUpgradeMethod { gameState })
+        env.addMethod(CardUpgradeMethod(service::addGameChange))
         env.addMethod(CardUpgradesMethod())
         env.addMethod(CardHasUpgradeMethod())
         env.addMethod(SetMethod(service.logger))
@@ -268,7 +267,7 @@ class CardMethodsTest {
         env.addMethod(EqualsMethod())
         env.addMethod(CardGetMethod())
         env.addMethod(ListGetMethod())
-        env.addMethod(PileCopyToMethod { gameState })
+        env.addMethod(PileCopyToMethod(service::gameState, service::addGameChange))
         env.addMethod(SetMethod(service.logger))
         env.addConverter(PileToCardsConverter())
 

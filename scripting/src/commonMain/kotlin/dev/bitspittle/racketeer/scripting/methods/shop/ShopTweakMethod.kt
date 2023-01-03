@@ -25,7 +25,7 @@ enum class ShopTweak {
  *
  * The type that the "value" parameter should be will depend on what tweak is being set.
  */
-class ShopTweakMethod(private val getGameState: () -> GameState) : Method("shop-tweak!", 2) {
+class ShopTweakMethod(private val addGameChange: suspend (GameStateChange) -> Unit) : Method("shop-tweak!", 2) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
@@ -55,7 +55,7 @@ class ShopTweakMethod(private val getGameState: () -> GameState) : Method("shop-
             ShopTweak.SIZE -> Tweak.Shop.Size(lifetime, env.expectConvert(params[1]))
         }
 
-        getGameState().apply(GameStateChange.AddShopTweak(tweak))
+        addGameChange(GameStateChange.AddShopTweak(tweak))
 
         return Unit
     }

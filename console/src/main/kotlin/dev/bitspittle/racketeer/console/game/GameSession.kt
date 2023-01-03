@@ -32,7 +32,7 @@ import dev.bitspittle.racketeer.model.building.allPassiveActions
 import dev.bitspittle.racketeer.model.card.allPassiveActions
 import dev.bitspittle.racketeer.model.card.allInitActions
 import dev.bitspittle.racketeer.model.game.GameData
-import dev.bitspittle.racketeer.model.game.GameStateStub
+import dev.bitspittle.racketeer.model.game.GameStateChange
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.types.BuildingEnqueuerImpl
@@ -185,14 +185,12 @@ class GameSession(
                 settings,
                 UserStats.loadFrom(userDataDir),
                 Describer(gameData, showDebugInfo = { settings.inAdminModeAndShowCode }),
-                GameStateStub,
                 env,
                 enqueuers,
                 viewStack,
                 app
             )
         }
-
 
         val titleView = TitleMenuView(ctx)
         produceRandom = { ctx.state.random() }
@@ -229,6 +227,8 @@ class GameSession(
             }
 
             override val logger = app.logger
+
+            override suspend fun addGameChange(change: GameStateChange) { ctx.state.addChange(change) }
         })
 
         viewStack.pushView(titleView)

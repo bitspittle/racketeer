@@ -12,7 +12,7 @@ import dev.bitspittle.racketeer.console.user.saveInto
 import dev.bitspittle.racketeer.console.utils.CloudFileService
 import dev.bitspittle.racketeer.console.utils.encodeToYaml
 import dev.bitspittle.racketeer.console.view.View
-import dev.bitspittle.racketeer.model.game.GameStateStub
+import dev.bitspittle.racketeer.model.game.stub
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import net.mamoe.yamlkt.Yaml
 import java.time.Instant
@@ -32,7 +32,7 @@ class ConfirmAbortQuicksaveView(ctx: GameContext) : View(ctx) {
 
             override suspend fun invoke(): Boolean {
                 try {
-                    // Grab the game that the person aborted
+                    // Grab the game that the person aborted, saving info about it before discarding it forever
                     val path = ctx.app.userDataDir.pathForSlot(QUICKSAVE_SLOT)
                     val snapshot = Yaml.decodeFromString(GameSnapshot.serializer(), path.readText())
                     snapshot.create(ctx.data, ctx.env, ctx.enqueuers) { state ->
@@ -62,8 +62,8 @@ class ConfirmAbortQuicksaveView(ctx: GameContext) : View(ctx) {
                     // It's possible the file format changed or something between versions. Oh well, we'll lose this
                     // one!
                 } finally {
-                    // Reset back to stub just to make sure we don't leak the aborted quicksave game
-                    ctx.state = GameStateStub
+                    // Clear state just to make sure we don't leak the aborted quicksave game
+                    ctx.state = ctx.state.stub()
                 }
 
                 return NewGameCommand(ctx).invoke()

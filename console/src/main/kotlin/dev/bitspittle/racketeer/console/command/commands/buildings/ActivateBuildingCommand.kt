@@ -28,7 +28,7 @@ class ActivateBuildingCommand(ctx: GameContext, private val building: Building) 
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {
-            ctx.state.apply(GameStateChange.Activate(building))
+            ctx.state.addChange(GameStateChange.Activate(building))
         }
         return true
     }

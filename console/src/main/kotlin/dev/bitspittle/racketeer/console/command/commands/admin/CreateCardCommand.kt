@@ -16,7 +16,7 @@ class CreateCardCommand(ctx: GameContext, private val card: CardTemplate) : Comm
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {
-            ctx.state.apply(GameStateChange.MoveCard(ctx.state, card.instantiate(), ctx.state.hand, ListStrategy.FRONT))
+            ctx.state.addChange(GameStateChange.MoveCard(ctx.state, card.instantiate(), ctx.state.hand, ListStrategy.FRONT))
             ctx.viewStack.popPast { view -> view is AdminMenuView }
         }
         return true

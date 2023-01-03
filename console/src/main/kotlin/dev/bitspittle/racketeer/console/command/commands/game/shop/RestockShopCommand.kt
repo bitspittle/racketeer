@@ -16,8 +16,8 @@ class RestockShopCommand(ctx: GameContext) : Command(ctx) {
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {
-            ctx.state.apply(GameStateChange.RestockShop())
-            ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.LUCK, -1))
+            ctx.state.addChange(GameStateChange.RestockShop())
+            ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.LUCK, -1))
         }
         return true
     }

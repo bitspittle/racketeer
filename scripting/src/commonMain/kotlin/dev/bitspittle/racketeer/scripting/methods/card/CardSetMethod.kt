@@ -14,7 +14,7 @@ import dev.bitspittle.racketeer.model.card.CardProperty
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.GameStateChange
 
-class CardSetMethod(private val getGameState: () -> GameState) : Method("card-set!", 3) {
+class CardSetMethod(private val addGameChange: suspend (GameStateChange) -> Unit) : Method("card-set!", 3) {
     override suspend fun invoke(env: Environment, eval: Evaluator, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
         val cards = env.scoped {
             env.addConverter(ItemToSingletonListConverter(Card::class))
@@ -51,7 +51,7 @@ class CardSetMethod(private val getGameState: () -> GameState) : Method("card-se
             }
 
             (newValue - currValue).takeIf { it != 0 }?.let { delta ->
-                getGameState().apply(GameStateChange.AddCardAmount(property, card, delta))
+                addGameChange(GameStateChange.AddCardAmount(property, card, delta))
             }
         }
 

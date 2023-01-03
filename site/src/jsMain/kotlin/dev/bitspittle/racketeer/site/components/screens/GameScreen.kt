@@ -59,21 +59,21 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onQuitRe
                     SpanText(ctx.describer.describeCash(ctx.state.cash), Modifier.onClick { evt ->
                         if (ctx.settings.admin.enabled && evt.ctrlKey && evt.shiftKey) {
                             gameUpdater.runStateChangingAction {
-                                ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.CASH, if (evt.altKey) 10 else 1))
+                                ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.CASH, if (evt.altKey) 10 else 1))
                             }
                         }
                     })
                     SpanText(ctx.describer.describeInfluence(ctx.state.influence), Modifier.onClick { evt ->
                         if (ctx.settings.admin.enabled && evt.ctrlKey && evt.shiftKey) {
                             gameUpdater.runStateChangingAction {
-                                ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, if (evt.altKey) 10 else 1))
+                                ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, if (evt.altKey) 10 else 1))
                             }
                         }
                     })
                     SpanText(ctx.describer.describeLuck(ctx.state.luck), Modifier.onClick { evt ->
                         if (ctx.settings.admin.enabled && evt.ctrlKey && evt.shiftKey) {
                             gameUpdater.runStateChangingAction {
-                                ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.LUCK, if (evt.altKey) 10 else 1))
+                                ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.LUCK, if (evt.altKey) 10 else 1))
                             }
                         }
                     })
@@ -99,7 +99,7 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onQuitRe
                                     label = ctx.describer.describeCash(card.template.cost),
                                     enabled = ctx.state.cash >= card.template.cost, onClick = {
                                         gameUpdater.runStateChangingAction {
-                                            ctx.state.apply(GameStateChange.Buy(card))
+                                            ctx.state.addChange(GameStateChange.Buy(card))
                                         }
                                     })
                             } else {
@@ -117,10 +117,10 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onQuitRe
                         Button(
                             onClick = {
                                 gameUpdater.runStateChangingAction {
-                                    ctx.state.apply(GameStateChange.UpgradeShop())
+                                    ctx.state.addChange(GameStateChange.UpgradeShop())
                                     // shopPrice to be non-null if button is enabled
                                     @Suppress("NAME_SHADOWING") val shopPrice = shopPrice!!
-                                    ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, -shopPrice))
+                                    ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, -shopPrice))
                                 }
                             },
                             Modifier.width(100.px).flexGrow(1),
@@ -136,8 +136,8 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onQuitRe
                         Button(
                             onClick = {
                                 gameUpdater.runStateChangingAction {
-                                    ctx.state.apply(GameStateChange.RestockShop())
-                                    ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.LUCK, -1))
+                                    ctx.state.addChange(GameStateChange.RestockShop())
+                                    ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.LUCK, -1))
                                 }
                             },
                             Modifier.width(100.px).flexGrow(1),
@@ -161,7 +161,7 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onQuitRe
                     ctx.state.hand.cards.forEach { card ->
                         Card(ctx.describer, ctx.tooltipParser, card, onClick = {
                             gameUpdater.runStateChangingAction {
-                                ctx.state.apply(GameStateChange.Play(card))
+                                ctx.state.addChange(GameStateChange.Play(card))
                             }
                         })
                     }
@@ -173,14 +173,14 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onQuitRe
                         ctx.state.buildings.forEach { building ->
                             Building(ctx, building, onClick = {
                                 gameUpdater.runStateChangingAction {
-                                    ctx.state.apply(GameStateChange.Activate(building))
+                                    ctx.state.addChange(GameStateChange.Activate(building))
                                 }
                             })
                         }
                         ctx.state.blueprints.forEach { blueprint ->
                             Blueprint(ctx, blueprint, onClick = {
                                 gameUpdater.runStateChangingAction {
-                                    ctx.state.apply(GameStateChange.Build(blueprint))
+                                    ctx.state.addChange(GameStateChange.Build(blueprint))
                                 }
                             })
                         }
@@ -189,12 +189,12 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onQuitRe
                         onClick = {
                             gameUpdater.runStateChangingActions(
                                 {
-                                    ctx.state.apply(GameStateChange.EndTurn())
+                                    ctx.state.addChange(GameStateChange.EndTurn())
                                 },
                                 // Break up into two state changing actions for a better state diff report around reshuffling cards
                                 {
                                     if (!ctx.state.isGameOver) {
-                                        ctx.state.apply(GameStateChange.Draw())
+                                        ctx.state.addChange(GameStateChange.Draw())
 
                                         try {
                                             // Force an auto-save so user's don't lose their progress if they

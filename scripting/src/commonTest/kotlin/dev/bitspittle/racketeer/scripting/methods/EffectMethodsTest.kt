@@ -24,13 +24,13 @@ class EffectMethodsTest {
         val env = Environment()
         val service = TestGameService.create(enqueuers = TestEnqueuers(env))
         val gameState = service.gameState
-        env.addMethod(FxAddMethod { gameState })
-        env.addMethod(GameSetMethod { gameState })
-        env.addMethod(PileCopyToMethod { gameState })
+        env.addMethod(FxAddMethod(service::gameState, service::addGameChange))
+        env.addMethod(GameSetMethod(service::gameState, service::addGameChange))
+        env.addMethod(PileCopyToMethod(service::gameState, service::addGameChange))
         env.addMethod(AddMethod())
         env.addMethod(EqualsMethod())
         env.addMethod(SetMethod(service.logger))
-        env.addMethod(CardSetMethod { gameState })
+        env.addMethod(CardSetMethod(service::addGameChange))
         env.addMethod(CardGetMethod())
         env.addMethod(SingleMethod())
 
@@ -47,7 +47,7 @@ class EffectMethodsTest {
         ).inOrder()
 
         var expectedHandSize = gameState.handSize
-        gameState.apply(GameStateChange.Draw(gameState.handSize))
+        gameState.addChange(GameStateChange.Draw(gameState.handSize))
         assertThat(gameState.hand.cards.size).isEqualTo(expectedHandSize)
 
         env.scoped {
@@ -72,7 +72,7 @@ class EffectMethodsTest {
         // First, play the card with an effect. It should install an effect that happens on the NEXT CARD but not
         // itself (adding cash)
         assertThat(gameState.effects.items).hasSize(3)
-        gameState.apply(GameStateChange.Play(gameState.hand.cards.first())); --expectedHandSize
+        gameState.addChange(GameStateChange.Play(gameState.hand.cards.first())); --expectedHandSize
         assertThat(gameState.effects.items).hasSize(4)
         assertThat(gameState.hand.cards.size).isEqualTo(expectedHandSize)
         assertThat(gameState.cash).isEqualTo(0) // Cash effect just installed but won't start until the next card
@@ -81,7 +81,7 @@ class EffectMethodsTest {
         assertThat(card2.vpBase).isEqualTo(0)
         assertThat(card3.vpBase).isEqualTo(0)
 
-        gameState.apply(GameStateChange.Play(gameState.hand.cards.first())); --expectedHandSize
+        gameState.addChange(GameStateChange.Play(gameState.hand.cards.first())); --expectedHandSize
         assertThat(gameState.hand.cards.size).isEqualTo(expectedHandSize)
         assertThat(gameState.cash).isEqualTo(1) // Cash effect starts taking effect
         assertThat(gameState.influence).isEqualTo(6)
@@ -89,7 +89,7 @@ class EffectMethodsTest {
         assertThat(card2.vpBase).isEqualTo(2) // Card just played affected
         assertThat(card3.vpBase).isEqualTo(0)
 
-        gameState.apply(GameStateChange.Play(gameState.hand.cards.first())); --expectedHandSize
+        gameState.addChange(GameStateChange.Play(gameState.hand.cards.first())); --expectedHandSize
         assertThat(gameState.hand.cards.size).isEqualTo(expectedHandSize)
         assertThat(gameState.cash).isEqualTo(2)
         assertThat(gameState.influence).isEqualTo(9)

@@ -19,7 +19,7 @@ class BuyCardCommand(ctx: GameContext, private val card: Card) : Command(ctx) {
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {
-            ctx.state.apply(GameStateChange.Buy(card))
+            ctx.state.addChange(GameStateChange.Buy(card))
         }
         return true
     }

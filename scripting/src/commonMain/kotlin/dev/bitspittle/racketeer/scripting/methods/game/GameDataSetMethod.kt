@@ -12,12 +12,12 @@ import dev.bitspittle.racketeer.model.serialization.DataValue
  *
  * Add some arbitrary data into the current game state which can later be fetched by the same string key name.
  */
-class GameDataSetMethod(private val getGameState: () -> GameState) : Method("game-data-set!", 2) {
+class GameDataSetMethod(private val addGameChange: suspend (GameStateChange) -> Unit) : Method("game-data-set!", 2) {
     override suspend fun invoke(env: Environment, eval: Evaluator, params: List<Any>, options: Map<String, Any>, rest: List<Any>): Any {
         val key = env.expectConvert<String>(params[0])
         val value = DataValue.of(params[1])
 
-        getGameState().apply(GameStateChange.SetGameData(key, value))
+        addGameChange(GameStateChange.SetGameData(key, value))
         return Unit
     }
 }

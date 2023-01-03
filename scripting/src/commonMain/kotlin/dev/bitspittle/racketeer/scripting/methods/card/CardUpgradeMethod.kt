@@ -12,7 +12,7 @@ import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.game.GameStateChange
 
-class CardUpgradeMethod(private val getGameState: () -> GameState) : Method("card-upgrade!", 2) {
+class CardUpgradeMethod(private val addGameChange: suspend (GameStateChange) -> Unit) : Method("card-upgrade!", 2) {
     override suspend fun invoke(
         env: Environment,
         eval: Evaluator,
@@ -29,8 +29,7 @@ class CardUpgradeMethod(private val getGameState: () -> GameState) : Method("car
         val identifier = env.expectConvert<Expr.Identifier>(params[1])
         val upgradeType = identifier.toEnum(UpgradeType.values())
 
-        val gameState = getGameState()
-        cards.forEach { card -> gameState.apply(GameStateChange.UpgradeCard(card, upgradeType)) }
+        cards.forEach { card -> addGameChange(GameStateChange.UpgradeCard(card, upgradeType)) }
 
         return Unit
     }

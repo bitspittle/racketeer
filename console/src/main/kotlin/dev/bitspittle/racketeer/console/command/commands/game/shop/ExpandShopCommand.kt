@@ -21,8 +21,8 @@ class ExpandShopCommand(ctx: GameContext) : Command(ctx) {
 
     override suspend fun invoke(): Boolean {
         ctx.runStateChangingAction {
-            ctx.state.apply(GameStateChange.UpgradeShop())
-            ctx.state.apply(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, -influenceCost))
+            ctx.state.addChange(GameStateChange.UpgradeShop())
+            ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, -influenceCost))
         }
         return true
     }

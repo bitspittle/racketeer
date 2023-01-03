@@ -18,13 +18,13 @@ class CreateBuildingCommand(ctx: GameContext, private val blueprint: Blueprint) 
         // build it.
         if (!ctx.state.blueprints.contains(blueprint)) {
             ctx.runStateChangingAction {
-                ctx.state.apply(GameStateChange.AddBlueprint(blueprint))
+                ctx.state.addChange(GameStateChange.AddBlueprint(blueprint))
             }
         }
 
         ctx.runStateChangingAction {
             check(ctx.state.blueprints.indexOf(blueprint) >= 0)
-            ctx.state.apply(GameStateChange.Build(blueprint, free = true))
+            ctx.state.addChange(GameStateChange.Build(blueprint, free = true))
             ctx.viewStack.popPast { view -> view is AdminMenuView }
         }
         return true
