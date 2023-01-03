@@ -38,8 +38,10 @@ import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.GameContext
 import dev.bitspittle.racketeer.site.model.GameUpdater
 import dev.bitspittle.racketeer.site.model.describeItem
+import dev.bitspittle.racketeer.site.model.startNewGame
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
@@ -160,6 +162,29 @@ interface GameMenuEntry {
 
             MenuButton(params, BrowseAllCards(params.ctx.data))
             MenuButton(params, ReviewHistory(params.ctx.state.turn))
+
+            run {
+                var showConfirmQuestion by remember { mutableStateOf(false) }
+                Button(onClick = { showConfirmQuestion = true }) { Text("Restart") }
+
+                if (showConfirmQuestion) {
+                    YesNoDialog(
+                        "Are you sure?",
+                    ) { yesNo ->
+                        showConfirmQuestion = false
+                        if (yesNo == YesNo.YES) {
+                            with(params) {
+                                scope.launch {
+                                    // TODO: Analytics here indicating restarted game
+                                    ctx.state = MutableGameState(ctx.data, ctx.state.features, ctx.enqueuers)
+                                    ctx.startNewGame()
+                                    requestClose()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             run {
                 var showConfirmQuestion by remember { mutableStateOf(false) }
