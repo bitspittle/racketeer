@@ -153,7 +153,7 @@ fun Iterable<Card>.toCardSpec(): CardSpec {
         override val tier = card.tier
         override val rarity = card.rarity
         override val vpBase = card.vp
-        override val vpTotal = 0
+        override val vpTotal = vpBase
         override val counter = 0
         override val flavor = card.description.flavor
         override val upgrades = emptySet<UpgradeType>()
