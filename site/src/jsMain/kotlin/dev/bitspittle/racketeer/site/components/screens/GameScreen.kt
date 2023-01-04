@@ -50,10 +50,24 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onQuitRe
     Box(
         Modifier.fillMaxSize().minWidth(500.px),
         ref = inputRef {
-            if (code == "Escape") {
-                showMenu = !showMenu
-                true
-            } else false
+            when (code) {
+                "Escape" -> { showMenu = !showMenu; true }
+                "Backquote" -> {
+                    if (!showMenu) {
+                        showMenu = true
+                        initialMenu = GameMenus.Admin
+                        true
+                    } else false
+                }
+                "Equal" -> {
+                    if (!showMenu) {
+                        showMenu = true
+                        initialMenu = GameMenus.BrowseAllCards(ctx.data)
+                        true
+                    } else false
+                }
+                else -> { println(code); false }
+            }
         }
     ) {
         Column(Modifier.fillMaxWidth()) {
