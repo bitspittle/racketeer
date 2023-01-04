@@ -82,7 +82,9 @@ fun HomePage() {
                 }
             }
             is GameStartupState.ContextCreated -> {
+                val gameCtx = (startupState as GameStartupState.ContextCreated).gameContext
                 var updateGameScreen by remember { mutableStateOf(0) }
+                val onQuitRequested: () -> Unit = { startupState = GameStartupState.DataFetched(gameCtx.data) }
                 LaunchedEffect(Unit) {
                     events.collect { evt ->
                         when (evt) {
@@ -93,12 +95,11 @@ fun HomePage() {
                 }
 
                 key(updateGameScreen) {
-                    val gameCtx = (startupState as GameStartupState.ContextCreated).gameContext
                     GameScreen(
                         scope,
                         events,
                         gameCtx,
-                        onQuitRequested = { startupState = GameStartupState.DataFetched(gameCtx.data) }
+                        onQuitRequested
                     )
                 }
             }
