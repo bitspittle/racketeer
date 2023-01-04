@@ -13,10 +13,7 @@ icons:
 features:
   - id: buildings
     name: Blueprints & Buildings
-    description: |
-      Play the full version of the game with buildings.
-
-      Construct useful support structures and discover new strategies for dominating the street.
+    description: Construct useful support structures and discover new strategies for dominating the street.
 unlocks:
 
   - id: feedback

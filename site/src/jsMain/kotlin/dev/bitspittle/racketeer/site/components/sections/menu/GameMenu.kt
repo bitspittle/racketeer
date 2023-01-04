@@ -38,10 +38,8 @@ import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.GameContext
 import dev.bitspittle.racketeer.site.model.GameUpdater
 import dev.bitspittle.racketeer.site.model.describeItem
-import dev.bitspittle.racketeer.site.model.startNewGame
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
@@ -138,6 +136,7 @@ interface GameMenuEntry {
         val updater: GameUpdater,
         val visit: (GameMenuEntry) -> Unit,
         val requestClose: () -> Unit,
+        val requestRestart: () -> Unit,
         val requestQuit: () -> Unit,
     )
 
@@ -184,14 +183,7 @@ object GameMenus {
                     ) { yesNo ->
                         showConfirmQuestion = false
                         if (yesNo == YesNo.YES) {
-                            with(params) {
-                                scope.launch {
-                                    // TODO: Analytics here indicating restarted game
-                                    ctx.state = MutableGameState(ctx.data, ctx.state.features, ctx.enqueuers)
-                                    ctx.startNewGame()
-                                    requestClose()
-                                }
-                            }
+                            params.requestRestart()
                         }
                     }
                 }
@@ -676,6 +668,7 @@ fun GameMenu(
     ctx: GameContext,
     gameUpdater: GameUpdater,
     closeRequested: () -> Unit,
+    restartRequested: () -> Unit,
     quitRequested: () -> Unit,
     initialMenu: GameMenuEntry? = null,
 ) {
@@ -693,6 +686,10 @@ fun GameMenu(
         gameUpdater,
         { entry -> menuStack.add(entry) },
         closeRequested,
+        requestRestart = {
+            closeRequested()
+            restartRequested()
+        },
         requestQuit = {
             closeRequested()
             quitRequested()

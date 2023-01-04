@@ -69,7 +69,12 @@ suspend fun createGameConext(gameData: GameData, settings: Settings, handleChoic
         BuildingEnqueuerImpl(env, exprCache, actionQueue),
     )
 
-    val gameState = MutableGameState(gameData, setOf(Feature.Type.BUILDINGS), enqueuers, copyableRandom)
+    val features = buildSet {
+        if (settings.features.buildings) {
+            add(Feature.Type.BUILDINGS)
+        }
+    }
+    val gameState = MutableGameState(gameData, features, enqueuers, copyableRandom)
     val describer = Describer(gameData, showDebugInfo = { true })
     val tooltipParser = TooltipParser(gameData, describer)
     var provideMutableGameState: () -> MutableGameState = { gameState }

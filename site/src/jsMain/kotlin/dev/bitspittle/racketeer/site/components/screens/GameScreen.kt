@@ -33,7 +33,6 @@ import dev.bitspittle.racketeer.site.components.widgets.*
 import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
@@ -43,11 +42,10 @@ private class VpProvider(val source: Any, val amount: Int)
 
 @Composable
 private fun renderGameScreen(
-    scope: CoroutineScope,
     gameUpdater: GameUpdater,
-    events: Events,
     ctx: GameContext,
     showMenu: (GameMenuEntry) -> Unit,
+    onRestartRequested: () -> Unit,
     onQuitRequested: () -> Unit
 ) {
     Column(Modifier.fillMaxWidth()) {
@@ -232,13 +230,7 @@ private fun renderGameScreen(
                             title = "Summary",
                             bottomRow = {
                                 Button(onClick = { onQuitRequested() }) { Text("Quit to Title") }
-                                Button(onClick = {
-                                    scope.launch {
-                                        ctx.state = MutableGameState(ctx.data, ctx.state.features, ctx.enqueuers)
-                                        ctx.startNewGame()
-                                        events.emitAsync(scope, Event.GameStateUpdated(ctx))
-                                    }
-                                }) { Text("Play Again") }
+                                Button(onClick = { onRestartRequested() }) { Text("Play Again") }
                             }
                         ) {
                             Column(Modifier.gap(30.px).margin(top = 10.px)) {
@@ -292,7 +284,7 @@ private fun renderGameScreen(
 
 
 @Composable
-fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onQuitRequested: () -> Unit) {
+fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onRestartRequested: () -> Unit, onQuitRequested: () -> Unit) {
     var showMenu by remember { mutableStateOf(false) }
     var initialMenu by remember { mutableStateOf<GameMenuEntry?>(null) }
     val gameUpdater = GameUpdater(scope, events, ctx)
@@ -307,8 +299,6 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onQuitRe
             }
         }
     }
-
-
 
     Box(
         Modifier.fillMaxSize().minWidth(500.px),
@@ -334,14 +324,28 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onQuitRe
         }
     ) {
         key(gameUpdateCount) {
-            renderGameScreen(scope, gameUpdater, events, ctx, showMenu = {
-                showMenu = true
-                initialMenu = it
-            }, onQuitRequested)
+            renderGameScreen(
+                gameUpdater,
+                ctx,
+                showMenu = {
+                    showMenu = true
+                    initialMenu = it
+                },
+                onRestartRequested,
+                onQuitRequested
+            )
         }
    }
 
     if (showMenu) {
-        GameMenu(scope, ctx, gameUpdater, closeRequested = { showMenu = false; initialMenu = null }, quitRequested = { onQuitRequested() }, initialMenu)
+        GameMenu(
+            scope,
+            ctx,
+            gameUpdater,
+            closeRequested = { showMenu = false; initialMenu = null },
+            restartRequested = { onRestartRequested() },
+            quitRequested = { onQuitRequested() },
+            initialMenu
+        )
     }
 }

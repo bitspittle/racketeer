@@ -30,10 +30,9 @@ val ChoiceStyle = ComponentStyle.base("choice") {
         .fillMaxWidth()
 }
 
-val SelectedChoiceVariant = ChoiceStyle.addVariantBase("selected") {
-    Modifier
-        .outline(width = 1.px, style = LineStyle.Solid, color = Colors.Black)
-}
+val SelectedModifier = Modifier.outline(width = 1.px, style = LineStyle.Solid, color = Colors.Black)
+
+val SelectedChoiceVariant = ChoiceStyle.addVariantBase("selected") { SelectedModifier }
 
 @Composable
 fun Choice(ctx: ChoiceContext) = ctx.apply {
