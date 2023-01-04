@@ -12,14 +12,18 @@ fun <T: Any> T.encodeToYaml() = Yaml { this.encodeDefaultValues = false }.encode
 object Data {
     class Key<T: Any>(val name: String)
 
-    class Result<T: Any>(
+    data class Result<T: Any>(
         val timestamp: Date,
         val value: T,
     )
 
     fun <T: Any> save(key: Key<T>, value: T) {
+        saveRaw(key, value.encodeToYaml())
+    }
+
+    fun saveRaw(key: Key<*>, value: String) {
         val timestamp = Date().toTimeString()
-        localStorage.setItem(key.name, value.encodeToYaml())
+        localStorage.setItem(key.name, value)
         localStorage.setItem(timestampKeyFor(key), timestamp)
     }
 
@@ -36,12 +40,18 @@ object Data {
     }
 
     inline fun <reified T: Any> load(key: Key<T>): Result<T>? {
-        var result: Result<T>? = null
+        return loadRaw(key)?.let {
+            Result(it.timestamp, Yaml.decodeFromString(it.value))
+        }
+    }
+
+    fun loadRaw(key: Key<*>): Result<String>? {
+        var result: Result<String>? = null
         localStorage.getItem(key.name)?.let { value ->
             val timestamp = Date(localStorage.getItem(timestampKeyFor(key))!!)
             result = Result(
                 timestamp,
-                Yaml.decodeFromString(value)
+                value,
             )
         }
         return result
@@ -55,5 +65,6 @@ object Data {
 //        val GameStats = "gamestats"
         val Settings = Key<Settings>("settings")
         val Quicksave = Key<GameSnapshot>("quicksave")
+        val GameData = Key<String>("gamedata")
     }
 }

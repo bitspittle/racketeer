@@ -12,6 +12,7 @@ import dev.bitspittle.racketeer.site.components.layouts.PageLayout
 import dev.bitspittle.racketeer.site.components.screens.GameScreen
 import dev.bitspittle.racketeer.site.components.screens.TitleScreen
 import dev.bitspittle.racketeer.site.components.sections.Choice
+import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.model.ChoiceContext
 import dev.bitspittle.racketeer.site.model.Event
 import dev.bitspittle.racketeer.site.model.GameContext
@@ -51,16 +52,34 @@ fun HomePage() {
                 ) {
                     Text("Please wait, loading...")
                 }
-                window.fetch("gamedata.yaml").then { response ->
-                    response.text().then { responseText ->
-                        startupState = GameStartupState.DataFetched(GameData.decodeFromString(responseText))
+
+                // Have to slightly defer the following logic or else Compose misses me updating the startupState
+                // variable, probably because it's still laying out data right now.
+                window.setTimeout({
+                    Data.loadRaw(Data.Keys.GameData)?.let { (_, gameDataStr) ->
+                        try {
+                            startupState = GameStartupState.DataFetched(GameData.decodeFromString(gameDataStr))
+                        } catch (ex: Exception) {
+                            Data.delete(Data.Keys.GameData)
+                            println("Could not load gamedata.yaml override. Ignoring it.\n\n$ex")
+                        }
                     }
-                }
+
+                    // The following will not be true if the game data was successfully loaded from memory first.
+                    if (startupState is GameStartupState.FetchingData) {
+                        window.fetch("gamedata.yaml").then { response ->
+                            response.text().then { responseText ->
+                                startupState = GameStartupState.DataFetched(GameData.decodeFromString(responseText))
+                            }
+                        }
+                    }
+                })
             }
             is GameStartupState.DataFetched -> {
                 (startupState as GameStartupState.DataFetched).apply {
                     TitleScreen(
                         scope,
+                        gameData.title,
                         settings,
                         events,
                         requestNewGameContext = { initCtx ->
