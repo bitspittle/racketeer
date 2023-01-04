@@ -14,7 +14,6 @@ import dev.bitspittle.racketeer.site.components.screens.TitleScreen
 import dev.bitspittle.racketeer.site.components.sections.Choice
 import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.model.ChoiceContext
-import dev.bitspittle.racketeer.site.model.Event
 import dev.bitspittle.racketeer.site.model.GameContext
 import dev.bitspittle.racketeer.site.model.createGameConext
 import kotlinx.browser.window
@@ -102,25 +101,14 @@ fun HomePage() {
             }
             is GameStartupState.ContextCreated -> {
                 val gameCtx = (startupState as GameStartupState.ContextCreated).gameContext
-                var updateGameScreen by remember { mutableStateOf(0) }
                 val onQuitRequested: () -> Unit = { startupState = GameStartupState.DataFetched(gameCtx.data) }
-                LaunchedEffect(Unit) {
-                    events.collect { evt ->
-                        when (evt) {
-                            is Event.GameStateUpdated -> updateGameScreen++
-                            else -> {}
-                        }
-                    }
-                }
 
-                key(updateGameScreen) {
-                    GameScreen(
-                        scope,
-                        events,
-                        gameCtx,
-                        onQuitRequested
-                    )
-                }
+                GameScreen(
+                    scope,
+                    events,
+                    gameCtx,
+                    onQuitRequested
+                )
             }
         }
 
