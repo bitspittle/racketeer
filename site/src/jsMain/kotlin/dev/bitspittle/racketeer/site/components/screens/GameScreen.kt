@@ -53,7 +53,7 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onQuitRe
             when (code) {
                 "Escape" -> { showMenu = !showMenu; true }
                 "Backquote" -> {
-                    if (!showMenu) {
+                    if (!showMenu && ctx.settings.admin.enabled) {
                         showMenu = true
                         initialMenu = GameMenus.Admin
                         true
