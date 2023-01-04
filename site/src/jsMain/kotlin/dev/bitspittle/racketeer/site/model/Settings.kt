@@ -10,7 +10,6 @@ data class Settings(
 ) {
     @Serializable
     data class Admin(
-        var showCode: Boolean = true,
         var enabled: Boolean = false,
     )
 
