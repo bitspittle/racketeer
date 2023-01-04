@@ -18,7 +18,6 @@ import dev.bitspittle.racketeer.site.components.layouts.PageLayout
 import dev.bitspittle.racketeer.site.components.screens.GameScreen
 import dev.bitspittle.racketeer.site.components.screens.TitleScreen
 import dev.bitspittle.racketeer.site.components.sections.Choice
-import dev.bitspittle.racketeer.site.components.sections.SelectedChoiceVariant
 import dev.bitspittle.racketeer.site.components.sections.SelectedModifier
 import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.components.widgets.Modal
@@ -90,8 +89,11 @@ fun HomePage() {
                         gameData.title,
                         settings,
                         events,
-                        requestNewGameContext = { initCtx ->
-                            startupState = GameStartupState.SelectingFeatures(gameData, initCtx)
+                        requestNewGame = {
+                            startupState = GameStartupState.SelectingFeatures(gameData) { startNewGame() }
+                        },
+                        requestCreateGameContext = { initCtx ->
+                            startupState = GameStartupState.CreatingContext(gameData, initCtx)
                         }
                     )
                 }

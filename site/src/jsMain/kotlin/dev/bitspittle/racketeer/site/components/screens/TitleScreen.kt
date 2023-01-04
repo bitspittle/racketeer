@@ -33,7 +33,8 @@ fun TitleScreen(
     title: String,
     settings: Settings,
     events: Events,
-    requestNewGameContext: (init: suspend GameContext.() -> Unit) -> Unit
+    requestNewGame: () -> Unit,
+    requestCreateGameContext: (init: suspend GameContext.() -> Unit) -> Unit
 ) {
     var showAdminOptions by remember { mutableStateOf(settings.admin.enabled) }
     LaunchedEffect(Unit) {
@@ -52,7 +53,7 @@ fun TitleScreen(
             run {
                 var showProceedQuestion by remember { mutableStateOf(false) }
                 fun proceed() {
-                    requestNewGameContext { startNewGame() }
+                    requestNewGame()
                 }
 
                 Button(onClick = {
@@ -76,7 +77,7 @@ fun TitleScreen(
             }
             Button(
                 onClick = {
-                    requestNewGameContext {
+                    requestCreateGameContext {
                         val snapshot = Data.load(Data.Keys.Quicksave)!!
                         snapshot.value.create(data, env, enqueuers) { loadedState ->
                             state = loadedState
@@ -95,7 +96,7 @@ fun TitleScreen(
                             scope,
                             provideGameContext = {
                                 val result = CompletableDeferred<GameContext>()
-                                requestNewGameContext {
+                                requestCreateGameContext {
                                     result.complete(this)
                                 }
                                 result.await()
