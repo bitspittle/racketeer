@@ -94,9 +94,14 @@ sealed class GameStateChange {
             if (card.isArtful) addChange(AddGameAmount(GameProperty.INFLUENCE, 1))
             if (card.isLucky) addChange(AddGameAmount(GameProperty.LUCK, 1))
             if (card.isVeteran) {
-                addChange(Draw(1))
-                enqueuers.expr.enqueue(this, "pile-move-to! \$discard (choose --required _ --prompt \"Discard a card.\" \$hand 1)")
-                enqueuers.actionQueue.runEnqueuedActions()
+                if (deck.cards.isNotEmpty() || discard.cards.isNotEmpty()) {
+                    addChange(Draw(1))
+                    enqueuers.expr.enqueue(
+                        this,
+                        "pile-move-to! \$discard (choose --required _ --prompt \"Discard a card.\" \$hand 1)"
+                    )
+                    enqueuers.actionQueue.runEnqueuedActions()
+                }
             }
 
             // Trigger effects first. Once we play a card, it might install an additional effect, which we don't want
