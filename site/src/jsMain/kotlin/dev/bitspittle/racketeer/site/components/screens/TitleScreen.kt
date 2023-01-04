@@ -11,19 +11,17 @@ import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.style.*
-import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import dev.bitspittle.racketeer.site.FullWidthChildrenStyle
 import dev.bitspittle.racketeer.site.components.sections.ReadOnlyStyle
 import dev.bitspittle.racketeer.site.components.util.Data
-import dev.bitspittle.racketeer.site.components.util.loadFileFromDisk
+import dev.bitspittle.racketeer.site.components.util.loadSnapshotFromDisk
 import dev.bitspittle.racketeer.site.components.widgets.YesNo
 import dev.bitspittle.racketeer.site.components.widgets.YesNoDialog
 import dev.bitspittle.racketeer.site.model.*
 import kotlinx.browser.document
 import kotlinx.browser.window
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import net.mamoe.yamlkt.Yaml
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 import org.w3c.files.FileReader
@@ -92,16 +90,17 @@ fun TitleScreen(
             if (showAdminOptions) {
                 Button(
                     onClick = {
-                        document.loadFileFromDisk(".dcr") { content ->
-                            scope.launch {
+                        // .dcr was a legacy extension
+                        document.loadSnapshotFromDisk(
+                            scope,
+                            provideGameContext = {
+                                val result = CompletableDeferred<GameContext>()
                                 requestNewGameContext {
-                                    val snapshot = Yaml.decodeFromString(GameSnapshot.serializer(), content)
-                                    snapshot.create(data, env, enqueuers) { newState ->
-                                        state = newState
-                                    }
+                                    result.complete(this)
                                 }
+                                result.await()
                             }
-                        }
+                        )
                     },
                 ) { Text("Load Snapshot") }
             }
