@@ -11,6 +11,7 @@ import com.varabyte.kobweb.silk.components.overlay.Overlay
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
 import com.varabyte.kobweb.silk.theme.toSilkPalette
+import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.site.FullWidthChildrenStyle
 import dev.bitspittle.racketeer.site.G
@@ -91,6 +92,7 @@ fun Modal(
 
 @Composable
 fun Modal(
+    data: GameData,
     describer: Describer,
     tooltipParser: TooltipParser,
     overlayModifier: Modifier = Modifier,
@@ -106,7 +108,7 @@ fun Modal(
         ref,
         titleRow = @Suppress("NAME_SHADOWING") title?.let { title -> {
             Spacer()
-            renderTextWithTooltips(describer, tooltipParser, title)
+            renderTextWithTooltips(data, describer, tooltipParser, title)
             Spacer()
         }},
         topRow = null,

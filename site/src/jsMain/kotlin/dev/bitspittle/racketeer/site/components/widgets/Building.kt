@@ -66,7 +66,7 @@ fun Building.toCardSpec(describer: Describer, enabled: Boolean = true): CardSpec
         override val enabled = enabled
         override val colorOverride: Color? = null
         override val title = blueprint.name
-        override val types = emptyList<String>()
+        override val types = listOf("Building")
         override val tier = null
         override val rarity = blueprint.rarity
         override val vpBase = blueprint.vp
@@ -83,7 +83,7 @@ fun Building.toCardSpec(describer: Describer, enabled: Boolean = true): CardSpec
 
 @Composable
 fun Building(ctx: GameContext, building: Building, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Card(ctx.describer, ctx.tooltipParser, building.toCardSpec(ctx.describer, ctx.state), onClick, modifier)
+    Card(ctx.data, ctx.describer, ctx.tooltipParser, building.toCardSpec(ctx.describer, ctx.state), onClick, modifier)
     val msg = if (!building.isActivated && building.canAffordActivationCost(ctx.state) && !ctx.state.canActivate(building) && building.blueprint.cannotActivateReason != null) {
         ctx.describer.convertIcons(building.blueprint.cannotActivateReason!!)
     } else if (building.isActivated) {
@@ -111,7 +111,7 @@ fun Blueprint.toCardSpec(describer: Describer, enabled: Boolean = true): CardSpe
         override val enabled = enabled
         override val colorOverride: Color = Colors.LightBlue
         override val title = self.name
-        override val types = emptyList<String>()
+        override val types = listOf("Blueprint")
         override val tier = null
         override val rarity = self.rarity
         override val vpBase = self.vp
@@ -129,5 +129,5 @@ fun Blueprint.toCardSpec(describer: Describer, enabled: Boolean = true): CardSpe
 
 @Composable
 fun Blueprint(ctx: GameContext, blueprint: Blueprint, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Card(ctx.describer, ctx.tooltipParser, blueprint.toCardSpec(ctx.describer, ctx.state), onClick, modifier)
+    Card(ctx.data, ctx.describer, ctx.tooltipParser, blueprint.toCardSpec(ctx.describer, ctx.state), onClick, modifier)
 }

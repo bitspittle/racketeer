@@ -95,6 +95,7 @@ private fun renderGameScreen(
                     ctx.state.shop.stock.forEach { card ->
                         if (card != null) {
                             Card(
+                                ctx.data,
                                 ctx.describer,
                                 ctx.tooltipParser,
                                 card,
@@ -154,14 +155,14 @@ private fun renderGameScreen(
             CardPile(ctx, ctx.state.discard)
             CardGroup("Street (${ctx.state.street.cards.size})") {
                 ctx.state.street.cards.forEach { card ->
-                    Card(ctx.describer, ctx.tooltipParser, card, enabled = false)
+                    Card(ctx.data, ctx.describer, ctx.tooltipParser, card, enabled = false)
                 }
             }
 
             CardPile(ctx, ctx.state.deck)
             CardGroup("Hand (${ctx.state.hand.cards.size})") {
                 ctx.state.hand.cards.forEach { card ->
-                    Card(ctx.describer, ctx.tooltipParser, card, onClick = {
+                    Card(ctx.data, ctx.describer, ctx.tooltipParser, card, onClick = {
                         gameUpdater.runStateChangingAction {
                             ctx.state.addChange(GameStateChange.Play(card))
                         }

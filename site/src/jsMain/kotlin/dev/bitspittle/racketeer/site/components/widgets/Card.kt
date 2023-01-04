@@ -14,6 +14,7 @@ import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.style.common.ariaDisabled
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.model.card.*
+import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.util.UnderlineModifier
@@ -101,13 +102,17 @@ interface CardSpec {
     val label: String?
 }
 
-fun Card.toCardSpec(label: String? = null, enabled: Boolean = true): CardSpec {
+private fun List<String>.toDisplayTypeNames(data: GameData): List<String> {
+    return this.map { typeId -> data.cardTypes.first { it.equals(typeId, ignoreCase = true) } }
+}
+
+fun Card.toCardSpec(data: GameData, label: String? = null, enabled: Boolean = true): CardSpec {
     val self = this
     return object : CardSpec {
         override val enabled = enabled
         override val colorOverride: Color? = null
         override val title = self.template.name
-        override val types = self.template.types
+        override val types = self.template.types.toDisplayTypeNames(data)
         override val tier = self.template.tier
         override val rarity = self.template.rarity
         override val vpBase = self.template.vp
@@ -122,13 +127,13 @@ fun Card.toCardSpec(label: String? = null, enabled: Boolean = true): CardSpec {
     }
 }
 
-fun CardTemplate.toCardSpec(enabled: Boolean = true): CardSpec {
+fun CardTemplate.toCardSpec(data: GameData, enabled: Boolean = true): CardSpec {
     val self = this
     return object : CardSpec {
         override val enabled = enabled
         override val colorOverride: Color? = null
         override val title = self.name
-        override val types = self.types
+        override val types = self.types.toDisplayTypeNames(data)
         override val tier = self.tier
         override val rarity = self.rarity
         override val vpBase = self.vp
@@ -143,13 +148,13 @@ fun CardTemplate.toCardSpec(enabled: Boolean = true): CardSpec {
     }
 }
 
-fun Iterable<Card>.toCardSpec(): CardSpec {
+fun Iterable<Card>.toCardSpec(data: GameData): CardSpec {
     val card = this.first().template
     return object : CardSpec {
         override val enabled = true
         override val colorOverride = null
         override val title = card.name
-        override val types = card.types
+        override val types = card.types.toDisplayTypeNames(data)
         override val tier = card.tier
         override val rarity = card.rarity
         override val vpBase = card.vp
@@ -165,13 +170,13 @@ fun Iterable<Card>.toCardSpec(): CardSpec {
 }
 
 @Composable
-fun Card(describer: Describer, tooltipParser: TooltipParser, card: Card, onClick: () -> Unit = {}, modifier: Modifier = Modifier, label: String? = null, enabled: Boolean = true) {
-    Card(describer, tooltipParser, card.toCardSpec(label, enabled), onClick, modifier)
+fun Card(data: GameData, describer: Describer, tooltipParser: TooltipParser, card: Card, onClick: () -> Unit = {}, modifier: Modifier = Modifier, label: String? = null, enabled: Boolean = true) {
+    Card(data, describer, tooltipParser, card.toCardSpec(data, label, enabled), onClick, modifier)
 }
 
 @Composable
-fun Card(describer: Describer, tooltipParser: TooltipParser, cards: List<Card>, modifier: Modifier = Modifier) {
-    Card(describer, tooltipParser, cards.toCardSpec(), modifier = modifier)
+fun Card(data: GameData, describer: Describer, tooltipParser: TooltipParser, cards: List<Card>, modifier: Modifier = Modifier) {
+    Card(data, describer, tooltipParser, cards.toCardSpec(data), modifier = modifier)
 }
 
 @Composable
@@ -186,7 +191,7 @@ private fun LabeledContent(label: String? = null, enabled: Boolean = true, conte
 
 
 @Composable
-fun Card(describer: Describer, tooltipParser: TooltipParser, card: CardSpec, onClick: () -> Unit = {}, modifier: Modifier = Modifier) {
+fun Card(data: GameData, describer: Describer, tooltipParser: TooltipParser, card: CardSpec, onClick: () -> Unit = {}, modifier: Modifier = Modifier) {
     LabeledContent(card.label, enabled = card.enabled) {
         Column(CardStyle
             .toModifier()
@@ -211,7 +216,7 @@ fun Card(describer: Describer, tooltipParser: TooltipParser, card: CardSpec, onC
                 SpanText(card.title, CardTitleStyle.toModifier())
                 if (card.types.isNotEmpty()) {
                     SpanText(
-                        describer.describeTypes(card.types),
+                        card.types.joinToString(),
                         CardDescriptionStyle.toModifier(CardDescriptionTypesVariant)
                     )
                 }
@@ -264,7 +269,7 @@ fun Card(describer: Describer, tooltipParser: TooltipParser, card: CardSpec, onC
                     SpanText("Activation cost: $activationCost", CardDescriptionStyle.toModifier())
                 }
                 Span(CardDescriptionStyle.toModifier(CardDescriptionEffectsVariant).toAttrs()) {
-                    renderTextWithTooltips(describer, tooltipParser, describer.convertIcons(card.ability))
+                    renderTextWithTooltips(data, describer, tooltipParser, describer.convertIcons(card.ability))
                 }
             }
         }

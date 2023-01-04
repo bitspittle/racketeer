@@ -33,6 +33,7 @@ val ReadOnlyStyle = ComponentStyle.base("read-only") {
 @Composable
 fun BrowsePile(ctx: GameContext, pile: Pile, onDismiss: () -> Unit) {
     Modal(
+        ctx.data,
         ctx.describer,
         ctx.tooltipParser,
         overlayModifier = Modifier.onClick { onDismiss() },

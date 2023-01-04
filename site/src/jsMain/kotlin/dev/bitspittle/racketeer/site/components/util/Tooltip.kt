@@ -10,6 +10,7 @@ import com.varabyte.kobweb.silk.components.overlay.Popup
 import com.varabyte.kobweb.silk.components.overlay.PopupPlacement
 import com.varabyte.kobweb.silk.components.overlay.Tooltip
 import com.varabyte.kobweb.silk.components.text.SpanText
+import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.site.components.widgets.Card
 import dev.bitspittle.racketeer.site.components.widgets.toCardSpec
@@ -21,7 +22,7 @@ val UnderlineModifier = Modifier.borderBottom(1.px, LineStyle.Dotted, Colors.Bla
 
 
 @Composable
-fun renderTextWithTooltips(describer: Describer, tooltipParser: TooltipParser, text: String) {
+fun renderTextWithTooltips(data: GameData, describer: Describer, tooltipParser: TooltipParser, text: String) {
     val rangeActions = remember(text) {
         val tooltipRanges = tooltipParser.parse(text)
         mutableListOf<Pair<IntRange, @Composable () -> Unit>>().apply {
@@ -38,6 +39,7 @@ fun renderTextWithTooltips(describer: Describer, tooltipParser: TooltipParser, t
                             val outlineModifier = Modifier.outline(2.px, LineStyle.Solid, Colors.Black)
                             when (val tooltip = tooltipRange.tooltip) {
                                 is TooltipData.OfBlueprint -> Card(
+                                    data,
                                     describer,
                                     tooltipParser,
                                     tooltip.blueprint.toCardSpec(describer),
@@ -45,9 +47,10 @@ fun renderTextWithTooltips(describer: Describer, tooltipParser: TooltipParser, t
                                 )
 
                                 is TooltipData.OfCard -> Card(
+                                    data,
                                     describer,
                                     tooltipParser,
-                                    tooltip.card.toCardSpec(),
+                                    tooltip.card.toCardSpec(data),
                                     modifier = outlineModifier
                                 )
 

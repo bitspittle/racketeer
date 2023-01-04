@@ -91,7 +91,18 @@ suspend fun createGameConext(gameData: GameData, settings: Settings, handleChoic
                 requiredChoice: Boolean
             ): List<Any>? {
                 return suspendCoroutine { continuation ->
-                    handleChoice(ChoiceContext(describer, tooltipParser, prompt, list, range, requiredChoice, continuation))
+                    handleChoice(
+                        ChoiceContext(
+                            gameData,
+                            describer,
+                            tooltipParser,
+                            prompt,
+                            list,
+                            range,
+                            requiredChoice,
+                            continuation
+                        )
+                    )
                 }
             }
         }

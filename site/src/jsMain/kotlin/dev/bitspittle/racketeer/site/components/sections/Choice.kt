@@ -51,6 +51,7 @@ fun Choice(ctx: ChoiceContext) = ctx.apply {
 @Composable
 private fun ReviewChoices(ctx: ChoiceContext) {
     Modal(
+        ctx.data,
         ctx.describer,
         ctx.tooltipParser,
         ref = inputRef {
@@ -104,6 +105,7 @@ private fun ItemText(ctx: ChoiceContext, item: Any) {
 @Composable
 private fun PickChoice(ctx: ChoiceContext) {
     Modal(
+        ctx.data,
         ctx.describer,
         ctx.tooltipParser,
         ref = inputRef {
@@ -142,6 +144,7 @@ private fun PickChoice(ctx: ChoiceContext) {
 private fun PickChoices(ctx: ChoiceContext) {
     val selected = remember { mutableStateMapOf<Any, Unit>() }
     Modal(
+        ctx.data,
         ctx.describer,
         ctx.tooltipParser,
         ref = inputRef {

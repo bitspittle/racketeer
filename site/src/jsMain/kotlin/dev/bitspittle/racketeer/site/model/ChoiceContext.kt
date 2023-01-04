@@ -5,6 +5,7 @@ import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.card.Card
 import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.game.Feature
+import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.FormattedItem
 import kotlin.coroutines.Continuation
@@ -23,6 +24,7 @@ fun Describer.describeItem(item: Any): String {
 }
 
 class ChoiceContext(
+    val data: GameData,
     val describer: Describer,
     val tooltipParser: TooltipParser,
     val prompt: String?,
