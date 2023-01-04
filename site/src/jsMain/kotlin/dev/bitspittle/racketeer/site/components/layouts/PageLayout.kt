@@ -98,7 +98,7 @@ fun PageLayout(title: String, content: @Composable PageLayoutScope.() -> Unit) {
         VersionStyle
             .toModifier()
             .onClick { evt ->
-                if (evt.ctrlKey && evt.altKey && evt.shiftKey) {
+                if (evt.altKey && evt.shiftKey) {
                     settings.admin.enabled = !settings.admin.enabled
                     events.emitAsync(scope, Event.SettingsChanged(settings))
                 }

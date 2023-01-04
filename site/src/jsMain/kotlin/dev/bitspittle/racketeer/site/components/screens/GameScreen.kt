@@ -59,21 +59,21 @@ private fun renderGameScreen(
             Tooltip(ElementTarget.PreviousSibling, "The total number of cards you own (doesn't include jailed cards).")
             Row(Modifier.gap(5.px)) {
                 SpanText(ctx.describer.describeCash(ctx.state.cash), Modifier.onClick { evt ->
-                    if (ctx.settings.admin.enabled && evt.ctrlKey && evt.shiftKey) {
+                    if (ctx.settings.admin.enabled && evt.shiftKey) {
                         gameUpdater.runStateChangingAction {
                             ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.CASH, if (evt.altKey) 10 else 1))
                         }
                     }
                 })
                 SpanText(ctx.describer.describeInfluence(ctx.state.influence), Modifier.onClick { evt ->
-                    if (ctx.settings.admin.enabled && evt.ctrlKey && evt.shiftKey) {
+                    if (ctx.settings.admin.enabled && evt.shiftKey) {
                         gameUpdater.runStateChangingAction {
                             ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, if (evt.altKey) 10 else 1))
                         }
                     }
                 })
                 SpanText(ctx.describer.describeLuck(ctx.state.luck), Modifier.onClick { evt ->
-                    if (ctx.settings.admin.enabled && evt.ctrlKey && evt.shiftKey) {
+                    if (ctx.settings.admin.enabled && evt.shiftKey) {
                         gameUpdater.runStateChangingAction {
                             ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.LUCK, if (evt.altKey) 10 else 1))
                         }
