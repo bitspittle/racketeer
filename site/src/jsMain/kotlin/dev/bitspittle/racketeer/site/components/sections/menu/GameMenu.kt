@@ -20,6 +20,7 @@ import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.card.vpTotal
 import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.pile.Pile
@@ -40,6 +41,7 @@ import dev.bitspittle.racketeer.site.model.GameUpdater
 import dev.bitspittle.racketeer.site.model.describeItem
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
@@ -218,6 +220,7 @@ object GameMenus {
             MenuButton(params, CreateCard)
             MenuButton(params, BuildBuilding)
             MenuButton(params, MoveCards.FromPile)
+            MenuButton(params, UpgradeCard.FromPile)
             MenuButton(params, Snapshot)
             Button(
                 onClick = {
@@ -283,6 +286,79 @@ object GameMenus {
                             enabled = ctx.state.buildings.none { it.blueprint === blueprint }
                         ) { Text(blueprint.name) }
                         installPopup(params.ctx, blueprint)
+                    }
+                }
+            }
+        }
+
+        object UpgradeCard {
+            private val cardUpgradesToTypeIds = mapOf(
+                UpgradeType.CASH to "thief",
+                UpgradeType.INFLUENCE to "spy",
+                UpgradeType.LUCK to "trickster",
+                UpgradeType.VETERAN to "cop",
+            )
+
+            private fun Card.canUpgrade(vararg anyOfTypes: UpgradeType): Boolean {
+                return (anyOfTypes.takeIf { it.isNotEmpty() } ?: UpgradeType.values()).any { type ->
+                    !upgrades.contains(type) && template.types.contains(cardUpgradesToTypeIds[type])
+                }
+            }
+
+            object FromPile : GameMenuEntry {
+                override val title = "Upgrade Card"
+
+                @Composable
+                override fun renderContent(params: GameMenuEntry.Params) {
+                    with(params) {
+                        ctx.state.allPiles.forEach { pile ->
+                            Button(
+                                onClick = {
+                                    params.visit(ChooseCard(pile.cards))
+                                },
+                                enabled = pile.cards.any { card -> card.canUpgrade() }
+                            ) { Text(ctx.describer.describePileTitle(ctx.state, pile, withSize = true)) }
+                        }
+                    }
+                }
+            }
+
+            class ChooseCard(val cards: List<Card>) : GameMenuEntry {
+                override val title = "Choose"
+
+                @Composable
+                override fun renderContent(params: GameMenuEntry.Params) {
+                    with(params) {
+                        cards.forEach { card ->
+                            Button(
+                                onClick = {
+                                    scope.launch {
+                                        ctx.state.recordChanges {
+                                            if (card.canUpgrade(UpgradeType.CASH)
+                                            ) {
+                                                ctx.state.addChange(GameStateChange.UpgradeCard(card, UpgradeType.CASH))
+                                            }
+                                            if (card.canUpgrade(UpgradeType.INFLUENCE)
+                                            ) {
+                                                ctx.state.addChange(GameStateChange.UpgradeCard(card, UpgradeType.INFLUENCE))
+                                            }
+                                            if (card.canUpgrade(UpgradeType.LUCK)
+                                            ) {
+                                                ctx.state.addChange(GameStateChange.UpgradeCard(card, UpgradeType.LUCK))
+                                            }
+                                            if (card.canUpgrade(UpgradeType.VETERAN)
+                                            ) {
+                                                ctx.state.addChange(GameStateChange.UpgradeCard(card, UpgradeType.VETERAN))
+                                            }
+                                        }
+
+                                        requestClose()
+                                    }
+                                },
+                                enabled = card.canUpgrade()
+                            ) { Text(card.template.name) }
+                            installPopup(ctx, card)
+                        }
                     }
                 }
             }
