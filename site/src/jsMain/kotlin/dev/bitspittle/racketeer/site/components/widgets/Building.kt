@@ -83,7 +83,7 @@ fun Building.toCardSpec(describer: Describer, enabled: Boolean = true): CardSpec
 
 @Composable
 fun Building(ctx: GameContext, building: Building, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Card(ctx.data, ctx.describer, ctx.tooltipParser, building.toCardSpec(ctx.describer, ctx.state), onClick, modifier)
+    Card(ctx.data, ctx.userStats, ctx.describer, ctx.tooltipParser, building.toCardSpec(ctx.describer, ctx.state), onClick, modifier)
     val msg = if (!building.isActivated && building.canAffordActivationCost(ctx.state) && !ctx.state.canActivate(building) && building.blueprint.cannotActivateReason != null) {
         ctx.describer.convertIcons(building.blueprint.cannotActivateReason!!)
     } else if (building.isActivated) {
@@ -129,5 +129,12 @@ fun Blueprint.toCardSpec(describer: Describer, enabled: Boolean = true): CardSpe
 
 @Composable
 fun Blueprint(ctx: GameContext, blueprint: Blueprint, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Card(ctx.data, ctx.describer, ctx.tooltipParser, blueprint.toCardSpec(ctx.describer, ctx.state), onClick, modifier)
+    Card(
+        ctx.data,
+        ctx.userStats,
+        ctx.describer,
+        ctx.tooltipParser,
+        blueprint.toCardSpec(ctx.describer, ctx.state),
+        onClick,
+        modifier)
 }

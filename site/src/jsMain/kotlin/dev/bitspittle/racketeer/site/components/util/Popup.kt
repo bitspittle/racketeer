@@ -20,10 +20,11 @@ import dev.bitspittle.racketeer.site.components.widgets.toCardSpec
 import dev.bitspittle.racketeer.site.model.ChoiceContext
 import dev.bitspittle.racketeer.site.model.GameContext
 import dev.bitspittle.racketeer.site.model.TooltipParser
+import dev.bitspittle.racketeer.site.model.user.UserStats
 import org.jetbrains.compose.web.css.*
 
 @Composable
-fun installPopup(data: GameData, describer: Describer, tooltipParser: TooltipParser, item: Any) {
+fun installPopup(data: GameData, userStats: UserStats, describer: Describer, tooltipParser: TooltipParser, item: Any) {
     @Composable
     fun RightPopup(content: @Composable BoxScope.() -> Unit) {
         Popup(
@@ -37,21 +38,21 @@ fun installPopup(data: GameData, describer: Describer, tooltipParser: TooltipPar
     }
 
     when (item) {
-        is Blueprint -> RightPopup { Card(data, describer, tooltipParser, item.toCardSpec(describer)) }
-        is Building -> RightPopup { Card(data, describer, tooltipParser, item.toCardSpec(describer)) }
-        is Card -> RightPopup { Card(data, describer, tooltipParser, item.toCardSpec(data)) }
-        is CardTemplate -> RightPopup { Card(data, describer, tooltipParser, item.toCardSpec(data)) }
-        is FormattedItem -> installPopup(data, describer, tooltipParser, item.wrapped)
+        is Blueprint -> RightPopup { Card(data, userStats, describer, tooltipParser, item.toCardSpec(describer)) }
+        is Building -> RightPopup { Card(data, userStats, describer, tooltipParser, item.toCardSpec(describer)) }
+        is Card -> RightPopup { Card(data, userStats, describer, tooltipParser, item.toCardSpec(data)) }
+        is CardTemplate -> RightPopup { Card(data, userStats, describer, tooltipParser, item.toCardSpec(data)) }
+        is FormattedItem -> installPopup(data, userStats, describer, tooltipParser, item.wrapped)
         is List<*> -> @Suppress("UNCHECKED_CAST") when(item.first()) {
             is Card -> RightPopup {
-                Card(data, describer, tooltipParser, (item as List<Card>).toCardSpec(data))
+                Card(data, userStats, describer, tooltipParser, (item as List<Card>).toCardSpec(data))
             }
         }
     }
 }
 
 @Composable
-fun installPopup(ctx: GameContext, item: Any) = installPopup(ctx.data, ctx.describer, ctx.tooltipParser, item)
+fun installPopup(ctx: GameContext, item: Any) = installPopup(ctx.data, ctx.userStats, ctx.describer, ctx.tooltipParser, item)
 
 @Composable
-fun installPopup(ctx: ChoiceContext, item: Any) = installPopup(ctx.data, ctx.describer, ctx.tooltipParser, item)
+fun installPopup(ctx: ChoiceContext, item: Any) = installPopup(ctx.data, ctx.userStats, ctx.describer, ctx.tooltipParser, item)

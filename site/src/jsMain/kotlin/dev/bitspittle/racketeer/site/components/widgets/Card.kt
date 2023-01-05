@@ -20,6 +20,7 @@ import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.util.UnderlineModifier
 import dev.bitspittle.racketeer.site.components.util.renderTextWithTooltips
 import dev.bitspittle.racketeer.site.model.TooltipParser
+import dev.bitspittle.racketeer.site.model.user.UserStats
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
@@ -170,13 +171,30 @@ fun Iterable<Card>.toCardSpec(data: GameData): CardSpec {
 }
 
 @Composable
-fun Card(data: GameData, describer: Describer, tooltipParser: TooltipParser, card: Card, onClick: () -> Unit = {}, modifier: Modifier = Modifier, label: String? = null, enabled: Boolean = true) {
-    Card(data, describer, tooltipParser, card.toCardSpec(data, label, enabled), onClick, modifier)
+fun Card(
+    data: GameData,
+    userStats: UserStats,
+    describer: Describer,
+    tooltipParser: TooltipParser,
+    card: Card,
+    onClick: () -> Unit = {},
+    modifier: Modifier = Modifier,
+    label: String? = null,
+    enabled: Boolean = true
+) {
+    Card(data, userStats, describer, tooltipParser, card.toCardSpec(data, label, enabled), onClick, modifier)
 }
 
 @Composable
-fun Card(data: GameData, describer: Describer, tooltipParser: TooltipParser, cards: List<Card>, modifier: Modifier = Modifier) {
-    Card(data, describer, tooltipParser, cards.toCardSpec(data), modifier = modifier)
+fun Card(
+    data: GameData,
+    userStats: UserStats,
+    describer: Describer,
+    tooltipParser: TooltipParser,
+    cards: List<Card>,
+    modifier: Modifier = Modifier
+) {
+    Card(data, userStats, describer, tooltipParser, cards.toCardSpec(data), modifier = modifier)
 }
 
 @Composable
@@ -191,7 +209,15 @@ private fun LabeledContent(label: String? = null, enabled: Boolean = true, conte
 
 
 @Composable
-fun Card(data: GameData, describer: Describer, tooltipParser: TooltipParser, card: CardSpec, onClick: () -> Unit = {}, modifier: Modifier = Modifier) {
+fun Card(
+    data: GameData,
+    userStats: UserStats,
+    describer: Describer,
+    tooltipParser: TooltipParser,
+    card: CardSpec,
+    onClick: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
     LabeledContent(card.label, enabled = card.enabled) {
         Column(CardStyle
             .toModifier()
@@ -269,7 +295,7 @@ fun Card(data: GameData, describer: Describer, tooltipParser: TooltipParser, car
                     SpanText("Activation cost: $activationCost", CardDescriptionStyle.toModifier())
                 }
                 Span(CardDescriptionStyle.toModifier(CardDescriptionEffectsVariant).toAttrs()) {
-                    renderTextWithTooltips(data, describer, tooltipParser, describer.convertIcons(card.ability))
+                    renderTextWithTooltips(data, userStats, describer, tooltipParser, describer.convertIcons(card.ability))
                 }
             }
         }

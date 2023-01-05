@@ -17,6 +17,7 @@ import dev.bitspittle.racketeer.site.FullWidthChildrenStyle
 import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.util.renderTextWithTooltips
 import dev.bitspittle.racketeer.site.model.TooltipParser
+import dev.bitspittle.racketeer.site.model.user.UserStats
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 import org.w3c.dom.HTMLElement
@@ -93,6 +94,7 @@ fun Modal(
 @Composable
 fun Modal(
     data: GameData,
+    userStats: UserStats,
     describer: Describer,
     tooltipParser: TooltipParser,
     overlayModifier: Modifier = Modifier,
@@ -108,7 +110,7 @@ fun Modal(
         ref,
         titleRow = @Suppress("NAME_SHADOWING") title?.let { title -> {
             Spacer()
-            renderTextWithTooltips(data, describer, tooltipParser, title)
+            renderTextWithTooltips(data, userStats, describer, tooltipParser, title)
             Spacer()
         }},
         topRow = null,

@@ -16,13 +16,20 @@ import dev.bitspittle.racketeer.site.components.widgets.Card
 import dev.bitspittle.racketeer.site.components.widgets.toCardSpec
 import dev.bitspittle.racketeer.site.model.TooltipData
 import dev.bitspittle.racketeer.site.model.TooltipParser
+import dev.bitspittle.racketeer.site.model.user.UserStats
 import org.jetbrains.compose.web.css.*
 
 val UnderlineModifier = Modifier.borderBottom(1.px, LineStyle.Dotted, Colors.Black)
 
 
 @Composable
-fun renderTextWithTooltips(data: GameData, describer: Describer, tooltipParser: TooltipParser, text: String) {
+fun renderTextWithTooltips(
+    data: GameData,
+    userStats: UserStats,
+    describer: Describer,
+    tooltipParser: TooltipParser,
+    text: String
+) {
     val rangeActions = remember(text) {
         val tooltipRanges = tooltipParser.parse(text)
         mutableListOf<Pair<IntRange, @Composable () -> Unit>>().apply {
@@ -40,6 +47,7 @@ fun renderTextWithTooltips(data: GameData, describer: Describer, tooltipParser: 
                             when (val tooltip = tooltipRange.tooltip) {
                                 is TooltipData.OfBlueprint -> Card(
                                     data,
+                                    userStats,
                                     describer,
                                     tooltipParser,
                                     tooltip.blueprint.toCardSpec(describer),
@@ -48,6 +56,7 @@ fun renderTextWithTooltips(data: GameData, describer: Describer, tooltipParser: 
 
                                 is TooltipData.OfCard -> Card(
                                     data,
+                                    userStats,
                                     describer,
                                     tooltipParser,
                                     tooltip.card.toCardSpec(data),
