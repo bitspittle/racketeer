@@ -15,9 +15,7 @@ data class Settings(
 
     @Serializable
     data class Unlocks(
-        var feedback: Boolean = false,
         var buildings: Boolean = false,
-        var discord: Boolean = false,
     )
 
     @Serializable
