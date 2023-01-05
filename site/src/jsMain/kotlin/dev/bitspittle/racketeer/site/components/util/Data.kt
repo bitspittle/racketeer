@@ -2,6 +2,8 @@ package dev.bitspittle.racketeer.site.components.util
 
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import dev.bitspittle.racketeer.site.model.Settings
+import dev.bitspittle.racketeer.site.model.user.MutableUserStats
+import dev.bitspittle.racketeer.site.model.user.UserStats
 import kotlinx.browser.localStorage
 import kotlinx.serialization.decodeFromString
 import net.mamoe.yamlkt.Yaml
@@ -60,9 +62,7 @@ object Data {
     fun timestampKeyFor(key: Key<*>) = "${key.name}-timestamp"
 
     object Keys {
-//        val CardStats = "cardstats"
-//        val BuildingState = "bldgstats"
-//        val GameStats = "gamestats"
+        val UserStats = Key<MutableUserStats>("userstats")
         val Settings = Key<Settings>("settings")
         val Quicksave = Key<GameSnapshot>("quicksave")
         val GameData = Key<String>("gamedata")

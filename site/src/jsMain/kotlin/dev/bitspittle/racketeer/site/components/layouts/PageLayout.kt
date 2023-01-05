@@ -17,7 +17,7 @@ import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.sections.Footer
 import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.model.*
-import kotlinx.browser.document
+import dev.bitspittle.racketeer.site.model.user.MutableUserStats
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import org.jetbrains.compose.web.css.*
@@ -41,13 +41,14 @@ val VersionStyle = ComponentStyle("version") {
     }
 }
 
-class PageLayoutScope(val scope: CoroutineScope, val events: Events, val settings: Settings)
+class PageLayoutScope(val scope: CoroutineScope, val settings: Settings, val userStats: MutableUserStats, val events: Events)
 
 @Composable
 fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
     val scope = rememberCoroutineScope()
     val events = remember { MutableSharedFlow<Event>(replay = 0) }
     val settings = remember { Data.load(Data.Keys.Settings)?.value ?: Settings() }
+    val userStats = remember { Data.load(Data.Keys.UserStats)?.value ?: MutableUserStats() }
 
     var showAdminDecoration by remember { mutableStateOf(settings.admin.enabled) }
 
@@ -76,7 +77,7 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
             .gridTemplateRows("1fr auto")
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            PageLayoutScope(scope, events, settings).content()
+            PageLayoutScope(scope, settings, userStats, events).content()
         }
         // Associate the footer with the row that will get pushed off the bottom of the page if it can't fit.
         Footer(Modifier.align(Alignment.Center).gridRowStart(2).gridRowEnd(3))

@@ -150,6 +150,7 @@ fun HomePage() {
                             createGameConext(
                                 gameData,
                                 settings,
+                                userStats,
                                 handleChoice
                             ).apply { initCtx() })
                     }

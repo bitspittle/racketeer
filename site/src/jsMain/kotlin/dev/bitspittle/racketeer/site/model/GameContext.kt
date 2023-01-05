@@ -18,11 +18,15 @@ import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.types.*
 import dev.bitspittle.racketeer.scripting.utils.installGameLogic
+import dev.bitspittle.racketeer.site.model.user.MutableUserStats
+import dev.bitspittle.racketeer.site.model.user.notifyBuilt
+import dev.bitspittle.racketeer.site.model.user.notifyOwnership
 import kotlin.coroutines.suspendCoroutine
 
 @Stable
 class GameContext(
     val data: GameData,
+    val userStats: MutableUserStats,
     val env: Environment,
     val logger: MemoryLogger,
     val describer: Describer,
@@ -32,7 +36,7 @@ class GameContext(
     var state: MutableGameState
 )
 
-suspend fun createGameConext(gameData: GameData, settings: Settings, handleChoice: (ChoiceContext) -> Unit): GameContext {
+suspend fun createGameConext(gameData: GameData, settings: Settings, userStats: MutableUserStats, handleChoice: (ChoiceContext) -> Unit): GameContext {
     val logger = MemoryLogger()
 
     val copyableRandom = CopyableRandom()
@@ -113,7 +117,7 @@ suspend fun createGameConext(gameData: GameData, settings: Settings, handleChoic
         }
     })
 
-    return GameContext(gameData, env, logger, describer, tooltipParser, enqueuers, settings, gameState)
+    return GameContext(gameData, userStats, env, logger, describer, tooltipParser, enqueuers, settings, gameState)
         .also { provideMutableGameState = { it.state } }
 }
 
@@ -123,6 +127,10 @@ suspend fun GameContext.startNewGame() {
         state.addChange(GameStateChange.GameStart())
         enqueuers.expr.enqueue(state, data.initActions)
         enqueuers.actionQueue.runEnqueuedActions()
+    }
+
+    state.deck.cards.forEach { card ->
+        userStats.cards.notifyOwnership(card)
     }
 
     // Separate draw from gamestart history, as the gamestart history group is ignored in the review history screen.
@@ -148,28 +156,27 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
                     }
             }
 
-            // TODO: Add user stats for web, backed by local storage or database?
             // Update user stats based on new history
-//            state.history.last().items.forEach { change ->
-//                when (change) {
-//                    is GameStateChange.MoveCard -> {
-//                        if (prevState.pileFor(change.card) == null) {
-//                            userStats.cards.notifyOwnership(change.card)
-//                        }
-//                    }
-//                    is GameStateChange.MoveCards -> {
-//                        change.cards.values.flatten().forEach { card ->
-//                            if (prevState.pileFor(card) == null) {
-//                                userStats.cards.notifyOwnership(card)
-//                            }
-//                        }
-//                    }
-//                    is GameStateChange.Build -> {
-//                        userStats.buildings.notifyBuilt(change.blueprint)
-//                    }
-//                    else -> Unit // Doesn't affect user stats
-//                }
-//            }
+            state.history.last().items.forEach { change ->
+                when (change) {
+                    is GameStateChange.MoveCard -> {
+                        if (prevState.pileFor(change.card) == null) {
+                            userStats.cards.notifyOwnership(change.card)
+                        }
+                    }
+                    is GameStateChange.MoveCards -> {
+                        change.cards.values.flatten().forEach { card ->
+                            if (prevState.pileFor(card) == null) {
+                                userStats.cards.notifyOwnership(card)
+                            }
+                        }
+                    }
+                    is GameStateChange.Build -> {
+                        userStats.buildings.notifyBuilt(change.blueprint)
+                    }
+                    else -> Unit // Doesn't affect user stats
+                }
+            }
 
         } catch (ex: Exception) {
             state = prevState
