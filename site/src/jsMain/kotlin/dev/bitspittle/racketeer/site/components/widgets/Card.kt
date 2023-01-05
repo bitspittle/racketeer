@@ -144,7 +144,7 @@ fun CardTemplate.toCardSpec(data: GameData, userStats: UserStats, enabled: Boole
         override val counter = 0
         override val flavor = self.description.flavor
         override val upgrades = emptySet<UpgradeType>()
-        override val traits = emptySet<TraitType>()
+        override val traits = self.traitTypes
         override val ability = self.description.ability
         override val activationCost = null
         override val unownedMessage = "You have never owned this card before.".takeUnless { userStats.cards.contains(self.name) }
