@@ -38,10 +38,10 @@ fun installPopup(data: GameData, userStats: UserStats, describer: Describer, too
     }
 
     when (item) {
-        is Blueprint -> RightPopup { Card(data, userStats, describer, tooltipParser, item.toCardSpec(describer)) }
+        is Blueprint -> RightPopup { Card(data, userStats, describer, tooltipParser, item.toCardSpec(userStats, describer)) }
         is Building -> RightPopup { Card(data, userStats, describer, tooltipParser, item.toCardSpec(describer)) }
-        is Card -> RightPopup { Card(data, userStats, describer, tooltipParser, item.toCardSpec(data)) }
-        is CardTemplate -> RightPopup { Card(data, userStats, describer, tooltipParser, item.toCardSpec(data)) }
+        is Card -> RightPopup { Card(data, userStats, describer, tooltipParser, item.toCardSpec(data, userStats)) }
+        is CardTemplate -> RightPopup { Card(data, userStats, describer, tooltipParser, item.toCardSpec(data, userStats)) }
         is FormattedItem -> installPopup(data, userStats, describer, tooltipParser, item.wrapped)
         is List<*> -> @Suppress("UNCHECKED_CAST") when(item.first()) {
             is Card -> RightPopup {

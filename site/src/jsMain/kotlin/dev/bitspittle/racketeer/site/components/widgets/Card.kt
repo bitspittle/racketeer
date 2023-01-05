@@ -100,6 +100,7 @@ interface CardSpec {
     val traits: Set<TraitType>
     val ability: String
     val activationCost: String?
+    val unownedMessage: String?
     val label: String?
 }
 
@@ -107,7 +108,7 @@ private fun List<String>.toDisplayTypeNames(data: GameData): List<String> {
     return this.map { typeId -> data.cardTypes.first { it.equals(typeId, ignoreCase = true) } }
 }
 
-fun Card.toCardSpec(data: GameData, label: String? = null, enabled: Boolean = true): CardSpec {
+fun Card.toCardSpec(data: GameData, userStats: UserStats, label: String? = null, enabled: Boolean = true): CardSpec {
     val self = this
     return object : CardSpec {
         override val enabled = enabled
@@ -124,11 +125,12 @@ fun Card.toCardSpec(data: GameData, label: String? = null, enabled: Boolean = tr
         override val traits = self.traits
         override val ability = self.template.description.ability
         override val activationCost = null
+        override val unownedMessage = "You have never owned this card before.".takeUnless { userStats.cards.contains(self.template.name) }
         override val label = label
     }
 }
 
-fun CardTemplate.toCardSpec(data: GameData, enabled: Boolean = true): CardSpec {
+fun CardTemplate.toCardSpec(data: GameData, userStats: UserStats, enabled: Boolean = true): CardSpec {
     val self = this
     return object : CardSpec {
         override val enabled = enabled
@@ -145,6 +147,7 @@ fun CardTemplate.toCardSpec(data: GameData, enabled: Boolean = true): CardSpec {
         override val traits = emptySet<TraitType>()
         override val ability = self.description.ability
         override val activationCost = null
+        override val unownedMessage = "You have never owned this card before.".takeUnless { userStats.cards.contains(self.name) }
         override val label = null
     }
 }
@@ -166,6 +169,7 @@ fun Iterable<Card>.toCardSpec(data: GameData): CardSpec {
         override val traits = card.traitTypes
         override val ability = card.description.ability
         override val activationCost = null
+        override val unownedMessage = null
         override val label = null
     }
 }
@@ -182,7 +186,7 @@ fun Card(
     label: String? = null,
     enabled: Boolean = true
 ) {
-    Card(data, userStats, describer, tooltipParser, card.toCardSpec(data, label, enabled), onClick, modifier)
+    Card(data, userStats, describer, tooltipParser, card.toCardSpec(data, userStats, label, enabled), onClick, modifier)
 }
 
 @Composable

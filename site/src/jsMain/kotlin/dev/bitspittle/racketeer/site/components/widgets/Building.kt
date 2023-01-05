@@ -12,6 +12,7 @@ import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.site.model.GameContext
+import dev.bitspittle.racketeer.site.model.user.UserStats
 
 private fun Blueprint.canAffordBuildCost(state: GameState) =
     state.cash >= this.buildCost.cash && state.influence >= this.buildCost.influence
@@ -77,6 +78,7 @@ fun Building.toCardSpec(describer: Describer, enabled: Boolean = true): CardSpec
         override val traits = emptySet<TraitType>()
         override val ability = blueprint.description.ability
         override val activationCost = null
+        override val unownedMessage = null
         override val label = self.blueprint.activationCost.toLabel(describer)
     }
 }
@@ -97,15 +99,16 @@ fun Building(ctx: GameContext, building: Building, onClick: () -> Unit, modifier
     }
 }
 
-fun Blueprint.toCardSpec(describer: Describer, state: GameState): CardSpec {
+fun Blueprint.toCardSpec(userStats: UserStats, describer: Describer, state: GameState): CardSpec {
     val self = this
     return this.toCardSpec(
+        userStats,
         describer,
         enabled = self.canAffordBuildCost(state)
     )
 }
 
-fun Blueprint.toCardSpec(describer: Describer, enabled: Boolean = true): CardSpec {
+fun Blueprint.toCardSpec(userStats: UserStats, describer: Describer, enabled: Boolean = true): CardSpec {
     val self = this
     return object : CardSpec {
         override val enabled = enabled
@@ -122,6 +125,7 @@ fun Blueprint.toCardSpec(describer: Describer, enabled: Boolean = true): CardSpe
         override val traits = emptySet<TraitType>()
         override val ability = self.description.ability
         override val activationCost = self.activationCost.toLabel(describer)
+        override val unownedMessage = "You have never built this building before.".takeUnless { userStats.buildings.contains(self.name) }
         override val label = self.buildCost.toLabel(describer)
     }
 }
@@ -134,7 +138,7 @@ fun Blueprint(ctx: GameContext, blueprint: Blueprint, onClick: () -> Unit, modif
         ctx.userStats,
         ctx.describer,
         ctx.tooltipParser,
-        blueprint.toCardSpec(ctx.describer, ctx.state),
+        blueprint.toCardSpec(ctx.userStats, ctx.describer, ctx.state),
         onClick,
         modifier)
 }

@@ -50,7 +50,7 @@ fun renderTextWithTooltips(
                                     userStats,
                                     describer,
                                     tooltipParser,
-                                    tooltip.blueprint.toCardSpec(describer),
+                                    tooltip.blueprint.toCardSpec(userStats, describer),
                                     modifier = outlineModifier
                                 )
 
@@ -59,7 +59,7 @@ fun renderTextWithTooltips(
                                     userStats,
                                     describer,
                                     tooltipParser,
-                                    tooltip.card.toCardSpec(data),
+                                    tooltip.card.toCardSpec(data, userStats),
                                     modifier = outlineModifier
                                 )
 
