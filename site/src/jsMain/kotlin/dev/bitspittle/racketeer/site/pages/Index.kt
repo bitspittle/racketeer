@@ -23,6 +23,7 @@ import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.components.widgets.Modal
 import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.*
+import kotlinx.browser.document
 import kotlinx.browser.window
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
@@ -38,7 +39,7 @@ private sealed interface GameStartupState {
 @Page
 @Composable
 fun HomePage() {
-    PageLayout("Do Crimes") {
+    PageLayout {
         var startupState by remember { mutableStateOf<GameStartupState>(GameStartupState.FetchingData) }
         var choiceCtx by remember { mutableStateOf<ChoiceContext?>(null) }
         val handleChoice: (ChoiceContext) -> Unit = remember {
@@ -84,6 +85,8 @@ fun HomePage() {
             }
             is GameStartupState.DataFetched -> {
                 (startupState as GameStartupState.DataFetched).apply {
+                    document.title = gameData.title
+
                     TitleScreen(
                         scope,
                         gameData.title,

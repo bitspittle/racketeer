@@ -1,4 +1,5 @@
 import com.varabyte.kobweb.gradle.application.util.configAsKobwebApplication
+import kotlinx.html.title
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.TimeZone
@@ -28,7 +29,10 @@ kobweb {
         }.format(Date()).toString())
 
         index {
-            description.set("Powered by Kobweb")
+            head.add {
+                title("Do Crimes")
+            }
+            description.set("A Real-Crime Strategy Game")
         }
     }
 }

@@ -44,11 +44,7 @@ val VersionStyle = ComponentStyle("version") {
 class PageLayoutScope(val scope: CoroutineScope, val events: Events, val settings: Settings)
 
 @Composable
-fun PageLayout(title: String, content: @Composable PageLayoutScope.() -> Unit) {
-    remember(title) {
-        document.title = title
-    }
-
+fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
     val scope = rememberCoroutineScope()
     val events = remember { MutableSharedFlow<Event>(replay = 0) }
     val settings = remember { Data.load(Data.Keys.Settings)?.value ?: Settings() }
