@@ -9,6 +9,7 @@ data class GameIcons(
     val flavor: String,
     val influence: String,
     val luck: String,
+    val new: String,
     val suspicious: String,
     val swift: String,
     val veteran: String,

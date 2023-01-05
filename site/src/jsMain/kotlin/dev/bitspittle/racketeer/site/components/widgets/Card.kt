@@ -100,7 +100,7 @@ interface CardSpec {
     val traits: Set<TraitType>
     val ability: String
     val activationCost: String?
-    val unownedMessage: String?
+    val newTarget: NewIndicatorTarget?
     val label: String?
 }
 
@@ -125,7 +125,7 @@ fun Card.toCardSpec(data: GameData, userStats: UserStats, label: String? = null,
         override val traits = self.traits
         override val ability = self.template.description.ability
         override val activationCost = null
-        override val unownedMessage = "You have never owned this card before.".takeUnless { userStats.cards.contains(self.template.name) }
+        override val newTarget: NewIndicatorTarget? = NewIndicatorTarget.CARD.takeUnless { userStats.cards.contains(self.template.name) }
         override val label = label
     }
 }
@@ -147,7 +147,7 @@ fun CardTemplate.toCardSpec(data: GameData, userStats: UserStats, enabled: Boole
         override val traits = self.traitTypes
         override val ability = self.description.ability
         override val activationCost = null
-        override val unownedMessage = "You have never owned this card before.".takeUnless { userStats.cards.contains(self.name) }
+        override val newTarget: NewIndicatorTarget? = NewIndicatorTarget.CARD.takeUnless { userStats.cards.contains(self.name) }
         override val label = null
     }
 }
@@ -169,7 +169,7 @@ fun Iterable<Card>.toCardSpec(data: GameData): CardSpec {
         override val traits = card.traitTypes
         override val ability = card.description.ability
         override val activationCost = null
-        override val unownedMessage = null
+        override val newTarget: NewIndicatorTarget? = null
         override val label = null
     }
 }
@@ -225,6 +225,7 @@ fun Card(
     LabeledContent(card.label, enabled = card.enabled) {
         Column(CardStyle
             .toModifier()
+            .position(Position.Relative) // So shiny mark can be positioned within it
             .thenIf(card.enabled) {
                 Modifier.tabIndex(0).onClick { onClick() }
             }
@@ -243,7 +244,17 @@ fun Card(
                     }
                     append(describer.describeRarity(card.rarity))
                 }, CardDescriptionStyle.toModifier())
+
                 SpanText(card.title, CardTitleStyle.toModifier())
+                card.newTarget?.let { newTarget ->
+                    NewIndicator(
+                        data,
+                        newTarget,
+                        Modifier.position(Position.Absolute).top(2.px).right(2.px),
+                        placement = PopupPlacement.Right,
+                    )
+                }
+
                 if (card.types.isNotEmpty()) {
                     SpanText(
                         card.types.joinToString(),

@@ -78,7 +78,7 @@ fun Building.toCardSpec(describer: Describer, enabled: Boolean = true): CardSpec
         override val traits = emptySet<TraitType>()
         override val ability = blueprint.description.ability
         override val activationCost = null
-        override val unownedMessage = null
+        override val newTarget: NewIndicatorTarget? = null
         override val label = self.blueprint.activationCost.toLabel(describer)
     }
 }
@@ -125,7 +125,7 @@ fun Blueprint.toCardSpec(userStats: UserStats, describer: Describer, enabled: Bo
         override val traits = emptySet<TraitType>()
         override val ability = self.description.ability
         override val activationCost = self.activationCost.toLabel(describer)
-        override val unownedMessage = "You have never built this building before.".takeUnless { userStats.buildings.contains(self.name) }
+        override val newTarget: NewIndicatorTarget? = NewIndicatorTarget.BLUEPRINT.takeUnless { userStats.buildings.contains(self.name) }
         override val label = self.buildCost.toLabel(describer)
     }
 }

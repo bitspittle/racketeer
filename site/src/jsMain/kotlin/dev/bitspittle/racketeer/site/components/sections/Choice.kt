@@ -12,6 +12,10 @@ import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.overlay.Tooltip
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
+import dev.bitspittle.racketeer.model.building.Blueprint
+import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.card.CardTemplate
+import dev.bitspittle.racketeer.scripting.methods.collection.FormattedItem
 import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.util.installPopup
 import dev.bitspittle.racketeer.site.components.widgets.*
@@ -45,6 +49,39 @@ fun Choice(ctx: ChoiceContext) = ctx.apply {
     } else {
         // Normal multi-select choose screen.
         PickChoices(ctx)
+    }
+}
+
+private fun Any.toNewIndictorTarget(ctx: ChoiceContext): NewIndicatorTarget? {
+    return when (this) {
+        is Card -> NewIndicatorTarget.CARD.takeUnless { ctx.userStats.cards.contains(template.name) }
+        is CardTemplate -> NewIndicatorTarget.CARD.takeUnless { ctx.userStats.cards.contains(name) }
+        is Blueprint -> NewIndicatorTarget.BLUEPRINT.takeUnless { ctx.userStats.buildings.contains(name) }
+        is FormattedItem -> wrapped.toNewIndictorTarget(ctx)
+        else -> null
+    }
+}
+
+@Composable
+private fun ItemText(ctx: ChoiceContext, item: Any) {
+    @Composable
+    fun ItemTitle(ctx: ChoiceContext, item: Any) {
+        Row(Modifier.gap(5.px)) {
+            val newTarget = item.toNewIndictorTarget(ctx)
+            SpanText(ctx.describe(item))
+            if (newTarget != null) NewIndicator(ctx.data, newTarget)
+        }
+    }
+
+    // Center the text by default or separate into left and right sides if there's extra text
+    ctx.extra(item)?.let { extraText ->
+        // No wrap because sometimes button names were getting squished despite extra space!
+        Row(Modifier.gap(5.px).fillMaxWidth().whiteSpace(WhiteSpace.NoWrap)) {
+            ItemTitle(ctx, item)
+            SpanText(ctx.describer.convertIcons(extraText), Modifier.flexGrow(1).textAlign(TextAlign.End))
+        }
+    } ?: run {
+        ItemTitle(ctx, item)
     }
 }
 
@@ -88,19 +125,6 @@ private fun ReviewChoices(ctx: ChoiceContext) {
             }
         }
     )
-}
-
-@Composable
-private fun ItemText(ctx: ChoiceContext, item: Any) {
-    ctx.extra(item)?.let { extraText ->
-        // No wrap because sometimes button names were getting squished despite extra space!
-        Row(Modifier.gap(5.px).fillMaxWidth().whiteSpace(WhiteSpace.NoWrap)) {
-            SpanText(ctx.describe(item))
-            SpanText(ctx.describer.convertIcons(extraText), Modifier.textAlign(TextAlign.End))
-        }
-    } ?: run {
-        SpanText(ctx.describe(item))
-    }
 }
 
 @Composable

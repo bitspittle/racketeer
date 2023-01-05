@@ -18,6 +18,7 @@ import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.types.*
 import dev.bitspittle.racketeer.scripting.utils.installGameLogic
+import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.model.user.MutableUserStats
 import dev.bitspittle.racketeer.site.model.user.notifyBuilt
 import dev.bitspittle.racketeer.site.model.user.notifyOwnership
@@ -158,7 +159,9 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
             }
 
             // Update user stats based on new history
+            var userStatsUpdated = false
             state.history.last().items.forEach { change ->
+                var userStatsChange = true
                 when (change) {
                     is GameStateChange.MoveCard -> {
                         if (prevState.pileFor(change.card) == null) {
@@ -175,10 +178,13 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
                     is GameStateChange.Build -> {
                         userStats.buildings.notifyBuilt(change.blueprint)
                     }
-                    else -> Unit // Doesn't affect user stats
+                    else -> userStatsChange = false
                 }
+                if (userStatsChange) userStatsUpdated = true
             }
-
+            if (userStatsUpdated) {
+                Data.save(Data.Keys.UserStats, userStats)
+            }
         } catch (ex: Exception) {
             state = prevState
             if (ex !is EvaluationException || ex.cause !is CancelPlayException) {
