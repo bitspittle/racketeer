@@ -481,7 +481,6 @@ object GameMenus {
                         params.requestClose()
                     },
                 ) { Text("Download Snapshot") }
-                Tooltip(ElementTarget.PreviousSibling, "Note: This also saves the game for your convenience.")
 
                 Button(
                     onClick = {
