@@ -134,6 +134,7 @@ suspend fun GameContext.startNewGame() {
     state.deck.cards.forEach { card ->
         userStats.cards.notifyOwnership(card)
     }
+    Data.save(Data.Keys.UserStats, userStats)
 
     // Separate draw from gamestart history, as the gamestart history group is ignored in the review history screen.
     state.recordChanges {
