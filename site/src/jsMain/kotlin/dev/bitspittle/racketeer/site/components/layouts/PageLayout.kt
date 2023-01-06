@@ -1,27 +1,31 @@
 package dev.bitspittle.racketeer.site.components.layouts
 
 import androidx.compose.runtime.*
+import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.css.FontWeight
 import com.varabyte.kobweb.compose.css.PointerEvents
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
+import com.varabyte.kobweb.compose.foundation.layout.Row
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.thenIf
-import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.core.AppGlobals
+import com.varabyte.kobweb.silk.components.forms.Button
+import com.varabyte.kobweb.silk.components.icons.fa.FaCopy
 import com.varabyte.kobweb.silk.components.style.*
+import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.sections.Footer
 import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.model.*
 import dev.bitspittle.racketeer.site.model.user.MutableUserStats
+import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import org.jetbrains.compose.web.css.*
-import org.jetbrains.compose.web.dom.*
 
 val VersionStyle = ComponentStyle("version") {
     base {
@@ -29,6 +33,7 @@ val VersionStyle = ComponentStyle("version") {
             .position(Position.Absolute)
             .top(10.px)
             .right(10.px)
+            .gap(5.px)
             .fontSize(G.Font.Sizes.ExtraSmall)
             .fontWeight(FontWeight.Bold)
             .opacity(0)
@@ -91,16 +96,27 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
             })
     }
 
-    Div(
-        VersionStyle
-            .toModifier()
-            .onClick { evt ->
+    Row(
+        VersionStyle.toModifier(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        val versionStr = "v" + AppGlobals["version"] as String
+        SpanText(
+            versionStr,
+            Modifier.onClick { evt ->
                 if (evt.altKey && evt.shiftKey) {
                     settings.admin.enabled = !settings.admin.enabled
                     events.emitAsync(scope, Event.SettingsChanged(settings))
                 }
-            }.toAttrs()
-    ){
-        Text("v" + AppGlobals["version"] as String)
+            }
+        )
+        FaCopy(
+            Modifier
+                .classNames("fa-s")
+                .cursor(Cursor.Pointer)
+                .onClick {
+                    window.navigator.clipboard.writeText(versionStr)
+                }
+        )
     }
 }
