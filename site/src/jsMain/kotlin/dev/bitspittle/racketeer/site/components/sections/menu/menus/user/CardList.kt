@@ -7,9 +7,12 @@ import com.varabyte.kobweb.compose.foundation.layout.Row
 import com.varabyte.kobweb.compose.foundation.layout.RowScope
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.*
+import com.varabyte.kobweb.compose.ui.thenUnless
+import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.components.layout.SimpleGrid
 import com.varabyte.kobweb.silk.components.layout.numColumns
 import com.varabyte.kobweb.silk.components.style.*
+import com.varabyte.kobweb.silk.components.style.common.DisabledStyle
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.site.components.sections.ReadOnlyStyle
 import dev.bitspittle.racketeer.site.components.sections.menu.Menu
@@ -64,7 +67,7 @@ class CardListMenu(private val params: PopupParams) : Menu {
         sortedCards.forEach { card ->
             val knownCard = (userStats.cards.contains(card.name))
 
-            Div(ReadOnlyStyle.toAttrs()) {
+            Div(ReadOnlyStyle.toModifier().thenUnless(knownCard, DisabledStyle.toModifier()).toAttrs()) {
                 var text = describer.describeCardTitle(card)
                 if (!knownCard) {
                     text = "?".repeat(text.length)

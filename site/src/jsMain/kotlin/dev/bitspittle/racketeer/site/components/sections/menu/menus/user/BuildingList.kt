@@ -5,7 +5,10 @@ import com.varabyte.kobweb.compose.css.TextAlign
 import com.varabyte.kobweb.compose.foundation.layout.Row
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.*
+import com.varabyte.kobweb.compose.ui.thenUnless
+import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.components.style.*
+import com.varabyte.kobweb.silk.components.style.common.DisabledStyle
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.site.components.sections.ReadOnlyStyle
 import dev.bitspittle.racketeer.site.components.sections.menu.Menu
@@ -23,7 +26,7 @@ class BuildingListMenu(private val params: PopupParams) : Menu {
         data.blueprints.sortedBy { it.name }.forEach { blueprint ->
             val knownBlueprint = (userStats.buildings.contains(blueprint.name))
 
-            Div(ReadOnlyStyle.toAttrs()) {
+            Div(ReadOnlyStyle.toModifier().thenUnless(knownBlueprint, DisabledStyle.toModifier()).toAttrs()) {
                 var text = describer.describeBlueprintTitle(blueprint)
                 if (!knownBlueprint) {
                     text = "?".repeat(text.length)
