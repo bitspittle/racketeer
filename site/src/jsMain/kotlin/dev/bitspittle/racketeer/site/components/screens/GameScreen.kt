@@ -13,7 +13,6 @@ import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
-import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.layout.SimpleGrid
 import com.varabyte.kobweb.silk.components.layout.numColumns
@@ -26,9 +25,11 @@ import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.score.from
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import dev.bitspittle.racketeer.site.components.sections.ReadOnlyStyle
-import dev.bitspittle.racketeer.site.components.sections.menu.GameMenu
-import dev.bitspittle.racketeer.site.components.sections.menu.GameMenuEntry
-import dev.bitspittle.racketeer.site.components.sections.menu.GameMenus
+import dev.bitspittle.racketeer.site.components.sections.menu.Menu
+import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.AdminMenu
+import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.BrowseAllCardsMenu
+import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.GameMenuParams
+import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.MainMenu
 import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.components.util.installPopup
 import dev.bitspittle.racketeer.site.components.widgets.*
@@ -46,7 +47,8 @@ private class VpProvider(val source: Any, val amount: Int)
 private fun renderGameScreen(
     gameUpdater: GameUpdater,
     ctx: GameContext,
-    showMenu: (GameMenuEntry) -> Unit,
+    gameMenuParams: GameMenuParams,
+    showMenu: (Menu) -> Unit,
     onRestartRequested: () -> Unit,
     onQuitRequested: () -> Unit
 ) {
@@ -271,7 +273,7 @@ private fun renderGameScreen(
                                     }
                                 }
                                 Button(onClick = {
-                                    showMenu(GameMenus.BrowseAllCards(ctx.data, GameMenus.BrowseAllCards.SortingOrder.VICTORY_POINTS))
+                                    showMenu(BrowseAllCardsMenu(gameMenuParams))
                                 }) { Text("Browse All Cards") }
                             }
                         }
@@ -297,10 +299,12 @@ private fun renderGameScreen(
 @Composable
 fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onRestartRequested: () -> Unit, onQuitRequested: () -> Unit) {
     var showMenu by remember { mutableStateOf(false) }
-    var initialMenu by remember { mutableStateOf<GameMenuEntry?>(null) }
+    var initialMenu by remember { mutableStateOf<Menu?>(null) }
     val gameUpdater = GameUpdater(scope, events, ctx)
 
     var gameUpdateCount by remember { mutableStateOf(0) }
+
+    val gameMenuParams = GameMenuParams(scope, ctx, gameUpdater, onRestartRequested, onQuitRequested)
 
     LaunchedEffect(Unit) {
         events.collect { evt ->
@@ -319,14 +323,14 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onRestar
                 "Backquote" -> {
                     if (!showMenu && ctx.settings.admin.enabled) {
                         showMenu = true
-                        initialMenu = GameMenus.Admin
+                        initialMenu = AdminMenu(gameMenuParams)
                         true
                     } else false
                 }
                 "Equal" -> {
                     if (!showMenu) {
                         showMenu = true
-                        initialMenu = GameMenus.BrowseAllCards(ctx.data)
+                        initialMenu = BrowseAllCardsMenu(gameMenuParams)
                         true
                     } else false
                 }
@@ -338,6 +342,7 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onRestar
             renderGameScreen(
                 gameUpdater,
                 ctx,
+                gameMenuParams,
                 showMenu = {
                     showMenu = true
                     initialMenu = it
@@ -349,14 +354,9 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onRestar
    }
 
     if (showMenu) {
-        GameMenu(
-            scope,
-            ctx,
-            gameUpdater,
+        Menu(
             closeRequested = { showMenu = false; initialMenu = null },
-            restartRequested = { onRestartRequested() },
-            quitRequested = { onQuitRequested() },
-            initialMenu
+            initialMenu ?: MainMenu(gameMenuParams)
         )
     }
 }
