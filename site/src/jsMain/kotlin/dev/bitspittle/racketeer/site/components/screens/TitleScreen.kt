@@ -21,7 +21,6 @@ import dev.bitspittle.racketeer.site.components.util.loadSnapshotFromDisk
 import dev.bitspittle.racketeer.site.components.widgets.YesNo
 import dev.bitspittle.racketeer.site.components.widgets.YesNoDialog
 import dev.bitspittle.racketeer.site.model.*
-import dev.bitspittle.racketeer.site.model.user.UserStats
 import dev.bitspittle.racketeer.site.model.user.isClear
 import kotlinx.browser.document
 import kotlinx.browser.window
@@ -55,6 +54,8 @@ fun TitleScreen(
     Box(Modifier.fillMaxSize().padding(5.percent), contentAlignment = Alignment.TopCenter) {
         Column(FullWidthChildrenStyle.toModifier().gap(15.px)) {
             H1(Modifier.margin(bottom = 10.px).textAlign(TextAlign.Center).toAttrs()) { Text(title) }
+
+            var showUserDataButton by remember { mutableStateOf(!popupParams.userStats.isClear()) }
 
             run {
                 var showProceedQuestion by remember { mutableStateOf(false) }
@@ -94,7 +95,7 @@ fun TitleScreen(
                 enabled = Data.exists(Data.Keys.Quicksave)
                 ) { Text("Restore Game") }
 
-            if (!popupParams.userStats.isClear()) {
+            if (showUserDataButton) {
                 var showUserDataMenu by remember { mutableStateOf(false) }
 
                 Button(
@@ -103,8 +104,11 @@ fun TitleScreen(
 
                 if (showUserDataMenu) {
                     Menu(
-                        closeRequested = { showUserDataMenu = false },
-                        UserDataMenu(popupParams)
+                        closeRequested = {
+                            showUserDataButton = !popupParams.userStats.isClear()
+                            showUserDataMenu = false
+                         },
+                        UserDataMenu(popupParams, allowClearing = true)
                     )
                 }
             }

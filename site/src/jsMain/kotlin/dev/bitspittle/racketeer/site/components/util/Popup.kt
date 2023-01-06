@@ -21,12 +21,13 @@ import dev.bitspittle.racketeer.site.components.widgets.toCardSpec
 import dev.bitspittle.racketeer.site.model.ChoiceContext
 import dev.bitspittle.racketeer.site.model.GameContext
 import dev.bitspittle.racketeer.site.model.TooltipParser
+import dev.bitspittle.racketeer.site.model.user.MutableUserStats
 import dev.bitspittle.racketeer.site.model.user.UserStats
 import org.jetbrains.compose.web.css.*
 
 class PopupParams(
     val data: GameData,
-    val userStats: UserStats,
+    val userStats: MutableUserStats,
     val describer: Describer,
     val tooltipParser: TooltipParser
 )

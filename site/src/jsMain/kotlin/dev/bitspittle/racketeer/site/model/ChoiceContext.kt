@@ -8,6 +8,7 @@ import dev.bitspittle.racketeer.model.game.Feature
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.FormattedItem
+import dev.bitspittle.racketeer.site.model.user.MutableUserStats
 import dev.bitspittle.racketeer.site.model.user.UserStats
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
@@ -26,7 +27,7 @@ fun Describer.describeItem(item: Any): String {
 
 class ChoiceContext(
     val data: GameData,
-    val userStats: UserStats,
+    val userStats: MutableUserStats,
     val describer: Describer,
     val tooltipParser: TooltipParser,
     val prompt: String?,
