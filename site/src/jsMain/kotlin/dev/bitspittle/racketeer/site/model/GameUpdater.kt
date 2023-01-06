@@ -12,13 +12,20 @@ class GameUpdater(
         scope.launch {
             ctx.logger.clear()
 
-            var changed = false
-            for (block in blocks) {
-                if (ctx.runStateChangingAction { block() }) { changed = true }
-            }
+            try {
+                var changed = false
+                for (block in blocks) {
+                    if (ctx.runStateChangingAction { block() }) {
+                        changed = true
+                    }
+                }
 
-            if (changed) {
-                events.emit(Event.GameStateUpdated(ctx))
+                if (changed) {
+                    events.emit(Event.GameStateUpdated(ctx))
+                }
+            } catch (ex: Exception) {
+                ctx.logger.error(ex.message ?: "Code threw exception without a message: ${ex::class.simpleName}")
+                events.emit(Event.GameStateUpdated(ctx)) // Emit an event so that the logging area gets updated
             }
         }
     }

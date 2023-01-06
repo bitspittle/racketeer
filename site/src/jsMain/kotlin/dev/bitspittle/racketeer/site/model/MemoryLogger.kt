@@ -15,23 +15,20 @@ class MemoryLogger : Logger {
         message.split('\n').map(map).forEach { _messages.add(it) }
     }
 
-    private fun appendWithPrefix(prefix: String, message: String) {
-        append(message) { line -> if (line.isNotBlank()) "$prefix $line" else "" }
-    }
-
     override fun info(message: String) {
-        appendWithPrefix("•", message)
+        append(message) { line -> if (line.isNotBlank()) "• $line" else "" }
     }
 
     override fun warn(message: String) {
-        appendWithPrefix("⚠️", message)
+        append("⚠️ $message")
     }
 
     override fun error(message: String) {
-        appendWithPrefix("⛔", "message")
+        println("⛔ $message")
+        append("⛔ $message")
     }
 
     override fun debug(message: String) {
-        appendWithPrefix("⚙️", message)
+        append("⚙️ $message")
     }
 }

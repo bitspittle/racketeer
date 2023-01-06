@@ -3,6 +3,7 @@ package dev.bitspittle.racketeer.site.components.screens
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.FontWeight
 import com.varabyte.kobweb.compose.css.TextAlign
+import com.varabyte.kobweb.compose.css.UserSelect
 import com.varabyte.kobweb.compose.css.WhiteSpace
 import com.varabyte.kobweb.compose.dom.ElementTarget
 import com.varabyte.kobweb.compose.foundation.layout.Box
@@ -12,6 +13,7 @@ import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
+import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.layout.SimpleGrid
 import com.varabyte.kobweb.silk.components.layout.numColumns
@@ -278,8 +280,15 @@ private fun renderGameScreen(
             }
         }
 
-        ctx.logger.messages.forEach { message ->
-            SpanText(message, Modifier.fillMaxWidth().padding(left = GAP))
+
+        Column(Modifier.userSelect(UserSelect.Text).fillMaxWidth().padding(left = GAP).fontFamily("monospace")) {
+            ctx.logger.messages.forEach { message ->
+                if (message.isNotEmpty()) {
+                    SpanText(message)
+                } else {
+                    Br()
+                }
+            }
         }
     }
 }
