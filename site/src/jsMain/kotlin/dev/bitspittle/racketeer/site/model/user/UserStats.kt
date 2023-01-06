@@ -68,6 +68,8 @@ fun MutableUserStats.clear() {
     games.clear()
 }
 
+fun UserStats.isClear() = cards.isEmpty() && buildings.isEmpty() && games.isEmpty()
+
 fun MutableMap<String, CardStats>.notifyOwnership(card: CardTemplate) {
     getOrPut(card.name) { CardStats(card.name) }
         .ownedCount++

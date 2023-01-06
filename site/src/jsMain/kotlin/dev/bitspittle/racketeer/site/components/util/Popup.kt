@@ -15,6 +15,7 @@ import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.FormattedItem
+import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.GameMenuParams
 import dev.bitspittle.racketeer.site.components.widgets.Card
 import dev.bitspittle.racketeer.site.components.widgets.toCardSpec
 import dev.bitspittle.racketeer.site.model.ChoiceContext
@@ -23,8 +24,17 @@ import dev.bitspittle.racketeer.site.model.TooltipParser
 import dev.bitspittle.racketeer.site.model.user.UserStats
 import org.jetbrains.compose.web.css.*
 
+class PopupParams(
+    val data: GameData,
+    val userStats: UserStats,
+    val describer: Describer,
+    val tooltipParser: TooltipParser
+)
+
+fun GameContext.toPopupParams() = PopupParams(data, userStats, describer, tooltipParser)
+
 @Composable
-fun installPopup(data: GameData, userStats: UserStats, describer: Describer, tooltipParser: TooltipParser, item: Any) {
+fun installPopup(params: PopupParams, item: Any) {
     @Composable
     fun RightPopup(content: @Composable BoxScope.() -> Unit) {
         Popup(
@@ -37,22 +47,48 @@ fun installPopup(data: GameData, userStats: UserStats, describer: Describer, too
         )
     }
 
-    when (item) {
-        is Blueprint -> RightPopup { Card(data, userStats, describer, tooltipParser, item.toCardSpec(userStats, describer)) }
-        is Building -> RightPopup { Card(data, userStats, describer, tooltipParser, item.toCardSpec(describer)) }
-        is Card -> RightPopup { Card(data, userStats, describer, tooltipParser, item.toCardSpec(data, userStats)) }
-        is CardTemplate -> RightPopup { Card(data, userStats, describer, tooltipParser, item.toCardSpec(data, userStats)) }
-        is FormattedItem -> installPopup(data, userStats, describer, tooltipParser, item.wrapped)
-        is List<*> -> @Suppress("UNCHECKED_CAST") when(item.first()) {
-            is Card -> RightPopup {
-                Card(data, userStats, describer, tooltipParser, (item as List<Card>).toCardSpec(data))
+    with(params) {
+        when (item) {
+            is Blueprint -> RightPopup {
+                Card(
+                    data,
+                    userStats,
+                    describer,
+                    tooltipParser,
+                    item.toCardSpec(userStats, describer)
+                )
+            }
+
+            is Building -> RightPopup { Card(data, userStats, describer, tooltipParser, item.toCardSpec(describer)) }
+            is Card -> RightPopup { Card(data, userStats, describer, tooltipParser, item.toCardSpec(data, userStats)) }
+            is CardTemplate -> RightPopup {
+                Card(
+                    data,
+                    userStats,
+                    describer,
+                    tooltipParser,
+                    item.toCardSpec(data, userStats)
+                )
+            }
+
+            is FormattedItem -> installPopup(params, item.wrapped)
+            is List<*> -> @Suppress("UNCHECKED_CAST") when (item.first()) {
+                is Card -> RightPopup {
+                    Card(data, userStats, describer, tooltipParser, (item as List<Card>).toCardSpec(data))
+                }
             }
         }
     }
 }
 
 @Composable
-fun installPopup(ctx: GameContext, item: Any) = installPopup(ctx.data, ctx.userStats, ctx.describer, ctx.tooltipParser, item)
+fun installPopup(ctx: GameContext, item: Any) = installPopup(
+    PopupParams(ctx.data, ctx.userStats, ctx.describer, ctx.tooltipParser),
+    item
+)
 
 @Composable
-fun installPopup(ctx: ChoiceContext, item: Any) = installPopup(ctx.data, ctx.userStats, ctx.describer, ctx.tooltipParser, item)
+fun installPopup(ctx: ChoiceContext, item: Any) = installPopup(
+    PopupParams(ctx.data, ctx.userStats, ctx.describer, ctx.tooltipParser),
+    item
+)

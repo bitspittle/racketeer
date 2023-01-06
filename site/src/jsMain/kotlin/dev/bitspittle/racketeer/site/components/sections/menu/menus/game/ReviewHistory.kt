@@ -87,7 +87,7 @@ private fun GameStateChange.intoItems(): List<Any> {
 
 private fun GameStateChanges.flattenIntoItems(): List<Any> = items.flatMap { it.intoItems() }
 
-class ReviewHistoryMenu(private val params: GameMenuParams) : Menu {
+class ReviewHistory(private val params: GameMenuParams) : Menu {
     override val title = "Review History"
 
     private var turn by mutableStateOf(params.ctx.state.turn)

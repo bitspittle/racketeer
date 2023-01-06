@@ -26,7 +26,7 @@ import dev.bitspittle.racketeer.model.score.from
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import dev.bitspittle.racketeer.site.components.sections.ReadOnlyStyle
 import dev.bitspittle.racketeer.site.components.sections.menu.Menu
-import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.AdminMenu
+import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.Admin
 import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.BrowseAllCardsMenu
 import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.GameMenuParams
 import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.MainMenu
@@ -323,7 +323,7 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onRestar
                 "Backquote" -> {
                     if (!showMenu && ctx.settings.admin.enabled) {
                         showMenu = true
-                        initialMenu = AdminMenu(gameMenuParams)
+                        initialMenu = Admin(gameMenuParams)
                         true
                     } else false
                 }

@@ -4,7 +4,9 @@ import androidx.compose.runtime.*
 import com.varabyte.kobweb.silk.components.forms.Button
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import dev.bitspittle.racketeer.site.components.sections.menu.*
+import dev.bitspittle.racketeer.site.components.sections.menu.menus.user.UserDataMenu
 import dev.bitspittle.racketeer.site.components.util.Data
+import dev.bitspittle.racketeer.site.components.util.toPopupParams
 import dev.bitspittle.racketeer.site.components.widgets.YesNo
 import dev.bitspittle.racketeer.site.components.widgets.YesNoDialog
 import org.jetbrains.compose.web.dom.*
@@ -15,11 +17,12 @@ class MainMenu(private val params: GameMenuParams) : Menu {
     @Composable
     override fun renderContent(actions: MenuActions) {
         if (params.ctx.settings.admin.enabled) {
-            MenuButton(actions, AdminMenu(params))
+            MenuButton(actions, Admin(params))
         }
 
         MenuButton(actions, BrowseAllCardsMenu(params))
-        MenuButton(actions, ReviewHistoryMenu(params))
+        MenuButton(actions, ReviewHistory(params))
+        MenuButton(actions, UserDataMenu(params.ctx.toPopupParams()))
 
         run {
             var showConfirmQuestion by remember { mutableStateOf(false) }

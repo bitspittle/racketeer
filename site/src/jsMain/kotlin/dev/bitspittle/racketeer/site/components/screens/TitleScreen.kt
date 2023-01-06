@@ -13,11 +13,16 @@ import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.style.*
 import dev.bitspittle.racketeer.site.FullWidthChildrenStyle
 import dev.bitspittle.racketeer.site.components.sections.ReadOnlyStyle
+import dev.bitspittle.racketeer.site.components.sections.menu.Menu
+import dev.bitspittle.racketeer.site.components.sections.menu.menus.user.UserDataMenu
 import dev.bitspittle.racketeer.site.components.util.Data
+import dev.bitspittle.racketeer.site.components.util.PopupParams
 import dev.bitspittle.racketeer.site.components.util.loadSnapshotFromDisk
 import dev.bitspittle.racketeer.site.components.widgets.YesNo
 import dev.bitspittle.racketeer.site.components.widgets.YesNoDialog
 import dev.bitspittle.racketeer.site.model.*
+import dev.bitspittle.racketeer.site.model.user.UserStats
+import dev.bitspittle.racketeer.site.model.user.isClear
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.CompletableDeferred
@@ -32,6 +37,7 @@ fun TitleScreen(
     scope: CoroutineScope,
     title: String,
     settings: Settings,
+    popupParams: PopupParams,
     events: Events,
     requestNewGame: () -> Unit,
     requestCreateGameContext: (init: suspend GameContext.() -> Unit) -> Unit
@@ -88,10 +94,24 @@ fun TitleScreen(
                 enabled = Data.exists(Data.Keys.Quicksave)
                 ) { Text("Restore Game") }
 
+            if (!popupParams.userStats.isClear()) {
+                var showUserDataMenu by remember { mutableStateOf(false) }
+
+                Button(
+                    onClick = { showUserDataMenu = true },
+                ) { Text("User Data") }
+
+                if (showUserDataMenu) {
+                    Menu(
+                        closeRequested = { showUserDataMenu = false },
+                        UserDataMenu(popupParams)
+                    )
+                }
+            }
+
             if (showAdminOptions) {
                 Button(
                     onClick = {
-                        // .dcr was a legacy extension
                         document.loadSnapshotFromDisk(
                             scope,
                             provideGameContext = {

@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
-class AdminMenu(private val params: GameMenuParams) : Menu {
+class Admin(private val params: GameMenuParams) : Menu {
     override val title = "Admin"
 
     @Composable

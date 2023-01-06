@@ -14,12 +14,14 @@ import com.varabyte.kobweb.silk.components.overlay.Tooltip
 import dev.bitspittle.racketeer.model.game.Feature
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.MutableGameState
+import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.site.components.layouts.PageLayout
 import dev.bitspittle.racketeer.site.components.screens.GameScreen
 import dev.bitspittle.racketeer.site.components.screens.TitleScreen
 import dev.bitspittle.racketeer.site.components.sections.Choice
 import dev.bitspittle.racketeer.site.components.sections.SelectedModifier
 import dev.bitspittle.racketeer.site.components.util.Data
+import dev.bitspittle.racketeer.site.components.util.PopupParams
 import dev.bitspittle.racketeer.site.components.widgets.Modal
 import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.*
@@ -87,10 +89,19 @@ fun HomePage() {
                 (startupState as GameStartupState.DataFetched).apply {
                     document.title = gameData.title
 
+                    val describer = Describer(gameData, showDebugInfo = { false })
+                    val tooltipParser = TooltipParser(gameData, describer)
+
                     TitleScreen(
                         scope,
                         gameData.title,
                         settings,
+                        PopupParams(
+                            gameData,
+                            userStats,
+                            describer,
+                            tooltipParser
+                        ),
                         events,
                         requestNewGame = {
                             startupState = GameStartupState.SelectingFeatures(gameData) { startNewGame() }
