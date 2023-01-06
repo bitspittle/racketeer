@@ -161,26 +161,27 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
             // Update user stats based on new history
             var userStatsUpdated = false
             state.history.last().items.forEach { change ->
-                var userStatsChange = true
                 when (change) {
                     is GameStateChange.MoveCard -> {
                         if (prevState.pileFor(change.card) == null) {
                             userStats.cards.notifyOwnership(change.card)
+                            userStatsUpdated = true
                         }
                     }
                     is GameStateChange.MoveCards -> {
                         change.cards.values.flatten().forEach { card ->
                             if (prevState.pileFor(card) == null) {
                                 userStats.cards.notifyOwnership(card)
+                                userStatsUpdated = true
                             }
                         }
                     }
                     is GameStateChange.Build -> {
                         userStats.buildings.notifyBuilt(change.blueprint)
+                        userStatsUpdated = true
                     }
-                    else -> userStatsChange = false
+                    else -> Unit // Change unrelated to updating userStats
                 }
-                if (userStatsChange) userStatsUpdated = true
             }
             if (userStatsUpdated) {
                 Data.save(Data.Keys.UserStats, userStats)
