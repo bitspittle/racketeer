@@ -80,7 +80,7 @@ suspend fun createGameConext(gameData: GameData, settings: Settings, userStats: 
         }
     }
     val gameState = MutableGameState(gameData, features, enqueuers, copyableRandom)
-    val describer = Describer(gameData, showDebugInfo = { true })
+    val describer = Describer(gameData, showDebugInfo = { settings.admin.enabled })
     val tooltipParser = TooltipParser(gameData, describer)
     var provideMutableGameState: () -> MutableGameState = { gameState }
     env.installGameLogic(object : GameService {
