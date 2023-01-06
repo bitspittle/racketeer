@@ -9,3 +9,9 @@ val FullWidthChildrenStyle = ComponentStyle("full-width-children") {
         Modifier.fillMaxWidth()
     }
 }
+
+val FullWidthChildrenRecursiveStyle = ComponentStyle("full-width-children-recursive") {
+    cssRule(" *") {
+        Modifier.fillMaxWidth()
+    }
+}

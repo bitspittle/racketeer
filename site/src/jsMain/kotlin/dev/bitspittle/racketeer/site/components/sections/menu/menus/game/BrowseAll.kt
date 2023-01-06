@@ -14,6 +14,7 @@ import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.model.card.vpTotal
 import dev.bitspittle.racketeer.model.game.getOwnedCards
 import dev.bitspittle.racketeer.model.game.isGameOver
+import dev.bitspittle.racketeer.site.FullWidthChildrenRecursiveStyle
 import dev.bitspittle.racketeer.site.components.sections.ReadOnlyStyle
 import dev.bitspittle.racketeer.site.components.sections.menu.Menu
 import dev.bitspittle.racketeer.site.components.sections.menu.MenuActions
@@ -112,13 +113,13 @@ class BrowseAllCardsMenu(
                     SortingOrder.PILE, SortingOrder.VICTORY_POINTS -> pileNames.getValue(card)
                 }
 
-                Div(ReadOnlyStyle.toAttrs()) {
+                Div(listOf(ReadOnlyStyle, FullWidthChildrenRecursiveStyle).toAttrs()) {
                     val cardTitle = ctx.describer.describeCardTitle(card)
                     if (extraText != null) {
                         // No wrap because sometimes button names were getting squished despite extra space!
-                        Row(Modifier.gap(5.px).fillMaxWidth().whiteSpace(WhiteSpace.NoWrap)) {
+                        Row(Modifier.gap(5.px).whiteSpace(WhiteSpace.NoWrap)) {
                             SpanText(cardTitle)
-                            SpanText("($extraText)", Modifier.textAlign(TextAlign.End))
+                            SpanText("($extraText)", Modifier.flexGrow(1).textAlign(TextAlign.End))
                         }
                     } else {
                         Text(cardTitle)

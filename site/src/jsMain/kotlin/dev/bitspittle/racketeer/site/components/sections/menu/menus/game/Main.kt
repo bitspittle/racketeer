@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.site.components.sections.menu.menus.game
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.silk.components.forms.Button
+import dev.bitspittle.racketeer.model.game.isGameInProgress
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import dev.bitspittle.racketeer.site.components.sections.menu.*
 import dev.bitspittle.racketeer.site.components.sections.menu.menus.user.UserDataMenu
@@ -42,7 +43,7 @@ class MainMenu(private val params: GameMenuParams) : Menu {
 
         run {
             var showConfirmQuestion by remember { mutableStateOf(false) }
-            Button(onClick = { showConfirmQuestion = true }) { Text("Save and Quit") }
+            Button(onClick = { showConfirmQuestion = true }, enabled = params.ctx.state.isGameInProgress) { Text("Save and Quit") }
 
             if (showConfirmQuestion) {
                 YesNoDialog(

@@ -2,9 +2,7 @@ package dev.bitspittle.racketeer.site.components.screens
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.FontWeight
-import com.varabyte.kobweb.compose.css.TextAlign
 import com.varabyte.kobweb.compose.css.UserSelect
-import com.varabyte.kobweb.compose.css.WhiteSpace
 import com.varabyte.kobweb.compose.dom.ElementTarget
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
@@ -24,6 +22,7 @@ import dev.bitspittle.racketeer.model.card.vpTotal
 import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.score.from
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
+import dev.bitspittle.racketeer.site.FullWidthChildrenRecursiveStyle
 import dev.bitspittle.racketeer.site.components.sections.ReadOnlyStyle
 import dev.bitspittle.racketeer.site.components.sections.menu.Menu
 import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.Admin
@@ -239,7 +238,7 @@ private fun renderGameScreen(
                                 Button(onClick = { onRestartRequested() }) { Text("Play Again") }
                             }
                         ) {
-                            Column(Modifier.gap(30.px).margin(top = 10.px)) {
+                            Column(FullWidthChildrenRecursiveStyle.toModifier().gap(30.px).margin(top = 10.px)) {
                                 SpanText("You ended the game with ${ctx.describer.describeVictoryPoints(ctx.state.vp)}, to earn a ranking of:")
                                 SpanText(ctx.data.rankings.from(ctx.state.vp).name, Modifier.fontWeight(FontWeight.Bold))
 
@@ -256,17 +255,7 @@ private fun renderGameScreen(
                                         topCards.forEach { vpProvider ->
                                             Div(ReadOnlyStyle.toAttrs()) {
                                                 // No wrap because sometimes button names were getting squished despite extra space!
-                                                Row(
-                                                    Modifier.gap(5.px).fillMaxWidth().whiteSpace(WhiteSpace.NoWrap)
-                                                ) {
-                                                    SpanText(ctx.describer.describeItem(vpProvider.source))
-                                                    SpanText(
-                                                        "(${ctx.describer.describeVictoryPoints(vpProvider.amount)})",
-                                                        Modifier.textAlign(
-                                                            TextAlign.End
-                                                        )
-                                                    )
-                                                }
+                                                SpanText(ctx.describer.describeItem(vpProvider.source))
                                             }
                                             installPopup(ctx, vpProvider.source)
                                         }
