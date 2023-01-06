@@ -15,6 +15,7 @@ import com.varabyte.kobweb.compose.ui.thenIf
 import com.varabyte.kobweb.core.AppGlobals
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.icons.fa.FaCopy
+import com.varabyte.kobweb.silk.components.icons.fa.IconSize
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.site.G
@@ -112,11 +113,11 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
         )
         FaCopy(
             Modifier
-                .classNames("fa-s")
                 .cursor(Cursor.Pointer)
                 .onClick {
                     window.navigator.clipboard.writeText(versionStr)
-                }
+                },
+            size = IconSize.SM
         )
     }
 }
