@@ -340,7 +340,7 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onRestar
                         true
                     } else false
                 }
-                else -> { println(code); false }
+                else -> false
             }
         }
     ) {

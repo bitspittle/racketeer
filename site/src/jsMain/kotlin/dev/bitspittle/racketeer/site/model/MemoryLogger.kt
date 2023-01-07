@@ -24,7 +24,6 @@ class MemoryLogger : Logger {
     }
 
     override fun error(message: String) {
-        println("⛔ $message")
         append("⛔ $message")
     }
 
