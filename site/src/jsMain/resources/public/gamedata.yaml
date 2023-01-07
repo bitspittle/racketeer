@@ -15,25 +15,13 @@ features:
   - id: buildings
     name: Blueprints & Buildings
     description: Construct useful support structures and discover new strategies for dominating the street.
+
 unlocks:
-
-  - id: feedback
-    name: Feedback Access
-    description: Send us feedback using our form. We're listening to you!
-    codename: heylisten
-    vp: 1
-
   - id: buildings
     name: $feature
     description: You can choose the "$feature" game mode the next time you select "New Game".
     codename: realestate
     vp: 40
-
-  - id: discord
-    name: Discord Access
-    description: Join the community! Share stories of your triumphs, trials, and tribulations.
-    codename: speakeasy
-    vp: 100
 
 numTurns: 20
 initialHandSize: 5
