@@ -839,19 +839,6 @@ cards:
       - stop-if! (! (ask? "Restock your shop with Loot?" ))
       - shop-reroll! '(card-has-type? $card 'loot)
 
-# Too ubiquitous, trying without
-#
-#  - name: Turf Expansion
-#    tier: 2
-#    rarity: 1
-#    types: [action]
-#    cost: 6
-#    shopCount: 1
-#    description:
-#      ability: Set your hand size to 6. Burn this card.
-#    playActions:
-#     - game-set! 'hand-size 6
-#     - card-remove! $this
 
   - name: Bada Bing!
     tier: 2
@@ -1145,6 +1132,20 @@ cards:
     playActions:
       - game-add! 'luck 1
 
+  - name: Saul Badman
+    tier: 4
+    rarity: 2
+    types: [trickster, legend]
+    traits: [swift, expendable]
+    cost: 3
+    description:
+      ability: Spend 1$ each to shuffle that many cards from Jail into your deck.
+    playActions:
+      - set '$clients (choose --prompt "Get cards out of jail." $jail .. 0 game-get 'cash)
+      - game-sub! 'cash size $clients
+      - pile-move-to! $deck $clients
+      - shuffle! $deck
+
   - name: Jailbreak
     tier: 4
     rarity: 2
@@ -1155,7 +1156,6 @@ cards:
       ability: Put up to two cards from Jail into your hand.
     playActions:
       - pile-move-to! $hand (choose --prompt "Get cards out of jail." $jail .. 0 2)
-      - card-remove! $this
 
 # Too ubiquitous, trying without
 #
@@ -1183,7 +1183,6 @@ cards:
       ability: Get one of two random blueprints.
     playActions:
       - blueprint-own! single choose --prompt "Get a blueprint." --format $fmt-blueprint-with-cost --required _ (take --from 'random $unowned-blueprints 2) 1
-      - card-remove! $this
 
   - name: Pit Boss
     tier: 4
@@ -1308,13 +1307,13 @@ blueprints:
   - name: The Blue Hound
     rarity: 1
     description:
-      ability: Gain $ and * for each Cop in the discard pile.
+      ability: Gain $ and * for each Cop on the street.
     buildCost:
       cash: 3
       influence: 3
     activateActions:
-      - game-add! 'cash (count $discard '(card-has-type? $it 'cop))
-      - building-add! $this 'vp (count $discard '(card-has-type? $it 'cop))
+      - game-add! 'cash (count $street '(card-has-type? $it 'cop))
+      - building-add! $this 'vp (count $street '(card-has-type? $it 'cop))
 
   - name: Venture Capital Firm
     rarity: 2
