@@ -9,6 +9,8 @@ import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.components.util.PopupParams
 import dev.bitspittle.racketeer.site.components.widgets.YesNo
 import dev.bitspittle.racketeer.site.components.widgets.YesNoDialog
+import dev.bitspittle.racketeer.site.model.Settings
+import dev.bitspittle.racketeer.site.model.isDefault
 import dev.bitspittle.racketeer.site.model.user.clear
 import org.jetbrains.compose.web.dom.*
 
@@ -17,9 +19,9 @@ class UserDataMenu(private val params: PopupParams, private val allowClearing: B
 
     @Composable
     override fun renderContent(actions: MenuActions) {
-        MenuButton(actions, CardListMenu(params))
-        MenuButton(actions, BuildingListMenu(params))
         MenuButton(actions, UnlocksMenu(params))
+        MenuButton(actions, CardListMenu(params), enabled = params.userStats.cards.isNotEmpty())
+        MenuButton(actions, BuildingListMenu(params), enabled = params.userStats.buildings.isNotEmpty())
 
         if (allowClearing) {
             var showConfirmDialog by remember { mutableStateOf(false) }
@@ -35,6 +37,11 @@ class UserDataMenu(private val params: PopupParams, private val allowClearing: B
                 ) { yesNo ->
                     showConfirmDialog = false
                     if (yesNo == YesNo.YES) {
+                        params.settings.unlocks = Settings.Unlocks()
+                        if (params.settings.isDefault) {
+                            Data.delete(Data.Keys.Settings)
+                        } else Data.save(Data.Keys.Settings, params.settings)
+
                         Data.delete(Data.Keys.Quicksave)
                         Data.delete(Data.Keys.UserStats)
                         params.userStats.clear()

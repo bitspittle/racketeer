@@ -47,7 +47,7 @@ fun updateTheme(ctx: InitSilkContext) {
     }
 }
 
-class KeyScope(val code: String, val isShift: Boolean, val isAlt: Boolean, val isCtrl: Boolean)
+class KeyScope(val code: String, val key: String, val isShift: Boolean, val isAlt: Boolean, val isCtrl: Boolean)
 
 // I was having trouble getting event bubbling to work, e.g. a dialog should have been catching input before the
 // document body did. So for now I am just going to create a global input fallback handler on document.body and manage
@@ -72,7 +72,7 @@ fun MyApp(content: @Composable () -> Unit) {
         window.document.body!!.onkeydown = { evt ->
             // Last in first out -- let the elements we registered last have a first crack at the input. This usually
             // means children items because they were composed after their parents.
-            InputHandlers.values.toList().lastOrNull { it.invoke(KeyScope(evt.code, evt.shiftKey, evt.altKey, evt.ctrlKey)) }
+            InputHandlers.values.toList().lastOrNull { it.invoke(KeyScope(evt.code, evt.key, evt.shiftKey, evt.altKey, evt.ctrlKey)) }
         }
     }
 

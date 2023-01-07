@@ -54,8 +54,6 @@ fun TitleScreen(
         Column(FullWidthChildrenStyle.toModifier().gap(15.px)) {
             H1(Modifier.margin(bottom = 10.px).textAlign(TextAlign.Center).toAttrs()) { Text(params.data.title) }
 
-            var showUserDataButton by remember { mutableStateOf(!params.userStats.isClear()) }
-
             run {
                 var showProceedQuestion by remember { mutableStateOf(false) }
                 fun proceed() {
@@ -116,22 +114,14 @@ fun TitleScreen(
                 enabled = Data.exists(Data.Keys.Quicksave)
                 ) { Text("Restore Game") }
 
-            if (showUserDataButton) {
-                var showUserDataMenu by remember { mutableStateOf(false) }
+            var showUserDataMenu by remember { mutableStateOf(false) }
 
-                Button(
-                    onClick = { showUserDataMenu = true },
-                ) { Text("User Data") }
-
-                if (showUserDataMenu) {
-                    Menu(
-                        closeRequested = {
-                            showUserDataButton = !params.userStats.isClear()
-                            showUserDataMenu = false
-                         },
-                        UserDataMenu(params, allowClearing = true)
-                    )
-                }
+            Button(onClick = { showUserDataMenu = true }) { Text("User Data") }
+            if (showUserDataMenu) {
+                Menu(
+                    closeRequested = { showUserDataMenu = false },
+                    UserDataMenu(params, allowClearing = true)
+                )
             }
 
             if (showAdminOptions) {

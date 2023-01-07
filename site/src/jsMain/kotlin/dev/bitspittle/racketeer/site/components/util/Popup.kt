@@ -8,6 +8,7 @@ import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.silk.components.overlay.Popup
 import com.varabyte.kobweb.silk.components.overlay.PopupPlacement
+import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.racketeer.model.building.Blueprint
 import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.card.Card
@@ -30,11 +31,12 @@ class PopupParams(
     val data: GameData,
     val settings: Settings,
     val userStats: MutableUserStats,
+    val logger: Logger,
     val describer: Describer,
     val tooltipParser: TooltipParser
 )
 
-fun GameContext.toPopupParams() = PopupParams(data, settings, userStats, describer, tooltipParser)
+fun GameContext.toPopupParams() = PopupParams(data, settings, userStats, logger, describer, tooltipParser)
 
 @Composable
 fun installPopup(params: PopupParams, item: Any) {
@@ -86,12 +88,12 @@ fun installPopup(params: PopupParams, item: Any) {
 
 @Composable
 fun installPopup(ctx: GameContext, item: Any) = installPopup(
-    PopupParams(ctx.data, ctx.settings, ctx.userStats, ctx.describer, ctx.tooltipParser),
+    PopupParams(ctx.data, ctx.settings, ctx.userStats, ctx.logger, ctx.describer, ctx.tooltipParser),
     item
 )
 
 @Composable
 fun installPopup(ctx: ChoiceContext, item: Any) = installPopup(
-    PopupParams(ctx.data, ctx.settings, ctx.userStats, ctx.describer, ctx.tooltipParser),
+    PopupParams(ctx.data, ctx.settings, ctx.userStats, ctx.logger, ctx.describer, ctx.tooltipParser),
     item
 )

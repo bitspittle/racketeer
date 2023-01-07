@@ -91,6 +91,7 @@ fun HomePage() {
 
                     val describer = Describer(gameData, showDebugInfo = { false })
                     val tooltipParser = TooltipParser(gameData, describer)
+                    val stubLogger = MemoryLogger()
 
                     TitleScreen(
                         scope,
@@ -98,12 +99,17 @@ fun HomePage() {
                             gameData,
                             settings,
                             userStats,
+                            stubLogger,
                             describer,
                             tooltipParser
                         ),
                         events,
                         requestNewGame = {
-                            startupState = GameStartupState.SelectingFeatures(gameData) { startNewGame() }
+                            startupState = if (settings.unlocks.buildings) {
+                                GameStartupState.SelectingFeatures(gameData) { startNewGame() }
+                            } else {
+                                GameStartupState.CreatingContext(gameData) { startNewGame() }
+                            }
                         },
                         requestResumeGame = { initCtx ->
                             startupState = GameStartupState.CreatingContext(gameData, initCtx)

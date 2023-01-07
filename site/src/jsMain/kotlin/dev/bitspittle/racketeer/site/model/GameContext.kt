@@ -101,6 +101,7 @@ suspend fun createGameConext(gameData: GameData, settings: Settings, userStats: 
                             gameData,
                             settings,
                             userStats,
+                            logger,
                             describer,
                             tooltipParser,
                             prompt,

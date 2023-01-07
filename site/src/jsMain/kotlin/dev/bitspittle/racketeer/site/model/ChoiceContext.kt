@@ -1,5 +1,6 @@
 package dev.bitspittle.racketeer.site.model
 
+import dev.bitspittle.limp.types.Logger
 import dev.bitspittle.racketeer.model.building.Blueprint
 import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.card.Card
@@ -29,6 +30,7 @@ class ChoiceContext(
     val data: GameData,
     val settings: Settings,
     val userStats: MutableUserStats,
+    val logger: Logger,
     val describer: Describer,
     val tooltipParser: TooltipParser,
     val prompt: String?,
