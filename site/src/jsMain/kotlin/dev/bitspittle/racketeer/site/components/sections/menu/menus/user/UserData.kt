@@ -19,6 +19,8 @@ class UserDataMenu(private val params: PopupParams, private val allowClearing: B
     override fun renderContent(actions: MenuActions) {
         MenuButton(actions, CardListMenu(params))
         MenuButton(actions, BuildingListMenu(params))
+        MenuButton(actions, UnlocksMenu(params))
+
         if (allowClearing) {
             var showConfirmDialog by remember { mutableStateOf(false) }
 

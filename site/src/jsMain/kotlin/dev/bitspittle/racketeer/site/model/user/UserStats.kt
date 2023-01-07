@@ -80,3 +80,10 @@ fun MutableMap<String, BuildingStats>.notifyBuilt(blueprint: Blueprint) {
     getOrPut(blueprint.name) { BuildingStats(blueprint.name) }
         .builtCount++
 }
+
+val GameStats.wasFinished get() = (cancelReason == GameCancelReason.NONE)
+
+val Iterable<GameStats>.totalVp get() = this.asSequence()
+    .filter { it.wasFinished }
+    .sumOf { it.vp }
+

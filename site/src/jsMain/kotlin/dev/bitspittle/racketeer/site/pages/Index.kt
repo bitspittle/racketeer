@@ -94,10 +94,9 @@ fun HomePage() {
 
                     TitleScreen(
                         scope,
-                        gameData.title,
-                        settings,
                         PopupParams(
                             gameData,
+                            settings,
                             userStats,
                             describer,
                             tooltipParser
@@ -106,7 +105,7 @@ fun HomePage() {
                         requestNewGame = {
                             startupState = GameStartupState.SelectingFeatures(gameData) { startNewGame() }
                         },
-                        requestCreateGameContext = { initCtx ->
+                        requestResumeGame = { initCtx ->
                             startupState = GameStartupState.CreatingContext(gameData, initCtx)
                         }
                     )

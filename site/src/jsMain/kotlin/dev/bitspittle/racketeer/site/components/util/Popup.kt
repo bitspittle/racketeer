@@ -20,6 +20,7 @@ import dev.bitspittle.racketeer.site.components.widgets.Card
 import dev.bitspittle.racketeer.site.components.widgets.toCardSpec
 import dev.bitspittle.racketeer.site.model.ChoiceContext
 import dev.bitspittle.racketeer.site.model.GameContext
+import dev.bitspittle.racketeer.site.model.Settings
 import dev.bitspittle.racketeer.site.model.TooltipParser
 import dev.bitspittle.racketeer.site.model.user.MutableUserStats
 import dev.bitspittle.racketeer.site.model.user.UserStats
@@ -27,12 +28,13 @@ import org.jetbrains.compose.web.css.*
 
 class PopupParams(
     val data: GameData,
+    val settings: Settings,
     val userStats: MutableUserStats,
     val describer: Describer,
     val tooltipParser: TooltipParser
 )
 
-fun GameContext.toPopupParams() = PopupParams(data, userStats, describer, tooltipParser)
+fun GameContext.toPopupParams() = PopupParams(data, settings, userStats, describer, tooltipParser)
 
 @Composable
 fun installPopup(params: PopupParams, item: Any) {
@@ -84,12 +86,12 @@ fun installPopup(params: PopupParams, item: Any) {
 
 @Composable
 fun installPopup(ctx: GameContext, item: Any) = installPopup(
-    PopupParams(ctx.data, ctx.userStats, ctx.describer, ctx.tooltipParser),
+    PopupParams(ctx.data, ctx.settings, ctx.userStats, ctx.describer, ctx.tooltipParser),
     item
 )
 
 @Composable
 fun installPopup(ctx: ChoiceContext, item: Any) = installPopup(
-    PopupParams(ctx.data, ctx.userStats, ctx.describer, ctx.tooltipParser),
+    PopupParams(ctx.data, ctx.settings, ctx.userStats, ctx.describer, ctx.tooltipParser),
     item
 )

@@ -10,6 +10,8 @@ import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.components.util.toPopupParams
 import dev.bitspittle.racketeer.site.components.widgets.YesNo
 import dev.bitspittle.racketeer.site.components.widgets.YesNoDialog
+import dev.bitspittle.racketeer.site.model.user.GameCancelReason
+import dev.bitspittle.racketeer.site.model.user.GameStats
 import org.jetbrains.compose.web.dom.*
 
 class MainMenu(private val params: GameMenuParams) : Menu {
@@ -35,6 +37,7 @@ class MainMenu(private val params: GameMenuParams) : Menu {
                 ) { yesNo ->
                     showConfirmQuestion = false
                     if (yesNo == YesNo.YES) {
+                        params.ctx.userStats.games.add(GameStats.from(params.ctx.state, GameCancelReason.RESTARTED))
                         params.restart()
                     }
                 }

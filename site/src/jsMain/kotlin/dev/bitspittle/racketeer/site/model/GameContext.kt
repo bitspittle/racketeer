@@ -99,6 +99,7 @@ suspend fun createGameConext(gameData: GameData, settings: Settings, userStats: 
                     handleChoice(
                         ChoiceContext(
                             gameData,
+                            settings,
                             userStats,
                             describer,
                             tooltipParser,

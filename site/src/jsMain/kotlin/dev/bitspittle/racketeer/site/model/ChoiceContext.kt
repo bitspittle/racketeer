@@ -27,6 +27,7 @@ fun Describer.describeItem(item: Any): String {
 
 class ChoiceContext(
     val data: GameData,
+    val settings: Settings,
     val userStats: MutableUserStats,
     val describer: Describer,
     val tooltipParser: TooltipParser,

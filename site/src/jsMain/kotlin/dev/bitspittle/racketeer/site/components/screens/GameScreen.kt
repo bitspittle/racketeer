@@ -31,9 +31,13 @@ import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.GameMen
 import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.MainMenu
 import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.components.util.installPopup
+import dev.bitspittle.racketeer.site.components.util.locked
+import dev.bitspittle.racketeer.site.components.util.unlock
 import dev.bitspittle.racketeer.site.components.widgets.*
 import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.*
+import dev.bitspittle.racketeer.site.model.user.GameStats
+import dev.bitspittle.racketeer.site.model.user.totalVp
 import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
@@ -220,6 +224,19 @@ private fun renderGameScreen(
                                     } else {
                                         // Game is over! No more need to keep a save around
                                         Data.delete(Data.Keys.Quicksave)
+
+                                        val prevTotalVp = ctx.userStats.games.totalVp
+                                        ctx.userStats.games.add(GameStats.from(ctx.state))
+                                        Data.save(Data.Keys.UserStats, ctx.userStats)
+
+                                        val toUnlock = ctx.data.unlocks.locked(ctx.settings, ctx.state.vp + prevTotalVp)
+                                        if (toUnlock.isNotEmpty()) {
+                                            toUnlock.forEach { unlock ->
+                                                ctx.logger.info("Congratulations! You unlocked: ${unlock.resolvedName(ctx.data)}")
+                                                unlock.unlock(ctx.settings)
+                                            }
+                                            Data.save(Data.Keys.Settings, ctx.settings)
+                                        }
                                     }
                                 }
                             )
