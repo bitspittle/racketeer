@@ -1,3 +1,6 @@
 [submodule "limp"]
 	path = limp
 	url = https://github.com/bitspittle/limp
+[submodule "firebase-bindings"]
+	path = firebase-bindings
+	url = https://github.com/bitspittle/firebase-kotlin-bindings
