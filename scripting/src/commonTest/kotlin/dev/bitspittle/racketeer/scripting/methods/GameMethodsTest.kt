@@ -85,7 +85,7 @@ class GameMethodsTest {
         val service = TestGameService.create()
         val gameState = service.gameState
         gameState.numTurns = Int.MAX_VALUE // Don't want to worry about running out; using endTurn to reset discard
-        env.addMethod(GameDrawMethod(service::gameState, service::addGameChange))
+        env.addMethod(GameDrawMethod(service::addGameChange))
 
         val evaluator = Evaluator()
 

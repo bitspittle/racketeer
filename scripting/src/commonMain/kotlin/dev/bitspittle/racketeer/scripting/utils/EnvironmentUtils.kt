@@ -44,7 +44,7 @@ fun Environment.installGameLogic(service: GameService) {
     addMethod(GameHasFeatureMethod(service::gameState))
     addMethod(GameGetMethod(service::gameState))
     addMethod(GameSetMethod(service::gameState, service::addGameChange))
-    addMethod(GameDrawMethod(service::gameState, service::addGameChange))
+    addMethod(GameDrawMethod(service::addGameChange))
     addMethod(GameDataGetMethod(service::gameState))
     addMethod(GameDataSetMethod(service::addGameChange))
     addMethod(GameDataIsSetMethod(service::gameState))
