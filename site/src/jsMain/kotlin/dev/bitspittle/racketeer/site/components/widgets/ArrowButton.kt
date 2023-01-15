@@ -1,6 +1,7 @@
 package dev.bitspittle.racketeer.site.components.widgets
 
 import androidx.compose.runtime.*
+import androidx.compose.web.events.SyntheticMouseEvent
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.silk.components.forms.Button
@@ -15,7 +16,7 @@ enum class ArrowDirection {
 }
 
 @Composable
-fun ArrowButton(dir: ArrowDirection, onClick: () -> Unit) {
+fun ArrowButton(dir: ArrowDirection, onClick: (SyntheticMouseEvent) -> Unit) {
     Button(onClick = onClick, ArrowButtonModifier) {
         Text(
             when (dir) {
