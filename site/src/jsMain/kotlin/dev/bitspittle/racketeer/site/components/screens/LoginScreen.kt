@@ -1,6 +1,7 @@
 package dev.bitspittle.racketeer.site.components.screens
 
 import androidx.compose.runtime.*
+import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Row
@@ -11,6 +12,7 @@ import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.icons.fa.FaGoogle
+import com.varabyte.kobweb.silk.components.overlay.Overlay
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.firebase.auth.AuthError
@@ -30,15 +32,19 @@ fun LoginScreen(firebase: FirebaseData, scope: CoroutineScope) {
     Box(Modifier.fillMaxSize().padding(5.percent), contentAlignment = Alignment.TopCenter) {
         Column(FullWidthChildrenStyle.toModifier().gap(15.px)) {
             run {
+                var showOverlay by remember { mutableStateOf(false) }
                 var error: AuthError? by remember { mutableStateOf(null) }
                 Button(onClick = {
                     scope.launch {
                         try {
                             val provider = GoogleAuthProvider()
                             provider.addScope(Scope.Google.Email)
+                            showOverlay = true
                             firebase.auth.signInWithPopup(provider)
                         } catch (e: AuthError) {
                             error = e
+                        } finally {
+                            showOverlay = false
                         }
                     }
                 }) {
@@ -46,6 +52,10 @@ fun LoginScreen(firebase: FirebaseData, scope: CoroutineScope) {
                         FaGoogle(Modifier.margin(right = 10.px))
                         SpanText("Login With Google");
                     }
+                }
+
+                if (showOverlay) {
+                    Overlay(Modifier.cursor(Cursor.Progress))
                 }
 
                 if (error != null) {
