@@ -1,5 +1,6 @@
 [versions]
 appdirs = "1.2.1"
+firebase-bindings = "+" # TODO: Make specific after bindings mature
 google-api-client = "1.33.0"
 google-api-services-drive = "v3-rev20211107-1.32.1"
 jetbrains-compose = "1.2.2"
@@ -16,6 +17,7 @@ yamlkt = "0.10.2"
 
 [libraries]
 appdirs = { module = "net.harawata:appdirs", version.ref = "appdirs" }
+firebase-bindings = { module = "dev.bitspittle:firebase-kotlin-bindings", version.ref = "firebase-bindings" }
 google-api-client = { module = "com.google.api-client:google-api-client", version.ref = "google-api-client" }
 google-api-services-drive = { module = "com.google.apis:google-api-services-drive", version.ref = "google-api-services-drive" }
 junit = { module = "junit:junit", version.ref = "junit" }

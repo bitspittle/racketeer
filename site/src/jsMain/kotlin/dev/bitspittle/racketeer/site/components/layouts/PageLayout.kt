@@ -13,11 +13,14 @@ import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.thenIf
 import com.varabyte.kobweb.core.AppGlobals
-import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.icons.fa.FaCopy
 import com.varabyte.kobweb.silk.components.icons.fa.IconSize
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
+import dev.bitspittle.firebase.app.FirebaseApp
+import dev.bitspittle.firebase.app.FirebaseOptions
+import dev.bitspittle.firebase.auth.Auth
+import dev.bitspittle.firebase.database.Database
 import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.sections.Footer
 import dev.bitspittle.racketeer.site.components.util.Data
@@ -47,10 +50,32 @@ val VersionStyle = ComponentStyle("version") {
     }
 }
 
-class PageLayoutScope(val scope: CoroutineScope, val settings: Settings, val userStats: MutableUserStats, val events: Events)
+class PageLayoutScope(val scope: CoroutineScope, val firebase: FirebaseData, val settings: Settings, val userStats: MutableUserStats, val events: Events)
+
+class FirebaseData(val auth: Auth, val db: Database)
 
 @Composable
 fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
+    val firebase = remember {
+        val app = FirebaseApp.initialize(
+            FirebaseOptions(
+                apiKey = "AIzaSyDr4Rq67D5bB4ZDCzHbqXxHWtDUjeOyOD4",
+                authDomain = "cardgame-racketeer.firebaseapp.com",
+                databaseURL = "https://cardgame-racketeer-default-rtdb.firebaseio.com",
+                projectId = "cardgame-racketeer",
+                storageBucket = "cardgame-racketeer.appspot.com",
+                messagingSenderId = "719861613042",
+                appId = "1:719861613042:web:5d27346021b9a4b1f5eb6b",
+                measurementId = "G-MY7ZNH5N22"
+            )
+        )
+
+        val auth = app.getAuth()
+        val database = app.getDatabase()
+
+        FirebaseData(auth, database)
+    }
+
     val scope = rememberCoroutineScope()
     val events = remember { MutableSharedFlow<Event>(replay = 0) }
     val settings = remember { Data.load(Data.Keys.Settings)?.value ?: Settings() }
@@ -83,7 +108,7 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
             .gridTemplateRows("1fr auto")
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            PageLayoutScope(scope, settings, userStats, events).content()
+            PageLayoutScope(scope, firebase, settings, userStats, events).content()
         }
         // Associate the footer with the row that will get pushed off the bottom of the page if it can't fit.
         Footer(Modifier.align(Alignment.Center).gridRowStart(2).gridRowEnd(3))

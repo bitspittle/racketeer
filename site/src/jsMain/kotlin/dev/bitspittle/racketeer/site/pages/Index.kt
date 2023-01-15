@@ -17,6 +17,7 @@ import dev.bitspittle.racketeer.model.game.MutableGameState
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.site.components.layouts.PageLayout
 import dev.bitspittle.racketeer.site.components.screens.GameScreen
+import dev.bitspittle.racketeer.site.components.screens.LoginScreen
 import dev.bitspittle.racketeer.site.components.screens.TitleScreen
 import dev.bitspittle.racketeer.site.components.sections.Choice
 import dev.bitspittle.racketeer.site.components.sections.SelectedModifier
@@ -31,6 +32,7 @@ import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
 private sealed interface GameStartupState {
+    object LoggingIn : GameStartupState
     object FetchingData : GameStartupState
     class DataFetched(val gameData: GameData) : GameStartupState
     class SelectingFeatures(val gameData: GameData, val initCtx: suspend GameContext.() -> Unit) : GameStartupState
@@ -42,7 +44,7 @@ private sealed interface GameStartupState {
 @Composable
 fun HomePage() {
     PageLayout {
-        var startupState by remember { mutableStateOf<GameStartupState>(GameStartupState.FetchingData) }
+        var startupState by remember { mutableStateOf<GameStartupState>(GameStartupState.LoggingIn) }
         var choiceCtx by remember { mutableStateOf<ChoiceContext?>(null) }
         val handleChoice: (ChoiceContext) -> Unit = remember {
             {
@@ -55,6 +57,10 @@ fun HomePage() {
         }
 
         when (startupState) {
+            GameStartupState.LoggingIn -> {
+                LoginScreen()
+            }
+
             GameStartupState.FetchingData -> {
                 Box(
                     Modifier.fillMaxSize().cursor(Cursor.Progress).padding(5.percent),

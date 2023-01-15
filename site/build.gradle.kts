@@ -17,6 +17,7 @@ repositories {
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     google()
     maven("https://us-central1-maven.pkg.dev/varabyte-repos/public")
+    mavenLocal()
 }
 
 group = "dev.bitspittle.racketeer.site"
@@ -55,6 +56,7 @@ kotlin {
                 implementation(libs.kobweb.core)
                 implementation(libs.kobweb.silk.core)
                 implementation(libs.kobweb.silk.icons.fa)
+                implementation(libs.firebase.bindings)
                 implementation(project(":model"))
                 implementation(project(":scripting"))
             }
