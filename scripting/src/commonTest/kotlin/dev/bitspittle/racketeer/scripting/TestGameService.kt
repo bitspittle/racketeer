@@ -34,6 +34,7 @@ private val FAKE_GAME_DATA_TEXT = """
       suspicious: ""
       veteran: "!"
       vp: "*"
+      new: "+"
     features: []
     unlocks: []
     numTurns: 3
