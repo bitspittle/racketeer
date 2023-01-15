@@ -50,7 +50,7 @@ val VersionStyle = ComponentStyle("version") {
     }
 }
 
-class PageLayoutScope(val scope: CoroutineScope, val firebase: FirebaseData, val settings: Settings, val userStats: MutableUserStats, val events: Events)
+class PageLayoutScope(val firebase: FirebaseData, val scope: CoroutineScope, val settings: Settings, val userStats: MutableUserStats, val events: Events)
 
 class FirebaseData(val auth: Auth, val db: Database)
 
@@ -70,7 +70,9 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
             )
         )
 
-        val auth = app.getAuth()
+        val auth = app.getAuth().apply {
+            useDeviceLanguage()
+        }
         val database = app.getDatabase()
 
         FirebaseData(auth, database)
@@ -108,7 +110,7 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
             .gridTemplateRows("1fr auto")
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            PageLayoutScope(scope, firebase, settings, userStats, events).content()
+            PageLayoutScope(firebase, scope, settings, userStats, events).content()
         }
         // Associate the footer with the row that will get pushed off the bottom of the page if it can't fit.
         Footer(Modifier.align(Alignment.Center).gridRowStart(2).gridRowEnd(3))

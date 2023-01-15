@@ -58,7 +58,7 @@ fun HomePage() {
 
         when (startupState) {
             GameStartupState.LoggingIn -> {
-                LoginScreen()
+                LoginScreen(firebase, scope)
             }
 
             GameStartupState.FetchingData -> {

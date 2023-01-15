@@ -10,47 +10,34 @@ import dev.bitspittle.racketeer.site.inputRef
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
-enum class YesNo {
-    YES,
-    NO
-}
-
-
 @Composable
-fun YesNoDialog(
+fun OkDialog(
     title: String,
-    question: String? = null,
-    noText: String = "No",
-    yesText: String = "Yes",
-    response: (YesNo) -> Unit,
+    info: String? = null,
+    okText: String = "Ok",
+    onClose: () -> Unit,
 ) {
     Modal(
-        overlayModifier = Modifier.onClick { response(YesNo.NO) },
+        overlayModifier = Modifier.onClick { onClose() },
         dialogModifier = Modifier.margin(top = 8.vh).onClick { evt -> evt.stopPropagation() },
         title = title,
         bottomRow = {
             Button(
-                onClick = { response(YesNo.NO) },
+                onClick = { onClose() },
             ) {
-                Text(noText)
-            }
-
-            Button(
-                onClick = { response(YesNo.YES) },
-            ) {
-                Text(yesText)
+                Text(okText)
             }
         },
         ref = inputRef {
             if (code == "Escape") {
-                response(YesNo.NO)
+                onClose()
                 true
             } else false
         },
-        content = @Suppress("NAME_SHADOWING") question?.let { question ->
+        content = @Suppress("NAME_SHADOWING") info?.let { info ->
             {
                 Column {
-                    question.split("\n").forEach { line -> if (line.isNotEmpty()) SpanText(line) else Br() }
+                    info.split("\n").forEach { line -> if (line.isNotEmpty()) SpanText(line) else Br() }
                 }
             }
         }
