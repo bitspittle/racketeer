@@ -9,6 +9,7 @@ object G {
     object Sizes {
         val Card = Size(180.px, 155.px)
         val CardGroup = Size(Card.w + 40.px, Card.h + 40.px)
+        val MenuWidth = 600.px
     }
     object Font {
         object Sizes {

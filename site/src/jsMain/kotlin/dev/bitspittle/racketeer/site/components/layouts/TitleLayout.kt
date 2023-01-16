@@ -14,6 +14,7 @@ import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.style.*
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.site.FullWidthChildrenStyle
+import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.sections.ReadOnlyStyle
 import dev.bitspittle.racketeer.site.components.sections.menu.Menu
 import dev.bitspittle.racketeer.site.components.sections.menu.menus.user.UserDataMenu
@@ -40,7 +41,7 @@ fun TitleLayout(
     content: @Composable ColumnScope.() -> Unit
 ) {
     Box(Modifier.fillMaxSize().padding(5.percent), contentAlignment = Alignment.TopCenter) {
-        Column(FullWidthChildrenStyle.toModifier().gap(15.px)) {
+        Column(FullWidthChildrenStyle.toModifier().gap(15.px).maxWidth(G.Sizes.MenuWidth)) {
             H1(Modifier.margin(bottom = 10.px).textAlign(TextAlign.Center).toAttrs()) { Text(data.title) }
             content()
         }

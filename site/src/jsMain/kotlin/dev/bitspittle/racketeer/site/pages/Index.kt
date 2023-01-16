@@ -20,6 +20,7 @@ import dev.bitspittle.racketeer.site.components.layouts.PageLayout
 import dev.bitspittle.racketeer.site.components.screens.GameScreen
 import dev.bitspittle.racketeer.site.components.screens.LoginScreen
 import dev.bitspittle.racketeer.site.components.screens.TitleScreen
+import dev.bitspittle.racketeer.site.components.screens.WaitlistScreen
 import dev.bitspittle.racketeer.site.components.sections.Choice
 import dev.bitspittle.racketeer.site.components.sections.SelectedModifier
 import dev.bitspittle.racketeer.site.components.util.Data
@@ -38,6 +39,7 @@ private sealed interface GameStartupState {
     object FetchingData : GameStartupState
     class LoggingIn(val gameData: GameData) : GameStartupState
     class VerifyAccount(val gameData: GameData, val account: Account) : GameStartupState
+    class ShowWaitlistMessage(val gameData: GameData, val account: Account) : GameStartupState
     class TitleScreen(val gameData: GameData, val account: Account) : GameStartupState
     class SelectingFeatures(val gameData: GameData, val account: Account, val initCtx: suspend GameContext.() -> Unit) : GameStartupState
     class CreatingContext(val gameData: GameData, val account: Account, val initCtx: suspend GameContext.() -> Unit) : GameStartupState
@@ -123,9 +125,18 @@ fun HomePage() {
                     val isAllowedEmail =
                         db.ref("/allowlist/emails/${account.email!!.lowercase().encodeKey()}").get().exists()
 
-                    println("After logging in, verifying ${account.email}, got $isAllowedEmail")
-                    startupState = GameStartupState.TitleScreen(gameData, account)
+                    startupState = if (isAllowedEmail) {
+                        GameStartupState.TitleScreen(gameData, account)
+                    } else {
+                        GameStartupState.ShowWaitlistMessage(gameData, account)
+                    }
                 }
+            }
+
+            is GameStartupState.ShowWaitlistMessage -> (startupState as GameStartupState.ShowWaitlistMessage).apply {
+                WaitlistScreen(firebase, account, gameData, scope, onClose = {
+                    scope.launch { firebase.auth.signOut() }
+                })
             }
 
             is GameStartupState.TitleScreen -> (startupState as GameStartupState.TitleScreen).apply {
