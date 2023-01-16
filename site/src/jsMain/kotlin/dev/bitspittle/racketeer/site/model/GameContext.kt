@@ -18,7 +18,9 @@ import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.types.*
 import dev.bitspittle.racketeer.scripting.utils.installGameLogic
+import dev.bitspittle.racketeer.site.components.layouts.FirebaseData
 import dev.bitspittle.racketeer.site.components.util.Data
+import dev.bitspittle.racketeer.site.model.account.Account
 import dev.bitspittle.racketeer.site.model.user.MutableUserStats
 import dev.bitspittle.racketeer.site.model.user.notifyBuilt
 import dev.bitspittle.racketeer.site.model.user.notifyOwnership
@@ -26,6 +28,7 @@ import kotlin.coroutines.suspendCoroutine
 
 @Stable
 class GameContext(
+    val firebase: FirebaseData,
     val data: GameData,
     val userStats: MutableUserStats,
     val env: Environment,
@@ -33,11 +36,19 @@ class GameContext(
     val describer: Describer,
     val tooltipParser: TooltipParser,
     val enqueuers: Enqueuers,
+    val account: Account,
     val settings: Settings,
     var state: MutableGameState
 )
 
-suspend fun createGameConext(gameData: GameData, settings: Settings, userStats: MutableUserStats, handleChoice: (ChoiceContext) -> Unit): GameContext {
+suspend fun createGameConext(
+    firebase: FirebaseData,
+    gameData: GameData,
+    account: Account,
+    settings: Settings,
+    userStats: MutableUserStats,
+    handleChoice: (ChoiceContext) -> Unit
+): GameContext {
     val logger = MemoryLogger()
 
     val copyableRandom = CopyableRandom()
@@ -98,7 +109,9 @@ suspend fun createGameConext(gameData: GameData, settings: Settings, userStats: 
                 return suspendCoroutine { continuation ->
                     handleChoice(
                         ChoiceContext(
+                            firebase,
                             gameData,
+                            account,
                             settings,
                             userStats,
                             logger,
@@ -121,7 +134,19 @@ suspend fun createGameConext(gameData: GameData, settings: Settings, userStats: 
         }
     })
 
-    return GameContext(gameData, userStats, env, logger, describer, tooltipParser, enqueuers, settings, gameState)
+    return GameContext(
+        firebase,
+        gameData,
+        userStats,
+        env,
+        logger,
+        describer,
+        tooltipParser,
+        enqueuers,
+        account,
+        settings,
+        gameState
+    )
         .also { provideMutableGameState = { it.state } }
 }
 

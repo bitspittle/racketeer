@@ -1,6 +1,7 @@
 package dev.bitspittle.racketeer.site.components.widgets
 
 import androidx.compose.runtime.*
+import com.varabyte.kobweb.compose.dom.ref
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.*
@@ -31,6 +32,7 @@ fun YesNoDialog(
         bottomRow = {
             Button(
                 onClick = { response(YesNo.NO) },
+                ref = ref { it.focus() }
             ) {
                 Text(noText)
             }

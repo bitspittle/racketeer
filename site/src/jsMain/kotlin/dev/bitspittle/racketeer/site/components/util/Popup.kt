@@ -16,19 +16,21 @@ import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.FormattedItem
-import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.GameMenuParams
+import dev.bitspittle.racketeer.site.components.layouts.FirebaseData
 import dev.bitspittle.racketeer.site.components.widgets.Card
 import dev.bitspittle.racketeer.site.components.widgets.toCardSpec
 import dev.bitspittle.racketeer.site.model.ChoiceContext
 import dev.bitspittle.racketeer.site.model.GameContext
 import dev.bitspittle.racketeer.site.model.Settings
 import dev.bitspittle.racketeer.site.model.TooltipParser
+import dev.bitspittle.racketeer.site.model.account.Account
 import dev.bitspittle.racketeer.site.model.user.MutableUserStats
-import dev.bitspittle.racketeer.site.model.user.UserStats
 import org.jetbrains.compose.web.css.*
 
 class PopupParams(
+    val firebase: FirebaseData,
     val data: GameData,
+    val account: Account,
     val settings: Settings,
     val userStats: MutableUserStats,
     val logger: Logger,
@@ -36,7 +38,11 @@ class PopupParams(
     val tooltipParser: TooltipParser
 )
 
-fun GameContext.toPopupParams() = PopupParams(data, settings, userStats, logger, describer, tooltipParser)
+fun GameContext.toPopupParams() =
+    PopupParams(firebase, data, account, settings, userStats, logger, describer, tooltipParser)
+
+fun ChoiceContext.toPopupParams() =
+    PopupParams(firebase, data, account, settings, userStats, logger, describer, tooltipParser)
 
 @Composable
 fun installPopup(params: PopupParams, item: Any) {
@@ -87,13 +93,7 @@ fun installPopup(params: PopupParams, item: Any) {
 }
 
 @Composable
-fun installPopup(ctx: GameContext, item: Any) = installPopup(
-    PopupParams(ctx.data, ctx.settings, ctx.userStats, ctx.logger, ctx.describer, ctx.tooltipParser),
-    item
-)
+fun installPopup(ctx: GameContext, item: Any) = installPopup(ctx.toPopupParams(), item)
 
 @Composable
-fun installPopup(ctx: ChoiceContext, item: Any) = installPopup(
-    PopupParams(ctx.data, ctx.settings, ctx.userStats, ctx.logger, ctx.describer, ctx.tooltipParser),
-    item
-)
+fun installPopup(ctx: ChoiceContext, item: Any) = installPopup(ctx.toPopupParams(), item)

@@ -2,9 +2,7 @@ package dev.bitspittle.racketeer.site.components.screens
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.Cursor
-import com.varabyte.kobweb.compose.dom.ref
 import com.varabyte.kobweb.compose.foundation.layout.Box
-import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Row
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
@@ -14,14 +12,12 @@ import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.icons.fa.FaGoogle
 import com.varabyte.kobweb.silk.components.overlay.Overlay
-import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.firebase.auth.AuthError
 import dev.bitspittle.firebase.auth.GoogleAuthProvider
 import dev.bitspittle.firebase.auth.Scope
 import dev.bitspittle.firebase.auth.User
 import dev.bitspittle.racketeer.model.game.GameData
-import dev.bitspittle.racketeer.site.FullWidthChildrenStyle
 import dev.bitspittle.racketeer.site.components.layouts.FirebaseData
 import dev.bitspittle.racketeer.site.components.layouts.TitleLayout
 import dev.bitspittle.racketeer.site.components.widgets.LabeledTextInput
@@ -75,6 +71,21 @@ fun LoginScreen(firebase: FirebaseData, data: GameData, scope: CoroutineScope, o
             if (showLoginModal) {
                 var email by remember { mutableStateOf("") }
                 var password by remember { mutableStateOf("") }
+                val canLogin = email.isNotBlank() && password.isNotBlank()
+                fun login() {
+                    if (!canLogin) return
+                    scope.launch {
+                        try {
+                            showPleaseWaitOverlay = true
+                            val credential = firebase.auth.signInWithEmailAndPassword(email, password)
+                            onLoggedIn(credential.user.toAccount())
+                        } catch (e: AuthError) {
+                            error = e
+                        } finally {
+                            showPleaseWaitOverlay = false
+                        }
+                    }
+                }
 
                 Modal(
                     ref = inputRef {
@@ -84,34 +95,22 @@ fun LoginScreen(firebase: FirebaseData, data: GameData, scope: CoroutineScope, o
                     title = "Login With Email",
                     bottomRow = {
                         Button(onClick = { showLoginModal = false }) { Text("Cancel") }
-                        Button(onClick = {
-                            scope.launch {
-                                try {
-                                    showPleaseWaitOverlay = true
-                                    val credential = firebase.auth.signInWithEmailAndPassword(email, password)
-                                    onLoggedIn(credential.user.toAccount())
-                                } catch (e: AuthError) {
-                                    error = e
-                                } finally {
-                                    showPleaseWaitOverlay = false
-                                }
-                            }
-                        }, enabled = email.isNotBlank() && password.isNotBlank()) {
-                            Text("Login")
-                        }
+                        Button(onClick = { login() }, enabled = canLogin) { Text("Login") }
                     }
                 ) {
                     LabeledTextInput(
                         "Email",
                         inputModifier = Modifier.fillMaxWidth(),
                         onValueChanged = { email = it },
+                        onCommit = { login() },
                         ref = { element -> element.focus() }
                     )
                     LabeledTextInput(
                         "Password",
                         mask = true,
                         inputModifier = Modifier.fillMaxWidth(),
-                        onValueChanged = { password = it }
+                        onValueChanged = { password = it },
+                        onCommit = { login() },
                     )
                 }
             }
@@ -133,6 +132,21 @@ fun LoginScreen(firebase: FirebaseData, data: GameData, scope: CoroutineScope, o
                 var email by remember { mutableStateOf("") }
                 var password1 by remember { mutableStateOf("") }
                 var password2 by remember { mutableStateOf("") }
+                val canCreate = email.isNotBlank() && password1.isNotBlank() && password1 == password2
+                fun createAccount() {
+                    if (!canCreate) return
+                    scope.launch {
+                        try {
+                            showPleaseWaitOverlay = true
+                            val credential = firebase.auth.createUserWithEmailAndPassword(email, password1)
+                            onLoggedIn(credential.user.toAccount())
+                        } catch (e: AuthError) {
+                            error = e
+                        } finally {
+                            showPleaseWaitOverlay = false
+                        }
+                    }
+                }
 
                 Modal(
                     ref = inputRef {
@@ -142,41 +156,30 @@ fun LoginScreen(firebase: FirebaseData, data: GameData, scope: CoroutineScope, o
                     title = "Create Account",
                     bottomRow = {
                         Button(onClick = { showLoginModal = false }) { Text("Cancel") }
-                        Button(onClick = {
-                            scope.launch {
-                                try {
-                                    showPleaseWaitOverlay = true
-                                    val credential = firebase.auth.createUserWithEmailAndPassword(email, password1)
-                                    onLoggedIn(credential.user.toAccount())
-                                } catch (e: AuthError) {
-                                    error = e
-                                } finally {
-                                    showPleaseWaitOverlay = false
-                                }
-                            }
-                        }, enabled = email.isNotBlank() && password1.isNotBlank() && password1 == password2) {
-                            Text("Create")
-                        }
+                        Button(onClick = { createAccount() }, enabled = canCreate) { Text("Create") }
                     }
                 ) {
                     LabeledTextInput(
                         "Email",
                         inputModifier = Modifier.fillMaxWidth(),
                         onValueChanged = { email = it },
+                        onCommit = { createAccount() },
                         ref = { element -> element.focus() }
                     )
                     LabeledTextInput(
                         "Password",
                         mask = true,
                         inputModifier = Modifier.fillMaxWidth(),
-                        onValueChanged = { password1 = it }
+                        onValueChanged = { password1 = it },
+                        onCommit = { createAccount() },
                     )
 
                     LabeledTextInput(
                         "Verify password",
                         mask = true,
                         inputModifier = Modifier.fillMaxWidth(),
-                        onValueChanged = { password2 = it }
+                        onValueChanged = { password2 = it },
+                        onCommit = { createAccount() },
                     )
                 }
             }

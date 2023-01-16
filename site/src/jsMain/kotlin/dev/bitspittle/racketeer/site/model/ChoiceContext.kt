@@ -9,6 +9,8 @@ import dev.bitspittle.racketeer.model.game.Feature
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.FormattedItem
+import dev.bitspittle.racketeer.site.components.layouts.FirebaseData
+import dev.bitspittle.racketeer.site.model.account.Account
 import dev.bitspittle.racketeer.site.model.user.MutableUserStats
 import dev.bitspittle.racketeer.site.model.user.UserStats
 import kotlin.coroutines.Continuation
@@ -27,7 +29,9 @@ fun Describer.describeItem(item: Any): String {
 }
 
 class ChoiceContext(
+    val firebase: FirebaseData,
     val data: GameData,
+    val account: Account,
     val settings: Settings,
     val userStats: MutableUserStats,
     val logger: Logger,

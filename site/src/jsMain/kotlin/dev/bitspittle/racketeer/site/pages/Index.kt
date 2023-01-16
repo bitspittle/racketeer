@@ -35,11 +35,11 @@ import org.jetbrains.compose.web.dom.*
 private sealed interface GameStartupState {
     object FetchingData : GameStartupState
     class LoggingIn(val gameData: GameData) : GameStartupState
-    class VerifyAccount(val account: Account, val gameData: GameData) : GameStartupState
-    class TitleScreen(val account: Account, val gameData: GameData) : GameStartupState
-    class SelectingFeatures(val account: Account, val gameData: GameData, val initCtx: suspend GameContext.() -> Unit) : GameStartupState
-    class CreatingContext(val account: Account, val gameData: GameData, val initCtx: suspend GameContext.() -> Unit) : GameStartupState
-    class ContextCreated(val account: Account, val gameContext: GameContext) : GameStartupState
+    class VerifyAccount(val gameData: GameData, val account: Account) : GameStartupState
+    class TitleScreen(val gameData: GameData, val account: Account) : GameStartupState
+    class SelectingFeatures(val gameData: GameData, val account: Account, val initCtx: suspend GameContext.() -> Unit) : GameStartupState
+    class CreatingContext(val gameData: GameData, val account: Account, val initCtx: suspend GameContext.() -> Unit) : GameStartupState
+    class ContextCreated(val gameContext: GameContext) : GameStartupState
 }
 
 @Page
@@ -54,6 +54,14 @@ fun HomePage() {
                     it.onChosen {
                         choiceCtx = null
                     }
+                }
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            firebase.auth.onAuthStateChanged { user ->
+                if (user == null) {
+                    startupState = GameStartupState.FetchingData
                 }
             }
         }
@@ -94,21 +102,21 @@ fun HomePage() {
                 var showLoginScreen by remember { mutableStateOf(false) }
                 LaunchedEffect(Unit) {
                     Data.load(Data.Keys.Account)?.value?.let { account ->
-                        startupState = GameStartupState.VerifyAccount(account, gameData)
+                        startupState = GameStartupState.VerifyAccount(gameData, account)
                     } ?: run { showLoginScreen = true }
                 }
 
                 if (showLoginScreen) {
                     LoginScreen(firebase, gameData, scope, onLoggedIn = { account ->
                         Data.save(Data.Keys.Account, account)
-                        startupState = GameStartupState.VerifyAccount(account, gameData)
+                        startupState = GameStartupState.VerifyAccount(gameData, account)
                     })
                 }
             }
 
             is GameStartupState.VerifyAccount -> (startupState as GameStartupState.VerifyAccount).apply {
                 // TODO: Block banned accounts
-                startupState = GameStartupState.TitleScreen(account, gameData)
+                startupState = GameStartupState.TitleScreen(gameData, account)
             }
 
             is GameStartupState.TitleScreen -> (startupState as GameStartupState.TitleScreen).apply {
@@ -121,7 +129,9 @@ fun HomePage() {
                 TitleScreen(
                     scope,
                     PopupParams(
+                        firebase,
                         gameData,
+                        account,
                         settings,
                         userStats,
                         stubLogger,
@@ -131,19 +141,19 @@ fun HomePage() {
                     events,
                     requestNewGame = {
                         startupState = if (settings.unlocks.buildings) {
-                            GameStartupState.SelectingFeatures(account, gameData) { startNewGame() }
+                            GameStartupState.SelectingFeatures(gameData, account) { startNewGame() }
                         } else {
-                            GameStartupState.CreatingContext(account, gameData) { startNewGame() }
+                            GameStartupState.CreatingContext(gameData, account) { startNewGame() }
                         }
                     },
                     requestResumeGame = { initCtx ->
-                        startupState = GameStartupState.CreatingContext(account, gameData, initCtx)
+                        startupState = GameStartupState.CreatingContext(gameData, account, initCtx)
                     }
                 )
             }
             is GameStartupState.SelectingFeatures -> (startupState as GameStartupState.SelectingFeatures).apply {
                 fun goBack() {
-                    startupState = GameStartupState.TitleScreen(account, gameData)
+                    startupState = GameStartupState.TitleScreen(gameData, account)
                 }
 
                 Modal(
@@ -161,7 +171,7 @@ fun HomePage() {
                         Button(onClick = {
                             Data.save(Data.Keys.Settings, settings)
 
-                            startupState = GameStartupState.CreatingContext(account, gameData, initCtx)
+                            startupState = GameStartupState.CreatingContext(gameData, account, initCtx)
                         }) { Text("Continue") }
                     }
                 ) {
@@ -186,9 +196,10 @@ fun HomePage() {
             is GameStartupState.CreatingContext -> (startupState as GameStartupState.CreatingContext).apply {
                 LaunchedEffect(startupState) {
                     startupState = GameStartupState.ContextCreated(
-                        account,
                         createGameConext(
+                            firebase,
                             gameData,
+                            account,
                             settings,
                             userStats,
                             handleChoice
@@ -196,10 +207,10 @@ fun HomePage() {
                 }
             }
             is GameStartupState.ContextCreated -> (startupState as GameStartupState.ContextCreated).apply {
-                val onQuitRequested: () -> Unit = { startupState = GameStartupState.TitleScreen(account, gameContext.data) }
+                val onQuitRequested: () -> Unit = { startupState = GameStartupState.TitleScreen(gameContext.data, gameContext.account) }
                 val onRestartRequested: () -> Unit = {
                     // TODO: Add analytics here to indicate a restart was requested
-                    startupState = GameStartupState.SelectingFeatures(account, gameContext.data) {
+                    startupState = GameStartupState.SelectingFeatures(gameContext.data, gameContext.account) {
                         state = MutableGameState(data, state.features, enqueuers)
                         startNewGame()
                     }

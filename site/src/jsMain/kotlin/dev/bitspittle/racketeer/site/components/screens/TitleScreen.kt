@@ -2,19 +2,16 @@ package dev.bitspittle.racketeer.site.components.screens
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.Cursor
-import com.varabyte.kobweb.compose.css.TextAlign
 import com.varabyte.kobweb.compose.foundation.layout.Box
-import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.*
-import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.style.*
-import dev.bitspittle.racketeer.site.FullWidthChildrenStyle
 import dev.bitspittle.racketeer.site.components.layouts.TitleLayout
 import dev.bitspittle.racketeer.site.components.sections.ReadOnlyStyle
 import dev.bitspittle.racketeer.site.components.sections.menu.Menu
+import dev.bitspittle.racketeer.site.components.sections.menu.menus.account.AccountMenu
 import dev.bitspittle.racketeer.site.components.sections.menu.menus.user.UserDataMenu
 import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.components.util.PopupParams
@@ -77,7 +74,9 @@ fun TitleScreen(
                         scope.launch {
                             try {
                                 val dummyCtx = createGameConext(
+                                    params.firebase,
                                     params.data,
+                                    params.account,
                                     params.settings,
                                     params.userStats,
                                     handleChoice = { error("Unexpected choice made when loading data") })
@@ -120,6 +119,18 @@ fun TitleScreen(
                 Menu(
                     closeRequested = { showUserDataMenu = false },
                     UserDataMenu(params, allowClearing = true)
+                )
+            }
+        }
+
+        run {
+            var showAccountMenu by remember { mutableStateOf(false) }
+
+            Button(onClick = { showAccountMenu = true }) { Text("Account") }
+            if (showAccountMenu) {
+                Menu(
+                    closeRequested = { showAccountMenu = false },
+                    AccountMenu(params)
                 )
             }
         }
