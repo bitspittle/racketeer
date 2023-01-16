@@ -112,14 +112,16 @@ fun TitleScreen(
             enabled = Data.exists(Data.Keys.Quicksave)
         ) { Text("Restore Game") }
 
-        var showUserDataMenu by remember { mutableStateOf(false) }
+        run {
+            var showUserDataMenu by remember { mutableStateOf(false) }
 
-        Button(onClick = { showUserDataMenu = true }) { Text("User Data") }
-        if (showUserDataMenu) {
-            Menu(
-                closeRequested = { showUserDataMenu = false },
-                UserDataMenu(params, allowClearing = true)
-            )
+            Button(onClick = { showUserDataMenu = true }) { Text("User Data") }
+            if (showUserDataMenu) {
+                Menu(
+                    closeRequested = { showUserDataMenu = false },
+                    UserDataMenu(params, allowClearing = true)
+                )
+            }
         }
 
         if (showAdminOptions) {
