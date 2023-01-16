@@ -11,6 +11,7 @@ import com.varabyte.kobweb.compose.ui.thenIf
 import com.varabyte.kobweb.core.Page
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.overlay.Tooltip
+import dev.bitspittle.firebase.database.encodeKey
 import dev.bitspittle.racketeer.model.game.Feature
 import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.model.game.MutableGameState
@@ -119,7 +120,7 @@ fun HomePage() {
                 scope.launch {
                     val db = firebase.db
                     val isAllowedEmail =
-                        db.ref("/allowlist/emails/${account.email!!.lowercase().replace('.', ',')}").get().exists()
+                        db.ref("/allowlist/emails/${account.email!!.lowercase().encodeKey()}").get().exists()
 
                     println("After logging in, verifying ${account.email}, got $isAllowedEmail")
                     startupState = GameStartupState.TitleScreen(gameData, account)
