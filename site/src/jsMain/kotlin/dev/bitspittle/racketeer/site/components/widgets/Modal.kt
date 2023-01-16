@@ -47,6 +47,7 @@ val ModalContentColumnStyle = ComponentStyle("modal-content-col") {
 val ModalTitleStyle = ComponentStyle.base("modal-title") {
     Modifier
         .fillMaxWidth()
+        .margin(bottom = 20.px)
         .fontSize(G.Font.Sizes.Normal)
         .fontWeight(FontWeight.Bold)
 }

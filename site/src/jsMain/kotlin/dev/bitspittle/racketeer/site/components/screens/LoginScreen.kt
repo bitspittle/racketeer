@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.site.components.screens
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.Cursor
+import com.varabyte.kobweb.compose.dom.ref
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Row
@@ -18,64 +19,175 @@ import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.firebase.auth.AuthError
 import dev.bitspittle.firebase.auth.GoogleAuthProvider
 import dev.bitspittle.firebase.auth.Scope
-import dev.bitspittle.firebase.util.FirebaseError
+import dev.bitspittle.firebase.auth.User
+import dev.bitspittle.racketeer.model.game.GameData
 import dev.bitspittle.racketeer.site.FullWidthChildrenStyle
 import dev.bitspittle.racketeer.site.components.layouts.FirebaseData
+import dev.bitspittle.racketeer.site.components.layouts.TitleLayout
+import dev.bitspittle.racketeer.site.components.widgets.LabeledTextInput
+import dev.bitspittle.racketeer.site.components.widgets.Modal
 import dev.bitspittle.racketeer.site.components.widgets.OkDialog
+import dev.bitspittle.racketeer.site.inputRef
+import dev.bitspittle.racketeer.site.model.account.Account
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
+private fun User.toAccount() = Account(uid, email)
+
 @Composable
-fun LoginScreen(firebase: FirebaseData, scope: CoroutineScope) {
-    Box(Modifier.fillMaxSize().padding(5.percent), contentAlignment = Alignment.TopCenter) {
-        Column(FullWidthChildrenStyle.toModifier().gap(15.px)) {
-            run {
-                var showOverlay by remember { mutableStateOf(false) }
-                var error: AuthError? by remember { mutableStateOf(null) }
-                Button(onClick = {
-                    scope.launch {
-                        try {
-                            val provider = GoogleAuthProvider()
-                            provider.addScope(Scope.Google.Email)
-                            showOverlay = true
-                            firebase.auth.signInWithPopup(provider)
-                        } catch (e: AuthError) {
-                            error = e
-                        } finally {
-                            showOverlay = false
+fun LoginScreen(firebase: FirebaseData, data: GameData, scope: CoroutineScope, onLoggedIn: (account: Account) -> Unit) {
+    var showPleaseWaitOverlay by remember { mutableStateOf(false) }
+    var error: AuthError? by remember { mutableStateOf(null) }
+
+    TitleLayout(data) {
+        run {
+            Button(onClick = {
+                scope.launch {
+                    try {
+                        val provider = GoogleAuthProvider()
+                        provider.addScope(Scope.Google.Email)
+                        showPleaseWaitOverlay = true
+                        val credential = firebase.auth.signInWithPopup(provider)
+                        onLoggedIn(credential.user.toAccount())
+                    } catch (e: AuthError) {
+                        error = e
+                    } finally {
+                        showPleaseWaitOverlay = false
+                    }
+                }
+            }) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    FaGoogle(Modifier.margin(right = 10.px))
+                    SpanText("Login With Google");
+                }
+            }
+        }
+
+        run {
+            var showLoginModal by remember { mutableStateOf(false) }
+
+            Button(onClick = { showLoginModal = true }) {
+                Text("Login With Email")
+            }
+
+            if (showLoginModal) {
+                var email by remember { mutableStateOf("") }
+                var password by remember { mutableStateOf("") }
+
+                Modal(
+                    ref = inputRef {
+                        if (code == "Escape") showLoginModal = false
+                        true
+                    },
+                    title = "Login With Email",
+                    bottomRow = {
+                        Button(onClick = { showLoginModal = false }) { Text("Cancel") }
+                        Button(onClick = {
+                            scope.launch {
+                                try {
+                                    showPleaseWaitOverlay = true
+                                    val credential = firebase.auth.signInWithEmailAndPassword(email, password)
+                                    onLoggedIn(credential.user.toAccount())
+                                } catch (e: AuthError) {
+                                    error = e
+                                } finally {
+                                    showPleaseWaitOverlay = false
+                                }
+                            }
+                        }, enabled = email.isNotBlank() && password.isNotBlank()) {
+                            Text("Login")
                         }
                     }
-                }) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        FaGoogle(Modifier.margin(right = 10.px))
-                        SpanText("Login With Google");
-                    }
-                }
-
-                if (showOverlay) {
-                    Overlay(Modifier.cursor(Cursor.Progress))
-                }
-
-                if (error != null) {
-                    OkDialog("Login failed", error!!.message, onClose = { error = null })
+                ) {
+                    LabeledTextInput(
+                        "Email",
+                        inputModifier = Modifier.fillMaxWidth(),
+                        onValueChanged = { email = it },
+                        ref = { element -> element.focus() }
+                    )
+                    LabeledTextInput(
+                        "Password",
+                        mask = true,
+                        inputModifier = Modifier.fillMaxWidth(),
+                        onValueChanged = { password = it }
+                    )
                 }
             }
-
-            run {
-                Button(onClick = {
-                    scope.launch {
-//                        firebase.auth.signInWithEmailAndPassword()
-                    }
-                }) { Row { SpanText("Login With Email"); } }
-            }
-
-            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                Hr(Modifier.fillMaxWidth().toAttrs())
-                SpanText("or", Modifier.padding(leftRight = 5.px).backgroundColor(Colors.White))
-            }
-            Button(onClick = {}) { Row { SpanText("Create Email Account"); } }
         }
+
+        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            Hr(Modifier.fillMaxWidth().toAttrs())
+            SpanText("or", Modifier.padding(leftRight = 5.px).backgroundColor(Colors.White))
+        }
+
+        run {
+            var showLoginModal by remember { mutableStateOf(false) }
+
+            Button(onClick = { showLoginModal = true }) {
+                Text("Create Account")
+            }
+
+            if (showLoginModal) {
+                var email by remember { mutableStateOf("") }
+                var password1 by remember { mutableStateOf("") }
+                var password2 by remember { mutableStateOf("") }
+
+                Modal(
+                    ref = inputRef {
+                        if (code == "Escape") showLoginModal = false
+                        true
+                    },
+                    title = "Create Account",
+                    bottomRow = {
+                        Button(onClick = { showLoginModal = false }) { Text("Cancel") }
+                        Button(onClick = {
+                            scope.launch {
+                                try {
+                                    showPleaseWaitOverlay = true
+                                    val credential = firebase.auth.createUserWithEmailAndPassword(email, password1)
+                                    onLoggedIn(credential.user.toAccount())
+                                } catch (e: AuthError) {
+                                    error = e
+                                } finally {
+                                    showPleaseWaitOverlay = false
+                                }
+                            }
+                        }, enabled = email.isNotBlank() && password1.isNotBlank() && password1 == password2) {
+                            Text("Create")
+                        }
+                    }
+                ) {
+                    LabeledTextInput(
+                        "Email",
+                        inputModifier = Modifier.fillMaxWidth(),
+                        onValueChanged = { email = it },
+                        ref = { element -> element.focus() }
+                    )
+                    LabeledTextInput(
+                        "Password",
+                        mask = true,
+                        inputModifier = Modifier.fillMaxWidth(),
+                        onValueChanged = { password1 = it }
+                    )
+
+                    LabeledTextInput(
+                        "Verify password",
+                        mask = true,
+                        inputModifier = Modifier.fillMaxWidth(),
+                        onValueChanged = { password2 = it }
+                    )
+                }
+            }
+        }
+    }
+
+    if (showPleaseWaitOverlay) {
+        Overlay(Modifier.cursor(Cursor.Progress))
+    }
+
+    if (error != null) {
+        OkDialog("Login failed", error!!.message, onClose = { error = null })
     }
 }

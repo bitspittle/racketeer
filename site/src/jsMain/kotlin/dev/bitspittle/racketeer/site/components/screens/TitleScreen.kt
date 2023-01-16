@@ -12,6 +12,7 @@ import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.style.*
 import dev.bitspittle.racketeer.site.FullWidthChildrenStyle
+import dev.bitspittle.racketeer.site.components.layouts.TitleLayout
 import dev.bitspittle.racketeer.site.components.sections.ReadOnlyStyle
 import dev.bitspittle.racketeer.site.components.sections.menu.Menu
 import dev.bitspittle.racketeer.site.components.sections.menu.menus.user.UserDataMenu
@@ -50,135 +51,131 @@ fun TitleScreen(
         }
     }
 
-    Box(Modifier.fillMaxSize().padding(5.percent), contentAlignment = Alignment.TopCenter) {
-        Column(FullWidthChildrenStyle.toModifier().gap(15.px)) {
-            H1(Modifier.margin(bottom = 10.px).textAlign(TextAlign.Center).toAttrs()) { Text(params.data.title) }
+    TitleLayout(params.data) {
+        run {
+            var showProceedQuestion by remember { mutableStateOf(false) }
+            fun proceed() {
+                requestNewGame()
+            }
 
-            run {
-                var showProceedQuestion by remember { mutableStateOf(false) }
-                fun proceed() {
-                    requestNewGame()
-                }
+            Button(onClick = {
+                if (Data.exists(Data.Keys.Quicksave)) {
+                    showProceedQuestion = true
+                } else proceed()
+            }) { Text("New Game") }
 
-                Button(onClick = {
-                    if (Data.exists(Data.Keys.Quicksave)) {
-                        showProceedQuestion = true
-                    } else proceed()
-                }) { Text("New Game") }
-
-                if (showProceedQuestion) {
-                    YesNoDialog(
-                        "Continue?",
-                        "Once you confirm, the existing quick save from your last game will be deleted.\n\nIf you don't want this to happen, go back and choose \"Restore Game\" instead."
-                    ) { yesNo ->
-                        showProceedQuestion = false
-                        if (yesNo == YesNo.YES) {
-                            // Grab the game that the person aborted, saving info about it before discarding it forever
-                            // (But do this carefully to make sure we don't brick the user from being able to start a
-                            // game if their quicksave doesn't load)
-                            scope.launch {
-                                try {
-                                    val dummyCtx = createGameConext(
-                                        params.data,
-                                        params.settings,
-                                        params.userStats,
-                                        handleChoice = { error("Unexpected choice made when loading data") })
-                                    val snapshot = Data.load(Data.Keys.Quicksave)!!
-                                    snapshot.value.create(dummyCtx.data, dummyCtx.env, dummyCtx.enqueuers) { loadedState ->
-                                        // TODO: If not admin, send game to server
-                                        params.userStats.games.add(GameStats.from(loadedState, GameCancelReason.ABORTED))
-                                        Data.save(Data.Keys.UserStats, params.userStats)
-                                    }
-                                } catch (ignored: Exception) {
-                                    // Shouldn't happen, but maybe the user tried to load a very old legacy save or
-                                    // something? In that case, too bad -- we lost the data
-                                } finally {
-                                    Data.delete(Data.Keys.Quicksave)
-                                    proceed()
+            if (showProceedQuestion) {
+                YesNoDialog(
+                    "Continue?",
+                    "Once you confirm, the existing quick save from your last game will be deleted.\n\nIf you don't want this to happen, go back and choose \"Restore Game\" instead."
+                ) { yesNo ->
+                    showProceedQuestion = false
+                    if (yesNo == YesNo.YES) {
+                        // Grab the game that the person aborted, saving info about it before discarding it forever
+                        // (But do this carefully to make sure we don't brick the user from being able to start a
+                        // game if their quicksave doesn't load)
+                        scope.launch {
+                            try {
+                                val dummyCtx = createGameConext(
+                                    params.data,
+                                    params.settings,
+                                    params.userStats,
+                                    handleChoice = { error("Unexpected choice made when loading data") })
+                                val snapshot = Data.load(Data.Keys.Quicksave)!!
+                                snapshot.value.create(dummyCtx.data, dummyCtx.env, dummyCtx.enqueuers) { loadedState ->
+                                    // TODO: If not admin, send game to server
+                                    params.userStats.games.add(GameStats.from(loadedState, GameCancelReason.ABORTED))
+                                    Data.save(Data.Keys.UserStats, params.userStats)
                                 }
+                            } catch (ignored: Exception) {
+                                // Shouldn't happen, but maybe the user tried to load a very old legacy save or
+                                // something? In that case, too bad -- we lost the data
+                            } finally {
+                                Data.delete(Data.Keys.Quicksave)
+                                proceed()
                             }
                         }
                     }
                 }
             }
+        }
+        Button(
+            onClick = {
+                requestResumeGame {
+                    val snapshot = Data.load(Data.Keys.Quicksave)!!
+                    snapshot.value.create(data, env, enqueuers) { loadedState ->
+                        state = loadedState
+                    }
+                    Data.delete(Data.Keys.Quicksave)
+                }
+            },
+            enabled = Data.exists(Data.Keys.Quicksave)
+        ) { Text("Restore Game") }
+
+        var showUserDataMenu by remember { mutableStateOf(false) }
+
+        Button(onClick = { showUserDataMenu = true }) { Text("User Data") }
+        if (showUserDataMenu) {
+            Menu(
+                closeRequested = { showUserDataMenu = false },
+                UserDataMenu(params, allowClearing = true)
+            )
+        }
+
+        if (showAdminOptions) {
             Button(
                 onClick = {
-                    requestResumeGame {
-                        val snapshot = Data.load(Data.Keys.Quicksave)!!
-                        snapshot.value.create(data, env, enqueuers) { loadedState ->
-                            state = loadedState
+                    document.loadSnapshotFromDisk(
+                        scope,
+                        provideGameContext = {
+                            val result = CompletableDeferred<GameContext>()
+                            requestResumeGame {
+                                result.complete(this)
+                            }
+                            result.await()
                         }
-                        Data.delete(Data.Keys.Quicksave)
-                    }
+                    )
                 },
-                enabled = Data.exists(Data.Keys.Quicksave)
-                ) { Text("Restore Game") }
+            ) { Text("Load Snapshot") }
+        }
 
-            var showUserDataMenu by remember { mutableStateOf(false) }
-
-            Button(onClick = { showUserDataMenu = true }) { Text("User Data") }
-            if (showUserDataMenu) {
-                Menu(
-                    closeRequested = { showUserDataMenu = false },
-                    UserDataMenu(params, allowClearing = true)
-                )
+        // Always show the drag/drop gamedata.yaml options last, so they don't get jammed in the middle of the menu
+        if (showAdminOptions) {
+            Button(
+                onClick = {
+                    Data.delete(Data.Keys.GameData)
+                    window.location.reload()
+                },
+                Modifier.margin(top = 50.px),
+                enabled = Data.exists(Data.Keys.GameData)
+            ) {
+                Text("Clear Game Data Override")
             }
 
-            if (showAdminOptions) {
-                Button(
-                    onClick = {
-                        document.loadSnapshotFromDisk(
-                            scope,
-                            provideGameContext = {
-                                val result = CompletableDeferred<GameContext>()
-                                requestResumeGame {
-                                    result.complete(this)
-                                }
-                                result.await()
-                            }
-                        )
-                    },
-                ) { Text("Load Snapshot") }
-            }
+            Box(
+                ReadOnlyStyle
+                    .toModifier()
+                    .height(100.px)
+                    .onDragOver { evt ->
+                        evt.preventDefault() // Allow drop
+                    }
+                    .onDrop { evt ->
+                        evt.preventDefault() // We're handling the drop
 
-            // Always show the drag/drop gamedata.yaml options last, so they don't get jammed in the middle of the menu
-            if (showAdminOptions) {
-                Button(
-                    onClick = {
-                        Data.delete(Data.Keys.GameData)
-                        window.location.reload()
-                    },
-                    Modifier.margin(top = 50.px),
-                    enabled = Data.exists(Data.Keys.GameData)
-                ) {
-                    Text("Clear Game Data Override")
-                }
-
-                Box(
-                    ReadOnlyStyle
-                        .toModifier()
-                        .height(100.px)
-                        .onDragOver { evt ->
-                            evt.preventDefault() // Allow drop
+                        val file = evt.dataTransfer!!.files[0]!!
+                        val reader = FileReader()
+                        reader.onload = { loadEvt ->
+                            val content = loadEvt.target.asDynamic().result as String
+                            Data.saveRaw(Data.Keys.GameData, content)
+                            window.location.reload()
+                            Unit
                         }
-                        .onDrop { evt ->
-                            evt.preventDefault() // We're handling the drop
-
-                            val file = evt.dataTransfer!!.files[0]!!
-                            val reader = FileReader()
-                            reader.onload = { loadEvt ->
-                                val content = loadEvt.target.asDynamic().result as String
-                                Data.saveRaw(Data.Keys.GameData, content)
-                                window.location.reload()
-                                Unit
-                            }
-                            reader.readAsText(file, "UTF-8")
-                        }
-                        .cursor(Cursor.Crosshair),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("Drag gamedata.yaml here")
-                }
+                        reader.readAsText(file, "UTF-8")
+                    }
+                    .cursor(Cursor.Crosshair),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Drag gamedata.yaml here")
             }
         }
     }

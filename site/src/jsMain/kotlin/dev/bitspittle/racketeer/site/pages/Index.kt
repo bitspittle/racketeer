@@ -26,25 +26,27 @@ import dev.bitspittle.racketeer.site.components.util.PopupParams
 import dev.bitspittle.racketeer.site.components.widgets.Modal
 import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.*
+import dev.bitspittle.racketeer.site.model.account.Account
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
 private sealed interface GameStartupState {
-    object LoggingIn : GameStartupState
     object FetchingData : GameStartupState
-    class DataFetched(val gameData: GameData) : GameStartupState
-    class SelectingFeatures(val gameData: GameData, val initCtx: suspend GameContext.() -> Unit) : GameStartupState
-    class CreatingContext(val gameData: GameData, val initCtx: suspend GameContext.() -> Unit) : GameStartupState
-    class ContextCreated(val gameContext: GameContext) : GameStartupState
+    class LoggingIn(val gameData: GameData) : GameStartupState
+    class VerifyAccount(val account: Account, val gameData: GameData) : GameStartupState
+    class TitleScreen(val account: Account, val gameData: GameData) : GameStartupState
+    class SelectingFeatures(val account: Account, val gameData: GameData, val initCtx: suspend GameContext.() -> Unit) : GameStartupState
+    class CreatingContext(val account: Account, val gameData: GameData, val initCtx: suspend GameContext.() -> Unit) : GameStartupState
+    class ContextCreated(val account: Account, val gameContext: GameContext) : GameStartupState
 }
 
 @Page
 @Composable
 fun HomePage() {
     PageLayout {
-        var startupState by remember { mutableStateOf<GameStartupState>(GameStartupState.LoggingIn) }
+        var startupState by remember { mutableStateOf<GameStartupState>(GameStartupState.FetchingData) }
         var choiceCtx by remember { mutableStateOf<ChoiceContext?>(null) }
         val handleChoice: (ChoiceContext) -> Unit = remember {
             {
@@ -57,10 +59,6 @@ fun HomePage() {
         }
 
         when (startupState) {
-            GameStartupState.LoggingIn -> {
-                LoginScreen(firebase, scope)
-            }
-
             GameStartupState.FetchingData -> {
                 Box(
                     Modifier.fillMaxSize().cursor(Cursor.Progress).padding(5.percent),
@@ -74,7 +72,7 @@ fun HomePage() {
                 window.setTimeout({
                     Data.loadRaw(Data.Keys.GameData)?.let { (_, gameDataStr) ->
                         try {
-                            startupState = GameStartupState.DataFetched(GameData.decodeFromString(gameDataStr))
+                            startupState = GameStartupState.LoggingIn(GameData.decodeFromString(gameDataStr))
                         } catch (ex: Exception) {
                             Data.delete(Data.Keys.GameData)
                             println("Could not load gamedata.yaml override. Ignoring it.\n\n$ex")
@@ -85,105 +83,123 @@ fun HomePage() {
                     if (startupState is GameStartupState.FetchingData) {
                         window.fetch("gamedata.yaml").then { response ->
                             response.text().then { responseText ->
-                                startupState = GameStartupState.DataFetched(GameData.decodeFromString(responseText))
+                                startupState = GameStartupState.LoggingIn(GameData.decodeFromString(responseText))
                             }
                         }
                     }
                 })
             }
-            is GameStartupState.DataFetched -> {
-                (startupState as GameStartupState.DataFetched).apply {
-                    document.title = gameData.title
 
-                    val describer = Describer(gameData, showDebugInfo = { false })
-                    val tooltipParser = TooltipParser(gameData, describer)
-                    val stubLogger = MemoryLogger()
+            is GameStartupState.LoggingIn -> (startupState as GameStartupState.LoggingIn).apply {
+                var showLoginScreen by remember { mutableStateOf(false) }
+                LaunchedEffect(Unit) {
+                    Data.load(Data.Keys.Account)?.value?.let { account ->
+                        startupState = GameStartupState.VerifyAccount(account, gameData)
+                    } ?: run { showLoginScreen = true }
+                }
 
-                    TitleScreen(
-                        scope,
-                        PopupParams(
+                if (showLoginScreen) {
+                    LoginScreen(firebase, gameData, scope, onLoggedIn = { account ->
+                        Data.save(Data.Keys.Account, account)
+                        startupState = GameStartupState.VerifyAccount(account, gameData)
+                    })
+                }
+            }
+
+            is GameStartupState.VerifyAccount -> (startupState as GameStartupState.VerifyAccount).apply {
+                // TODO: Block banned accounts
+                startupState = GameStartupState.TitleScreen(account, gameData)
+            }
+
+            is GameStartupState.TitleScreen -> (startupState as GameStartupState.TitleScreen).apply {
+                document.title = gameData.title
+
+                val describer = Describer(gameData, showDebugInfo = { false })
+                val tooltipParser = TooltipParser(gameData, describer)
+                val stubLogger = MemoryLogger()
+
+                TitleScreen(
+                    scope,
+                    PopupParams(
+                        gameData,
+                        settings,
+                        userStats,
+                        stubLogger,
+                        describer,
+                        tooltipParser
+                    ),
+                    events,
+                    requestNewGame = {
+                        startupState = if (settings.unlocks.buildings) {
+                            GameStartupState.SelectingFeatures(account, gameData) { startNewGame() }
+                        } else {
+                            GameStartupState.CreatingContext(account, gameData) { startNewGame() }
+                        }
+                    },
+                    requestResumeGame = { initCtx ->
+                        startupState = GameStartupState.CreatingContext(account, gameData, initCtx)
+                    }
+                )
+            }
+            is GameStartupState.SelectingFeatures -> (startupState as GameStartupState.SelectingFeatures).apply {
+                fun goBack() {
+                    startupState = GameStartupState.TitleScreen(account, gameData)
+                }
+
+                Modal(
+                    ref = inputRef {
+                        if (code == "Escape") {
+                            goBack(); true
+                        } else false
+                    },
+                    title = "Select game feature(s)",
+                    bottomRow = {
+                        Button(onClick = {
+                            goBack()
+                        }) { Text("Go Back") }
+
+                        Button(onClick = {
+                            Data.save(Data.Keys.Settings, settings)
+
+                            startupState = GameStartupState.CreatingContext(account, gameData, initCtx)
+                        }) { Text("Continue") }
+                    }
+                ) {
+                    run {
+                        val buildingFeature = remember { gameData.features.first { it.type == Feature.Type.BUILDINGS } }
+                        var selected by remember { mutableStateOf(settings.features.buildings) }
+
+                        if (selected != settings.features.buildings) {
+                            settings.features.buildings = selected
+                            events.emitAsync(scope, Event.SettingsChanged(settings))
+                        }
+                        Button(
+                            onClick = { selected = !selected },
+                            Modifier.thenIf(selected, SelectedModifier)
+                        ) {
+                            Text(buildingFeature.name)
+                        }
+                        Tooltip(ElementTarget.PreviousSibling, buildingFeature.description)
+                    }
+                }
+            }
+            is GameStartupState.CreatingContext -> (startupState as GameStartupState.CreatingContext).apply {
+                LaunchedEffect(startupState) {
+                    startupState = GameStartupState.ContextCreated(
+                        account,
+                        createGameConext(
                             gameData,
                             settings,
                             userStats,
-                            stubLogger,
-                            describer,
-                            tooltipParser
-                        ),
-                        events,
-                        requestNewGame = {
-                            startupState = if (settings.unlocks.buildings) {
-                                GameStartupState.SelectingFeatures(gameData) { startNewGame() }
-                            } else {
-                                GameStartupState.CreatingContext(gameData) { startNewGame() }
-                            }
-                        },
-                        requestResumeGame = { initCtx ->
-                            startupState = GameStartupState.CreatingContext(gameData, initCtx)
-                        }
-                    )
+                            handleChoice
+                        ).apply { initCtx() })
                 }
             }
-            is GameStartupState.SelectingFeatures -> {
-                (startupState as GameStartupState.SelectingFeatures).apply {
-                    fun goBack() {
-                        startupState = GameStartupState.DataFetched(gameData)
-                    }
-
-                    Modal(
-                        ref = inputRef {
-                            if (code == "Escape") { goBack(); true } else false
-                        },
-                        title = "Select game feature(s)",
-                        bottomRow = {
-                            Button(onClick = {
-                                goBack()
-                            }) {Text("Go Back") }
-
-                            Button(onClick = {
-                                Data.save(Data.Keys.Settings, settings)
-
-                                startupState = GameStartupState.CreatingContext(gameData, initCtx)
-                            }) {Text("Continue") }
-                        }
-                    ) {
-                        run {
-                            val buildingFeature = remember { gameData.features.first { it.type == Feature.Type.BUILDINGS } }
-                            var selected by remember { mutableStateOf(settings.features.buildings) }
-
-                            if (selected != settings.features.buildings) {
-                                settings.features.buildings = selected
-                                events.emitAsync(scope, Event.SettingsChanged(settings))
-                            }
-                            Button(
-                                onClick = { selected = !selected },
-                                Modifier.thenIf(selected, SelectedModifier)
-                            ) {
-                                Text(buildingFeature.name)
-                            }
-                            Tooltip(ElementTarget.PreviousSibling, buildingFeature.description)
-                        }
-                    }
-                }
-            }
-            is GameStartupState.CreatingContext -> {
-                (startupState as GameStartupState.CreatingContext).apply {
-                    LaunchedEffect(startupState) {
-                        startupState = GameStartupState.ContextCreated(
-                            createGameConext(
-                                gameData,
-                                settings,
-                                userStats,
-                                handleChoice
-                            ).apply { initCtx() })
-                    }
-                }
-            }
-            is GameStartupState.ContextCreated -> {
-                val gameCtx = (startupState as GameStartupState.ContextCreated).gameContext
-                val onQuitRequested: () -> Unit = { startupState = GameStartupState.DataFetched(gameCtx.data) }
+            is GameStartupState.ContextCreated -> (startupState as GameStartupState.ContextCreated).apply {
+                val onQuitRequested: () -> Unit = { startupState = GameStartupState.TitleScreen(account, gameContext.data) }
                 val onRestartRequested: () -> Unit = {
                     // TODO: Add analytics here to indicate a restart was requested
-                    startupState = GameStartupState.SelectingFeatures(gameCtx.data) {
+                    startupState = GameStartupState.SelectingFeatures(account, gameContext.data) {
                         state = MutableGameState(data, state.features, enqueuers)
                         startNewGame()
                     }
@@ -192,7 +208,7 @@ fun HomePage() {
                 GameScreen(
                     scope,
                     events,
-                    gameCtx,
+                    gameContext,
                     onRestartRequested,
                     onQuitRequested,
                 )
