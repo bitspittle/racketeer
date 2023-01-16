@@ -40,7 +40,7 @@ fun TitleLayout(
     data: GameData,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    Box(Modifier.fillMaxSize().padding(5.percent), contentAlignment = Alignment.TopCenter) {
+    Box(Modifier.fillMaxSize().padding(2.percent), contentAlignment = Alignment.TopCenter) {
         Column(FullWidthChildrenStyle.toModifier().gap(15.px).maxWidth(G.Sizes.MenuWidth)) {
             H1(Modifier.margin(bottom = 10.px).textAlign(TextAlign.Center).toAttrs()) { Text(data.title) }
             content()
