@@ -29,6 +29,7 @@ import dev.bitspittle.racketeer.site.model.*
 import dev.bitspittle.racketeer.site.model.account.Account
 import kotlinx.browser.document
 import kotlinx.browser.window
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
@@ -75,9 +76,8 @@ fun HomePage() {
                     Text("Please wait, loading...")
                 }
 
-                // Have to slightly defer the following logic or else Compose misses me updating the startupState
-                // variable, probably because it's still laying out data right now.
-                window.setTimeout({
+                // Defer logic or else Compose misses it for some reason
+                LaunchedEffect(Unit) {
                     Data.loadRaw(Data.Keys.GameData)?.let { (_, gameDataStr) ->
                         try {
                             startupState = GameStartupState.LoggingIn(GameData.decodeFromString(gameDataStr))
@@ -95,11 +95,12 @@ fun HomePage() {
                             }
                         }
                     }
-                })
+                }
             }
 
             is GameStartupState.LoggingIn -> (startupState as GameStartupState.LoggingIn).apply {
                 var showLoginScreen by remember { mutableStateOf(false) }
+                // Defer logic or else Compose misses it for some reason
                 LaunchedEffect(Unit) {
                     Data.load(Data.Keys.Account)?.value?.let { account ->
                         startupState = GameStartupState.VerifyAccount(gameData, account)
@@ -115,8 +116,14 @@ fun HomePage() {
             }
 
             is GameStartupState.VerifyAccount -> (startupState as GameStartupState.VerifyAccount).apply {
-                // TODO: Block banned accounts
-                startupState = GameStartupState.TitleScreen(gameData, account)
+                scope.launch {
+                    val db = firebase.db
+                    val isAllowedEmail =
+                        db.ref("/allowlist/emails/${account.email!!.lowercase().replace('.', ',')}").get().exists()
+
+                    println("After logging in, verifying ${account.email}, got $isAllowedEmail")
+                    startupState = GameStartupState.TitleScreen(gameData, account)
+                }
             }
 
             is GameStartupState.TitleScreen -> (startupState as GameStartupState.TitleScreen).apply {
