@@ -9,7 +9,6 @@ import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.site.components.sections.menu.Menu
 import dev.bitspittle.racketeer.site.components.sections.menu.MenuActions
-import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.components.util.PopupParams
 import dev.bitspittle.racketeer.site.components.widgets.YesNo
 import dev.bitspittle.racketeer.site.components.widgets.YesNoDialog
@@ -42,7 +41,6 @@ class AccountMenu(private val params: PopupParams) : Menu {
                     showConfirmDialog = false
                     if (yesNo == YesNo.YES) {
                         scope.launch { params.firebase.auth.signOut() }
-                        Data.delete(Data.Keys.Account)
                         actions.close()
                     }
                 }
@@ -65,7 +63,6 @@ class AccountMenu(private val params: PopupParams) : Menu {
                     showConfirmDialog = false
                     if (yesNo == YesNo.YES) {
                         scope.launch { params.firebase.auth.currentUser?.delete() }
-                        Data.delete(Data.Keys.Account)
                         actions.close()
                     }
                 }

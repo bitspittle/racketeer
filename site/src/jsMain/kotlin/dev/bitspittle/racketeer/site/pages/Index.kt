@@ -63,6 +63,7 @@ fun HomePage() {
         LaunchedEffect(Unit) {
             firebase.auth.onAuthStateChanged { user ->
                 if (user == null) {
+                    Data.delete(Data.Keys.Account)
                     startupState = GameStartupState.FetchingData
                 }
             }
