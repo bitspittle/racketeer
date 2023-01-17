@@ -57,6 +57,11 @@ object Uploads {
     suspend fun upload(payload: Payload) {
         try {
             val type = payload::class
+            if (payload.ctx.settings.admin.enabled) {
+                payload.ctx.logger.debug("Upload (type = ${type.simpleName}) was skipped in admin mode.")
+                return
+            }
+
             val uid = payload.ctx.firebase.auth.currentUser?.uid ?: return
 
             val now = Date.now().toLong()
