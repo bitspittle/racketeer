@@ -30,11 +30,12 @@ private val FAKE_GAME_DATA_TEXT = """
       flavor: "Flavor - "
       influence: "&"
       luck: "%"
+      new: "+"
       swift: ""
       suspicious: ""
+      tweak: "?"
       veteran: "!"
       vp: "*"
-      new: "+"
     features: []
     unlocks: []
     numTurns: 3

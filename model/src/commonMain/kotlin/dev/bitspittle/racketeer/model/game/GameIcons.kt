@@ -12,6 +12,7 @@ data class GameIcons(
     val new: String,
     val suspicious: String,
     val swift: String,
+    val tweak: String,
     val veteran: String,
     val vp: String,
 )
