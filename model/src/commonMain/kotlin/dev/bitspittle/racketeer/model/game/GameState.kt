@@ -1,6 +1,7 @@
 package dev.bitspittle.racketeer.model.game
 
 import com.benasher44.uuid.Uuid
+import com.benasher44.uuid.uuid4
 import dev.bitspittle.limp.types.ListStrategy
 import dev.bitspittle.racketeer.model.action.Enqueuers
 import dev.bitspittle.racketeer.model.building.Blueprint
@@ -21,6 +22,7 @@ import dev.bitspittle.racketeer.model.shop.Shop
 import kotlin.math.max
 
 interface GameState {
+    val id: Uuid
     val random: CopyableRandom
     val features: Set<Feature.Type>
     val numTurns: Int
@@ -79,6 +81,7 @@ fun GameState.getOwnedCards() = ownedPiles
     .flatMap { it.cards }
 
 class MutableGameState internal constructor(
+    override val id: Uuid,
     override val random: CopyableRandom,
     override val features: Set<Feature.Type>,
     val enqueuers: Enqueuers,
@@ -104,6 +107,7 @@ class MutableGameState internal constructor(
     override val history: MutableList<GameStateChanges>,
 ): GameState {
     constructor(data: GameData, features: Set<Feature.Type>, enqueuers: Enqueuers, random: CopyableRandom = CopyableRandom()) : this(
+        uuid4(),
         random,
         features,
         enqueuers,
@@ -280,6 +284,7 @@ class MutableGameState internal constructor(
     override fun copy(): MutableGameState {
         val random = random.copy()
         return MutableGameState(
+            id,
             random,
             features,
             enqueuers,
@@ -346,6 +351,7 @@ class MutableGameState internal constructor(
 
 fun MutableGameState.stub(): MutableGameState {
     return MutableGameState(
+        uuid4(),
         random,
         features,
         enqueuers,

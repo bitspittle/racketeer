@@ -1,5 +1,3 @@
-@file:UseSerializers(UuidSerializer::class)
-
 package dev.bitspittle.racketeer.model.serialization
 
 import com.benasher44.uuid.Uuid
@@ -8,7 +6,6 @@ import dev.bitspittle.racketeer.model.text.quote
 import dev.bitspittle.racketeer.model.text.unquote
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
