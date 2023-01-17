@@ -1141,6 +1141,9 @@ cards:
     description:
       ability: Spend 1$ each to shuffle that many cards from Jail into your deck.
     playActions:
+      - set '$useless or? (= 0 size $jail) (= 0 game-get 'cash)
+      - if-true $useless '(cancel-if! ! ask? "Do you really want to pay Saul nothing to get nobody out of jail?")
+      - stop-if! $useless
       - set '$clients (choose --prompt "Get cards out of jail." $jail .. 0 game-get 'cash)
       - game-sub! 'cash size $clients
       - pile-move-to! $deck $clients
@@ -1273,7 +1276,7 @@ blueprints:
   - name: Gemstone Museum
     rarity: 1
     description:
-      ability: Choose one of two random Loots to add to your hand.
+      ability: "Activate: Choose one of two random Loots to add to your hand."
     buildCost:
       cash: 4
       influence: 4
@@ -1289,7 +1292,7 @@ blueprints:
   - name: Witness Protection Program
     rarity: 1
     description:
-      ability: Give a Thief, Spy, or Trickster in your hand Suspicious. Create a copy of it in your hand.
+      ability: "Activate: Give a Thief, Spy, or Trickster in your hand Suspicious. Create a copy of it in your hand."
     buildCost:
       cash: 3
       influence: 3
@@ -1307,7 +1310,7 @@ blueprints:
   - name: The Blue Hound
     rarity: 1
     description:
-      ability: Gain $ and * for each Cop on the street.
+      ability: "Activate: Gain $ and * for each Cop on the street."
     buildCost:
       cash: 3
       influence: 3
@@ -1569,8 +1572,8 @@ blueprints:
     description:
       ability: At end of turn, gain * for each card in your hand.
     buildCost:
-      cash: 3
-      influence: 3
+      cash: 1
+      influence: 1
     canActivate: false # Passive building
     initActions:
       - fx-add! --desc (icon-convert "At end of turn, gain * for each card in your hand.") --lifetime 'game --event 'turn-end --data (building-get $this 'id) '(building-add! building-with-id $data 'vp (size $hand))
