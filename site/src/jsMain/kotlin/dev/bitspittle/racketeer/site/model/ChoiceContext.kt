@@ -31,6 +31,7 @@ fun Describer.describeItem(item: Any): String {
 class ChoiceContext(
     val firebase: FirebaseData,
     val data: GameData,
+    val events: Events,
     val account: Account,
     val settings: Settings,
     val userStats: MutableUserStats,

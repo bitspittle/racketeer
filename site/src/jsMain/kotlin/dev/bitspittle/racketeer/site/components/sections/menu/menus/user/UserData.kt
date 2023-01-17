@@ -9,8 +9,7 @@ import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.components.util.PopupParams
 import dev.bitspittle.racketeer.site.components.widgets.YesNo
 import dev.bitspittle.racketeer.site.components.widgets.YesNoDialog
-import dev.bitspittle.racketeer.site.model.Settings
-import dev.bitspittle.racketeer.site.model.isDefault
+import dev.bitspittle.racketeer.site.model.*
 import dev.bitspittle.racketeer.site.model.user.clear
 import org.jetbrains.compose.web.dom.*
 
@@ -25,6 +24,7 @@ class UserDataMenu(private val params: PopupParams, private val allowClearing: B
 
         if (allowClearing) {
             var showConfirmDialog by remember { mutableStateOf(false) }
+            val scope = rememberCoroutineScope()
 
             Button(onClick = { showConfirmDialog = true }) {
                 Text("Clear All Data")
@@ -37,14 +37,14 @@ class UserDataMenu(private val params: PopupParams, private val allowClearing: B
                 ) { yesNo ->
                     showConfirmDialog = false
                     if (yesNo == YesNo.YES) {
-                        params.settings.unlocks = Settings.Unlocks()
-                        if (params.settings.isDefault) {
-                            Data.delete(Data.Keys.Settings)
-                        } else Data.save(Data.Keys.Settings, params.settings)
+
+                        params.settings.clear()
+                        Data.delete(Data.Keys.Settings)
+                        params.events.emitAsync(scope, Event.SettingsChanged(params.settings))
 
                         Data.delete(Data.Keys.Quicksave)
-                        Data.delete(Data.Keys.UserStats)
                         params.userStats.clear()
+                        Data.delete(Data.Keys.UserStats)
                         actions.close()
                     }
                 }

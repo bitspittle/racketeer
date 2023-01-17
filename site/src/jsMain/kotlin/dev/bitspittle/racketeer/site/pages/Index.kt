@@ -165,6 +165,7 @@ fun HomePage() {
                     PopupParams(
                         firebase,
                         gameData,
+                        events,
                         account,
                         settings,
                         userStats,
@@ -227,6 +228,7 @@ fun HomePage() {
                         createGameConext(
                             firebase,
                             gameData,
+                            events,
                             account,
                             settings,
                             userStats,

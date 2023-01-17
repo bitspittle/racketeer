@@ -30,6 +30,7 @@ import kotlin.coroutines.suspendCoroutine
 class GameContext(
     val firebase: FirebaseData,
     val data: GameData,
+    val events: Events,
     val userStats: MutableUserStats,
     val env: Environment,
     val logger: MemoryLogger,
@@ -44,6 +45,7 @@ class GameContext(
 suspend fun createGameConext(
     firebase: FirebaseData,
     gameData: GameData,
+    events: Events,
     account: Account,
     settings: Settings,
     userStats: MutableUserStats,
@@ -111,6 +113,7 @@ suspend fun createGameConext(
                         ChoiceContext(
                             firebase,
                             gameData,
+                            events,
                             account,
                             settings,
                             userStats,
@@ -137,6 +140,7 @@ suspend fun createGameConext(
     return GameContext(
         firebase,
         gameData,
+        events,
         userStats,
         env,
         logger,

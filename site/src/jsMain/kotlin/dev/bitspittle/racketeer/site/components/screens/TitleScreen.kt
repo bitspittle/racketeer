@@ -76,6 +76,7 @@ fun TitleScreen(
                                 val dummyCtx = createGameConext(
                                     params.firebase,
                                     params.data,
+                                    params.events,
                                     params.account,
                                     params.settings,
                                     params.userStats,

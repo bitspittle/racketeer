@@ -19,10 +19,7 @@ import dev.bitspittle.racketeer.scripting.methods.collection.FormattedItem
 import dev.bitspittle.racketeer.site.components.layouts.FirebaseData
 import dev.bitspittle.racketeer.site.components.widgets.Card
 import dev.bitspittle.racketeer.site.components.widgets.toCardSpec
-import dev.bitspittle.racketeer.site.model.ChoiceContext
-import dev.bitspittle.racketeer.site.model.GameContext
-import dev.bitspittle.racketeer.site.model.Settings
-import dev.bitspittle.racketeer.site.model.TooltipParser
+import dev.bitspittle.racketeer.site.model.*
 import dev.bitspittle.racketeer.site.model.account.Account
 import dev.bitspittle.racketeer.site.model.user.MutableUserStats
 import org.jetbrains.compose.web.css.*
@@ -30,6 +27,7 @@ import org.jetbrains.compose.web.css.*
 class PopupParams(
     val firebase: FirebaseData,
     val data: GameData,
+    val events: Events,
     val account: Account,
     val settings: Settings,
     val userStats: MutableUserStats,
@@ -39,10 +37,10 @@ class PopupParams(
 )
 
 fun GameContext.toPopupParams() =
-    PopupParams(firebase, data, account, settings, userStats, logger, describer, tooltipParser)
+    PopupParams(firebase, data, events, account, settings, userStats, logger, describer, tooltipParser)
 
 fun ChoiceContext.toPopupParams() =
-    PopupParams(firebase, data, account, settings, userStats, logger, describer, tooltipParser)
+    PopupParams(firebase, data, events, account, settings, userStats, logger, describer, tooltipParser)
 
 @Composable
 fun installPopup(params: PopupParams, item: Any) {
