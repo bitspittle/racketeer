@@ -100,14 +100,16 @@ private fun renderGameScreen(
                 CardGroup("Shop (Tier ${ctx.state.shop.tier + 1})", Modifier.flexGrow(1)) {
                     ctx.state.shop.stock.forEach { card ->
                         if (card != null) {
+                            val cost = ctx.state.shop.prices.getValue(card.id)
+
                             Card(
                                 ctx.data,
                                 ctx.userStats,
                                 ctx.describer,
                                 ctx.tooltipParser,
                                 card,
-                                label = ctx.describer.describeCash(card.template.cost),
-                                enabled = ctx.state.cash >= card.template.cost, onClick = {
+                                label = ctx.describer.describeCash(cost),
+                                enabled = ctx.state.cash >= cost, onClick = {
                                     gameUpdater.runStateChangingAction {
                                         ctx.state.addChange(GameStateChange.Buy(card))
                                     }
