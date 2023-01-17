@@ -71,6 +71,20 @@ fun HomePage() {
             }
         }
 
+        fun requestNewGame(gameData: GameData, account: Account, initCtx: GameContext.() -> Unit = {}) {
+            startupState = if (settings.unlocks.buildings) {
+                GameStartupState.SelectingFeatures(gameData, account) {
+                    this.initCtx()
+                    startNewGame()
+                }
+            } else {
+                GameStartupState.CreatingContext(gameData, account) {
+                    this.initCtx()
+                    startNewGame()
+                }
+            }
+        }
+
         when (startupState) {
             GameStartupState.FetchingData -> {
                 Box(
@@ -159,13 +173,7 @@ fun HomePage() {
                         tooltipParser
                     ),
                     events,
-                    requestNewGame = {
-                        startupState = if (settings.unlocks.buildings) {
-                            GameStartupState.SelectingFeatures(gameData, account) { startNewGame() }
-                        } else {
-                            GameStartupState.CreatingContext(gameData, account) { startNewGame() }
-                        }
-                    },
+                    requestNewGame = { requestNewGame(gameData, account) },
                     requestResumeGame = { initCtx ->
                         startupState = GameStartupState.CreatingContext(gameData, account, initCtx)
                     }
@@ -229,10 +237,8 @@ fun HomePage() {
             is GameStartupState.ContextCreated -> (startupState as GameStartupState.ContextCreated).apply {
                 val onQuitRequested: () -> Unit = { startupState = GameStartupState.TitleScreen(gameContext.data, gameContext.account) }
                 val onRestartRequested: () -> Unit = {
-                    // TODO: Add analytics here to indicate a restart was requested
-                    startupState = GameStartupState.SelectingFeatures(gameContext.data, gameContext.account) {
+                    requestNewGame(gameContext.data, gameContext.account) {
                         state = MutableGameState(data, state.features, enqueuers)
-                        startNewGame()
                     }
                 }
 
