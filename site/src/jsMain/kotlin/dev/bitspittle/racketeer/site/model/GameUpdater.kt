@@ -1,5 +1,7 @@
 package dev.bitspittle.racketeer.site.model
 
+import dev.bitspittle.racketeer.site.components.util.Payload
+import dev.bitspittle.racketeer.site.components.util.Uploads
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -24,7 +26,7 @@ class GameUpdater(
                     events.emit(Event.GameStateUpdated(ctx))
                 }
             } catch (ex: Exception) {
-                ctx.logger.error(ex.message ?: "Code threw exception without a message: ${ex::class.simpleName}")
+                launch { Uploads.upload(Payload.Crash(ctx, ex)) }
                 events.emit(Event.GameStateUpdated(ctx)) // Emit an event so that the logging area gets updated
             }
         }

@@ -128,7 +128,7 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
         VersionStyle.toModifier(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val versionStr = "v" + AppGlobals["version"] as String
+        val versionStr = "v${G.version}"
         SpanText(
             versionStr,
             Modifier.onClick { evt ->

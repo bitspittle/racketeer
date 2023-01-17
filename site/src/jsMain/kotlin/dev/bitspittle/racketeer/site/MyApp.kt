@@ -7,6 +7,7 @@ import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.styleModifier
 import com.varabyte.kobweb.core.App
+import com.varabyte.kobweb.core.AppGlobals
 import com.varabyte.kobweb.silk.InitSilk
 import com.varabyte.kobweb.silk.InitSilkContext
 import com.varabyte.kobweb.silk.SilkApp
@@ -14,6 +15,8 @@ import com.varabyte.kobweb.silk.components.layout.Surface
 import com.varabyte.kobweb.silk.theme.colors.ColorMode
 import com.varabyte.kobweb.silk.theme.colors.getColorMode
 import com.varabyte.kobweb.silk.theme.registerBaseStyle
+import dev.bitspittle.racketeer.site.components.util.Payload
+import dev.bitspittle.racketeer.site.components.util.Uploads
 import kotlinx.browser.localStorage
 import kotlinx.browser.window
 import org.jetbrains.compose.web.css.*
@@ -68,12 +71,16 @@ fun inputRef(handler: KeyScope.() -> Boolean) = disposableRef<HTMLElement> { ele
 @App
 @Composable
 fun MyApp(content: @Composable () -> Unit) {
+    G.version = AppGlobals["version"] as String // Kind of hacky but want to get my global out of composable space
+
     remember {
         window.document.body!!.onkeydown = { evt ->
             // Last in first out -- let the elements we registered last have a first crack at the input. This usually
             // means children items because they were composed after their parents.
             InputHandlers.values.toList().lastOrNull { it.invoke(KeyScope(evt.code, evt.key, evt.shiftKey, evt.altKey, evt.ctrlKey)) }
         }
+
+        Uploads.registerThrottleSize(Payload.Crash::class, 500 * 1024)
     }
 
     SilkApp {

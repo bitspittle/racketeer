@@ -1,5 +1,7 @@
 package dev.bitspittle.racketeer.site
 
+import androidx.compose.runtime.*
+import com.varabyte.kobweb.core.AppGlobals
 import com.varabyte.kobweb.compose.ui.graphics.Colors as KobwebColors
 import org.jetbrains.compose.web.css.*
 
@@ -27,4 +29,6 @@ object G {
             val Back = KobwebColors.DarkGray
         }
     }
+
+    lateinit var version: String
 }

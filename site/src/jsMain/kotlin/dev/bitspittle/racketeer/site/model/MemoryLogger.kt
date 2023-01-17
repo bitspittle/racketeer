@@ -20,14 +20,14 @@ class MemoryLogger : Logger {
     }
 
     override fun warn(message: String) {
-        append("⚠️ $message")
+        println("⚠️ $message")
     }
 
     override fun error(message: String) {
-        append("⛔ $message")
+        println("⛔ $message")
     }
 
     override fun debug(message: String) {
-        append("⚙️ $message")
+        println("⚙️ $message")
     }
 }

@@ -29,16 +29,14 @@ import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.Admin
 import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.BrowseAllCardsMenu
 import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.GameMenuParams
 import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.MainMenu
-import dev.bitspittle.racketeer.site.components.util.Data
-import dev.bitspittle.racketeer.site.components.util.installPopup
-import dev.bitspittle.racketeer.site.components.util.locked
-import dev.bitspittle.racketeer.site.components.util.unlock
+import dev.bitspittle.racketeer.site.components.util.*
 import dev.bitspittle.racketeer.site.components.widgets.*
 import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.*
 import dev.bitspittle.racketeer.site.model.user.GameStats
 import dev.bitspittle.racketeer.site.model.user.totalVp
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
@@ -48,6 +46,7 @@ private class VpProvider(val source: Any, val amount: Int)
 
 @Composable
 private fun renderGameScreen(
+    scope: CoroutineScope,
     gameUpdater: GameUpdater,
     ctx: GameContext,
     gameMenuParams: GameMenuParams,
@@ -222,6 +221,8 @@ private fun renderGameScreen(
                                             // stopping someone from playing through the rest of the game
                                         }
                                     } else {
+                                        scope.launch { Uploads.upload(Payload.Finish(ctx)) }
+
                                         // Game is over! No more need to keep a save around
                                         Data.delete(Data.Keys.Quicksave)
 
@@ -346,6 +347,7 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onRestar
     ) {
         key(gameUpdateCount) {
             renderGameScreen(
+                scope,
                 gameUpdater,
                 ctx,
                 gameMenuParams,

@@ -82,7 +82,6 @@ fun TitleScreen(
                                     handleChoice = { error("Unexpected choice made when loading data") })
                                 val snapshot = Data.load(Data.Keys.Quicksave)!!
                                 snapshot.value.create(dummyCtx.data, dummyCtx.env, dummyCtx.enqueuers) { loadedState ->
-                                    // TODO: If not admin, send game to server
                                     params.userStats.games.add(GameStats.from(loadedState, GameCancelReason.ABORTED))
                                     Data.save(Data.Keys.UserStats, params.userStats)
                                 }

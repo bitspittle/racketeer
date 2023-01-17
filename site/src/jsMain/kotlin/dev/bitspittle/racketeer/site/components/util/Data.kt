@@ -4,13 +4,10 @@ import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import dev.bitspittle.racketeer.site.model.Settings
 import dev.bitspittle.racketeer.site.model.account.Account
 import dev.bitspittle.racketeer.site.model.user.MutableUserStats
-import dev.bitspittle.racketeer.site.model.user.UserStats
 import kotlinx.browser.localStorage
 import kotlinx.serialization.decodeFromString
 import net.mamoe.yamlkt.Yaml
 import kotlin.js.Date
-
-fun <T: Any> T.encodeToYaml() = Yaml { this.encodeDefaultValues = false }.encodeToString(this)
 
 object Data {
     class Key<T: Any>(val name: String)
