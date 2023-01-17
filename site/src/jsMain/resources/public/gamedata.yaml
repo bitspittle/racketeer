@@ -135,7 +135,9 @@ globalActions:
   - def 'if-true '$cond '$expr '(if $cond $expr _)
   - def 'if-false '$cond '$expr '(if $cond _ $expr)
   - def 'stop-if! '$cond '(if $cond '(stop!) _)
+  - def 'stop-unless! '$cond '(if $cond _ '(stop!))
   - def 'cancel-if! '$cond '(if $cond '(cancel!) _)
+  - def 'cancel-unless! '$cond '(if $cond _ '(cancel!))
   - def 'concat-to-string '$strs '(join-to-string --separator "" $strs)
   - def 'ask? '$prompt '(= (single (choose --prompt icon-convert $prompt (list "Yes" "No") 1)) "Yes")
   - def 'ask?! '$prompt '(= (single (choose --required _ --prompt icon-convert $prompt (list "Yes" "No") 1)) "Yes")
@@ -1142,7 +1144,7 @@ cards:
       ability: Spend 1$ each to shuffle that many cards from Jail into your deck.
     playActions:
       - set '$useless or? (= 0 size $jail) (= 0 game-get 'cash)
-      - if-true $useless '(cancel-if! ! ask? "Do you really want to pay Saul nothing to get nobody out of jail?")
+      - if-true $useless '(cancel-unless! ask? "Do you really want to pay Saul nothing to get nobody out of jail?")
       - stop-if! $useless
       - set '$clients (choose --prompt "Get cards out of jail." $jail .. 0 game-get 'cash)
       - game-sub! 'cash size $clients
