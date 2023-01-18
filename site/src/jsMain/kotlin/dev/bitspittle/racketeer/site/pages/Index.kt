@@ -66,6 +66,7 @@ fun HomePage() {
             firebase.auth.onAuthStateChanged { user ->
                 if (user == null) {
                     Data.delete(Data.Keys.Account)
+                    events.emitAsync(scope, Event.AccountChanged(null))
                     startupState = GameStartupState.FetchingData
                 }
             }
@@ -121,14 +122,20 @@ fun HomePage() {
                 // Defer logic or else Compose misses it for some reason
                 LaunchedEffect(Unit) {
                     Data.load(Data.Keys.Account)?.value?.let { account ->
+                        account.updateAdmin(firebase)
+                        events.emit(Event.AccountChanged(account))
                         startupState = GameStartupState.VerifyAccount(gameData, account)
                     } ?: run { showLoginScreen = true }
                 }
 
                 if (showLoginScreen) {
                     LoginScreen(firebase, gameData, scope, onLoggedIn = { account ->
-                        Data.save(Data.Keys.Account, account)
-                        startupState = GameStartupState.VerifyAccount(gameData, account)
+                        scope.launch {
+                            account.updateAdmin(firebase)
+                            events.emit(Event.AccountChanged(account))
+                            Data.save(Data.Keys.Account, account)
+                            startupState = GameStartupState.VerifyAccount(gameData, account)
+                        }
                     })
                 }
             }

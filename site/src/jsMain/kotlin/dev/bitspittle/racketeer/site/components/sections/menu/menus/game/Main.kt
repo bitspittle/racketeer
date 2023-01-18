@@ -22,7 +22,7 @@ class MainMenu(private val params: GameMenuParams) : Menu {
 
     @Composable
     override fun renderContent(actions: MenuActions) {
-        if (params.ctx.settings.admin.enabled) {
+        if (params.ctx.account.isAdmin) {
             MenuButton(actions, Admin(params))
         }
 

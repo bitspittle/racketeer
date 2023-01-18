@@ -34,7 +34,6 @@ import dev.bitspittle.racketeer.site.components.widgets.*
 import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.*
 import dev.bitspittle.racketeer.site.model.user.GameStats
-import dev.bitspittle.racketeer.site.model.user.totalVp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.*
@@ -65,21 +64,21 @@ private fun renderGameScreen(
             Tooltip(ElementTarget.PreviousSibling, "The total number of cards you own (doesn't include jailed cards).")
             Row(Modifier.gap(5.px)) {
                 SpanText(ctx.describer.describeCash(ctx.state.cash), Modifier.onClick { evt ->
-                    if (ctx.settings.admin.enabled && evt.shiftKey) {
+                    if (ctx.account.isAdmin && evt.shiftKey) {
                         gameUpdater.runStateChangingAction {
                             ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.CASH, if (evt.altKey) 10 else 1))
                         }
                     }
                 })
                 SpanText(ctx.describer.describeInfluence(ctx.state.influence), Modifier.onClick { evt ->
-                    if (ctx.settings.admin.enabled && evt.shiftKey) {
+                    if (ctx.account.isAdmin && evt.shiftKey) {
                         gameUpdater.runStateChangingAction {
                             ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, if (evt.altKey) 10 else 1))
                         }
                     }
                 })
                 SpanText(ctx.describer.describeLuck(ctx.state.luck), Modifier.onClick { evt ->
-                    if (ctx.settings.admin.enabled && evt.shiftKey) {
+                    if (ctx.account.isAdmin && evt.shiftKey) {
                         gameUpdater.runStateChangingAction {
                             ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.LUCK, if (evt.altKey) 10 else 1))
                         }
@@ -320,7 +319,7 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onRestar
             when (code) {
                 "Escape" -> { showMenu = !showMenu; true }
                 "Backquote" -> {
-                    if (!showMenu && ctx.settings.admin.enabled) {
+                    if (!showMenu && ctx.account.isAdmin) {
                         showMenu = true
                         initialMenu = Admin(gameMenuParams)
                         true

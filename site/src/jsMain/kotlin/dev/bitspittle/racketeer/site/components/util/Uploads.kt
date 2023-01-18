@@ -57,7 +57,7 @@ object Uploads {
     suspend fun upload(payload: Payload) {
         try {
             val type = payload::class
-            if (payload.ctx.settings.admin.enabled) {
+            if (payload.ctx.account.isAdmin) {
                 payload.ctx.logger.debug("Upload (type = ${type.simpleName}) was skipped in admin mode.")
                 return
             }

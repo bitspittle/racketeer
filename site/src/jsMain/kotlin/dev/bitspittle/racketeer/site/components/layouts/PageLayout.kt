@@ -11,8 +11,6 @@ import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
-import com.varabyte.kobweb.compose.ui.thenIf
-import com.varabyte.kobweb.core.AppGlobals
 import com.varabyte.kobweb.silk.components.icons.fa.FaCopy
 import com.varabyte.kobweb.silk.components.icons.fa.IconSize
 import com.varabyte.kobweb.silk.components.style.*
@@ -83,13 +81,15 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
     val settings = remember { Data.load(Data.Keys.Settings)?.value ?: Settings() }
     val userStats = remember { Data.load(Data.Keys.UserStats)?.value ?: MutableUserStats() }
 
-    var showAdminDecoration by remember { mutableStateOf(settings.admin.enabled) }
+    var showAdminDecoration by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         events.collect { evt ->
             when (evt) {
+                is Event.AccountChanged -> {
+                    showAdminDecoration = evt.account?.isAdmin ?: false
+                }
                 is Event.SettingsChanged -> {
-                    showAdminDecoration = evt.settings.admin.enabled
                     if (settings.isDefault) {
                         Data.delete(Data.Keys.Settings)
                     } else Data.save(Data.Keys.Settings, settings)
@@ -119,9 +119,9 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
     if (showAdminDecoration) {
         Box(
             Modifier.position(Position.Fixed).top(0.px).left(0.px).bottom(0.px).right(0.px)
-                .pointerEvents(PointerEvents.None).thenIf(settings.admin.enabled) {
-                Modifier.boxShadow(spreadRadius = 15.px, color = Colors.Pink, inset = true)
-            })
+                .pointerEvents(PointerEvents.None)
+                .boxShadow(spreadRadius = 15.px, color = Colors.Pink, inset = true)
+        )
     }
 
     Row(
@@ -129,15 +129,7 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         val versionStr = "v${G.version}"
-        SpanText(
-            versionStr,
-            Modifier.onClick { evt ->
-                if (evt.altKey && evt.shiftKey) {
-                    settings.admin.enabled = !settings.admin.enabled
-                    events.emitAsync(scope, Event.SettingsChanged(settings))
-                }
-            }
-        )
+        SpanText(versionStr)
         FaCopy(
             Modifier
                 .cursor(Cursor.Pointer)

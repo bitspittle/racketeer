@@ -18,8 +18,12 @@ import dev.bitspittle.racketeer.site.components.util.PopupParams
 import dev.bitspittle.racketeer.site.components.util.loadSnapshotFromDisk
 import dev.bitspittle.racketeer.site.components.widgets.YesNo
 import dev.bitspittle.racketeer.site.components.widgets.YesNoDialog
-import dev.bitspittle.racketeer.site.model.*
-import dev.bitspittle.racketeer.site.model.user.*
+import dev.bitspittle.racketeer.site.model.Event
+import dev.bitspittle.racketeer.site.model.Events
+import dev.bitspittle.racketeer.site.model.GameContext
+import dev.bitspittle.racketeer.site.model.createGameConext
+import dev.bitspittle.racketeer.site.model.user.GameCancelReason
+import dev.bitspittle.racketeer.site.model.user.GameStats
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.CompletableDeferred
@@ -38,11 +42,11 @@ fun TitleScreen(
     requestNewGame: () -> Unit,
     requestResumeGame: (init: suspend GameContext.() -> Unit) -> Unit
 ) {
-    var showAdminOptions by remember { mutableStateOf(params.settings.admin.enabled) }
+    var showAdminOptions by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         events.collect { evt ->
             when (evt) {
-                is Event.SettingsChanged -> showAdminOptions = evt.settings.admin.enabled
+                is Event.AccountChanged -> showAdminOptions = evt.account?.isAdmin ?: false
                 else -> {}
             }
         }
