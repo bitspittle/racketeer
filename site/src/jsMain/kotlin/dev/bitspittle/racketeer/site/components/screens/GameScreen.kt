@@ -12,6 +12,7 @@ import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.silk.components.forms.Button
+import com.varabyte.kobweb.silk.components.icons.fa.FaBars
 import com.varabyte.kobweb.silk.components.layout.SimpleGrid
 import com.varabyte.kobweb.silk.components.layout.numColumns
 import com.varabyte.kobweb.silk.components.overlay.Tooltip
@@ -313,7 +314,7 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onRestar
     }
 
     Box(
-        Modifier.fillMaxSize().minWidth(500.px),
+        Modifier.fillMaxSize().minWidth(500.px).position(Position.Relative),
         ref = inputRef {
             when (code) {
                 "Escape" -> { showMenu = !showMenu; true }
@@ -335,6 +336,8 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onRestar
             }
         }
     ) {
+        Button(onClick = { showMenu = true }, Modifier.padding(5.px).position(Position.Absolute).left(10.px).top(10.px)) { FaBars() }
+
         key(gameUpdateCount) {
             renderGameScreen(
                 scope,
