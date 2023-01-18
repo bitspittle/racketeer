@@ -3,8 +3,10 @@ package dev.bitspittle.racketeer.site.components.widgets
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.dom.ref
 import com.varabyte.kobweb.compose.foundation.layout.Column
+import com.varabyte.kobweb.compose.foundation.layout.ColumnScope
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.*
+import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.site.inputRef
@@ -15,6 +17,7 @@ import org.jetbrains.compose.web.dom.*
 fun OkDialog(
     title: String,
     info: String? = null,
+    extraContent: (@Composable ColumnScope.() -> Unit)? = null,
     okText: String = "Ok",
     onClose: () -> Unit,
 ) {
@@ -40,6 +43,10 @@ fun OkDialog(
             {
                 Column {
                     info.split("\n").forEach { line -> if (line.isNotEmpty()) SpanText(line) else Br() }
+                    if (extraContent != null) {
+                        Div(Modifier.height(1.cssRem).toAttrs())
+                        extraContent()
+                    }
                 }
             }
         }

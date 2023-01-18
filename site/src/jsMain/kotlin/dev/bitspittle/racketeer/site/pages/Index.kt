@@ -11,6 +11,7 @@ import com.varabyte.kobweb.compose.ui.thenIf
 import com.varabyte.kobweb.core.Page
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.overlay.Tooltip
+import dev.bitspittle.firebase.auth.User
 import dev.bitspittle.firebase.database.encodeKey
 import dev.bitspittle.racketeer.model.game.Feature
 import dev.bitspittle.racketeer.model.game.GameData
@@ -26,6 +27,7 @@ import dev.bitspittle.racketeer.site.components.sections.SelectedModifier
 import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.components.util.PopupParams
 import dev.bitspittle.racketeer.site.components.widgets.Modal
+import dev.bitspittle.racketeer.site.components.widgets.OkDialog
 import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.*
 import dev.bitspittle.racketeer.site.model.account.Account
@@ -120,6 +122,7 @@ fun HomePage() {
 
             is GameStartupState.LoggingIn -> (startupState as GameStartupState.LoggingIn).apply {
                 var showLoginScreen by remember { mutableStateOf(false) }
+                var unverifiedUser: User? by remember { mutableStateOf(null) }
                 // Defer logic or else Compose misses it for some reason
                 LaunchedEffect(Unit) {
                     Data.load(Data.Keys.Account)?.value?.let { account ->
@@ -130,14 +133,42 @@ fun HomePage() {
                 }
 
                 if (showLoginScreen) {
-                    LoginScreen(firebase, gameData, scope, onLoggedIn = { account ->
-                        scope.launch {
-                            account.updateAdmin(firebase)
-                            events.emit(Event.AccountChanged(account))
-                            Data.save(Data.Keys.Account, account)
-                            startupState = GameStartupState.VerifyAccount(gameData, account)
+                    LoginScreen(firebase, gameData, scope, onLoggedIn = { user ->
+                        if (!user.emailVerified) {
+                            unverifiedUser = user
+                            showLoginScreen = false
+                        } else {
+                            val account = Account(user.uid, user.email)
+                            scope.launch {
+                                account.updateAdmin(firebase)
+                                events.emit(Event.AccountChanged(account))
+                                Data.save(Data.Keys.Account, account)
+                                startupState = GameStartupState.VerifyAccount(gameData, account)
+                            }
                         }
                     })
+                }
+
+                if (unverifiedUser != null) {
+                    val user = unverifiedUser!! // Copy local as closing dialog clears it
+                    fun closeDialog() {
+                        unverifiedUser = null
+                        showLoginScreen = true
+                    }
+
+                    OkDialog(
+                        "Please verify your email",
+                        "A verification email was already sent to ${user.email}.\n\n" +
+                        "Please follow the instructions there, and when finished, log in again.",
+                        extraContent = {
+                            Button(onClick = {
+                                scope.launch { user.sendEmailVerification() }
+                                closeDialog()
+                            }, Modifier.fillMaxWidth()) { Text("I didn't get it... please send it again." )}
+                            Tooltip(ElementTarget.PreviousSibling, "Please wait a minute between requests, or they may get throttled.")
+                        },
+                        onClose = { closeDialog() }
+                    )
                 }
             }
 

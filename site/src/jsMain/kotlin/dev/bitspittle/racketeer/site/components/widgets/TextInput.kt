@@ -31,24 +31,24 @@ val TextInputStyle = ComponentStyle.base("text-input") {
 @Composable
 fun LabeledTextInput(
     label: String,
+    type: InputType<String>,
     labelModifier: Modifier = Modifier,
     inputModifier: Modifier = Modifier,
-    mask: Boolean = false,
     ref: ((HTMLInputElement) -> Unit)? = null,
     onCommit: () -> Unit = {},
     onValueChanged: (String) -> Unit
 ) {
     Column {
         SpanText(label, TextInputLabelStyle.toModifier().then(labelModifier))
-        TextInput(inputModifier, mask, ref, onCommit, onValueChanged)
+        TextInput(inputModifier, type, ref, onCommit, onValueChanged)
     }
 }
 
 /** An uncontrolled text input box. */
 @Composable
-fun TextInput(modifier: Modifier = Modifier, mask: Boolean = false, ref: ((HTMLInputElement) -> Unit)? = null, onCommit: () -> Unit = {}, onValueChanged: (String) -> Unit) {
+fun TextInput(modifier: Modifier = Modifier, type: InputType<String>, ref: ((HTMLInputElement) -> Unit)? = null, onCommit: () -> Unit = {}, onValueChanged: (String) -> Unit) {
     Input(
-        if (mask) InputType.Password else InputType.Text,
+        type,
         attrs = TextInputStyle.toModifier().then(modifier).toAttrs {
             if (ref != null) {
                 this.ref { element ->
@@ -69,9 +69,9 @@ fun TextInput(modifier: Modifier = Modifier, mask: Boolean = false, ref: ((HTMLI
 
 /** A controlled text input box. */
 @Composable
-fun TextInput(text: String, modifier: Modifier = Modifier, mask: Boolean = false, ref: ((HTMLInputElement) -> Unit)? = null, onCommit: () -> Unit = {}, onValueChanged: (String) -> Unit) {
+fun TextInput(text: String, modifier: Modifier = Modifier, type: InputType<String>, ref: ((HTMLInputElement) -> Unit)? = null, onCommit: () -> Unit = {}, onValueChanged: (String) -> Unit) {
     Input(
-        if (mask) InputType.Password else InputType.Text,
+        type,
         attrs = TextInputStyle.toModifier().then(modifier).toAttrs {
             if (ref != null) {
                 this.ref { element ->

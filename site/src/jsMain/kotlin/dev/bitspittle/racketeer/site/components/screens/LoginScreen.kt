@@ -24,16 +24,14 @@ import dev.bitspittle.racketeer.site.components.widgets.LabeledTextInput
 import dev.bitspittle.racketeer.site.components.widgets.Modal
 import dev.bitspittle.racketeer.site.components.widgets.OkDialog
 import dev.bitspittle.racketeer.site.inputRef
-import dev.bitspittle.racketeer.site.model.account.Account
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.web.attributes.InputType
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
-private fun User.toAccount() = Account(uid, email)
-
 @Composable
-fun LoginScreen(firebase: FirebaseData, data: GameData, scope: CoroutineScope, onLoggedIn: (account: Account) -> Unit) {
+fun LoginScreen(firebase: FirebaseData, data: GameData, scope: CoroutineScope, onLoggedIn: (user: User) -> Unit) {
     var showPleaseWaitOverlay by remember { mutableStateOf(false) }
     var error: AuthError? by remember { mutableStateOf(null) }
 
@@ -46,7 +44,7 @@ fun LoginScreen(firebase: FirebaseData, data: GameData, scope: CoroutineScope, o
                         provider.addScope(Scope.Google.Email)
                         showPleaseWaitOverlay = true
                         val credential = firebase.auth.signInWithPopup(provider)
-                        onLoggedIn(credential.user.toAccount())
+                        onLoggedIn(credential.user)
                     } catch (e: AuthError) {
                         error = e
                     } finally {
@@ -56,7 +54,7 @@ fun LoginScreen(firebase: FirebaseData, data: GameData, scope: CoroutineScope, o
             }) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     FaGoogle(Modifier.margin(right = 10.px))
-                    SpanText("Login With Google");
+                    SpanText("Login With Google")
                 }
             }
         }
@@ -76,9 +74,10 @@ fun LoginScreen(firebase: FirebaseData, data: GameData, scope: CoroutineScope, o
                     if (!canLogin) return
                     scope.launch {
                         try {
+                            showLoginModal = false
                             showPleaseWaitOverlay = true
                             val credential = firebase.auth.signInWithEmailAndPassword(email, password)
-                            onLoggedIn(credential.user.toAccount())
+                            onLoggedIn(credential.user)
                         } catch (e: AuthError) {
                             error = e
                         } finally {
@@ -100,6 +99,7 @@ fun LoginScreen(firebase: FirebaseData, data: GameData, scope: CoroutineScope, o
                 ) {
                     LabeledTextInput(
                         "Email",
+                        type = InputType.Email,
                         inputModifier = Modifier.fillMaxWidth(),
                         onValueChanged = { email = it },
                         onCommit = { login() },
@@ -107,7 +107,7 @@ fun LoginScreen(firebase: FirebaseData, data: GameData, scope: CoroutineScope, o
                     )
                     LabeledTextInput(
                         "Password",
-                        mask = true,
+                        type = InputType.Password,
                         inputModifier = Modifier.fillMaxWidth(),
                         onValueChanged = { password = it },
                         onCommit = { login() },
@@ -137,9 +137,12 @@ fun LoginScreen(firebase: FirebaseData, data: GameData, scope: CoroutineScope, o
                     if (!canCreate) return
                     scope.launch {
                         try {
+                            showLoginModal = false
                             showPleaseWaitOverlay = true
                             val credential = firebase.auth.createUserWithEmailAndPassword(email, password1)
-                            onLoggedIn(credential.user.toAccount())
+
+                            credential.user.sendEmailVerification()
+                            onLoggedIn(credential.user)
                         } catch (e: AuthError) {
                             error = e
                         } finally {
@@ -161,6 +164,7 @@ fun LoginScreen(firebase: FirebaseData, data: GameData, scope: CoroutineScope, o
                 ) {
                     LabeledTextInput(
                         "Email",
+                        type = InputType.Email,
                         inputModifier = Modifier.fillMaxWidth(),
                         onValueChanged = { email = it },
                         onCommit = { createAccount() },
@@ -168,7 +172,7 @@ fun LoginScreen(firebase: FirebaseData, data: GameData, scope: CoroutineScope, o
                     )
                     LabeledTextInput(
                         "Password",
-                        mask = true,
+                        type = InputType.Password,
                         inputModifier = Modifier.fillMaxWidth(),
                         onValueChanged = { password1 = it },
                         onCommit = { createAccount() },
@@ -176,7 +180,7 @@ fun LoginScreen(firebase: FirebaseData, data: GameData, scope: CoroutineScope, o
 
                     LabeledTextInput(
                         "Verify password",
-                        mask = true,
+                        type = InputType.Password,
                         inputModifier = Modifier.fillMaxWidth(),
                         onValueChanged = { password2 = it },
                         onCommit = { createAccount() },
