@@ -62,7 +62,6 @@ object Data {
     object Keys {
         val Account = Key<Account>("account")
         val UserStats = Key<MutableUserStats>("userstats")
-        val Settings = Key<Settings>("settings")
         val Quicksave = Key<GameSnapshot>("quicksave")
         val GameData = Key<String>("gamedata")
     }

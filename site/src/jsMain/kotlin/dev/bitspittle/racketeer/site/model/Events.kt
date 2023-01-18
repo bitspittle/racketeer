@@ -15,5 +15,4 @@ sealed interface Event {
     /** @param account The account that was changed. Will be null if the user logged out. */
     class AccountChanged(val account: Account?) : Event
     class GameStateUpdated(val ctx: GameContext) : Event
-    class SettingsChanged(val settings: Settings) : Event
 }

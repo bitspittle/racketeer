@@ -78,7 +78,7 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
 
     val scope = rememberCoroutineScope()
     val events = remember { MutableSharedFlow<Event>(replay = 0) }
-    val settings = remember { Data.load(Data.Keys.Settings)?.value ?: Settings() }
+    val settings = remember { Settings() }
     val userStats = remember { Data.load(Data.Keys.UserStats)?.value ?: MutableUserStats() }
 
     var showAdminDecoration by remember { mutableStateOf(false) }
