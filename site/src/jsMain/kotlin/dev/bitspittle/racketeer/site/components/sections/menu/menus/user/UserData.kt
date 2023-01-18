@@ -18,7 +18,6 @@ class UserDataMenu(private val params: PopupParams, private val allowClearing: B
 
     @Composable
     override fun renderContent(actions: MenuActions) {
-        MenuButton(actions, UnlocksMenu(params))
         MenuButton(actions, CardListMenu(params), enabled = params.userStats.cards.isNotEmpty())
         MenuButton(actions, BuildingListMenu(params), enabled = params.userStats.buildings.isNotEmpty())
 

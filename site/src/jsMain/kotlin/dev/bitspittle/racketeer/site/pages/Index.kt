@@ -72,7 +72,7 @@ fun HomePage() {
         }
 
         fun requestNewGame(gameData: GameData, account: Account, initCtx: GameContext.() -> Unit = {}) {
-            startupState = if (settings.unlocks.buildings) {
+            startupState = if (true) { // TODO: we disabled unlocks temporarily. Update this when they are back.
                 GameStartupState.SelectingFeatures(gameData, account) {
                     this.initCtx()
                     startNewGame()

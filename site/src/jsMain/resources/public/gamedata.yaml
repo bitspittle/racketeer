@@ -17,13 +17,6 @@ features:
     name: Blueprints & Buildings
     description: Construct useful support structures and discover new strategies for dominating the street.
 
-unlocks:
-  - id: buildings
-    name: $feature
-    description: You can choose the "$feature" game mode the next time you select "New Game".
-    codename: realestate
-    vp: 40
-
 numTurns: 20
 initialHandSize: 5
 initialCash: 0

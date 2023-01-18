@@ -228,18 +228,8 @@ private fun renderGameScreen(
                                         // Game is over! No more need to keep a save around
                                         Data.delete(Data.Keys.Quicksave)
 
-                                        val prevTotalVp = ctx.userStats.games.totalVp
                                         ctx.userStats.games.add(GameStats.from(ctx.state))
                                         Data.save(Data.Keys.UserStats, ctx.userStats)
-
-                                        val toUnlock = ctx.data.unlocks.locked(ctx.settings, ctx.state.vp + prevTotalVp)
-                                        if (toUnlock.isNotEmpty()) {
-                                            toUnlock.forEach { unlock ->
-                                                ctx.logger.info("Congratulations! You unlocked: ${unlock.resolvedName(ctx.data)}")
-                                                unlock.unlock(ctx.settings)
-                                            }
-                                            Data.save(Data.Keys.Settings, ctx.settings)
-                                        }
                                     }
                                 }
                             )

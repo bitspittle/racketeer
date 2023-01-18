@@ -5,17 +5,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Settings(
     var admin: Admin = Admin(),
-    var unlocks: Unlocks = Unlocks(),
     var features: Features = Features(),
 ) {
     @Serializable
     data class Admin(
         var enabled: Boolean = false,
-    )
-
-    @Serializable
-    data class Unlocks(
-        var buildings: Boolean = false,
     )
 
     @Serializable
@@ -25,7 +19,6 @@ data class Settings(
 
     fun setFrom(other: Settings) {
         admin = other.admin.copy()
-        unlocks = other.unlocks.copy()
         features = other.features.copy()
     }
 }
