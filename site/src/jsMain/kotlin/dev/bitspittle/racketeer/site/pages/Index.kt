@@ -29,6 +29,7 @@ import dev.bitspittle.racketeer.site.components.widgets.Modal
 import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.*
 import dev.bitspittle.racketeer.site.model.account.Account
+import dev.bitspittle.racketeer.site.model.cloud.Synced
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.launch
@@ -40,10 +41,10 @@ private sealed interface GameStartupState {
     class LoggingIn(val gameData: GameData) : GameStartupState
     class VerifyAccount(val gameData: GameData, val account: Account) : GameStartupState
     class ShowWaitlistMessage(val gameData: GameData, val account: Account) : GameStartupState
-    class TitleScreen(val gameData: GameData, val account: Account) : GameStartupState
-    class SelectingFeatures(val gameData: GameData, val account: Account, val initCtx: suspend GameContext.() -> Unit) : GameStartupState
-    class CreatingContext(val gameData: GameData, val account: Account, val initCtx: suspend GameContext.() -> Unit) : GameStartupState
-    class ContextCreated(val gameContext: GameContext) : GameStartupState
+    class TitleScreen(val gameData: GameData, val account: Account, val synced: Synced) : GameStartupState
+    class SelectingFeatures(val gameData: GameData, val account: Account, val synced: Synced, val initCtx: suspend GameContext.() -> Unit) : GameStartupState
+    class CreatingContext(val gameData: GameData, val account: Account, val synced: Synced, val initCtx: suspend GameContext.() -> Unit) : GameStartupState
+    class ContextCreated(val gameContext: GameContext, val synced: Synced) : GameStartupState
 }
 
 @Page
@@ -72,14 +73,14 @@ fun HomePage() {
             }
         }
 
-        fun requestNewGame(gameData: GameData, account: Account, initCtx: GameContext.() -> Unit = {}) {
+        fun requestNewGame(gameData: GameData, account: Account, synced: Synced, initCtx: GameContext.() -> Unit = {}) {
             startupState = if (true) { // TODO: we disabled unlocks temporarily. Update this when they are back.
-                GameStartupState.SelectingFeatures(gameData, account) {
+                GameStartupState.SelectingFeatures(gameData, account, synced) {
                     this.initCtx()
                     startNewGame()
                 }
             } else {
-                GameStartupState.CreatingContext(gameData, account) {
+                GameStartupState.CreatingContext(gameData, account, synced) {
                     this.initCtx()
                     startNewGame()
                 }
@@ -147,7 +148,8 @@ fun HomePage() {
                         db.ref("/allowlist/emails/${account.email!!.lowercase().encodeKey()}").get().exists()
 
                     startupState = if (isAllowedEmail) {
-                        GameStartupState.TitleScreen(gameData, account)
+                        val synced = Synced(firebase, account, scope)
+                        GameStartupState.TitleScreen(gameData, account, synced)
                     } else {
                         GameStartupState.ShowWaitlistMessage(gameData, account)
                     }
@@ -174,22 +176,22 @@ fun HomePage() {
                         gameData,
                         events,
                         account,
-                        settings,
+                        synced.settings,
                         userStats,
                         stubLogger,
                         describer,
                         tooltipParser
                     ),
                     events,
-                    requestNewGame = { requestNewGame(gameData, account) },
+                    requestNewGame = { requestNewGame(gameData, account, synced) },
                     requestResumeGame = { initCtx ->
-                        startupState = GameStartupState.CreatingContext(gameData, account, initCtx)
+                        startupState = GameStartupState.CreatingContext(gameData, account, synced, initCtx)
                     }
                 )
             }
             is GameStartupState.SelectingFeatures -> (startupState as GameStartupState.SelectingFeatures).apply {
                 fun goBack() {
-                    startupState = GameStartupState.TitleScreen(gameData, account)
+                    startupState = GameStartupState.TitleScreen(gameData, account, synced)
                 }
 
                 Modal(
@@ -205,20 +207,15 @@ fun HomePage() {
                         }) { Text("Go Back") }
 
                         Button(onClick = {
-                            Data.save(Data.Keys.Settings, settings)
-
-                            startupState = GameStartupState.CreatingContext(gameData, account, initCtx)
+                            startupState = GameStartupState.CreatingContext(gameData, account, synced, initCtx)
                         }) { Text("Continue") }
                     }
                 ) {
                     run {
                         val buildingFeature = remember { gameData.features.first { it.type == Feature.Type.BUILDINGS } }
-                        var selected by remember { mutableStateOf(settings.features.buildings) }
+                        var selected by remember { mutableStateOf(synced.settings.features.buildings) }
+                        synced.settings.features.buildings = selected
 
-                        if (selected != settings.features.buildings) {
-                            settings.features.buildings = selected
-                            events.emitAsync(scope, Event.SettingsChanged(settings))
-                        }
                         Button(
                             onClick = { selected = !selected },
                             Modifier.thenIf(selected, SelectedModifier)
@@ -237,16 +234,18 @@ fun HomePage() {
                             gameData,
                             events,
                             account,
-                            settings,
+                            synced.settings,
                             userStats,
                             handleChoice
-                        ).apply { initCtx() })
+                        ).apply { initCtx() },
+                        synced
+                    )
                 }
             }
             is GameStartupState.ContextCreated -> (startupState as GameStartupState.ContextCreated).apply {
-                val onQuitRequested: () -> Unit = { startupState = GameStartupState.TitleScreen(gameContext.data, gameContext.account) }
+                val onQuitRequested: () -> Unit = { startupState = GameStartupState.TitleScreen(gameContext.data, gameContext.account, synced) }
                 val onRestartRequested: () -> Unit = {
-                    requestNewGame(gameContext.data, gameContext.account) {
+                    requestNewGame(gameContext.data, gameContext.account, synced) {
                         state = MutableGameState(data, state.features, enqueuers)
                     }
                 }

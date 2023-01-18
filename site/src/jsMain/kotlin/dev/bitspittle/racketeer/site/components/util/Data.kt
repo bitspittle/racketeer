@@ -1,7 +1,6 @@
 package dev.bitspittle.racketeer.site.components.util
 
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
-import dev.bitspittle.racketeer.site.model.Settings
 import dev.bitspittle.racketeer.site.model.account.Account
 import dev.bitspittle.racketeer.site.model.user.MutableUserStats
 import kotlinx.browser.localStorage

@@ -48,7 +48,7 @@ val VersionStyle = ComponentStyle("version") {
     }
 }
 
-class PageLayoutScope(val firebase: FirebaseData, val scope: CoroutineScope, val settings: Settings, val userStats: MutableUserStats, val events: Events)
+class PageLayoutScope(val firebase: FirebaseData, val scope: CoroutineScope, val userStats: MutableUserStats, val events: Events)
 
 class FirebaseData(val auth: Auth, val db: Database)
 
@@ -78,7 +78,6 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
 
     val scope = rememberCoroutineScope()
     val events = remember { MutableSharedFlow<Event>(replay = 0) }
-    val settings = remember { Settings() }
     val userStats = remember { Data.load(Data.Keys.UserStats)?.value ?: MutableUserStats() }
 
     var showAdminDecoration by remember { mutableStateOf(false) }
@@ -87,12 +86,8 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
         events.collect { evt ->
             when (evt) {
                 is Event.AccountChanged -> {
-                    showAdminDecoration = evt.account?.isAdmin ?: false
-                }
-                is Event.SettingsChanged -> {
-                    if (settings.isDefault) {
-                        Data.delete(Data.Keys.Settings)
-                    } else Data.save(Data.Keys.Settings, settings)
+                    val account = evt.account
+                    showAdminDecoration = account?.isAdmin ?: false
                 }
                 else -> {}
             }
@@ -110,7 +105,7 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
             .gridTemplateRows("1fr auto")
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            PageLayoutScope(firebase, scope, settings, userStats, events).content()
+            PageLayoutScope(firebase, scope, userStats, events).content()
         }
         // Associate the footer with the row that will get pushed off the bottom of the page if it can't fit.
         Footer(Modifier.align(Alignment.Center).gridRowStart(2).gridRowEnd(3))

@@ -21,6 +21,7 @@ import dev.bitspittle.racketeer.scripting.utils.installGameLogic
 import dev.bitspittle.racketeer.site.components.layouts.FirebaseData
 import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.model.account.Account
+import dev.bitspittle.racketeer.site.model.cloud.Synced.Settings
 import dev.bitspittle.racketeer.site.model.user.MutableUserStats
 import dev.bitspittle.racketeer.site.model.user.notifyBuilt
 import dev.bitspittle.racketeer.site.model.user.notifyOwnership

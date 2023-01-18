@@ -38,8 +38,6 @@ class UserDataMenu(private val params: PopupParams, private val allowClearing: B
                     if (yesNo == YesNo.YES) {
 
                         params.settings.clear()
-                        Data.delete(Data.Keys.Settings)
-                        params.events.emitAsync(scope, Event.SettingsChanged(params.settings))
 
                         Data.delete(Data.Keys.Quicksave)
                         params.userStats.clear()

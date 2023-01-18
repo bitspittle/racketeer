@@ -11,8 +11,8 @@ import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.FormattedItem
 import dev.bitspittle.racketeer.site.components.layouts.FirebaseData
 import dev.bitspittle.racketeer.site.model.account.Account
+import dev.bitspittle.racketeer.site.model.cloud.Synced.Settings
 import dev.bitspittle.racketeer.site.model.user.MutableUserStats
-import dev.bitspittle.racketeer.site.model.user.UserStats
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 
