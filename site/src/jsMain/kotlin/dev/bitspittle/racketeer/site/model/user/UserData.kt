@@ -37,16 +37,16 @@ class UserData(private val firebase: FirebaseData, account: Account, private val
         private val statsPath = "$userPath/stats"
 
         inner class Games {
-            private val gamesPath = "$statsPath/games"
-            var totalVp by SyncProperty(firebase.db, scope, "$gamesPath/totalVp", 0)
-                private set
-            private val entriesRef = firebase.db.ref("$gamesPath/entries")
+            private val gamesRef = firebase.db.ref("$statsPath/games")
+            private val entriesRef = gamesRef.child("entries")
             fun add(stats: GameStats) {
                 scope.launch {
-                    totalVp += stats.vp
+                    gamesRef.update(
+                        "totalVp" to ServerValue.increment(stats.vp)
+                    )
                     entriesRef.push().update(
                         "vp" to stats.vp,
-                        "features" to stats.features.sorted().toTypedArray()
+                        "features" to "[${stats.features.sorted().joinToString()}]"
                     )
                 }
             }
