@@ -26,7 +26,8 @@ class SyncRoot(private val db: Database, private val scope: CoroutineScope, val 
     fun <T> child(path: String, default: T, removeIfDefault: Boolean = false) =
         SyncProperty(db, scope, path, default, relativeTo = this, removeIfDefault = removeIfDefault)
 
-    fun remove() { scope.launch { ref.remove() } }
+    fun removeAsync() { scope.launch { remove() } }
+    suspend fun remove() { ref.remove() }
 }
 
 @Suppress("UNCHECKED_CAST")

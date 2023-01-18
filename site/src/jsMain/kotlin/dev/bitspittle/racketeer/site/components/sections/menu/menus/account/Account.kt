@@ -9,6 +9,7 @@ import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.racketeer.site.components.sections.menu.Menu
 import dev.bitspittle.racketeer.site.components.sections.menu.MenuActions
+import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.components.util.PopupParams
 import dev.bitspittle.racketeer.site.components.widgets.YesNo
 import dev.bitspittle.racketeer.site.components.widgets.YesNoDialog
@@ -58,11 +59,16 @@ class AccountMenu(private val params: PopupParams) : Menu {
             if (showConfirmDialog) {
                 YesNoDialog(
                     "Confirm Deletion",
-                    question = "This is a destructive action and not reversible! Consider logging out instead.\n\nAre you sure you wish to proceed?"
+                    question = "This is a destructive action! While you'll be able to recreate your account, all associated data will be lost forever.\n\nConsider logging out instead.\n\nAre you sure you wish to proceed?"
                 ) { yesNo ->
                     showConfirmDialog = false
                     if (yesNo == YesNo.YES) {
-                        scope.launch { params.firebase.auth.currentUser?.delete() }
+                        scope.launch {
+                            params.settings.clearAsync()
+                            params.userStats.clearAsync()
+                            Data.delete(Data.Keys.Quicksave)
+                            params.firebase.auth.currentUser?.delete()
+                        }
                         actions.close()
                     }
                 }

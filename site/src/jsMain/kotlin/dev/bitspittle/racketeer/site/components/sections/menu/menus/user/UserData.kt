@@ -34,8 +34,8 @@ class UserDataMenu(private val params: PopupParams, private val allowClearing: B
                     showConfirmDialog = false
                     if (yesNo == YesNo.YES) {
 
-                        params.settings.clear()
-                        params.userStats.clear()
+                        params.settings.clearAsync()
+                        params.userStats.clearAsync()
                         Data.delete(Data.Keys.Quicksave)
 
                         actions.close()

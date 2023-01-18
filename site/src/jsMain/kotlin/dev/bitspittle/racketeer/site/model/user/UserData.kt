@@ -7,7 +7,6 @@ import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.site.components.layouts.FirebaseData
 import dev.bitspittle.racketeer.site.components.util.Uploads
 import dev.bitspittle.racketeer.site.model.account.Account
-import dev.bitspittle.racketeer.site.model.cloud.SyncProperty
 import dev.bitspittle.racketeer.site.model.cloud.SyncRoot
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -29,7 +28,8 @@ class UserData(private val firebase: FirebaseData, account: Account, private val
         }
         val features = Features()
 
-        fun clear() { root.remove() }
+        fun clearAsync() { root.removeAsync() }
+        suspend fun clear() { root.remove() }
     }
     val settings = Settings()
 
@@ -88,7 +88,8 @@ class UserData(private val firebase: FirebaseData, account: Account, private val
         }
         val buildings = Buildings()
 
-        fun clear() { scope.launch { firebase.db.ref(statsPath).remove() } }
+        suspend fun clear() { firebase.db.ref(statsPath).remove() }
+        fun clearAsync() { scope.launch { clear() } }
     }
     val stats = Stats()
 }
