@@ -21,9 +21,7 @@ import dev.bitspittle.firebase.auth.Auth
 import dev.bitspittle.firebase.database.Database
 import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.sections.Footer
-import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.model.*
-import dev.bitspittle.racketeer.site.model.user.MutableUserStats
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -48,7 +46,7 @@ val VersionStyle = ComponentStyle("version") {
     }
 }
 
-class PageLayoutScope(val firebase: FirebaseData, val scope: CoroutineScope, val userStats: MutableUserStats, val events: Events)
+class PageLayoutScope(val firebase: FirebaseData, val scope: CoroutineScope, val events: Events)
 
 class FirebaseData(val auth: Auth, val db: Database)
 
@@ -78,7 +76,6 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
 
     val scope = rememberCoroutineScope()
     val events = remember { MutableSharedFlow<Event>(replay = 0) }
-    val userStats = remember { Data.load(Data.Keys.UserStats)?.value ?: MutableUserStats() }
 
     var showAdminDecoration by remember { mutableStateOf(false) }
 
@@ -105,7 +102,7 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
             .gridTemplateRows("1fr auto")
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            PageLayoutScope(firebase, scope, userStats, events).content()
+            PageLayoutScope(firebase, scope, events).content()
         }
         // Associate the footer with the row that will get pushed off the bottom of the page if it can't fit.
         Footer(Modifier.align(Alignment.Center).gridRowStart(2).gridRowEnd(3))

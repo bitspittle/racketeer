@@ -11,8 +11,8 @@ import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.scripting.methods.collection.FormattedItem
 import dev.bitspittle.racketeer.site.components.layouts.FirebaseData
 import dev.bitspittle.racketeer.site.model.account.Account
-import dev.bitspittle.racketeer.site.model.cloud.Synced.Settings
-import dev.bitspittle.racketeer.site.model.user.MutableUserStats
+import dev.bitspittle.racketeer.site.model.user.UserData
+import dev.bitspittle.racketeer.site.model.user.UserData.Settings
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 
@@ -34,7 +34,7 @@ class ChoiceContext(
     val events: Events,
     val account: Account,
     val settings: Settings,
-    val userStats: MutableUserStats,
+    val userStats: UserData.Stats,
     val logger: Logger,
     val describer: Describer,
     val tooltipParser: TooltipParser,

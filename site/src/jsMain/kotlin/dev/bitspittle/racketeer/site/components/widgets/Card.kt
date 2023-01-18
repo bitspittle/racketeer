@@ -20,7 +20,7 @@ import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.util.UnderlineModifier
 import dev.bitspittle.racketeer.site.components.util.renderTextWithTooltips
 import dev.bitspittle.racketeer.site.model.TooltipParser
-import dev.bitspittle.racketeer.site.model.user.UserStats
+import dev.bitspittle.racketeer.site.model.user.UserData
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 
@@ -108,7 +108,7 @@ private fun List<String>.toDisplayTypeNames(data: GameData): List<String> {
     return this.map { typeId -> data.cardTypes.first { it.equals(typeId, ignoreCase = true) } }
 }
 
-fun Card.toCardSpec(data: GameData, userStats: UserStats, label: String? = null, enabled: Boolean = true): CardSpec {
+fun Card.toCardSpec(data: GameData, userStats: UserData.Stats, label: String? = null, enabled: Boolean = true): CardSpec {
     val self = this
     return object : CardSpec {
         override val enabled = enabled
@@ -125,12 +125,12 @@ fun Card.toCardSpec(data: GameData, userStats: UserStats, label: String? = null,
         override val traits = self.traits
         override val ability = self.template.description.ability
         override val activationCost = null
-        override val newTarget: NewIndicatorTarget? = NewIndicatorTarget.CARD.takeUnless { userStats.cards.contains(self.template.name) }
+        override val newTarget: NewIndicatorTarget? = NewIndicatorTarget.CARD.takeUnless { userStats.cards.ownedCount(self) > 0 }
         override val label = label
     }
 }
 
-fun CardTemplate.toCardSpec(data: GameData, userStats: UserStats, enabled: Boolean = true): CardSpec {
+fun CardTemplate.toCardSpec(data: GameData, userStats: UserData.Stats, enabled: Boolean = true): CardSpec {
     val self = this
     return object : CardSpec {
         override val enabled = enabled
@@ -147,7 +147,7 @@ fun CardTemplate.toCardSpec(data: GameData, userStats: UserStats, enabled: Boole
         override val traits = self.traitTypes
         override val ability = self.description.ability
         override val activationCost = null
-        override val newTarget: NewIndicatorTarget? = NewIndicatorTarget.CARD.takeUnless { userStats.cards.contains(self.name) }
+        override val newTarget: NewIndicatorTarget? = NewIndicatorTarget.CARD.takeUnless { userStats.cards.totalOwned > 0 }
         override val label = null
     }
 }
@@ -177,7 +177,7 @@ fun Iterable<Card>.toCardSpec(data: GameData): CardSpec {
 @Composable
 fun Card(
     data: GameData,
-    userStats: UserStats,
+    userStats: UserData.Stats,
     describer: Describer,
     tooltipParser: TooltipParser,
     card: Card,
@@ -192,7 +192,7 @@ fun Card(
 @Composable
 fun Card(
     data: GameData,
-    userStats: UserStats,
+    userStats: UserData.Stats,
     describer: Describer,
     tooltipParser: TooltipParser,
     cards: List<Card>,
@@ -215,7 +215,7 @@ private fun LabeledContent(label: String? = null, enabled: Boolean = true, conte
 @Composable
 fun Card(
     data: GameData,
-    userStats: UserStats,
+    userStats: UserData.Stats,
     describer: Describer,
     tooltipParser: TooltipParser,
     card: CardSpec,

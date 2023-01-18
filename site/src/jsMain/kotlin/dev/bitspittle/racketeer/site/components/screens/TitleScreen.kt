@@ -21,14 +21,10 @@ import dev.bitspittle.racketeer.site.components.widgets.YesNoDialog
 import dev.bitspittle.racketeer.site.model.Event
 import dev.bitspittle.racketeer.site.model.Events
 import dev.bitspittle.racketeer.site.model.GameContext
-import dev.bitspittle.racketeer.site.model.createGameConext
-import dev.bitspittle.racketeer.site.model.user.GameCancelReason
-import dev.bitspittle.racketeer.site.model.user.GameStats
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 import org.w3c.files.FileReader
@@ -72,32 +68,8 @@ fun TitleScreen(
                 ) { yesNo ->
                     showProceedQuestion = false
                     if (yesNo == YesNo.YES) {
-                        // Grab the game that the person aborted, saving info about it before discarding it forever
-                        // (But do this carefully to make sure we don't brick the user from being able to start a
-                        // game if their quicksave doesn't load)
-                        scope.launch {
-                            try {
-                                val dummyCtx = createGameConext(
-                                    params.firebase,
-                                    params.data,
-                                    params.events,
-                                    params.account,
-                                    params.settings,
-                                    params.userStats,
-                                    handleChoice = { error("Unexpected choice made when loading data") })
-                                val snapshot = Data.load(Data.Keys.Quicksave)!!
-                                snapshot.value.create(dummyCtx.data, dummyCtx.env, dummyCtx.enqueuers) { loadedState ->
-                                    params.userStats.games.add(GameStats.from(loadedState, GameCancelReason.ABORTED))
-                                    Data.save(Data.Keys.UserStats, params.userStats)
-                                }
-                            } catch (ignored: Exception) {
-                                // Shouldn't happen, but maybe the user tried to load a very old legacy save or
-                                // something? In that case, too bad -- we lost the data
-                            } finally {
-                                Data.delete(Data.Keys.Quicksave)
-                                proceed()
-                            }
-                        }
+                        Data.delete(Data.Keys.Quicksave)
+                        proceed()
                     }
                 }
             }

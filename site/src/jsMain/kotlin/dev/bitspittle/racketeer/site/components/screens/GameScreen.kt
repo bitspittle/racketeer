@@ -228,7 +228,6 @@ private fun renderGameScreen(
                                         Data.delete(Data.Keys.Quicksave)
 
                                         ctx.userStats.games.add(GameStats.from(ctx.state))
-                                        Data.save(Data.Keys.UserStats, ctx.userStats)
                                     }
                                 }
                             )

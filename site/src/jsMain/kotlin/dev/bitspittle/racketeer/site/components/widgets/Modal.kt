@@ -17,7 +17,7 @@ import dev.bitspittle.racketeer.site.FullWidthChildrenStyle
 import dev.bitspittle.racketeer.site.G
 import dev.bitspittle.racketeer.site.components.util.renderTextWithTooltips
 import dev.bitspittle.racketeer.site.model.TooltipParser
-import dev.bitspittle.racketeer.site.model.user.UserStats
+import dev.bitspittle.racketeer.site.model.user.UserData
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 import org.w3c.dom.HTMLElement
@@ -95,7 +95,7 @@ fun Modal(
 @Composable
 fun Modal(
     data: GameData,
-    userStats: UserStats,
+    userStats: UserData.Stats,
     describer: Describer,
     tooltipParser: TooltipParser,
     overlayModifier: Modifier = Modifier,

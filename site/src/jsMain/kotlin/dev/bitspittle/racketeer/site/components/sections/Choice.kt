@@ -54,9 +54,9 @@ fun Choice(ctx: ChoiceContext) = ctx.apply {
 
 private fun Any.toNewIndictorTarget(ctx: ChoiceContext): NewIndicatorTarget? {
     return when (this) {
-        is Card -> NewIndicatorTarget.CARD.takeUnless { ctx.userStats.cards.contains(template.name) }
-        is CardTemplate -> NewIndicatorTarget.CARD.takeUnless { ctx.userStats.cards.contains(name) }
-        is Blueprint -> NewIndicatorTarget.BLUEPRINT.takeUnless { ctx.userStats.buildings.contains(name) }
+        is Card -> NewIndicatorTarget.CARD.takeUnless { ctx.userStats.cards.ownedCount(this) > 0 }
+        is CardTemplate -> NewIndicatorTarget.CARD.takeUnless { ctx.userStats.cards.ownedCount(this) > 0 }
+        is Blueprint -> NewIndicatorTarget.BLUEPRINT.takeUnless { ctx.userStats.buildings.builtCount(this) > 0 }
         is FormattedItem -> wrapped.toNewIndictorTarget(ctx)
         else -> null
     }

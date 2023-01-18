@@ -9,8 +9,6 @@ import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.components.util.PopupParams
 import dev.bitspittle.racketeer.site.components.widgets.YesNo
 import dev.bitspittle.racketeer.site.components.widgets.YesNoDialog
-import dev.bitspittle.racketeer.site.model.*
-import dev.bitspittle.racketeer.site.model.user.clear
 import org.jetbrains.compose.web.dom.*
 
 class UserDataMenu(private val params: PopupParams, private val allowClearing: Boolean = false) : Menu {
@@ -18,12 +16,11 @@ class UserDataMenu(private val params: PopupParams, private val allowClearing: B
 
     @Composable
     override fun renderContent(actions: MenuActions) {
-        MenuButton(actions, CardListMenu(params), enabled = params.userStats.cards.isNotEmpty())
-        MenuButton(actions, BuildingListMenu(params), enabled = params.userStats.buildings.isNotEmpty())
+        MenuButton(actions, CardListMenu(params), enabled = params.userStats.cards.totalOwned > 0)
+        MenuButton(actions, BuildingListMenu(params), enabled = params.userStats.buildings.totalBuilt > 0)
 
         if (allowClearing) {
             var showConfirmDialog by remember { mutableStateOf(false) }
-            val scope = rememberCoroutineScope()
 
             Button(onClick = { showConfirmDialog = true }) {
                 Text("Clear All Data")
@@ -38,10 +35,9 @@ class UserDataMenu(private val params: PopupParams, private val allowClearing: B
                     if (yesNo == YesNo.YES) {
 
                         params.settings.clear()
-
-                        Data.delete(Data.Keys.Quicksave)
                         params.userStats.clear()
-                        Data.delete(Data.Keys.UserStats)
+                        Data.delete(Data.Keys.Quicksave)
+
                         actions.close()
                     }
                 }

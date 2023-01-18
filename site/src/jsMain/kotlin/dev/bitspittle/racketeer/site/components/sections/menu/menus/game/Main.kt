@@ -4,7 +4,9 @@ import androidx.compose.runtime.*
 import com.varabyte.kobweb.silk.components.forms.Button
 import dev.bitspittle.racketeer.model.game.isGameInProgress
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
-import dev.bitspittle.racketeer.site.components.sections.menu.*
+import dev.bitspittle.racketeer.site.components.sections.menu.Menu
+import dev.bitspittle.racketeer.site.components.sections.menu.MenuActions
+import dev.bitspittle.racketeer.site.components.sections.menu.MenuButton
 import dev.bitspittle.racketeer.site.components.sections.menu.menus.user.UserDataMenu
 import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.components.util.Payload
@@ -12,8 +14,6 @@ import dev.bitspittle.racketeer.site.components.util.Uploads
 import dev.bitspittle.racketeer.site.components.util.toPopupParams
 import dev.bitspittle.racketeer.site.components.widgets.YesNo
 import dev.bitspittle.racketeer.site.components.widgets.YesNoDialog
-import dev.bitspittle.racketeer.site.model.user.GameCancelReason
-import dev.bitspittle.racketeer.site.model.user.GameStats
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.dom.*
 
@@ -41,7 +41,6 @@ class MainMenu(private val params: GameMenuParams) : Menu {
                     showConfirmQuestion = false
                     if (yesNo == YesNo.YES) {
                         params.scope.launch { Uploads.upload(Payload.Abort(params.ctx)) }
-                        params.ctx.userStats.games.add(GameStats.from(params.ctx.state, GameCancelReason.RESTARTED))
                         params.restart()
                     }
                 }
@@ -78,7 +77,6 @@ class MainMenu(private val params: GameMenuParams) : Menu {
                     showConfirmQuestion = false
                     if (yesNo == YesNo.YES) {
                         params.scope.launch { Uploads.upload(Payload.Abort(params.ctx)) }
-                        params.ctx.userStats.games.add(GameStats.from(params.ctx.state, GameCancelReason.ABORTED))
                         Data.delete(Data.Keys.Quicksave)
                         params.quit()
                     }

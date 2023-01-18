@@ -21,8 +21,8 @@ import dev.bitspittle.racketeer.site.components.widgets.Card
 import dev.bitspittle.racketeer.site.components.widgets.toCardSpec
 import dev.bitspittle.racketeer.site.model.*
 import dev.bitspittle.racketeer.site.model.account.Account
-import dev.bitspittle.racketeer.site.model.cloud.Synced.Settings
-import dev.bitspittle.racketeer.site.model.user.MutableUserStats
+import dev.bitspittle.racketeer.site.model.user.UserData
+import dev.bitspittle.racketeer.site.model.user.UserData.Settings
 import org.jetbrains.compose.web.css.*
 
 class PopupParams(
@@ -31,7 +31,7 @@ class PopupParams(
     val events: Events,
     val account: Account,
     val settings: Settings,
-    val userStats: MutableUserStats,
+    val userStats: UserData.Stats,
     val logger: Logger,
     val describer: Describer,
     val tooltipParser: TooltipParser

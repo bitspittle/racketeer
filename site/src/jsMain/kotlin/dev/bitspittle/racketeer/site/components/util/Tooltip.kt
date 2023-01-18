@@ -16,7 +16,7 @@ import dev.bitspittle.racketeer.site.components.widgets.Card
 import dev.bitspittle.racketeer.site.components.widgets.toCardSpec
 import dev.bitspittle.racketeer.site.model.TooltipData
 import dev.bitspittle.racketeer.site.model.TooltipParser
-import dev.bitspittle.racketeer.site.model.user.UserStats
+import dev.bitspittle.racketeer.site.model.user.UserData
 import org.jetbrains.compose.web.css.*
 
 val UnderlineModifier = Modifier.borderBottom(1.px, LineStyle.Dotted, Colors.Black)
@@ -25,7 +25,7 @@ val UnderlineModifier = Modifier.borderBottom(1.px, LineStyle.Dotted, Colors.Bla
 @Composable
 fun renderTextWithTooltips(
     data: GameData,
-    userStats: UserStats,
+    userStats: UserData.Stats,
     describer: Describer,
     tooltipParser: TooltipParser,
     text: String

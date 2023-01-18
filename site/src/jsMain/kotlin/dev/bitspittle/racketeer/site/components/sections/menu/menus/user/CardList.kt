@@ -40,7 +40,7 @@ class CardListMenu(private val params: PopupParams) : Menu {
 
     override val topRow: @Composable RowScope.() -> Unit = {
         Column(Modifier.fillMaxWidth().gap(20.px).margin(topBottom = 10.px), horizontalAlignment = Alignment.CenterHorizontally) {
-            SpanText("You have owned ${params.userStats.cards.size} out of ${params.data.cards.size} cards.")
+            SpanText("You have owned ${params.userStats.cards.totalOwned} out of ${params.data.cards.size} cards.")
 
             SimpleGrid(
                 numColumns(4), Modifier
@@ -71,7 +71,7 @@ class CardListMenu(private val params: PopupParams) : Menu {
             sortedCards = sortedCards.sortedBy { it.tier }
         }
         sortedCards.forEach { card ->
-            val knownCard = (userStats.cards.contains(card.name))
+            val knownCard = (userStats.cards.ownedCount(card) > 0)
 
             Div(ReadOnlyStyle.toModifier().thenUnless(knownCard, DisabledStyle.toModifier()).toAttrs()) {
                 var text = describer.describeCardTitle(card)

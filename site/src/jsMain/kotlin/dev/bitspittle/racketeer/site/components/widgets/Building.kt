@@ -3,8 +3,8 @@ package dev.bitspittle.racketeer.site.components.widgets
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.dom.ElementTarget
 import com.varabyte.kobweb.compose.ui.Modifier
-import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.graphics.Color
+import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.silk.components.overlay.Tooltip
 import dev.bitspittle.racketeer.model.building.*
 import dev.bitspittle.racketeer.model.card.TraitType
@@ -12,7 +12,7 @@ import dev.bitspittle.racketeer.model.card.UpgradeType
 import dev.bitspittle.racketeer.model.game.GameState
 import dev.bitspittle.racketeer.model.text.Describer
 import dev.bitspittle.racketeer.site.model.GameContext
-import dev.bitspittle.racketeer.site.model.user.UserStats
+import dev.bitspittle.racketeer.site.model.user.UserData
 
 private fun Blueprint.canAffordBuildCost(state: GameState) =
     state.cash >= this.buildCost.cash && state.influence >= this.buildCost.influence
@@ -99,7 +99,7 @@ fun Building(ctx: GameContext, building: Building, onClick: () -> Unit, modifier
     }
 }
 
-fun Blueprint.toCardSpec(userStats: UserStats, describer: Describer, state: GameState): CardSpec {
+fun Blueprint.toCardSpec(userStats: UserData.Stats, describer: Describer, state: GameState): CardSpec {
     val self = this
     return this.toCardSpec(
         userStats,
@@ -108,7 +108,7 @@ fun Blueprint.toCardSpec(userStats: UserStats, describer: Describer, state: Game
     )
 }
 
-fun Blueprint.toCardSpec(userStats: UserStats, describer: Describer, enabled: Boolean = true): CardSpec {
+fun Blueprint.toCardSpec(userStats: UserData.Stats, describer: Describer, enabled: Boolean = true): CardSpec {
     val self = this
     return object : CardSpec {
         override val enabled = enabled
@@ -125,7 +125,7 @@ fun Blueprint.toCardSpec(userStats: UserStats, describer: Describer, enabled: Bo
         override val traits = emptySet<TraitType>()
         override val ability = self.description.ability
         override val activationCost = self.activationCost.toLabel(describer)
-        override val newTarget: NewIndicatorTarget? = NewIndicatorTarget.BLUEPRINT.takeUnless { userStats.buildings.contains(self.name) }
+        override val newTarget: NewIndicatorTarget? = NewIndicatorTarget.BLUEPRINT.takeUnless { userStats.buildings.totalBuilt > 0 }
         override val label = self.buildCost.toLabel(describer)
     }
 }

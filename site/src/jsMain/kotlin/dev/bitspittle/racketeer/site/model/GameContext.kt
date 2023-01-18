@@ -19,12 +19,9 @@ import dev.bitspittle.racketeer.scripting.methods.collection.ChooseHandler
 import dev.bitspittle.racketeer.scripting.types.*
 import dev.bitspittle.racketeer.scripting.utils.installGameLogic
 import dev.bitspittle.racketeer.site.components.layouts.FirebaseData
-import dev.bitspittle.racketeer.site.components.util.Data
 import dev.bitspittle.racketeer.site.model.account.Account
-import dev.bitspittle.racketeer.site.model.cloud.Synced.Settings
-import dev.bitspittle.racketeer.site.model.user.MutableUserStats
-import dev.bitspittle.racketeer.site.model.user.notifyBuilt
-import dev.bitspittle.racketeer.site.model.user.notifyOwnership
+import dev.bitspittle.racketeer.site.model.user.UserData
+import dev.bitspittle.racketeer.site.model.user.UserData.Settings
 import kotlin.coroutines.suspendCoroutine
 
 @Stable
@@ -32,7 +29,7 @@ class GameContext(
     val firebase: FirebaseData,
     val data: GameData,
     val events: Events,
-    val userStats: MutableUserStats,
+    val userStats: UserData.Stats,
     val env: Environment,
     val logger: MemoryLogger,
     val describer: Describer,
@@ -49,7 +46,7 @@ suspend fun createGameConext(
     events: Events,
     account: Account,
     settings: Settings,
-    userStats: MutableUserStats,
+    userStats: UserData.Stats,
     handleChoice: (ChoiceContext) -> Unit
 ): GameContext {
     val logger = MemoryLogger()
@@ -166,7 +163,6 @@ suspend fun GameContext.startNewGame() {
     state.deck.cards.forEach { card ->
         userStats.cards.notifyOwnership(card)
     }
-    Data.save(Data.Keys.UserStats, userStats)
 
     // Separate draw from gamestart history, as the gamestart history group is ignored in the review history screen.
     state.recordChanges {
@@ -191,33 +187,25 @@ suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> 
                     }
             }
 
-            // Update user stats based on new history
-            var userStatsUpdated = false
             state.history.last().items.forEach { change ->
                 when (change) {
                     is GameStateChange.MoveCard -> {
                         if (prevState.pileFor(change.card) == null) {
                             userStats.cards.notifyOwnership(change.card)
-                            userStatsUpdated = true
                         }
                     }
                     is GameStateChange.MoveCards -> {
                         change.cards.values.flatten().forEach { card ->
                             if (prevState.pileFor(card) == null) {
                                 userStats.cards.notifyOwnership(card)
-                                userStatsUpdated = true
                             }
                         }
                     }
                     is GameStateChange.Build -> {
                         userStats.buildings.notifyBuilt(change.blueprint)
-                        userStatsUpdated = true
                     }
                     else -> Unit // Change unrelated to updating userStats
                 }
-            }
-            if (userStatsUpdated) {
-                Data.save(Data.Keys.UserStats, userStats)
             }
         } catch (ex: Exception) {
             state = prevState
