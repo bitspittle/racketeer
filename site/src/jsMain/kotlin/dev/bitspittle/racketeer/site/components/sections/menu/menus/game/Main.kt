@@ -72,7 +72,7 @@ class MainMenu(private val params: GameMenuParams) : Menu {
             if (showConfirmQuestion) {
                 YesNoDialog(
                     "Are you sure?",
-                    "You will lose your game if you quit.\n\nConsider running Quit & Save instead."
+                    "You will lose your game if you quit.\n\nConsider running Quit & Save instead.\n\nContinue?"
                 ) { yesNo ->
                     showConfirmQuestion = false
                     if (yesNo == YesNo.YES) {
