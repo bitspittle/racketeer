@@ -17,6 +17,8 @@ import com.varabyte.kobweb.silk.components.icons.fa.IconSize
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.firebase.analytics.Analytics
+import dev.bitspittle.firebase.analytics.AnalyticsSettings
+import dev.bitspittle.firebase.analytics.GtagConfigParams
 import dev.bitspittle.firebase.app.FirebaseApp
 import dev.bitspittle.firebase.app.FirebaseOptions
 import dev.bitspittle.firebase.auth.Auth
@@ -70,7 +72,10 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
         )
 
         FirebaseData(
-            analytics = app.getAnalytics(),
+            analytics = app.initializeAnalytics(AnalyticsSettings(
+                // We don't send page view events for admins; we'll handle this ourselves
+                GtagConfigParams(sendPageView = false)
+            )),
             auth = app.getAuth().apply { useDeviceLanguage() },
             db = app.getDatabase()
         )
