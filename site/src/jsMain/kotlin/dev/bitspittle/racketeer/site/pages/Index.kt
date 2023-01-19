@@ -11,6 +11,7 @@ import com.varabyte.kobweb.compose.ui.thenIf
 import com.varabyte.kobweb.core.Page
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.overlay.Tooltip
+import dev.bitspittle.firebase.analytics.Analytics
 import dev.bitspittle.firebase.auth.User
 import dev.bitspittle.firebase.database.encodeKey
 import dev.bitspittle.racketeer.model.game.Feature
@@ -274,8 +275,20 @@ fun HomePage() {
                 }
             }
             is GameStartupState.ContextCreated -> (startupState as GameStartupState.ContextCreated).apply {
-                val onQuitRequested: () -> Unit = { startupState = GameStartupState.TitleScreen(gameContext.data, gameContext.account, userData) }
+                val onQuitRequested: () -> Unit = {
+                    if (!gameContext.account.isAdmin) {
+                        firebase.analytics.log(
+                            Analytics.Event.LevelEnd(gameContext.state.id.toString(), success = false)
+                        )
+                    }
+                    startupState = GameStartupState.TitleScreen(gameContext.data, gameContext.account, userData)
+                }
                 val onRestartRequested: () -> Unit = {
+                    if (!gameContext.account.isAdmin) {
+                        firebase.analytics.log(
+                            Analytics.Event.LevelEnd(gameContext.state.id.toString(), success = false)
+                        )
+                    }
                     requestNewGame(gameContext.data, gameContext.account, userData) {
                         state = MutableGameState(data, state.features, enqueuers)
                     }

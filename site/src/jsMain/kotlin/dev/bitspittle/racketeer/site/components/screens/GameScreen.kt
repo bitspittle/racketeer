@@ -18,6 +18,7 @@ import com.varabyte.kobweb.silk.components.layout.numColumns
 import com.varabyte.kobweb.silk.components.overlay.Tooltip
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
+import dev.bitspittle.firebase.analytics.Analytics
 import dev.bitspittle.racketeer.model.building.vpTotal
 import dev.bitspittle.racketeer.model.card.vpTotal
 import dev.bitspittle.racketeer.model.game.*
@@ -240,6 +241,13 @@ private fun renderGameScreen(
                     }
 
                     if (ctx.state.isGameOver) {
+                        if (!ctx.account.isAdmin) {
+                            ctx.firebase.analytics.log(
+                                Analytics.Event.LevelEnd(ctx.state.id.toString(), success = true)
+                            )
+                        }
+
+
                         Modal(
                             title = "Summary",
                             bottomRow = {

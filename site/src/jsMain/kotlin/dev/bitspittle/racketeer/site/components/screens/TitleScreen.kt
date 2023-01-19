@@ -8,6 +8,7 @@ import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.style.*
+import dev.bitspittle.firebase.analytics.Analytics
 import dev.bitspittle.racketeer.site.components.layouts.TitleLayout
 import dev.bitspittle.racketeer.site.components.sections.ReadOnlyStyle
 import dev.bitspittle.racketeer.site.components.sections.menu.Menu
@@ -21,10 +22,12 @@ import dev.bitspittle.racketeer.site.components.widgets.YesNoDialog
 import dev.bitspittle.racketeer.site.model.Event
 import dev.bitspittle.racketeer.site.model.Events
 import dev.bitspittle.racketeer.site.model.GameContext
+import dev.bitspittle.racketeer.site.model.createGameConext
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 import org.w3c.files.FileReader
@@ -68,8 +71,33 @@ fun TitleScreen(
                 ) { yesNo ->
                     showProceedQuestion = false
                     if (yesNo == YesNo.YES) {
-                        Data.delete(Data.Keys.Quicksave)
-                        proceed()
+                        // Grab the game that the person aborted, saving info about it before discarding it forever
+                        // (But do this carefully to make sure we don't brick the user from being able to start a
+                        // game if their quicksave doesn't load)
+                        scope.launch {
+                            try {
+                                val dummyCtx = createGameConext(
+                                    params.firebase,
+                                    params.data,
+                                    params.events,
+                                    params.account,
+                                    params.settings,
+                                    params.userStats,
+                                    handleChoice = { error("Unexpected choice made when loading data") })
+                                val snapshot = Data.load(Data.Keys.Quicksave)!!
+                                snapshot.value.create(dummyCtx.data, dummyCtx.env, dummyCtx.enqueuers) { loadedState ->
+                                    if (!params.account.isAdmin) {
+                                        params.firebase.analytics.log(Analytics.Event.LevelEnd(loadedState.id.toString(), success = false))
+                                    }
+                                }
+                            } catch (ignored: Exception) {
+                                // Shouldn't happen, but maybe the user tried to load a very old legacy save or
+                                // something? In that case, too bad -- we lost the data
+                            } finally {
+                                Data.delete(Data.Keys.Quicksave)
+                                proceed()
+                            }
+                        }
                     }
                 }
             }

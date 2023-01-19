@@ -1,6 +1,7 @@
 package dev.bitspittle.racketeer.site.model
 
 import androidx.compose.runtime.*
+import dev.bitspittle.firebase.analytics.Analytics
 import dev.bitspittle.limp.Environment
 import dev.bitspittle.limp.Evaluator
 import dev.bitspittle.limp.exceptions.EvaluationException
@@ -167,6 +168,10 @@ suspend fun GameContext.startNewGame() {
     // Separate draw from gamestart history, as the gamestart history group is ignored in the review history screen.
     state.recordChanges {
         state.addChange(GameStateChange.Draw())
+    }
+
+    if (!account.isAdmin) {
+        firebase.analytics.log(Analytics.Event.LevelStart(state.id.toString()))
     }
 }
 

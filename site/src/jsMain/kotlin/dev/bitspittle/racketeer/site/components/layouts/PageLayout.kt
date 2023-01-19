@@ -11,10 +11,12 @@ import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
+import com.varabyte.kobweb.core.rememberPageContext
 import com.varabyte.kobweb.silk.components.icons.fa.FaCopy
 import com.varabyte.kobweb.silk.components.icons.fa.IconSize
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
+import dev.bitspittle.firebase.analytics.Analytics
 import dev.bitspittle.firebase.app.FirebaseApp
 import dev.bitspittle.firebase.app.FirebaseOptions
 import dev.bitspittle.firebase.auth.Auth
@@ -49,7 +51,7 @@ val VersionStyle = ComponentStyle("version") {
 
 class PageLayoutScope(val firebase: FirebaseData, val scope: CoroutineScope, val events: Events)
 
-class FirebaseData(val auth: Auth, val db: Database)
+class FirebaseData(val analytics: Analytics, val auth: Auth, val db: Database)
 
 @Composable
 fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
@@ -67,28 +69,34 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
             )
         )
 
-        val auth = app.getAuth().apply {
-            useDeviceLanguage()
-        }
-        val database = app.getDatabase()
-
-        FirebaseData(auth, database)
+        FirebaseData(
+            analytics = app.getAnalytics(),
+            auth = app.getAuth().apply { useDeviceLanguage() },
+            db = app.getDatabase()
+        )
     }
 
     val scope = rememberCoroutineScope()
     val events = remember { MutableSharedFlow<Event>(replay = 0) }
 
-    var showAdminDecoration by remember { mutableStateOf(false) }
+    var isAdmin: Boolean? by remember { mutableStateOf(null) }
 
     LaunchedEffect(Unit) {
         events.collect { evt ->
             when (evt) {
                 is Event.AccountChanged -> {
                     val account = evt.account
-                    showAdminDecoration = account?.isAdmin ?: false
+                    isAdmin = account?.isAdmin ?: false
                 }
                 else -> {}
             }
+        }
+    }
+
+    val pageContext = rememberPageContext()
+    LaunchedEffect(isAdmin, pageContext) {
+        if (isAdmin == false) {
+            firebase.analytics.log(Analytics.Event.PageView())
         }
     }
 
@@ -109,7 +117,7 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
         Footer(Modifier.align(Alignment.Center).gridRowStart(2).gridRowEnd(3))
     }
 
-    if (showAdminDecoration) {
+    if (isAdmin == true) {
         Box(
             Modifier.position(Position.Fixed).top(0.px).left(0.px).bottom(0.px).right(0.px)
                 .pointerEvents(PointerEvents.None)
