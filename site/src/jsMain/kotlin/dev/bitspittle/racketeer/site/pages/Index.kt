@@ -284,11 +284,9 @@ fun HomePage() {
                     startupState = GameStartupState.TitleScreen(gameContext.data, gameContext.account, userData)
                 }
                 val onRestartRequested: () -> Unit = {
-                    if (!gameContext.account.isAdmin) {
-                        firebase.analytics.log(
-                            Analytics.Event.LevelEnd(gameContext.state.id.toString(), success = false)
-                        )
-                    }
+                    firebase.analytics.log(
+                        Analytics.Event.LevelEnd(gameContext.state.id.toString(), success = false)
+                    )
                     requestNewGame(gameContext.data, gameContext.account, userData) {
                         state = MutableGameState(data, state.features, enqueuers)
                     }

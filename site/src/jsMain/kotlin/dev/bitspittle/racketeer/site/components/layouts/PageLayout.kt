@@ -73,7 +73,7 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
 
         FirebaseData(
             analytics = app.initializeAnalytics(AnalyticsSettings(
-                // We don't send page view events for admins; we'll handle this ourselves
+                // We handle this ourselves.
                 GtagConfigParams(sendPageView = false)
             )),
             auth = app.getAuth().apply { useDeviceLanguage() },
@@ -98,9 +98,11 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
         }
     }
 
-    val pageContext = rememberPageContext()
-    LaunchedEffect(isAdmin, pageContext) {
-        if (isAdmin == false) {
+    @Suppress("NAME_SHADOWING")
+    isAdmin?.let { isAdmin ->
+        firebase.analytics.setAnalyticsCollectionEnabled(!isAdmin) // Don't spam analytics in debug mode
+        val pageContext = rememberPageContext()
+        LaunchedEffect(pageContext) {
             firebase.analytics.log(Analytics.Event.PageView())
         }
     }

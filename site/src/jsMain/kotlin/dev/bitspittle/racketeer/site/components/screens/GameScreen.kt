@@ -241,12 +241,7 @@ private fun renderGameScreen(
                     }
 
                     if (ctx.state.isGameOver) {
-                        if (!ctx.account.isAdmin) {
-                            ctx.firebase.analytics.log(
-                                Analytics.Event.LevelEnd(ctx.state.id.toString(), success = true)
-                            )
-                        }
-
+                        ctx.firebase.analytics.log(Analytics.Event.LevelEnd(ctx.state.id.toString(), success = true))
 
                         Modal(
                             title = "Summary",
