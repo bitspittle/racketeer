@@ -62,7 +62,7 @@ fun Menu(
     Modal(
         // A reasonable min width that can grow if necessary but prevents menu sizes jumping around otherwise
         overlayModifier = Modifier.onClick { closeRequested() },
-        dialogModifier = Modifier.minWidth(400.px),
+        dialogModifier = Modifier.minWidth(400.px).onClick { evt -> evt.stopPropagation() },
         ref = inputRef {
             if (!menuStack.last().handleKey(this)) {
                 if (code == "Escape") goBack()
