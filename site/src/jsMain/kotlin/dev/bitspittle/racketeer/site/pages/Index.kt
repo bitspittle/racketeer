@@ -276,11 +276,7 @@ fun HomePage() {
             }
             is GameStartupState.ContextCreated -> (startupState as GameStartupState.ContextCreated).apply {
                 val onQuitRequested: () -> Unit = {
-                    if (!gameContext.account.isAdmin) {
-                        firebase.analytics.log(
-                            Analytics.Event.LevelEnd(gameContext.state.id.toString(), success = false)
-                        )
-                    }
+                    firebase.analytics.log(Analytics.Event.LevelEnd(gameContext.state.id.toString(), success = false))
                     startupState = GameStartupState.TitleScreen(gameContext.data, gameContext.account, userData)
                 }
                 val onRestartRequested: () -> Unit = {

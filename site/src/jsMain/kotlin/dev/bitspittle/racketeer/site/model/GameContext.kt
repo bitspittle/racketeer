@@ -170,9 +170,7 @@ suspend fun GameContext.startNewGame() {
         state.addChange(GameStateChange.Draw())
     }
 
-    if (!account.isAdmin) {
-        firebase.analytics.log(Analytics.Event.LevelStart(state.id.toString()))
-    }
+    firebase.analytics.log(Analytics.Event.LevelStart(state.id.toString()))
 }
 
 suspend fun GameContext.runStateChangingAction(block: suspend GameContext.() -> Unit): Boolean {

@@ -86,9 +86,7 @@ fun TitleScreen(
                                     handleChoice = { error("Unexpected choice made when loading data") })
                                 val snapshot = Data.load(Data.Keys.Quicksave)!!
                                 snapshot.value.create(dummyCtx.data, dummyCtx.env, dummyCtx.enqueuers) { loadedState ->
-                                    if (!params.account.isAdmin) {
-                                        params.firebase.analytics.log(Analytics.Event.LevelEnd(loadedState.id.toString(), success = false))
-                                    }
+                                    params.firebase.analytics.log(Analytics.Event.LevelEnd(loadedState.id.toString(), success = false))
                                 }
                             } catch (ignored: Exception) {
                                 // Shouldn't happen, but maybe the user tried to load a very old legacy save or
