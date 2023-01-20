@@ -42,7 +42,7 @@ class Admin(private val params: GameMenuParams) : Menu {
         Button(
             onClick = {
                 window.open(
-                    "https://docs.google.com/spreadsheets/d/1iG38W0xl2UzRHhQX_GvJWg3zZndqY-UkKAVaWzNiLKg/edit#gid=200941839",
+                    "https://docs.google.com/spreadsheets/d/1iG38W0xl2UzRHhQX_GvJWg3zZndqY-UkKAVaWzNiLKg/",
                     target = "_blank"
                 )
                 actions.close()
