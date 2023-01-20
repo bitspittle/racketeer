@@ -27,10 +27,7 @@ import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import dev.bitspittle.racketeer.site.FullWidthChildrenRecursiveStyle
 import dev.bitspittle.racketeer.site.components.sections.ReadOnlyStyle
 import dev.bitspittle.racketeer.site.components.sections.menu.Menu
-import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.Admin
-import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.BrowseAllCardsMenu
-import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.GameMenuParams
-import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.MainMenu
+import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.*
 import dev.bitspittle.racketeer.site.components.util.*
 import dev.bitspittle.racketeer.site.components.widgets.*
 import dev.bitspittle.racketeer.site.inputRef
@@ -325,6 +322,13 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onRestar
                     if (!showMenu && ctx.account.isAdmin) {
                         showMenu = true
                         initialMenu = Admin(gameMenuParams)
+                        true
+                    } else false
+                }
+                "Equal" -> {
+                    if (!showMenu) {
+                        showMenu = true
+                        initialMenu = ReviewHistory(gameMenuParams)
                         true
                     } else false
                 }
