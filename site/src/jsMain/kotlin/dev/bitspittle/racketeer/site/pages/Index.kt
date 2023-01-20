@@ -9,6 +9,8 @@ import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.thenIf
 import com.varabyte.kobweb.core.Page
+import com.varabyte.kobweb.core.isExporting
+import com.varabyte.kobweb.core.rememberPageContext
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.overlay.Tooltip
 import dev.bitspittle.firebase.analytics.Analytics
@@ -53,6 +55,11 @@ private sealed interface GameStartupState {
 @Page
 @Composable
 fun HomePage() {
+    // A blank page makes the initial download a bit smaller. Also, we don't really need SEO for this page, as it's not
+    // really interesting anyway until someone actually starts playing a game on it.
+    if (rememberPageContext().isExporting)
+        return
+
     PageLayout {
         var startupState by remember { mutableStateOf<GameStartupState>(GameStartupState.FetchingData) }
         var choiceCtx by remember { mutableStateOf<ChoiceContext?>(null) }
