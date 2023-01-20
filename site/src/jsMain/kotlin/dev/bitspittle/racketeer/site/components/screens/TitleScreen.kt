@@ -137,6 +137,13 @@ fun TitleScreen(
             }
         }
 
+        Button(onClick = {
+            window.open(
+                "https://docs.google.com/document/d/1Mv8Pzcc-nERLG4lU2dEs8tTi-2H9tVypEkA8AWBxQE4",
+                "_blank"
+            )
+        }) { Text("How To Play") }
+
         if (showAdminOptions) {
             Button(
                 onClick = {
