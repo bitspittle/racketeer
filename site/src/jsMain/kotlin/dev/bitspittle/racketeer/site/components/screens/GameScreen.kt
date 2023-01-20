@@ -328,7 +328,7 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onRestar
                         true
                     } else false
                 }
-                "Equal" -> {
+                "Backslash" -> {
                     if (!showMenu) {
                         showMenu = true
                         initialMenu = BrowseAllCardsMenu(gameMenuParams)
