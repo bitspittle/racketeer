@@ -3,6 +3,7 @@ package dev.bitspittle.racketeer.site.components.screens
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.FontWeight
 import com.varabyte.kobweb.compose.css.UserSelect
+import com.varabyte.kobweb.compose.css.Width
 import com.varabyte.kobweb.compose.dom.ElementTarget
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
@@ -11,15 +12,22 @@ import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
+import com.varabyte.kobweb.compose.ui.thenIf
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.icons.fa.FaBars
+import com.varabyte.kobweb.silk.components.icons.fa.FaCopy
+import com.varabyte.kobweb.silk.components.icons.fa.FaShareNodes
 import com.varabyte.kobweb.silk.components.layout.SimpleGrid
 import com.varabyte.kobweb.silk.components.layout.numColumns
 import com.varabyte.kobweb.silk.components.overlay.Tooltip
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.firebase.analytics.Analytics
+import dev.bitspittle.racketeer.model.building.Blueprint
+import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.building.vpTotal
+import dev.bitspittle.racketeer.model.card.Card
+import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.card.vpTotal
 import dev.bitspittle.racketeer.model.game.*
 import dev.bitspittle.racketeer.model.score.from
@@ -33,6 +41,7 @@ import dev.bitspittle.racketeer.site.components.widgets.*
 import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.*
 import dev.bitspittle.racketeer.site.model.user.GameStats
+import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.*
@@ -241,29 +250,67 @@ private fun renderGameScreen(
                         ctx.firebase.analytics.log(Analytics.Event.LevelEnd(ctx.state.id.toString(), success = true))
 
                         Modal(
+                            dialogModifier = Modifier.position(Position.Relative),
                             title = "Summary",
                             bottomRow = {
                                 Button(onClick = { onQuitRequested() }) { Text("Quit to Title") }
                                 Button(onClick = { onRestartRequested() }) { Text("Play Again") }
                             }
                         ) {
+                            val topCards = (ctx.state.getOwnedCards().map { VpProvider(it, it.vpTotal) } +
+                                    ctx.state.buildings.map { VpProvider(it, it.vpTotal) })
+                                .filter { it.amount > 0 }
+                                .sortedByDescending { it.amount }
+                                .take(3)
+                                .toList()
+
+                            var showCopiedMessage by remember { mutableStateOf(false) }
+                            Button(
+                                onClick = {
+                                    val summaryText = buildString {
+                                        val vpText = ctx.describer.describeVictoryPoints(ctx.state.vp)
+
+                                        appendLine("I just finished a game of ${ctx.data.title} with $vpText!")
+                                        appendLine()
+                                        appendLine("My top cards were:")
+                                        appendLine()
+                                        val descriptions = mutableMapOf<String, String>()
+                                        topCards.forEach { vpProvider ->
+                                            appendLine("• ${ctx.describer.describeItem(vpProvider.source)}")
+                                            (vpProvider.source as? Card)?.let { card -> descriptions[card.template.name] = card.template.description.ability }
+                                            (vpProvider.source as? Building)?.let { bldg -> descriptions[bldg.blueprint.name] = bldg.blueprint.description.ability }
+                                        }
+                                        appendLine()
+                                        descriptions.keys.sorted().forEach { name ->
+                                            appendLine("$name: ${descriptions.getValue(name)}")
+                                        }
+                                    }
+                                    window.navigator.clipboard.writeText(summaryText)
+
+                                    showCopiedMessage = true
+                                },
+                                Modifier
+                                    .position(Position.Absolute)
+                                    .right(10.px)
+                                    .top(10.px)
+                                    .width(Width.FitContent)
+                                    .padding(5.px)
+                                    .onMouseLeave { showCopiedMessage = false }
+                                    .thenIf(ctx.state.vp == 0, Modifier.display(DisplayStyle.None))
+                            ) { FaCopy() }
+                            if (showCopiedMessage) {
+                                Tooltip(ElementTarget.PreviousSibling, "Copied!")
+                            }
+
                             Column(FullWidthChildrenRecursiveStyle.toModifier().gap(30.px).margin(top = 10.px)) {
                                 SpanText("You ended the game with ${ctx.describer.describeVictoryPoints(ctx.state.vp)}, to earn a ranking of:")
                                 SpanText(ctx.data.rankings.from(ctx.state.vp).name, Modifier.fontWeight(FontWeight.Bold))
-
-                                val topCards = (ctx.state.getOwnedCards().map { VpProvider(it, it.vpTotal) } +
-                                        ctx.state.buildings.map { VpProvider(it, it.vpTotal) })
-                                    .filter { it.amount > 0 }
-                                    .sortedByDescending { it.amount }
-                                    .take(3)
-                                    .toList()
 
                                 if (topCards.isNotEmpty()) {
                                     Column(Modifier.gap(5.px)) {
                                         SpanText("Your top sources of victory points:")
                                         topCards.forEach { vpProvider ->
                                             Div(ReadOnlyStyle.toAttrs()) {
-                                                // No wrap because sometimes button names were getting squished despite extra space!
                                                 SpanText(ctx.describer.describeItem(vpProvider.source))
                                             }
                                             installPopup(ctx, vpProvider.source)
