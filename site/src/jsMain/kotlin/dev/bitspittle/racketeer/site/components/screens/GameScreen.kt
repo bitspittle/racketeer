@@ -282,7 +282,7 @@ private fun renderGameScreen(
                                         }
                                         appendLine()
                                         descriptions.keys.sorted().forEach { name ->
-                                            appendLine("$name: ${descriptions.getValue(name)}")
+                                            appendLine("$name: ${ctx.describer.convertIcons(descriptions.getValue(name))}")
                                         }
                                     }
                                     window.navigator.clipboard.writeText(summaryText)
