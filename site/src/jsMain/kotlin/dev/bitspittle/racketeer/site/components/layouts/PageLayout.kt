@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.css.FontWeight
 import com.varabyte.kobweb.compose.css.PointerEvents
+import com.varabyte.kobweb.compose.dom.ElementTarget
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.foundation.layout.Row
@@ -14,6 +15,7 @@ import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.core.rememberPageContext
 import com.varabyte.kobweb.silk.components.icons.fa.FaCopy
 import com.varabyte.kobweb.silk.components.icons.fa.IconSize
+import com.varabyte.kobweb.silk.components.overlay.Tooltip
 import com.varabyte.kobweb.silk.components.style.*
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.firebase.analytics.Analytics
@@ -137,14 +139,30 @@ fun PageLayout(content: @Composable PageLayoutScope.() -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         val versionStr = "v${G.version}"
-        SpanText(versionStr)
+        val versionStringId = "release-id-string"
+        SpanText(versionStr, Modifier.id(versionStringId))
+
+        var showCopiedMessage by remember { mutableStateOf(false) }
         FaCopy(
             Modifier
                 .cursor(Cursor.Pointer)
                 .onClick {
                     window.navigator.clipboard.writeText(versionStr)
+                    showCopiedMessage = true
+                }
+                .onMouseLeave {
+                    showCopiedMessage = false
                 },
             size = IconSize.SM
         )
+        if (showCopiedMessage) {
+            Tooltip(
+                ElementTarget.PreviousSibling,
+                // Smaller offset since the version text is so small
+                "Copied!",
+                offsetPixels = 6,
+                placementTarget = ElementTarget.withId(versionStringId)
+            )
+        }
     }
 }
