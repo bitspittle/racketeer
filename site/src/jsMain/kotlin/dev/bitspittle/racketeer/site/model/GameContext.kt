@@ -54,8 +54,9 @@ suspend fun createGameConext(
 
     val copyableRandom = CopyableRandom()
     val env = Environment()
+    var provideRandom: () -> CopyableRandom = { copyableRandom }
     env.installDefaults(object : LangService {
-        override val random = copyableRandom.invoke()
+        override val random get() = provideRandom().invoke()
         override val logger = logger
     })
 
@@ -150,7 +151,10 @@ suspend fun createGameConext(
         settings,
         gameState
     )
-        .also { provideMutableGameState = { it.state } }
+        .also {
+            provideMutableGameState = { it.state }
+            provideRandom = { it.state.random }
+        }
 }
 
 suspend fun GameContext.startNewGame() {

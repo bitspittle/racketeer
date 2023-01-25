@@ -16,7 +16,7 @@ class CopyableRandomSerializer : KSerializer<CopyableRandom> {
 
 /**
  * A [Random]-like class which can be copied, serialized, and essentially rerun.
- * 
+ *
  * Our game needs to be able to restore back in time occasionally, and for that case, we want to be able to take a
  * snapshot of our random number generator at various points of time.
  */
