@@ -8,13 +8,13 @@ import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.styleModifier
 import com.varabyte.kobweb.core.App
 import com.varabyte.kobweb.core.AppGlobals
-import com.varabyte.kobweb.silk.InitSilk
-import com.varabyte.kobweb.silk.InitSilkContext
 import com.varabyte.kobweb.silk.SilkApp
 import com.varabyte.kobweb.silk.components.layout.Surface
+import com.varabyte.kobweb.silk.init.InitSilk
+import com.varabyte.kobweb.silk.init.InitSilkContext
 import com.varabyte.kobweb.silk.theme.colors.ColorMode
 import com.varabyte.kobweb.silk.theme.colors.getColorMode
-import com.varabyte.kobweb.silk.theme.registerBaseStyle
+import com.varabyte.kobweb.silk.init.registerBaseStyle
 import dev.bitspittle.racketeer.site.components.util.Payload
 import dev.bitspittle.racketeer.site.components.util.Uploads
 import kotlinx.browser.localStorage
@@ -25,28 +25,30 @@ import org.w3c.dom.HTMLElement
 private const val COLOR_MODE_KEY = "site:colorMode"
 
 @InitSilk
-fun updateTheme(ctx: InitSilkContext) {
+fun initSilk(ctx: InitSilkContext) {
     ctx.config.initialColorMode = localStorage.getItem(COLOR_MODE_KEY)?.let { ColorMode.valueOf(it) } ?: ColorMode.LIGHT
 
-    ctx.config.registerBaseStyle("@font-face") {
-        Modifier
-            .fontFamily("GameText")
-            .styleModifier {
-                property("src", "url(fonts/CaslonAntiqueBold.ttf")
-            }
-    }
+    ctx.stylesheet.apply {
+        registerBaseStyle("@font-face") {
+            Modifier
+                .fontFamily("GameText")
+                .styleModifier {
+                    property("src", "url(fonts/CaslonAntiqueBold.ttf")
+                }
+        }
 
-    ctx.config.registerBaseStyle("body") {
-        Modifier.fontFamily(
-            "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
-            "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "sans-serif"
-        )
-    }
+        registerBaseStyle("body") {
+            Modifier.fontFamily(
+                "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+                "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "sans-serif"
+            )
+        }
 
-    ctx.config.registerBaseStyle("#root") {
-        // UserSelect.None everywhere by default, because the game feels cheap if you allow users to drag highlight
-        // text on stuff
-        Modifier.userSelect(UserSelect.None)
+        registerBaseStyle("#root") {
+            // UserSelect.None everywhere by default, because the game feels cheap if you allow users to drag highlight
+            // text on stuff
+            Modifier.userSelect(UserSelect.None)
+        }
     }
 }
 
