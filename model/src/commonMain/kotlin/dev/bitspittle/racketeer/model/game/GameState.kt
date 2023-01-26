@@ -46,15 +46,6 @@ interface GameState {
     val data: Map<String, DataValue>
     val history: List<GameStateChanges>
 
-    /**
-     * Inform this state that something changed and you'd like to recalculate any values that may change based on it,
-     * e.g. VPs and building states.
-     */
-    // It would be nice if this could be done automatically, but with the current architecture, this has to be done
-    // in a suspend context, so it requires a parent suspend function calling it right now. Maybe this can be revisited
-    // later.
-    suspend fun onBoardChanged()
-
     fun copy(): GameState
 
     fun pileFor(card: Card): Pile?
@@ -229,7 +220,14 @@ class MutableGameState internal constructor(
         move(listOf(card), pileTo, listStrategy)
     }
 
-    override suspend fun onBoardChanged() {
+    /**
+     * Inform this state that something changed and you'd like to recalculate any values that may change based on it,
+     * e.g. VPs and building states.
+     */
+    // It would be nice if this could be done automatically, but with the current architecture, this has to be done
+    // in a suspend context, so it requires a parent suspend function calling it right now. Maybe this can be revisited
+    // later.
+    suspend fun onBoardChanged() {
         val owned = getOwnedCards()
         owned.forEach { card -> enqueuers.card.enqueuePassiveActions(this, card) }
         shop.stock.filterNotNull().forEach { card -> enqueuers.card.enqueuePassiveActions(this, card) }
