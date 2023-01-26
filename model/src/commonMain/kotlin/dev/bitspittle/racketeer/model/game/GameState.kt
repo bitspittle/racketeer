@@ -46,8 +46,6 @@ interface GameState {
     val data: Map<String, DataValue>
     val history: List<GameStateChanges>
 
-    fun copy(): GameState
-
     fun pileFor(card: Card): Pile?
 
     fun canActivate(building: Building): Boolean
@@ -279,7 +277,7 @@ class MutableGameState internal constructor(
         shop.notifyOwned(card.id)
     }
 
-    override fun copy(): MutableGameState {
+    fun copy(): MutableGameState {
         val random = random.copy()
         return MutableGameState(
             id,
