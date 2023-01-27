@@ -248,10 +248,10 @@ class GameStateViewModel(scope: CoroutineScope, private val events: Events, init
     private val _graveyard = PileViewModel(_state.graveyard)
     override val graveyard: Pile = _graveyard
 
-    private val _blueprints = mutableStateListOf<Blueprint>().apply { addAll(_state.blueprints) }
+    private val _blueprints = mutableStateListOf<Blueprint>()
     override val blueprints: List<Blueprint> get() = _blueprints
 
-    private val _buildings = mutableStateListOf<Building>().apply { addAll(_state.buildings) }
+    private val _buildings = mutableStateListOf<Building>()
     override val buildings: List<Building> get() = _buildings
 
     private val _effects = EffectsViewModel(_state.effects)
@@ -295,7 +295,7 @@ class GameStateViewModel(scope: CoroutineScope, private val events: Events, init
                         _graveyard.update(_state.graveyard)
 
                         _blueprints.setTo(_state.blueprints)
-                        _buildings.setTo(_state.buildings)
+                        _buildings.setTo(_state.buildings.toViewModelList())
 
                         _effects.update(_state.effects)
                         _tweaks.update(_state.tweaks)
