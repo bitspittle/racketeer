@@ -11,6 +11,8 @@ import kotlin.reflect.KClass
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
+fun Throwable.toPayloadMessage() = message ?: "${this::class.simpleName} thrown with no message"
+
 sealed class Payload(val ctx: GameContext) {
     abstract val name: String
     val state: GameState = ctx.state // Grab state before external code resets it
@@ -19,7 +21,7 @@ sealed class Payload(val ctx: GameContext) {
     class Crash(ctx: GameContext, val ex: Exception) : Payload(ctx) {
         override val name = "crashed"
         override fun addInto(values: MutableList<Pair<String, Any>>) {
-            values.add("message" to (ex.message ?: "${ex::class.simpleName} thrown with no message"))
+            values.add("message" to ex.toPayloadMessage())
         }
     }
     class Abort(ctx: GameContext) : Payload(ctx) {

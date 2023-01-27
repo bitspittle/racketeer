@@ -5,7 +5,6 @@ import dev.bitspittle.racketeer.model.action.enqueue
 import dev.bitspittle.racketeer.model.building.*
 import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.effect.*
-import dev.bitspittle.racketeer.model.pile.MutablePile
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.serialization.DataValue
 import dev.bitspittle.racketeer.model.shop.priceFor
@@ -148,7 +147,7 @@ sealed class GameStateChange {
 
     class Shuffle(val pile: Pile) : GameStateChange() {
         override suspend fun MutableGameState.apply() {
-            (pile as MutablePile).cards.shuffle(random())
+            pile.toMutablePile(this).cards.shuffle(random())
             effects.processPileShuffed(pile)
         }
     }
@@ -160,9 +159,9 @@ sealed class GameStateChange {
 
         override suspend fun MutableGameState.apply() {
             when (property) {
-                CardProperty.COUNTER -> (card as MutableCard).counter += amount
-                CardProperty.VP -> (card as MutableCard).vpBase += amount
-                CardProperty.VP_PASSIVE -> (card as MutableCard).vpPassive += amount
+                CardProperty.COUNTER -> card.toMutableCard(this).counter += amount
+                CardProperty.VP -> card.toMutableCard(this).vpBase += amount
+                CardProperty.VP_PASSIVE -> card.toMutableCard(this).vpPassive += amount
                 else -> error("Can't change read-only card property $property")
             }
         }
@@ -174,7 +173,7 @@ sealed class GameStateChange {
         }
 
         override suspend fun MutableGameState.apply() {
-            (card as MutableCard).upgrades.add(upgradeType)
+            card.toMutableCard(this).upgrades.add(upgradeType)
         }
     }
 
@@ -184,7 +183,7 @@ sealed class GameStateChange {
         }
 
         override suspend fun MutableGameState.apply() {
-            (card as MutableCard).traits.add(traitType)
+            card.toMutableCard(this).traits.add(traitType)
         }
     }
 
@@ -194,7 +193,7 @@ sealed class GameStateChange {
         }
 
         override suspend fun MutableGameState.apply() {
-            (card as MutableCard).traits.remove(traitType)
+            card.toMutableCard(this).traits.remove(traitType)
         }
     }
 
@@ -205,9 +204,9 @@ sealed class GameStateChange {
 
         override suspend fun MutableGameState.apply() {
             when (property) {
-                BuildingProperty.COUNTER -> (building as MutableBuilding).counter += amount
-                BuildingProperty.VP -> (building as MutableBuilding).vpBase += amount
-                BuildingProperty.VP_PASSIVE -> (building as MutableBuilding).vpPassive += amount
+                BuildingProperty.COUNTER -> building.toMutableBuilding(this).counter += amount
+                BuildingProperty.VP -> building.toMutableBuilding(this).vpBase += amount
+                BuildingProperty.VP_PASSIVE -> building.toMutableBuilding(this).vpPassive += amount
                 else -> error("Can't change read-only building property $property")
             }
         }

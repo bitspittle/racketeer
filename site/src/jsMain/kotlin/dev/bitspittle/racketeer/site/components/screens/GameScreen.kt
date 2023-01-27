@@ -16,27 +16,31 @@ import com.varabyte.kobweb.compose.ui.thenIf
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.icons.fa.FaBars
 import com.varabyte.kobweb.silk.components.icons.fa.FaCopy
-import com.varabyte.kobweb.silk.components.icons.fa.FaShareNodes
 import com.varabyte.kobweb.silk.components.layout.SimpleGrid
 import com.varabyte.kobweb.silk.components.layout.numColumns
 import com.varabyte.kobweb.silk.components.overlay.Tooltip
-import com.varabyte.kobweb.silk.components.style.*
+import com.varabyte.kobweb.silk.components.style.toAttrs
+import com.varabyte.kobweb.silk.components.style.toModifier
 import com.varabyte.kobweb.silk.components.text.SpanText
 import dev.bitspittle.firebase.analytics.Analytics
-import dev.bitspittle.racketeer.model.building.Blueprint
 import dev.bitspittle.racketeer.model.building.Building
 import dev.bitspittle.racketeer.model.building.vpTotal
 import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.card.CardTemplate
 import dev.bitspittle.racketeer.model.card.vpTotal
-import dev.bitspittle.racketeer.model.game.*
+import dev.bitspittle.racketeer.model.game.GameProperty
+import dev.bitspittle.racketeer.model.game.GameStateChange
+import dev.bitspittle.racketeer.model.game.getOwnedCards
+import dev.bitspittle.racketeer.model.game.isGameOver
 import dev.bitspittle.racketeer.model.score.from
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import dev.bitspittle.racketeer.site.FullWidthChildrenRecursiveStyle
 import dev.bitspittle.racketeer.site.components.sections.ReadOnlyStyle
 import dev.bitspittle.racketeer.site.components.sections.menu.Menu
 import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.*
-import dev.bitspittle.racketeer.site.components.util.*
+import dev.bitspittle.racketeer.site.components.util.Data
+import dev.bitspittle.racketeer.site.components.util.Payload
+import dev.bitspittle.racketeer.site.components.util.Uploads
+import dev.bitspittle.racketeer.site.components.util.installPopup
 import dev.bitspittle.racketeer.site.components.widgets.*
 import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.*
@@ -44,8 +48,13 @@ import dev.bitspittle.racketeer.site.model.user.GameStats
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.web.css.*
-import org.jetbrains.compose.web.dom.*
+import org.jetbrains.compose.web.css.DisplayStyle
+import org.jetbrains.compose.web.css.LineStyle
+import org.jetbrains.compose.web.css.Position
+import org.jetbrains.compose.web.css.px
+import org.jetbrains.compose.web.dom.Br
+import org.jetbrains.compose.web.dom.Div
+import org.jetbrains.compose.web.dom.Text
 
 private val GAP = 20.px
 
@@ -61,31 +70,33 @@ private fun renderGameScreen(
     onRestartRequested: () -> Unit,
     onQuitRequested: () -> Unit
 ) {
+    val gs = remember { GameStateViewModel(scope, ctx.events, ctx.state) }
+
     Column(Modifier.fillMaxWidth()) {
         Row(Modifier
             .align(Alignment.CenterHorizontally)
             .margin(top = 10.px, bottom = 15.px)
             .gap(30.px)
         ) {
-            SpanText("Turn ${ctx.state.turn + 1} / ${ctx.data.numTurns}")
+            SpanText("Turn ${gs.turn + 1} / ${ctx.data.numTurns}")
             SpanText("\uD83C\uDCCF ${ctx.state.getOwnedCards().count()}")
             Tooltip(ElementTarget.PreviousSibling, "The total number of cards you own (doesn't include jailed cards).")
             Row(Modifier.gap(5.px)) {
-                SpanText(ctx.describer.describeCash(ctx.state.cash), Modifier.onClick { evt ->
+                SpanText(ctx.describer.describeCash(gs.cash), Modifier.onClick { evt ->
                     if (ctx.account.isAdmin && evt.shiftKey) {
                         gameUpdater.runStateChangingAction {
                             ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.CASH, if (evt.altKey) 10 else 1))
                         }
                     }
                 })
-                SpanText(ctx.describer.describeInfluence(ctx.state.influence), Modifier.onClick { evt ->
+                SpanText(ctx.describer.describeInfluence(gs.influence), Modifier.onClick { evt ->
                     if (ctx.account.isAdmin && evt.shiftKey) {
                         gameUpdater.runStateChangingAction {
                             ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, if (evt.altKey) 10 else 1))
                         }
                     }
                 })
-                SpanText(ctx.describer.describeLuck(ctx.state.luck), Modifier.onClick { evt ->
+                SpanText(ctx.describer.describeLuck(gs.luck), Modifier.onClick { evt ->
                     if (ctx.account.isAdmin && evt.shiftKey) {
                         gameUpdater.runStateChangingAction {
                             ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.LUCK, if (evt.altKey) 10 else 1))
@@ -93,7 +104,7 @@ private fun renderGameScreen(
                     }
                 })
             }
-            SpanText(ctx.describer.describeVictoryPoints(ctx.state.vp))
+            SpanText(ctx.describer.describeVictoryPoints(gs.vp))
         }
 
         SimpleGrid(
@@ -104,10 +115,10 @@ private fun renderGameScreen(
                 .gridTemplateColumns("auto 1fr")
         ) {
             Row(Modifier.gap(GAP).gridColumn("span 2")) {
-                CardGroup("Shop (Tier ${ctx.state.shop.tier + 1})", Modifier.flexGrow(1)) {
-                    ctx.state.shop.stock.forEach { card ->
+                CardGroup("Shop (Tier ${gs.shop.tier + 1})", Modifier.flexGrow(1)) {
+                    gs.shop.stock.forEach { card ->
                         if (card != null) {
-                            val cost = ctx.state.shop.prices.getValue(card.id)
+                            val cost = gs.shop.prices.getValue(card.id)
 
                             Card(
                                 ctx.data,
@@ -116,7 +127,7 @@ private fun renderGameScreen(
                                 ctx.tooltipParser,
                                 card,
                                 label = ctx.describer.describeCash(cost),
-                                enabled = ctx.state.cash >= cost, onClick = {
+                                enabled = gs.cash >= cost, onClick = {
                                     gameUpdater.runStateChangingAction {
                                         ctx.state.addChange(GameStateChange.Buy(card))
                                     }
@@ -132,7 +143,7 @@ private fun renderGameScreen(
                     .padding(GAP).gap(GAP)
                     .border(width = 1.px, style = LineStyle.Solid, color = Colors.Black)
                 ) {
-                    val shopPrice = ctx.data.shopPrices.getOrNull(ctx.state.shop.tier)
+                    val shopPrice = ctx.data.shopPrices.getOrNull(gs.shop.tier)
                     Button(
                         onClick = {
                             gameUpdater.runStateChangingAction {
@@ -143,11 +154,11 @@ private fun renderGameScreen(
                             }
                         },
                         Modifier.width(100.px).flexGrow(1),
-                        enabled = shopPrice != null && ctx.state.influence >= shopPrice
+                        enabled = shopPrice != null && gs.influence >= shopPrice
                     ) {
                         Text("Expand"); Br()
                         if (shopPrice != null) {
-                            Text(ctx.describer.describeInfluence(ctx.data.shopPrices[ctx.state.shop.tier]))
+                            Text(ctx.describer.describeInfluence(ctx.data.shopPrices[gs.shop.tier]))
                         } else {
                             Text("MAX")
                         }
@@ -160,7 +171,7 @@ private fun renderGameScreen(
                             }
                         },
                         Modifier.width(100.px).flexGrow(1),
-                        enabled = ctx.state.luck > 0
+                        enabled = gs.luck > 0
                     ) {
                         Text("Reroll"); Br()
                         Text(ctx.data.icons.luck)
@@ -168,16 +179,16 @@ private fun renderGameScreen(
                 }
             }
 
-            CardPile(ctx, ctx.state.discard)
-            CardGroup("Street (${ctx.state.street.cards.size})") {
-                ctx.state.street.cards.forEach { card ->
+            CardPile(ctx, gs.discard)
+            CardGroup("Street (${gs.street.cards.size})") {
+                gs.street.cards.forEach { card ->
                     Card(ctx.data, ctx.userStats, ctx.describer, ctx.tooltipParser, card, enabled = false)
                 }
             }
 
-            CardPile(ctx, ctx.state.deck)
-            CardGroup("Hand (${ctx.state.hand.cards.size})") {
-                ctx.state.hand.cards.forEach { card ->
+            CardPile(ctx, gs.deck)
+            CardGroup("Hand (${gs.hand.cards.size})") {
+                gs.hand.cards.forEach { card ->
                     Card(ctx.data, ctx.userStats, ctx.describer, ctx.tooltipParser, card, onClick = {
                         gameUpdater.runStateChangingAction {
                             ctx.state.addChange(GameStateChange.Play(card))
@@ -186,17 +197,17 @@ private fun renderGameScreen(
                 }
             }
 
-            CardPile(ctx, ctx.state.jail)
+            CardPile(ctx, gs.jail)
             Row(Modifier.gap(GAP)) {
                 CardGroup("Buildings & Blueprints", Modifier.flexGrow(1)) {
-                    ctx.state.buildings.forEach { building ->
+                    gs.buildings.forEach { building ->
                         Building(ctx, building, onClick = {
                             gameUpdater.runStateChangingAction {
                                 ctx.state.addChange(GameStateChange.Activate(building))
                             }
                         })
                     }
-                    ctx.state.blueprints.forEach { blueprint ->
+                    gs.blueprints.forEach { blueprint ->
                         Blueprint(ctx, blueprint, onClick = {
                             gameUpdater.runStateChangingAction {
                                 ctx.state.addChange(GameStateChange.Build(blueprint))
@@ -214,7 +225,7 @@ private fun renderGameScreen(
                                 },
                                 // Break up into two state changing actions for a better state diff report around reshuffling cards
                                 {
-                                    if (!ctx.state.isGameOver) {
+                                    if (!gs.isGameOver) {
                                         ctx.state.addChange(GameStateChange.Draw())
 
                                         try {
@@ -241,13 +252,13 @@ private fun renderGameScreen(
                             )
                         },
                         Modifier.width(300.px).fillMaxHeight(),
-                        enabled = !ctx.state.isGameOver
+                        enabled = !gs.isGameOver
                     ) {
                         Text("End Turn")
                     }
 
-                    if (ctx.state.isGameOver) {
-                        ctx.firebase.analytics.log(Analytics.Event.LevelEnd(ctx.state.id.toString(), success = true))
+                    if (gs.isGameOver) {
+                        ctx.firebase.analytics.log(Analytics.Event.LevelEnd(gs.id.toString(), success = true))
 
                         Modal(
                             dialogModifier = Modifier.position(Position.Relative),
@@ -257,8 +268,8 @@ private fun renderGameScreen(
                                 Button(onClick = { onRestartRequested() }) { Text("Play Again") }
                             }
                         ) {
-                            val topCards = (ctx.state.getOwnedCards().map { VpProvider(it, it.vpTotal) } +
-                                    ctx.state.buildings.map { VpProvider(it, it.vpTotal) })
+                            val topCards = (gs.getOwnedCards().map { VpProvider(it, it.vpTotal) } +
+                                    gs.buildings.map { VpProvider(it, it.vpTotal) })
                                 .filter { it.amount > 0 }
                                 .sortedByDescending { it.amount }
                                 .take(3)
@@ -268,7 +279,7 @@ private fun renderGameScreen(
                             Button(
                                 onClick = {
                                     val summaryText = buildString {
-                                        val vpText = ctx.describer.describeVictoryPoints(ctx.state.vp)
+                                        val vpText = ctx.describer.describeVictoryPoints(gs.vp)
 
                                         appendLine("I just finished a game of ${ctx.data.title} with $vpText!")
                                         appendLine()
@@ -296,15 +307,15 @@ private fun renderGameScreen(
                                     .width(Width.FitContent)
                                     .padding(5.px)
                                     .onMouseLeave { showCopiedMessage = false }
-                                    .thenIf(ctx.state.vp == 0, Modifier.display(DisplayStyle.None))
+                                    .thenIf(gs.vp == 0, Modifier.display(DisplayStyle.None))
                             ) { FaCopy() }
                             if (showCopiedMessage) {
                                 Tooltip(ElementTarget.PreviousSibling, "Copied!")
                             }
 
                             Column(FullWidthChildrenRecursiveStyle.toModifier().gap(30.px).margin(top = 10.px)) {
-                                SpanText("You ended the game with ${ctx.describer.describeVictoryPoints(ctx.state.vp)}, to earn a ranking of:")
-                                SpanText(ctx.data.rankings.from(ctx.state.vp).name, Modifier.fontWeight(FontWeight.Bold))
+                                SpanText("You ended the game with ${ctx.describer.describeVictoryPoints(gs.vp)}, to earn a ranking of:")
+                                SpanText(ctx.data.rankings.from(gs.vp).name, Modifier.fontWeight(FontWeight.Bold))
 
                                 if (topCards.isNotEmpty()) {
                                     Column(Modifier.gap(5.px)) {
@@ -329,11 +340,13 @@ private fun renderGameScreen(
 
 
         Column(Modifier.userSelect(UserSelect.Text).fillMaxWidth().padding(left = GAP).fontFamily("monospace")) {
-            ctx.logger.messages.forEach { message ->
-                if (message.isNotEmpty()) {
-                    SpanText(message)
-                } else {
-                    Br()
+            key(gs.history.lastOrNull()) {
+                ctx.logger.messages.forEach { message ->
+                    if (message.isNotEmpty()) {
+                        SpanText(message)
+                    } else {
+                        Br()
+                    }
                 }
             }
         }
@@ -347,18 +360,7 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onRestar
     var initialMenu by remember { mutableStateOf<Menu?>(null) }
     val gameUpdater = GameUpdater(scope, events, ctx)
 
-    var gameUpdateCount by remember { mutableStateOf(0) }
-
     val gameMenuParams = GameMenuParams(scope, ctx, gameUpdater, onRestartRequested, onQuitRequested)
-
-    LaunchedEffect(Unit) {
-        events.collect { evt ->
-            when (evt) {
-                is Event.GameStateUpdated -> gameUpdateCount++
-                else -> {}
-            }
-        }
-    }
 
     Box(
         Modifier.fillMaxSize().minWidth(500.px).position(Position.Relative),
@@ -392,20 +394,18 @@ fun GameScreen(scope: CoroutineScope, events: Events, ctx: GameContext, onRestar
     ) {
         Button(onClick = { showMenu = true }, Modifier.padding(5.px).position(Position.Absolute).left(10.px).top(10.px)) { FaBars() }
 
-        key(gameUpdateCount) {
-            renderGameScreen(
-                scope,
-                gameUpdater,
-                ctx,
-                gameMenuParams,
-                showMenu = {
-                    showMenu = true
-                    initialMenu = it
-                },
-                onRestartRequested,
-                onQuitRequested
-            )
-        }
+        renderGameScreen(
+            scope,
+            gameUpdater,
+            ctx,
+            gameMenuParams,
+            showMenu = {
+                showMenu = true
+                initialMenu = it
+            },
+            onRestartRequested,
+            onQuitRequested
+        )
    }
 
     if (showMenu) {

@@ -2,6 +2,7 @@ package dev.bitspittle.racketeer.site.model
 
 import dev.bitspittle.racketeer.site.components.util.Payload
 import dev.bitspittle.racketeer.site.components.util.Uploads
+import dev.bitspittle.racketeer.site.components.util.toPayloadMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -27,7 +28,9 @@ class GameUpdater(
                 }
             } catch (ex: Exception) {
                 launch { Uploads.upload(Payload.Crash(ctx, ex)) }
-                events.emit(Event.GameStateUpdated(ctx)) // Emit an event so that the logging area gets updated
+
+                println(ex.toPayloadMessage())
+                ex.printStackTrace()
             }
         }
     }

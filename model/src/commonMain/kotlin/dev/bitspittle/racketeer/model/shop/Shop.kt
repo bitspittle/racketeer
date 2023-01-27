@@ -1,10 +1,7 @@
 package dev.bitspittle.racketeer.model.shop
 
 import com.benasher44.uuid.Uuid
-import dev.bitspittle.racketeer.model.card.Card
-import dev.bitspittle.racketeer.model.card.CardTemplate
-import dev.bitspittle.racketeer.model.card.Rarity
-import dev.bitspittle.racketeer.model.card.featureTypes
+import dev.bitspittle.racketeer.model.card.*
 import dev.bitspittle.racketeer.model.effect.*
 import dev.bitspittle.racketeer.model.game.Feature
 import dev.bitspittle.racketeer.model.random.CopyableRandom
@@ -58,7 +55,7 @@ class MutableShop internal constructor(
     private val tierFrequencies: List<Int>,
     override val rarities: List<Rarity>,
     tier: Int,
-    override val stock: MutableList<Card?>,
+    override val stock: MutableList<MutableCard?>,
     override val prices: MutableMap<Uuid, Int>,
     override val tweaks: MutableTweaks<Tweak.Shop>,
     override val bought: MutableMap<String, Int>,

@@ -204,6 +204,10 @@ class MutableGameState internal constructor(
         }
     }
 
+    fun findCard(id: Uuid): MutableCard {
+        return shop.stock.firstOrNull { card -> card != null && card.id == id }
+            ?: _allPiles.asSequence().flatMap { pile -> pile.cards.asSequence() }.first { card -> card.id == id }
+    }
     override fun pileFor(card: Card): Pile? = cardPiles[card.id]
 
     private val _canActivate = mutableMapOf<Building, Boolean>()
@@ -246,14 +250,10 @@ class MutableGameState internal constructor(
         // Move the cards
         run {
             val pileTo = _allPiles.single { it.id == toPile.id }
-            // Make a copy of the list of cards, as modifying the piles below may inadvertently change the list as well,
-            // due to some internal, aggressive casting between piles and mutable piles
-            val cards = cards.toList()
-            cards.forEach { card ->
-                remove(card)
-                cardPiles[card.id] = pileTo
-            }
-            pileTo.cards.insert(cards.map { it as MutableCard }, listStrategy, random)
+            val cards = cards.map { it.toMutableCard(this) }
+            cards.forEach { card -> remove(card) }
+            pileTo.cards.insert(cards, listStrategy, random)
+            cards.forEach { card -> cardPiles[card.id] = pileTo }
         }
 
         // ... then execute their actions
@@ -273,7 +273,9 @@ class MutableGameState internal constructor(
     }
 
     private fun remove(card: Card) {
-        cardPiles.remove(card.id)?.also { pileFrom -> pileFrom.cards.removeAll { it.id == card.id }}
+        cardPiles.remove(card.id)?.also { pileFrom ->
+            pileFrom.cards.removeAll { it.id == card.id }
+        }
         shop.notifyOwned(card.id)
     }
 
@@ -375,3 +377,15 @@ fun MutableGameState.stub(): MutableGameState {
 }
 
 fun Card.isOwned(state: GameState) = state.pileFor(this).let { pile -> pile != null && pile in state.ownedPiles }
+
+fun Card.toMutableCard(state: MutableGameState): MutableCard {
+    return this as? MutableCard ?: state.findCard(this.id)
+}
+
+fun Pile.toMutablePile(state: MutableGameState): MutablePile {
+    return this as? MutablePile ?: state.allPiles.first { pile -> pile.id == id } as MutablePile
+}
+
+fun Building.toMutableBuilding(state: MutableGameState): MutableBuilding {
+    return this as? MutableBuilding ?: state.buildings.first { bldg -> bldg.id == id }
+}
