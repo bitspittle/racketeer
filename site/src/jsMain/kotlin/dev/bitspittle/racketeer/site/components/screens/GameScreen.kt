@@ -1,6 +1,7 @@
 package dev.bitspittle.racketeer.site.components.screens
 
 import androidx.compose.runtime.*
+import com.varabyte.kobweb.compose.css.AnimationIterationCount
 import com.varabyte.kobweb.compose.css.FontWeight
 import com.varabyte.kobweb.compose.css.UserSelect
 import com.varabyte.kobweb.compose.css.Width
@@ -13,6 +14,7 @@ import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.thenIf
+import com.varabyte.kobweb.silk.components.animation.toAnimation
 import com.varabyte.kobweb.silk.components.forms.Button
 import com.varabyte.kobweb.silk.components.icons.fa.FaBars
 import com.varabyte.kobweb.silk.components.icons.fa.FaCopy
@@ -34,6 +36,7 @@ import dev.bitspittle.racketeer.model.game.isGameOver
 import dev.bitspittle.racketeer.model.score.from
 import dev.bitspittle.racketeer.model.serialization.GameSnapshot
 import dev.bitspittle.racketeer.site.FullWidthChildrenRecursiveStyle
+import dev.bitspittle.racketeer.site.components.animations.Pulse
 import dev.bitspittle.racketeer.site.components.sections.ReadOnlyStyle
 import dev.bitspittle.racketeer.site.components.sections.menu.Menu
 import dev.bitspittle.racketeer.site.components.sections.menu.menus.game.*
@@ -43,16 +46,16 @@ import dev.bitspittle.racketeer.site.components.util.Uploads
 import dev.bitspittle.racketeer.site.components.util.installPopup
 import dev.bitspittle.racketeer.site.components.widgets.*
 import dev.bitspittle.racketeer.site.inputRef
-import dev.bitspittle.racketeer.site.model.*
+import dev.bitspittle.racketeer.site.model.Events
+import dev.bitspittle.racketeer.site.model.GameContext
+import dev.bitspittle.racketeer.site.model.GameUpdater
+import dev.bitspittle.racketeer.site.model.describeItem
 import dev.bitspittle.racketeer.site.model.user.GameStats
 import dev.bitspittle.racketeer.site.viewmodel.GameStateViewModel
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.web.css.DisplayStyle
-import org.jetbrains.compose.web.css.LineStyle
-import org.jetbrains.compose.web.css.Position
-import org.jetbrains.compose.web.css.px
+import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.Br
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Text
@@ -144,38 +147,63 @@ private fun renderGameScreen(
                     .padding(GAP).gap(GAP)
                     .border(width = 1.px, style = LineStyle.Solid, color = Colors.Black)
                 ) {
-                    val shopPrice = ctx.data.shopPrices.getOrNull(gs.shop.tier)
-                    Button(
-                        onClick = {
-                            gameUpdater.runStateChangingAction {
-                                ctx.state.addChange(GameStateChange.UpgradeShop())
-                                // shopPrice to be non-null if button is enabled
-                                @Suppress("NAME_SHADOWING") val shopPrice = shopPrice!!
-                                ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.INFLUENCE, -shopPrice))
+                    run {
+                        val shopPrice = ctx.data.shopPrices.getOrNull(gs.shop.tier)
+                        val enabled = shopPrice != null && gs.influence >= shopPrice
+                        Button(
+                            onClick = {
+                                gameUpdater.runStateChangingAction {
+                                    ctx.state.addChange(GameStateChange.UpgradeShop())
+                                    // shopPrice to be non-null if button is enabled
+                                    @Suppress("NAME_SHADOWING") val shopPrice = shopPrice!!
+                                    ctx.state.addChange(
+                                        GameStateChange.AddGameAmount(
+                                            GameProperty.INFLUENCE,
+                                            -shopPrice
+                                        )
+                                    )
+                                }
+                            },
+                            Modifier.width(100.px).flexGrow(1).thenIf(enabled) {
+                                Modifier.animation(
+                                    Pulse.toAnimation(
+                                        duration = 2.s,
+                                        iterationCount = AnimationIterationCount.Infinite,
+                                    )
+                                )
+                            },
+                            enabled = enabled,
+                        ) {
+                            Text("Expand"); Br()
+                            if (shopPrice != null) {
+                                Text(ctx.describer.describeInfluence(ctx.data.shopPrices[gs.shop.tier]))
+                            } else {
+                                Text("MAX")
                             }
-                        },
-                        Modifier.width(100.px).flexGrow(1),
-                        enabled = shopPrice != null && gs.influence >= shopPrice
-                    ) {
-                        Text("Expand"); Br()
-                        if (shopPrice != null) {
-                            Text(ctx.describer.describeInfluence(ctx.data.shopPrices[gs.shop.tier]))
-                        } else {
-                            Text("MAX")
                         }
                     }
-                    Button(
-                        onClick = {
-                            gameUpdater.runStateChangingAction {
-                                ctx.state.addChange(GameStateChange.RestockShop())
-                                ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.LUCK, -1))
-                            }
-                        },
-                        Modifier.width(100.px).flexGrow(1),
-                        enabled = gs.luck > 0
-                    ) {
-                        Text("Reroll"); Br()
-                        Text(ctx.data.icons.luck)
+                    run {
+                        val enabled = gs.luck > 0
+                        Button(
+                            onClick = {
+                                gameUpdater.runStateChangingAction {
+                                    ctx.state.addChange(GameStateChange.RestockShop())
+                                    ctx.state.addChange(GameStateChange.AddGameAmount(GameProperty.LUCK, -1))
+                                }
+                            },
+                            Modifier.width(100.px).flexGrow(1).thenIf(enabled) {
+                                Modifier.animation(
+                                    Pulse.toAnimation(
+                                        duration = 2.s,
+                                        iterationCount = AnimationIterationCount.Infinite,
+                                    )
+                                )
+                            },
+                            enabled = enabled,
+                        ) {
+                            Text("Reroll"); Br()
+                            Text(ctx.data.icons.luck)
+                        }
                     }
                 }
             }
