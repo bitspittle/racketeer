@@ -40,6 +40,9 @@ private fun List<Card>.toViewModelList() = this.map { c -> GameStateViewModel.Ca
 private fun List<Card?>.toViewModelList() = this.map { c -> c?.let { GameStateViewModel.CardViewModel(it) } }
 private fun List<Building>.toViewModelList() = this.map { b -> GameStateViewModel.BuildingViewModel(b) }
 
+/**
+ * Wrap a [GameState] instance with observable hooks which make it easy to be used by Compose.
+ */
 class GameStateViewModel(scope: CoroutineScope, private val events: Events, initialState: GameState) : GameState {
 
     class CardViewModel(card: Card) : Card {
