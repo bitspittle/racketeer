@@ -1,4 +1,4 @@
-package dev.bitspittle.racketeer.site.model
+package dev.bitspittle.racketeer.site.viewmodel
 
 import androidx.compose.runtime.*
 import com.benasher44.uuid.Uuid
@@ -14,6 +14,8 @@ import dev.bitspittle.racketeer.model.game.GameStateChanges
 import dev.bitspittle.racketeer.model.pile.Pile
 import dev.bitspittle.racketeer.model.serialization.DataValue
 import dev.bitspittle.racketeer.model.shop.Shop
+import dev.bitspittle.racketeer.site.model.Event
+import dev.bitspittle.racketeer.site.model.Events
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

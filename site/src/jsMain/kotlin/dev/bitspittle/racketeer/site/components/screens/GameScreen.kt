@@ -45,6 +45,7 @@ import dev.bitspittle.racketeer.site.components.widgets.*
 import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.*
 import dev.bitspittle.racketeer.site.model.user.GameStats
+import dev.bitspittle.racketeer.site.viewmodel.GameStateViewModel
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
