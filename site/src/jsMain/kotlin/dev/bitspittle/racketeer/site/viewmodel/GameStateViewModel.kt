@@ -16,12 +16,14 @@ import dev.bitspittle.racketeer.model.serialization.DataValue
 import dev.bitspittle.racketeer.model.shop.Shop
 import dev.bitspittle.racketeer.site.model.Event
 import dev.bitspittle.racketeer.site.model.Events
+import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlin.math.max
 
-private fun <E> MutableList<E>.setTo(items: Iterable<E>) {
-    this.clear()
-    this.addAll(items)
+private fun <E> MutableList<E>.setTo(items: List<E>) {
+    clear()
+    addAll(items)
 }
 
 private fun <K, V> MutableMap<K, V>.setTo(map: Map<K, V>) {
@@ -36,20 +38,81 @@ private fun <E> MutableMap<E, Unit>.setTo(items: Set<E>) {
     this.setTo(items.associateWith { })
 }
 
-private fun List<Card>.toViewModelList() = this.map { c -> GameStateViewModel.CardViewModel(c) }
-private fun List<Card?>.toViewModelList() = this.map { c -> c?.let { GameStateViewModel.CardViewModel(it) } }
-private fun List<Building>.toViewModelList() = this.map { b -> GameStateViewModel.BuildingViewModel(b) }
+private fun <T, M: WrappingViewModel<T>> MutableList<M>.update(unwrapped: List<T>, create: (unwrapped: T) -> M) {
+    val thisSize = size
+    val unwrappedSize = unwrapped.size
+
+    for (i in 0 until unwrappedSize) {
+        if (i < thisSize) {
+            this[i].update(unwrapped[i])
+        } else {
+            add(create(unwrapped[i]))
+        }
+    }
+    // In case this is larger than the target list
+    for (i in unwrappedSize until thisSize) {
+        this.removeLast()
+    }
+}
+
+private fun <T, M: WrappingViewModel<T>> MutableList<M?>.update(unwrapped: List<T?>, create: (unwrapped: T) -> M) {
+    val thisSize = size
+    val unwrappedSize = unwrapped.size
+
+    for (i in 0 until unwrappedSize) {
+        if (i < thisSize) {
+            when {
+                this[i] == null && unwrapped[i] != null -> this[i] = create(unwrapped[i]!!)
+                this[i] != null && unwrapped[i] == null -> this[i] = null
+                this[i] != null && unwrapped[i] != null -> this[i]!!.update(unwrapped[i]!!)
+            }
+        } else {
+            this.add(unwrapped[i]?.let { create(it) })
+        }
+    }
+    // In case this is larger than the target list
+    for (i in unwrappedSize until thisSize) {
+        this.removeLast()
+    }
+}
+
+private fun MutableList<GameStateViewModel.CardViewModel>.setTo(cards: List<Card>) {
+    this.update(cards) { c -> GameStateViewModel.CardViewModel(c) }
+}
+
+private fun MutableList<GameStateViewModel.CardViewModel?>.setTo(cards: List<Card?>) {
+    this.update(cards) { c -> GameStateViewModel.CardViewModel(c) }
+}
+private fun MutableList<GameStateViewModel.BuildingViewModel>.setTo(buildings: List<Building>) {
+    this.update(buildings) { b -> GameStateViewModel.BuildingViewModel(b) }
+}
+
+abstract class WrappingViewModel<T>(wrapped: T) {
+    protected var wrapped = wrapped
+        private set
+
+    init {
+        window.setTimeout({
+            update(wrapped) // Give subclasses a chance to initialize their fields
+        })
+    }
+
+    fun update(wrapped: T) {
+        this.wrapped = wrapped
+        onWrappedUpdated()
+    }
+
+    abstract fun onWrappedUpdated()
+}
 
 /**
  * Wrap a [GameState] instance with observable hooks which make it easy to be used by Compose.
  */
-class GameStateViewModel(scope: CoroutineScope, private val events: Events, initialState: GameState) : GameState {
+class GameStateViewModel(scope: CoroutineScope, private val events: Events, initialState: GameState) : GameState, WrappingViewModel<GameState>(initialState) {
 
-    class CardViewModel(card: Card) : Card {
-        private lateinit var _card: Card
-
-        override val id get() = _card.id
-        override val template get() = _card.template
+    class CardViewModel(card: Card) : Card, WrappingViewModel<Card>(card) {
+        override val id get() = wrapped.id
+        override val template get() = wrapped.template
 
         private var _vpBase by mutableStateOf(0)
         override val vpBase get() = _vpBase
@@ -64,29 +127,21 @@ class GameStateViewModel(scope: CoroutineScope, private val events: Events, init
         private val _upgrades = mutableStateMapOf<UpgradeType, Unit>()
         override val upgrades: Set<UpgradeType> get() = _upgrades.keys
 
-        override fun compareTo(other: Card) = _card.compareTo(other)
+        override fun compareTo(other: Card) = wrapped.compareTo(other)
 
-        init {
-            update(card)
-        }
+        override fun onWrappedUpdated() {
+            _vpBase = wrapped.vpBase
+            _vpPassive = wrapped.vpPassive
+            _counter = wrapped.counter
 
-        fun update(card: Card) {
-            _card = card
-
-            _vpBase = card.vpBase
-            _vpPassive = card.vpPassive
-            _counter = card.counter
-
-            _traits.setTo(card.traits)
-            _upgrades.setTo(card.upgrades)
+            _traits.setTo(wrapped.traits)
+            _upgrades.setTo(wrapped.upgrades)
         }
     }
 
-    class BuildingViewModel(building: Building) : Building {
-        private lateinit var _building: Building
-
-        override val id get() = _building.id
-        override val blueprint get() = _building.blueprint
+    class BuildingViewModel(building: Building) : Building, WrappingViewModel<Building>(building) {
+        override val id get() = wrapped.id
+        override val blueprint get() = wrapped.blueprint
 
         private var _vpBase by mutableStateOf(0)
         override val vpBase get() = _vpBase
@@ -98,49 +153,33 @@ class GameStateViewModel(scope: CoroutineScope, private val events: Events, init
         private var _isActivated by mutableStateOf(false)
         override val isActivated get() = _isActivated
 
-        override fun compareTo(other: Building) = _building.compareTo(other)
+        override fun compareTo(other: Building) = wrapped.compareTo(other)
 
-        init {
-            update(building)
-        }
+        override fun onWrappedUpdated() {
+            _vpBase = wrapped.vpBase
+            _vpPassive = wrapped.vpPassive
+            _counter = wrapped.counter
 
-        fun update(building: Building) {
-            _building = building
-
-            _vpBase = building.vpBase
-            _vpPassive = building.vpPassive
-            _counter = building.counter
-
-            _isActivated = building.isActivated
+            _isActivated = wrapped.isActivated
         }
     }
 
-    class PileViewModel(pile: Pile) : Pile {
-        private lateinit var _pile: Pile
+    class PileViewModel(pile: Pile) : Pile, WrappingViewModel<Pile>(pile) {
+        override val id get() = wrapped.id
 
-        override val id get() = _pile.id
-
-        private val _cards = mutableStateListOf<Card>()
+        private val _cards = mutableStateListOf<CardViewModel>()
         override val cards: List<Card> = _cards
 
-        init {
-            update(pile)
-        }
-
-        fun update(pile: Pile) {
-            _pile = pile
-
-            _cards.setTo(pile.cards.toViewModelList())
+        override fun onWrappedUpdated() {
+            _cards.setTo(wrapped.cards)
         }
     }
 
-    class ShopViewModel(shop: Shop) : Shop {
-        private lateinit var _shop: Shop
-
+    class ShopViewModel(shop: Shop) : Shop, WrappingViewModel<Shop>(shop) {
         private var _tier by mutableStateOf(shop.tier)
         override val tier get() = _tier
 
-        private val _stock = mutableStateListOf<Card?>()
+        private val _stock = mutableStateListOf<CardViewModel?>()
         override val stock: List<Card?> = _stock
 
         private val _prices = mutableStateMapOf<Uuid, Int>()
@@ -149,65 +188,41 @@ class GameStateViewModel(scope: CoroutineScope, private val events: Events, init
         private val _tweaks = TweaksViewModel(shop.tweaks)
         override val tweaks: Tweaks<Tweak.Shop> = _tweaks
 
-        override val bought: Map<String, Int> get() = _shop.bought
-        override val rarities: List<Rarity> get() = _shop.rarities
+        override val bought: Map<String, Int> get() = wrapped.bought
+        override val rarities: List<Rarity> get() = wrapped.rarities
 
-        init {
-            update(shop)
-        }
+        override fun onWrappedUpdated() {
+            _tier = wrapped.tier
 
-        fun update(shop: Shop) {
-            _shop = shop
-
-            _tier = shop.tier
-
-            _stock.setTo(shop.stock.toViewModelList())
-            _prices.setTo(shop.prices)
-            _tweaks.update(shop.tweaks)
+            _stock.setTo(wrapped.stock)
+            _prices.setTo(wrapped.prices)
+            _tweaks.update(wrapped.tweaks)
         }
     }
 
-    class EffectsViewModel(effects: Effects): Effects {
-        private lateinit var _effects: Effects
-
+    class EffectsViewModel(effects: Effects): Effects, WrappingViewModel<Effects>(effects) {
         private val _items = mutableStateListOf<Effect<*>>()
         override val items: List<Effect<*>> = _items
 
-        init {
-            update(effects)
-        }
-
-        fun update(effects: Effects) {
-            _effects = effects
-
-            _items.setTo(effects.items)
+        override fun onWrappedUpdated() {
+            _items.setTo(wrapped.items)
         }
     }
 
-    class TweaksViewModel<T: Tweak>(tweaks: Tweaks<T>): Tweaks<T> {
-        private lateinit var _tweaks: Tweaks<T>
-
+    class TweaksViewModel<T: Tweak>(tweaks: Tweaks<T>): Tweaks<T>, WrappingViewModel<Tweaks<T>>(tweaks) {
         private val _items = mutableStateListOf<T>()
         override val items: List<T> = _items
 
-        override fun collect(predicate: (Tweak) -> Boolean) = _tweaks.collect(predicate)
+        override fun collect(predicate: (Tweak) -> Boolean) = wrapped.collect(predicate)
 
-        init {
-            update(tweaks)
-        }
-
-        fun update(tweaks: Tweaks<T>) {
-            _tweaks = tweaks
-
-            _items.setTo(tweaks.items)
+        override fun onWrappedUpdated() {
+            _items.setTo(wrapped.items)
         }
     }
 
-    private var _state = initialState
-
-    override val id get() = _state.id
-    override val random get() = _state.random
-    override val features get() = _state.features
+    override val id get() = wrapped.id
+    override val random get() = wrapped.random
+    override val features get() = wrapped.features
 
     private var _turn by mutableStateOf(initialState.turn)
     override val turn get() = _turn
@@ -225,90 +240,93 @@ class GameStateViewModel(scope: CoroutineScope, private val events: Events, init
     override val vp get() = _vp
 
     private var _numTurns by mutableStateOf(initialState.numTurns)
-    override val numTurns get() = _state.numTurns
+    override val numTurns get() = wrapped.numTurns
 
     private var _handSize by mutableStateOf(initialState.handSize)
-    override val handSize get() = _state.handSize
+    override val handSize get() = wrapped.handSize
 
     private val _shop = ShopViewModel(initialState.shop)
     override val shop: Shop = _shop
 
-    private val _deck = PileViewModel(_state.deck)
+    private val _deck = PileViewModel(wrapped.deck)
     override val deck: Pile = _deck
 
-    private val _hand = PileViewModel(_state.hand)
+    private val _hand = PileViewModel(wrapped.hand)
     override val hand: Pile = _hand
 
-    private val _street = PileViewModel(_state.street)
+    private val _street = PileViewModel(wrapped.street)
     override val street: Pile = _street
 
-    private val _discard = PileViewModel(_state.discard)
+    private val _discard = PileViewModel(wrapped.discard)
     override val discard: Pile = _discard
 
-    private val _jail = PileViewModel(_state.jail)
+    private val _jail = PileViewModel(wrapped.jail)
     override val jail: Pile = _jail
 
-    private val _graveyard = PileViewModel(_state.graveyard)
+    private val _graveyard = PileViewModel(wrapped.graveyard)
     override val graveyard: Pile = _graveyard
 
     private val _blueprints = mutableStateListOf<Blueprint>()
     override val blueprints: List<Blueprint> get() = _blueprints
 
-    private val _buildings = mutableStateListOf<Building>()
+    private val _buildings = mutableStateListOf<BuildingViewModel>()
     override val buildings: List<Building> get() = _buildings
 
-    private val _effects = EffectsViewModel(_state.effects)
-    override val effects: Effects = _state.effects
-    private val _tweaks = TweaksViewModel(_state.tweaks)
-    override val tweaks: Tweaks<Tweak.Game> = _state.tweaks
+    private val _effects = EffectsViewModel(wrapped.effects)
+    override val effects: Effects = wrapped.effects
+    private val _tweaks = TweaksViewModel(wrapped.tweaks)
+    override val tweaks: Tweaks<Tweak.Game> = wrapped.tweaks
 
-    override val data: Map<String, DataValue> get() = _state.data
+    override val data: Map<String, DataValue> get() = wrapped.data
 
     private val _history = mutableStateListOf<GameStateChanges>()
     override val history: List<GameStateChanges> = _history
 
-    override fun pileFor(card: Card): Pile? = _state.pileFor(card)
-    override fun canActivate(building: Building) = _state.canActivate(building)
+    override fun pileFor(card: Card): Pile? = wrapped.pileFor(card)
+    override fun canActivate(building: Building) = wrapped.canActivate(building)
+
 
     init {
         scope.launch {
             events.collect { evt ->
                 when (evt) {
                     is Event.GameStateUpdated -> {
-                        _state = evt.ctx.state
-
-                        _turn = _state.turn
-
-                        _cash = _state.cash
-                        _influence = _state.influence
-                        _luck = _state.luck
-
-                        _vp = _state.vp
-
-                        _numTurns = _state.numTurns
-                        _handSize = _state.handSize
-
-                        _shop.update(_state.shop)
-
-                        _deck.update(_state.deck)
-                        _hand.update(_state.hand)
-                        _street.update(_state.street)
-                        _discard.update(_state.discard)
-                        _jail.update(_state.jail)
-                        _graveyard.update(_state.graveyard)
-
-                        _blueprints.setTo(_state.blueprints)
-                        _buildings.setTo(_state.buildings.toViewModelList())
-
-                        _effects.update(_state.effects)
-                        _tweaks.update(_state.tweaks)
-
-                        _history.setTo(_state.history)
+                        update(evt.ctx.state)
                     }
 
                     else -> {}
                 }
             }
         }
+    }
+
+    override fun onWrappedUpdated() {
+        _turn = wrapped.turn
+
+        _cash = wrapped.cash
+        _influence = wrapped.influence
+        _luck = wrapped.luck
+
+        _vp = wrapped.vp
+
+        _numTurns = wrapped.numTurns
+        _handSize = wrapped.handSize
+
+        _shop.update(wrapped.shop)
+
+        _deck.update(wrapped.deck)
+        _hand.update(wrapped.hand)
+        _street.update(wrapped.street)
+        _discard.update(wrapped.discard)
+        _jail.update(wrapped.jail)
+        _graveyard.update(wrapped.graveyard)
+
+        _blueprints.setTo(wrapped.blueprints)
+        _buildings.setTo(wrapped.buildings)
+
+        _effects.update(wrapped.effects)
+        _tweaks.update(wrapped.tweaks)
+
+        _history.setTo(wrapped.history)
     }
 }
