@@ -35,6 +35,7 @@ import dev.bitspittle.racketeer.site.inputRef
 import dev.bitspittle.racketeer.site.model.*
 import dev.bitspittle.racketeer.site.model.account.Account
 import dev.bitspittle.racketeer.site.model.user.UserData
+import dev.bitspittle.racketeer.site.viewmodel.LoggerViewModel
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.launch
@@ -206,7 +207,7 @@ fun HomePage() {
 
                 val describer = Describer(gameData, showDebugInfo = { false })
                 val tooltipParser = TooltipParser(gameData, describer)
-                val stubLogger = MemoryLogger()
+                val stubLogger = LoggerViewModel()
 
                 TitleScreen(
                     scope,

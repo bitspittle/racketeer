@@ -369,13 +369,11 @@ private fun renderGameScreen(
 
 
         Column(Modifier.userSelect(UserSelect.Text).fillMaxWidth().padding(left = GAP).fontFamily("monospace")) {
-            key(gs.history.lastOrNull()) {
-                ctx.logger.messages.forEach { message ->
-                    if (message.isNotEmpty()) {
-                        SpanText(message)
-                    } else {
-                        Br()
-                    }
+            ctx.logger.messages.forEach { message ->
+                if (message.isNotEmpty()) {
+                    SpanText(message)
+                } else {
+                    Br()
                 }
             }
         }

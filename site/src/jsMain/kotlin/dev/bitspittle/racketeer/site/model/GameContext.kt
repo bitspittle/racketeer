@@ -23,6 +23,7 @@ import dev.bitspittle.racketeer.site.components.layouts.FirebaseData
 import dev.bitspittle.racketeer.site.model.account.Account
 import dev.bitspittle.racketeer.site.model.user.UserData
 import dev.bitspittle.racketeer.site.model.user.UserData.Settings
+import dev.bitspittle.racketeer.site.viewmodel.LoggerViewModel
 import kotlin.coroutines.suspendCoroutine
 
 @Stable
@@ -32,7 +33,7 @@ class GameContext(
     val events: Events,
     val userStats: UserData.Stats,
     val env: Environment,
-    val logger: MemoryLogger,
+    val logger: LoggerViewModel,
     val describer: Describer,
     val tooltipParser: TooltipParser,
     val enqueuers: Enqueuers,
@@ -50,7 +51,7 @@ suspend fun createGameConext(
     userStats: UserData.Stats,
     handleChoice: (ChoiceContext) -> Unit
 ): GameContext {
-    val logger = MemoryLogger()
+    val logger = LoggerViewModel()
 
     val copyableRandom = CopyableRandom()
     val env = Environment()
