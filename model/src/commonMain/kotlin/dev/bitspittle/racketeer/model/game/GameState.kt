@@ -347,35 +347,6 @@ class MutableGameState internal constructor(
     }
 }
 
-fun MutableGameState.stub(): MutableGameState {
-    return MutableGameState(
-        uuid4(),
-        random,
-        features,
-        enqueuers,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        MutableShop(random, emptyList(), emptySet(), listOf(0), emptyList(), emptyList()),
-        MutablePile(),
-        MutablePile(),
-        MutablePile(),
-        MutablePile(),
-        MutablePile(),
-        MutablePile(),
-        mutableListOf(),
-        mutableListOf(),
-        MutableEffects(),
-        MutableTweaks(),
-        mutableMapOf(),
-        mutableListOf(),
-    )
-}
-
 fun Card.isOwned(state: GameState) = state.pileFor(this).let { pile -> pile != null && pile in state.ownedPiles }
 
 fun Card.toMutableCard(state: MutableGameState): MutableCard {
