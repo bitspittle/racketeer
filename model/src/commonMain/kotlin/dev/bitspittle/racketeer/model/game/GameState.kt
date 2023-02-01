@@ -210,12 +210,12 @@ class MutableGameState internal constructor(
     }
     override fun pileFor(card: Card): Pile? = cardPiles[card.id]
 
-    private val _canActivate = mutableMapOf<Building, Boolean>()
+    private val _canActivate = mutableMapOf<Uuid, Boolean>()
     override fun canActivate(building: Building): Boolean {
         // We can sometimes activate a building which causes a choice that can end up with us triggering this method
         // without any buildings (because the choice causes an extra refresh, while the building has already been
         // removed because it was activated). Just return false in that case.
-        return _canActivate[building] ?: false
+        return _canActivate[building.id] ?: false
     }
 
     suspend fun move(card: Card, pileTo: Pile, listStrategy: ListStrategy = ListStrategy.BACK) {
@@ -238,7 +238,7 @@ class MutableGameState internal constructor(
 
         vp = owned.sumOf { card -> card.vpTotal } + buildings.sumOf { building -> building.vpTotal }
         buildings.forEach { building ->
-            _canActivate[building] = enqueuers.building.canActivate(this, building)
+            _canActivate[building.id] = enqueuers.building.canActivate(this, building)
         }
     }
 
