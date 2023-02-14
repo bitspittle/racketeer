@@ -31,8 +31,7 @@ private val CardStyleCommon =
         .borderRadius(5.percent)
         .backgroundColor(G.Colors.Card.Front)
         .color(Colors.Black)
-        .transitionProperty("translate")
-        .transitionDuration(100.ms)
+        .transition(CSSTransition("translate", 100.ms))
 
 val CardStyle = ComponentStyle("card") {
     base {

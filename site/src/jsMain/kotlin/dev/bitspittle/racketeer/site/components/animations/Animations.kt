@@ -4,12 +4,12 @@ import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.boxShadow
 import com.varabyte.kobweb.compose.ui.modifiers.scale
-import com.varabyte.kobweb.silk.components.animation.keyframes
+import com.varabyte.kobweb.silk.components.animation.Keyframes
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.px
 
 // Inspired by https://www.florin-pop.com/blog/2019/03/css-pulse-effect/
-val Pulse by keyframes {
+val Pulse by Keyframes {
     0.percent {
         Modifier.scale(0.95)
     }

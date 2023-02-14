@@ -1,6 +1,7 @@
 package dev.bitspittle.racketeer.site.components.layouts
 
 import androidx.compose.runtime.*
+import com.varabyte.kobweb.compose.css.CSSTransition
 import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.css.FontWeight
 import com.varabyte.kobweb.compose.css.PointerEvents
@@ -44,8 +45,7 @@ val VersionStyle = ComponentStyle("version") {
             .fontSize(G.Font.Sizes.ExtraSmall)
             .fontWeight(FontWeight.Bold)
             .opacity(0)
-            .transitionProperty("opacity")
-            .transitionDuration(100.ms)
+            .transition(CSSTransition("opacity", 100.ms))
     }
 
     hover {
